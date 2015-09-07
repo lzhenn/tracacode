@@ -1,0 +1,24 @@
+ Copyright (C) 1995-2014 - All Rights Reserved
+ University Corporation for Atmospheric Research
+ NCAR Command Language Version 6.2.0
+ The use of this software is governed by a License Agreement.
+ See http://www.ncl.ucar.edu/ for more details.
+warning:error attempting to fix non-monotonic aggregation variable
+
+Variable: ctrl_var_season
+Type: float
+Total Size: 35942400 bytes
+            8985600 values
+Number of Dimensions: 4
+Dimensions and sizes:	[time | 25] x [lev | 26] x [lat | 96] x [lon | 144]
+Coordinates: 
+            time: [2037..10797]
+            lev: [3.54463800000001..992.5560999999998]
+            lat: [ -90..  90]
+            lon: [   0..357.5]
+Number Of Attributes: 5
+  cell_methods :	time: mean
+  long_name :	JJA: Air heating rate
+  units :	K/kg/s
+  mdims :	1
+  NMO :	6

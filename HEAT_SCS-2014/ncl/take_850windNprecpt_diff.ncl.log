@@ -1,0 +1,33 @@
+ Copyright (C) 1995-2014 - All Rights Reserved
+ University Corporation for Atmospheric Research
+ NCAR Command Language Version 6.2.0
+ The use of this software is governed by a License Agreement.
+ See http://www.ncl.ucar.edu/ for more details.
+warning:ttest: encountered 6 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 6 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:VarVarWrite: Dimension names for dimension number (1) don't match, assigning name of rhs dimension to lhs and overwriting coordinate variable, use "(/../)" if this change is not desired
+warning:["Execute.c":8567]:Execute: Error occurred at or near line 290 in file take_850windNprecpt_diff.ncl
+
+warning:ttest: encountered 6 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 6 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 5 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 5 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 3 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 3 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 5 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 5 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 9 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 9 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 4 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 4 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 18 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 18 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 6 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 6 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 4 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 4 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 10 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 10 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 18 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+warning:ttest: encountered 18 cases where var1 and/or var2 were less than or equal to 0. Output set to missing values in these cases
+

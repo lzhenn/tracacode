@@ -1,0 +1,62 @@
+ Copyright (C) 1995-2014 - All Rights Reserved
+ University Corporation for Atmospheric Research
+ NCAR Command Language Version 6.2.0
+ The use of this software is governed by a License Agreement.
+ See http://www.ncl.ucar.edu/ for more details.
+
+
+Variable: lat (coordinate)
+Type: double
+Total Size: 128 bytes
+            16 values
+Number of Dimensions: 1
+Dimensions and sizes:	[lat | 16]
+Coordinates: 
+Number Of Attributes: 2
+  long_name :	latitude
+  units :	degrees_north
+(0)	0.9473684210526301
+(1)	2.84210526315789
+(2)	4.73684210526315
+(3)	6.631578947368411
+(4)	8.526315789473685
+(5)	10.42105263157895
+(6)	12.31578947368421
+(7)	14.21052631578947
+(8)	16.10526315789473
+(9)	  18
+(10)	19.89473684210526
+(11)	21.78947368421052
+(12)	23.68421052631578
+(13)	25.57894736842104
+(14)	27.47368421052632
+(15)	29.36842105263158
+
+
+Variable: lon (coordinate)
+Type: double
+Total Size: 136 bytes
+            17 values
+Number of Dimensions: 1
+Dimensions and sizes:	[lon | 17]
+Coordinates: 
+Number Of Attributes: 2
+  long_name :	longitude
+  units :	degrees_east
+(0)	 110
+(1)	112.5
+(2)	 115
+(3)	117.5
+(4)	 120
+(5)	122.5
+(6)	 125
+(7)	127.5
+(8)	 130
+(9)	132.5
+(10)	 135
+(11)	137.5
+(12)	 140
+(13)	142.5
+(14)	 145
+(15)	147.5
+(16)	 150

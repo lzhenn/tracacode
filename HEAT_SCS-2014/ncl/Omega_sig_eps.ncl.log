@@ -1,0 +1,9 @@
+ Copyright (C) 1995-2014 - All Rights Reserved
+ University Corporation for Atmospheric Research
+ NCAR Command Language Version 6.2.0
+ The use of this software is governed by a License Agreement.
+ See http://www.ncl.ucar.edu/ for more details.
+fatal:Number of dimensions on right hand side do not match number of dimension in left hand side
+fatal:["Execute.c":8567]:Execute: Error occurred at or near line 247 in file Omega_sig_eps.ncl
+
+
