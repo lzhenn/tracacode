@@ -28,7 +28,7 @@ begin
     ;g_filename = (/"sw","gz","fs","sz","gd1","gd2","gd3","gd4","gd5"/)
     g_filename = (/"sw","gz","gd1","gd4","gd5"/)
     ;g_fig_name =  "../fig/CMAQ_grid_city"
-    g_fig_name = "../fig/box-plot_city_contribution"
+    g_fig_name = "../fig/box-plot_PA1_city_contribution"
 
 ; ==============================================================
 ; Mission1.    Read PM2.5
@@ -98,7 +98,7 @@ begin
         ;contri(i,:) = -diff(i,:)
     end do
     printVarSummary(contri)
-    contri_no_day1 = contri(:,48:457)
+    contri_no_day1 = contri(:,82:95)
 ; ==============================================================
 ; Mission 3. Prepare the figure data
 ; ==============================================================
@@ -143,7 +143,7 @@ begin
     res@tmYLLabelFontHeightF = g_font
     res@tiMainFontHeightF    = g_font
     res@trYMinF = -0.1
-    res@trYMaxF = 1.0
+    res@trYMaxF = 0.5
     res@tmYROn = True
     res@tmXTOn = True
     res@tmXTBorderOn = True 

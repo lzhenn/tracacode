@@ -20,15 +20,16 @@ begin
 
 	g_font =0.035
 	g_species = "PM25"
-    g_pm25_species = (/"ASO4J","ASO4I","ANO3J","ANO3I","ANH4J","ANH4I","AALKJ","AXYL1J","AXYL2J","AXYL3J",\
-                       "ATOL1J","ATOL2J","ATOL3J","ABNZ1J","ABNZ2J","ABNZ3J","ATRP1J","ATRP2J","AISO1J","AISO2J",\
-                       "ASQTJ","AORGCJ","AORGPAI","AORGPAJ","AECJ","AECI","A25J","A25I","ANAJ","ACLJ",\
-                       "ACLI","ANAI","AISO3J","AOLGAJ","AOLGBJ"/)
+    g_pm25_species = (/"ANH4J","ANH4I"/);NH4 in pm25
+    ;g_pm25_species = (/"ASO4J","ASO4I","ANO3J","ANO3I","ANH4J","ANH4I","AALKJ","AXYL1J","AXYL2J","AXYL3J",\
+    ;                   "ATOL1J","ATOL2J","ATOL3J","ABNZ1J","ABNZ2J","ABNZ3J","ATRP1J","ATRP2J","AISO1J","AISO2J",\
+    ;                   "ASQTJ","AORGCJ","AORGPAI","AORGPAJ","AECJ","AECI","A25J","A25I","ANAJ","ACLJ",\
+    ;                   "ACLI","ANAI","AISO3J","AOLGAJ","AOLGBJ"/)
     g_filetime = (/"07","10","13","16","19","22","25"/)
     ;g_filename = (/"sw","gz","fs","sz","gd1","gd2","gd3","gd4","gd5"/)
     g_filename = (/"sw","gz","gd1","gd4","gd5"/)
     ;g_fig_name =  "../fig/CMAQ_grid_city"
-    g_fig_name = "../fig/box-plot_city_contribution"
+    g_fig_name = "../fig/box-plot_PA1_city_NH4_contribution"
 
 ; ==============================================================
 ; Mission1.    Read PM2.5
@@ -98,7 +99,7 @@ begin
         ;contri(i,:) = -diff(i,:)
     end do
     printVarSummary(contri)
-    contri_no_day1 = contri(:,48:457)
+    contri_no_day1 = contri(:,82:95)
 ; ==============================================================
 ; Mission 3. Prepare the figure data
 ; ==============================================================
@@ -143,7 +144,7 @@ begin
     res@tmYLLabelFontHeightF = g_font
     res@tiMainFontHeightF    = g_font
     res@trYMinF = -0.1
-    res@trYMaxF = 1.0
+    res@trYMaxF = 0.5
     res@tmYROn = True
     res@tmXTOn = True
     res@tmXTBorderOn = True 
@@ -183,7 +184,7 @@ begin
 	;siglnres@gsLineColor = "red"
 	
 	
-	res@tiMainString = "PM25"
+	res@tiMainString = "Ammonium"
 	plot_box = boxplot(wks,x,y1_box,opti,res,llres)	; All 3 options used...
 ;	dum1 = gsn_add_polyline(wks,plot_box,(/-3.,3./),(/0,0/),lnres)	
     dum2 = gsn_add_polymarker(wks,plot_box,x,contri_avg,mres) 

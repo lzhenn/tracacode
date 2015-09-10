@@ -28,7 +28,7 @@ begin
     ;g_filename = (/"sw","gz","fs","sz","gd1","gd2","gd3","gd4","gd5"/)
     g_filename = (/"sw","gz","gd1","gd4","gd5"/)
     ;g_fig_name =  "../fig/CMAQ_grid_city"
-    g_fig_name = "../fig/box-plot_city_contribution"
+    g_fig_name = "../fig/plot_diff"
 
 ; ==============================================================
 ; Mission1.    Read PM2.5
@@ -40,13 +40,17 @@ begin
     do i=1,dimsizes(g_pm25_species)-1
         ctrl_var     =ctrl_var+ctrl_in[:]->$g_pm25_species(i)$                 ; znw(bottom_top_stag)
     end do
+   
     dim_ctrl_var = dimsizes(ctrl_var)
     g_hours =dim_ctrl_var(0)
+
     ;read city grid data
     grid0 = asciiread("../data/CCTM/3km_eve_city_1.txt",(/152,110/),"float")
     grid1 = transpose(grid0)
     grid = conform(ctrl_var(:,0,:,:),grid1,(/1,2/))
-    
+    gz_grid_sum = sum(where(grid0 .eq. 1,1,0)) 
+
+
     ;read PM25 CCTM sen result
     sen_var = new((/dimsizes(g_filename),g_hours,1,110,152/),double)  
     do i = 0,dimsizes(g_filename)-1
@@ -70,7 +74,7 @@ begin
     sen_var_gz = new((/dimsizes(g_filename),g_hours,110,152/),double)
     sen_var_gz@_FillValue = -999.0
     sen_var_gz = where(grid_sen .eq. 1.00, sen_var(:,:,0,:,:), sen_var_gz@_FillValue)
-    
+
     ;sum of ctrl & sen
     ctrl_sum = new((/g_hours/),double)
     do i = 0,g_hours-1
@@ -83,7 +87,6 @@ begin
         end do
     end do
     
-    ;contribution
     diff = new((/dimsizes(g_filename),g_hours/),double)
     do i = 0,dimsizes(g_filename)-1
         diff(i,:) = sen_sum(i,:)-ctrl_sum
@@ -92,102 +95,35 @@ begin
     do i = 0,g_hours-1
         diff_sum(i) = -sum(diff(:,i))
     end do
-    contri = new((/dimsizes(g_filename),g_hours/),double)
-    do i = 0,dimsizes(g_filename)-1
-        contri(i,:) = -diff(i,:)/diff_sum
-        ;contri(i,:) = -diff(i,:)
-    end do
-    printVarSummary(contri)
-    contri_no_day1 = contri(:,48:457)
-; ==============================================================
-; Mission 3. Prepare the figure data
-; ==============================================================
+    
+;**********************************************************************************************
+;MISSION.3		Plot Clim monthly mean to check the result
+;**********************************************************************************************
+	wks = gsn_open_wks("eps",g_fig_name)       ; open file to plot 
+;-----------------------------------------------------------------------------
+    plot = new((/1/),graphic)
+ 
+    res                  = True       ; use plot options
+    
+    res@xyLineColors      = (/"blue","red","green","orange","purple"/)          ; change line color
 
-	labels    = g_filename	
-	x = (/-2., -1., 0., 1., 2./)
-	contri_avg = dim_avg_n_Wrap(contri_no_day1,1) ;each exp avg
-	do i = 0,dimsizes(labels)-1
-		qsort(contri_no_day1(i,:))
-	end do
+    res@trXMinF  = 1                   ; min value on x-axis
+    res@trXMaxF  = g_hours                   ; max value on x-axis
+    res@trYMinF  = -30
+    res@trYMaxF  = 1
+    res@xyLineThicknesses    = (/4.0,4.0,4.0,4.0,4.0/) 
+    res@xyDashPattern = (/0,0,0,0,0/)               ; Make curves all solid
+    ;res@xyMarkLineMode = "MarkLines"    ; Markers *and* lines
+    ;res@xyMarkers      = (/6,11,16/)    ; 3 different markers
+    ;res@xyMarkerColors = (/"blue","red","green","orange","purple"/)  ; 3 different colors
 
-    ; y1_box(a,b) 
-    ;   a = number of experiments
-    ;   b = 4 Max
-    ;   b = 3 Upper 1/4
-    ;   b = 2 Medium
-    ;   b = 1 Lower 1/4
-    ;   b = 0 Min
+    ;res@tiMainString      = "Mulitple XY plot with markers"      ; add title
 
-    noday1_size = dimsizes(contri_no_day1)
-    hours_noday1 = noday1_size(1)
-
-	y1_box = new((/dimsizes(labels),5/),"double")
-    quarter=toint(hours_noday1/4)
-	y1_box(:,0) = contri_no_day1(:,0)
-	y1_box(:,1) = contri_no_day1(:,quarter-1)
-	y1_box(:,2) = (contri_no_day1(:,quarter*2)+contri_no_day1(:,quarter*2-1))/2
-	y1_box(:,3) = contri_no_day1(:,3*quarter-1)
-	y1_box(:,4) = contri_no_day1(:,hours_noday1-1)
+    plot  = gsn_csm_xy (wks,ispan(1,g_hours,1),diff/gz_grid_sum,res) ; create plot
+ 
+ 
+ 
 
 
-	;********************************************************
-	; create the plot
-	;********************************************************   
-   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
-   ;plot_box = new((/4/),graphic)
-
-
-	res            = True                         ; plot mods desired
-	res@tmXBLabels = labels ; labels for each box
-    res@tmXBLabelFontHeightF = g_font
-    res@tmYLLabelFontHeightF = g_font
-    res@tiMainFontHeightF    = g_font
-    res@trYMinF = -0.1
-    res@trYMaxF = 1.0
-    res@tmYROn = True
-    res@tmXTOn = True
-    res@tmXTBorderOn = True 
-    res@tmYRBorderOn = True 
-	;**********************************************
-	; resources for polylines that draws the boxes
-	;**********************************************  
-	llres                   = True			
-	llres@gsLineThicknessF  = 3.0                 ; line thickness 
-	;**********************************************
-	; resources that control color and width of boxes
-	;**********************************************  
-	opti          = True			
-	opti@boxWidth = .5				; Width of box (x units)
-	opti@boxColors = (/"black","blue","red","orange","purple"/)  	; Color of box(es)
-	;***********************************************
-	
-	
-   ;***********************************************
-   ;add polymarker res
-   ;***********************************************
-   mres               = True                     ; marker mods desired
-   mres@gsMarkerIndex = 3                        ; polymarker style
-   mres@gsMarkerSizeF = 20.                      ; polymarker size
-   mres@gsMarkerColor = "navy blue"                    ; polymarker color
-   mres@gsMarkerThicknessF = 2.0
-
-   ;***********************************************
-   ;add refline res
-   ;***********************************************
-
-;	lnres = True
-;	lnres@gsLineThicknessF = 3.0
-	
-	;siglnres@gsLineThicknessF = 3.0
-	;siglnres@gsLineDashPattern = 2
-	;siglnres@gsLineColor = "red"
-	
-	
-	res@tiMainString = "PM25"
-	plot_box = boxplot(wks,x,y1_box,opti,res,llres)	; All 3 options used...
-;	dum1 = gsn_add_polyline(wks,plot_box,(/-3.,3./),(/0,0/),lnres)	
-    dum2 = gsn_add_polymarker(wks,plot_box,x,contri_avg,mres) 
-
-   gsn_panel(wks,plot_box,(/1,1/),False)
 
 end
