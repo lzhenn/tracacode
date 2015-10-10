@@ -5,7 +5,7 @@
 ;   2. Post-post process
 ;   3. High effeciency output to nc file
 ;                       Zhenning Li
-;                       2015-09-21
+;         Last modified: 2015-09-21 
 ;Last Edited:
 ;   2015-09-21  Create
 ;*************************************************************
