@@ -249,6 +249,7 @@ subroutine tphysidl(ztodt, state, tend)
         
         end if
       end do
+      call outfld('CONHEAT', ptend%s/cpair, pcols, lchnk)
 ! **** L_Zealot MOD END: Import Heating Profile ****
 
    elseif (idlflag == 2) then
