@@ -16,7 +16,7 @@
 ;   2015-04-05  Change to fit Team Server
 ;   2015-04-06  Change to fit Season jun
 ;   2015-06-23  Change to fit 973Report
-;   2015-10-05  Change to fit dycore test
+;   2015-10-10  Fit to dycore test
 ;*************************************************************
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
@@ -34,19 +34,15 @@ begin
     g_plev        =   (/925.0, 850.0, 700.0, 600.0, 500.0, 400.0, 300.0, 200.0, 100.0, 50.0/)
     g_res  = "f19"
     ;Define parameters
-    g_data_path = "../../data/model/pre/Ideal_phy/"
-    g_ctrl_case = "ideal_data"
-    g_sen_cases = (/"heat_data_0.25folding"/)
+    g_data_path = "../data/model/pro/"
+    g_ctrl_case = "B2000_F19G16_CAM4_CTRL"
+    g_sen_cases = (/"/HEAT_SCS_MAM-2015"/)
 
     g_season      =   "MAM"
     g_latS=-5.
     g_latN=45.
     g_lonW=90.
     g_lonE=160.
-    ;g_latS=-90.
-    ;g_latN=90.
-    ;g_lonE=360.
-    ;g_lonW=0.
 ; create an array of desired pressure levels:
 
     g_year_start   =   0 ;Rank from 0
@@ -58,15 +54,13 @@ begin
     g_run_period  =   "0250-0299"
         
     g_font = 0.035
+    g_var         = (/"UV","Z3","OMEGA"/)
 
-    g_var         = "Z3"
-    g_lev         = 12 
-
-    g_fig_name    =   "../../fig/model/diff_all_var_ideal_0.25folding_day369"
+    g_fig_name    =   "../fig/model/diff_"+g_run_period+"_"+g_year_start+"-"+g_year_end+"_850UV_500w_200Z3_HEAT-CON_"+g_season
     ;g_fig_rank    =   "B2000_F19G16_CAM4_CTRL"
     g_fig_rank    =   ""
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
-    g_fig_title   =    "Idealized Simulation"
+    g_fig_title   =    "CAM4 Physics ("+g_season+")"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -74,15 +68,39 @@ begin
 ; ==============================================================
 ; Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
-	all_files = systemfunc ("ls "+g_data_path+g_ctrl_case+"/*")
-	setfileoption("nc","suppressclose",False) ; close too many files
-	ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
+
+	ctrl_file1   = g_data_path+g_ctrl_case+"."+g_var(0)+".plvl.mon."+g_run_period+".nc"
+	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
+	ctrl_var1  = ctrl_in1->U(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+    ctrl_var2  = ctrl_in1->V(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+	
+    ctrl_file1   = g_data_path+g_ctrl_case+"."+g_var(1)+".plvl.mon."+g_run_period+".nc"
+	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
+	ctrl_var3  = ctrl_in1->$g_var(1)$(g_idx_start:g_idx_end,{200},:,:)			; p for unify the var name
+    
+    ctrl_file1   = g_data_path+g_ctrl_case+"."+g_var(2)+".plvl.mon."+g_run_period+".nc"
+	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
+	ctrl_var4  = ctrl_in1->$g_var(2)$(g_idx_start:g_idx_end,{500},:,:)			; p for unify the var name
+; ==============================================================
+; Mission 2. post-post process data to deserved results
+; ==============================================================
+	ctrl_var1_season = month_to_season (ctrl_var1, g_season)
+	ctrl_var1_season_clim = dim_avg_n_Wrap(ctrl_var1_season,0)
+	ctrl_var1_var = dim_variance_n(ctrl_var1_season,0)
+
+    ctrl_var2_season = month_to_season (ctrl_var2, g_season)
+	ctrl_var2_season_clim = dim_avg_n_Wrap(ctrl_var2_season,0)
+	ctrl_var2_var = dim_variance_n(ctrl_var2_season,0)
+
+	ctrl_var3_season = month_to_season (ctrl_var3, g_season)
+	ctrl_var3_season_clim = dim_avg_n_Wrap(ctrl_var3_season,0)
+	ctrl_var3_var = dim_variance_n(ctrl_var3_season,0)
+
+	ctrl_var4_season = month_to_season (ctrl_var4, g_season)
+	ctrl_var4_season_clim = dim_avg_n_Wrap(ctrl_var4_season,0)
+	ctrl_var4_var = dim_variance_n(ctrl_var4_season,0)
 
 
-	ctrl_var1  = ctrl_in[:]->$g_var$(:,g_lev,:,:)			; p for unify the var name
-	ctrl_var2 = ctrl_in[:]->U(:,23,:,:)			; p for unify the var name
-	ctrl_var3  = ctrl_in[:]->V(:,23,:,:)			; p for unify the var name
-	ctrl_var4  = ctrl_in[:]->OMEGA(:,19,:,:)			; p for unify the var name
 
 	do i = 0,dimsizes(g_sen_cases)-1
 ;*************************For F_Compset Heat***********************************
@@ -90,43 +108,77 @@ begin
     ; ==============================================================
     ; Mission 1. Open the file: Read only the user specified period
     ; ==============================================================
-	    all_files = systemfunc ("ls "+g_data_path+g_sen_cases(i)+"/*")
-	    setfileoption("nc","suppressclose",False) ; close too many files
-	    exp_in      = addfiles (all_files, "r")   ; note the "s" of addfile
 
-
-        exp_var1  = exp_in[:]->Z3(:,g_lev,:,:)			; p for unify the var name
-        exp_var2  = exp_in[:]->U(:,23,:,:)			; p for unify the var name
-        exp_var3  = exp_in[:]->V(:,23,:,:)			; p for unify the var name
-        exp_var4  = exp_in[:]->OMEGA(:,19,:,:)			; p for unify the var name
-
-        diff_var1 = exp_var1
-        diff_var2 = exp_var2
-        diff_var3 = exp_var3
-        diff_var4 = exp_var4
-
-        diff_var1 = (exp_var1-ctrl_var1)
-        diff_var2 = (exp_var2-ctrl_var2)
-        diff_var3 = (exp_var3-ctrl_var3)
-        diff_var4 = (exp_var4-ctrl_var4)
+        exp_file1   = g_data_path+g_sen_cases(i)+"."+g_var(0)+".plvl.mon."+g_run_period+".nc"
+        exp_in1     = addfile (exp_file1, "r")   ; note the "s" of addfile
         
-        diff_speed = diff_var2
-        diff_speed = sqrt(diff_var2*diff_var2+diff_var3*diff_var3)
-        diff_var2@_FillValue=-999
-        diff_var2 = where(diff_speed .lt. 0.5, diff_var2@_FillValue,diff_var2)
-	end do
+        exp_var1  = exp_in1->U(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+        exp_var2  = exp_in1->V(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+        
+        exp_file1   = g_data_path+g_sen_cases(i)+"."+g_var(1)+".plvl.mon."+g_run_period+".nc"
+        exp_in1     = addfile (exp_file1, "r")   ; note the "s" of addfile
+        exp_var3  = exp_in1->$g_var(1)$(g_idx_start:g_idx_end,{200},:,:)			; p for unify the var name
+        
+        exp_file1   = g_data_path+g_sen_cases(i)+"."+g_var(2)+".plvl.mon."+g_run_period+".nc"
+        exp_in1     = addfile (exp_file1, "r")   ; note the "s" of addfile
+        exp_var4  = exp_in1->$g_var(2)$(g_idx_start:g_idx_end,{500},:,:)			; p for unify the var name
+    ; ==============================================================
+    ; Mission 2. post-post process data to deserved results
+    ; ==============================================================
+        exp_var1_season = month_to_season (exp_var1, g_season)
+        exp_var1_season_clim = dim_avg_n_Wrap(exp_var1_season,0)
+        exp_var1_var = dim_variance_n(exp_var1_season,0)
 
-; ==============================================================
+        exp_var2_season = month_to_season (exp_var2, g_season)
+        exp_var2_season_clim = dim_avg_n_Wrap(exp_var2_season,0)
+        exp_var2_var = dim_variance_n(exp_var2_season,0)
+
+        exp_var3_season = month_to_season (exp_var3, g_season)
+        exp_var3_season_clim = dim_avg_n_Wrap(exp_var3_season,0)
+        exp_var3_var = dim_variance_n(exp_var3_season,0)
+
+        exp_var4_season = month_to_season (exp_var4, g_season)
+        exp_var4_season_clim = dim_avg_n_Wrap(exp_var4_season,0)
+        exp_var4_var = dim_variance_n(exp_var4_season,0)
+
+
+        diff_var1 = exp_var1_season_clim
+        diff_var2 = exp_var2_season_clim
+        diff_var3 = exp_var3_season_clim	
+        diff_var4 = exp_var4_season_clim	
+
+        diff_var1 = (exp_var1_season_clim-ctrl_var1_season_clim)
+        diff_var2 = (exp_var2_season_clim-ctrl_var2_season_clim)
+        diff_var3 = (exp_var3_season_clim-ctrl_var3_season_clim)		
+        diff_var4 = (exp_var4_season_clim-ctrl_var4_season_clim)		
+        diff_var3_sig = diff_var3
+
+		;============================================================
+		;Sig test
+		;============================================================
+
+		sigr = 0.1                        ; critical sig lvl for r
+
+		iflag= False                        ; population variance similar
+		prob1 = ttest(ctrl_var1_season_clim,ctrl_var1_var,g_nsmp, exp_var1_season_clim,exp_var1_var,g_nsmp, iflag, False) 
+		prob2 = ttest(ctrl_var2_season_clim,ctrl_var2_var,g_nsmp, exp_var2_season_clim,exp_var2_var,g_nsmp, iflag, False)
+		prob3 = ttest(ctrl_var3_season_clim,ctrl_var3_var,g_nsmp, exp_var3_season_clim,exp_var3_var,g_nsmp, iflag, False)
+		
+		diff_var1=mask(diff_var1, (prob1 .lt. sigr) .or. (prob2 .lt. sigr), True)
+		diff_var3_sig=mask(diff_var3, prob3 .lt. sigr, True)
+
+	end do
+ ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
-  plot_cn_pos = new((/9/),graphic)
-  plot_cn_neg = new((/9/),graphic)
-  plot_V = new((/9/),graphic)
-  plot_sh = new((/9/),graphic)
+  plot_cn_pos = new((/1/),graphic)
+  plot_cn_neg = new((/1/),graphic)
+  plot_V = new((/1/),graphic)
+  plot_sh = new((/1/),graphic)
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
@@ -136,7 +188,7 @@ begin
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
- do n = 0,8
+ do n = 0,0
     ;-----------------------------------------------------------------------------
       res                  = True       ; use plot options
 
@@ -159,8 +211,8 @@ begin
     ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
      res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-     res@cnMinLevelValF        = -20         ; set min contour level
-     res@cnMaxLevelValF        = 20          ; set max contour level
+     res@cnMinLevelValF        = -40         ; set min contour level
+     res@cnMaxLevelValF        = 40          ; set max contour level
      res@cnLevelSpacingF       = 2          ; set contour interval
 
     ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -222,10 +274,10 @@ begin
     ; res@tmYLLabelFontQuality =
     ;-----------------------------------------------------------------------------
          
-      res@gsnLeftString = "Day: "+(n+1)
+      res@gsnLeftString = "80 years"
       res@gsnRightString = g_fig_title
       res@gsnCenterString = ""
-      plot_sh(n) = gsn_csm_contour_map_ce(wks,diff_var1(n+1,:,:),res) ; create a default plot
+      plot_sh(n) = gsn_csm_contour_map_ce(wks,diff_var3,res) ; create a default plot
       
       res3                  = True       ; use plot options
       res3@cnFillOn         = False;True       ; Fill contours
@@ -245,13 +297,13 @@ begin
       res3@gsnRightString      = " "
 
 
-      plot_cn_pos(n) = gsn_csm_contour(wks,diff_var4(n+1,:,:),res3)
+      plot_cn_pos(n) = gsn_csm_contour(wks,diff_var4,res3)
 
       res3@cnLevels = (/-0.004,-0.012,-0.016,-0.02/)
       res3@cnLineColor      = "Blue"
       res3@cnLineDashPattern      = 1
       
-      plot_cn_neg(n) = gsn_csm_contour(wks,diff_var4(n+1,:,:),res3)
+      plot_cn_neg(n) = gsn_csm_contour(wks,diff_var4,res3)
 
     ;
     ;-----------------------------------------------------------------------------
@@ -276,7 +328,7 @@ begin
       vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
 
 
-      plot_V(n) = gsn_csm_vector(wks,diff_var2(n+1,:,:),diff_var3(n+1,:,:),vcres)
+      plot_V(n) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
 
     ;do i = 0,3
     ;    res@gsnLeftString = g_fig_rank(i)
@@ -286,50 +338,15 @@ begin
     ;end do
 
 
-    ;************************************************
-    ; create points for box in SCS and WNP
-    ;************************************************
-    ypts = (/ 15.0,  15.0, -0.0,  -0.0, 15.0/)
-    xpts = (/110.0, 155.0,155.0, 110.0,110.0/)
-    ;************************************************
-    ; add the box
-    ;************************************************
-    resp                  = True                      ; polyline mods desired
-    resp@gsLineColor      = "Black"                     ; color of lines
-    resp@gsLineThicknessF = 6.0                       ; thickness of lines
-    ;resp@gsLineLabelString= "test"                    ; adds a line label string
-
-;    ; create array of dummy graphic variables. This is required, b/c each line
-;    ; must be associated with a unique dummy variable.
-;
-;    dum = new(4,graphic)  
-;
-;    ; draw each line separately. Each line must contain two points.
-;    do i = 0 , 3
-;        dum(i)=gsn_add_polyline(wks,plot_sh(n),xpts(i:i+1),ypts(i:i+1),resp)      
-;    end do 
-;    ;************************************************
-;    ; create points for box in southern China
-;    ;************************************************
-;
-;    resp@gsLineDashPattern      = 1                     ; color of lines
-;    ypts = (/ 35.0,  35.0, 20.0,  20.0, 35.0/)
-;    xpts = (/110.0, 135.0,135.0, 110.0,110.0/)
-;
-;    dum2 = new(4,graphic)  
-;
-;    ; draw each line separately. Each line must contain two points.
-;    do i = 0 , 3
-;        dum2(i)=gsn_add_polyline(wks,plot_sh(n),xpts(i:i+1),ypts(i:i+1),resp)      
-;    end do 
       overlay(plot_sh(n),plot_cn_pos(n))
       overlay(plot_sh(n),plot_cn_neg(n))
       overlay(plot_sh(n),plot_V(n))
-    delete([/resp,res,res3,vcres/])
+    ;delete([/resp,res,res3,vcres/])
 end do
 
-  gsn_panel(wks,plot_sh(2::3),(/3,1/),False)
+  gsn_panel(wks,plot_sh(0),(/3,1/),False)
   
   draw(plot_sh)
   frame(wks)
+
 end 

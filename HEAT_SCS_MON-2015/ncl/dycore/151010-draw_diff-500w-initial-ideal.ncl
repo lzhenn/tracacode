@@ -239,7 +239,7 @@ begin
      
      
       res3@cnLevelSelectionMode="ExplicitLevels"
-      res3@cnLevels = (/0.002,0.006,0.008,0.01/)
+      ;res3@cnLevels = (/0.002,0.006,0.008,0.01/)
       res3@cnLineColor      = "Red"
       res3@gsnLeftString      = " "
       res3@gsnRightString      = " "
@@ -247,8 +247,8 @@ begin
 
       plot_cn_pos(n) = gsn_csm_contour(wks,diff_var4(n+1,:,:),res3)
 
-      res3@cnLevels = (/-0.004,-0.012,-0.016,-0.02/)
-      res3@cnLineColor      = "Blue"
+      res3@cnLevels = (/-0.004,-0.008,-0.012,-0.016,-0.02/)
+      ;res3@cnLineColor      = "Blue"
       res3@cnLineDashPattern      = 1
       
       plot_cn_neg(n) = gsn_csm_contour(wks,diff_var4(n+1,:,:),res3)
@@ -322,13 +322,13 @@ begin
 ;    do i = 0 , 3
 ;        dum2(i)=gsn_add_polyline(wks,plot_sh(n),xpts(i:i+1),ypts(i:i+1),resp)      
 ;    end do 
-      overlay(plot_sh(n),plot_cn_pos(n))
+      ;overlay(plot_sh(n),plot_cn_pos(n))
       overlay(plot_sh(n),plot_cn_neg(n))
-      overlay(plot_sh(n),plot_V(n))
+      ;overlay(plot_sh(n),plot_V(n))
     delete([/resp,res,res3,vcres/])
 end do
 
-  gsn_panel(wks,plot_sh(2::3),(/3,1/),False)
+  gsn_panel(wks,plot_sh(0),(/1,1/),False)
   
   draw(plot_sh)
   frame(wks)
