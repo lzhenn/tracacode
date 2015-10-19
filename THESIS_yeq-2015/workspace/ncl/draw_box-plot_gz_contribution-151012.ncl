@@ -26,10 +26,11 @@ begin
                        "ACLI","ANAI","AISO3J","AOLGAJ","AOLGBJ"/)
     g_filetime = (/"07","10","13","16","19","22","25"/)
     g_filename = (/"sw","gz","fs","sz","gd1","gd2","gd3","gd4","gd5"/)
+    g_new_filename = (/"SW","GZ","DH","Other"/)
     ;g_filename = (/"sw","gz","gd1","gd4","gd5"/)
     ;g_fig_name =  "../fig/CMAQ_grid_city"
     g_fig_name = "../fig/box-plot_gz_contribution"
-
+    g_new_hours = 432
 ; ==============================================================
 ; Mission1.    Read PM2.5
 ; ==============================================================
@@ -99,20 +100,22 @@ begin
     end do
 
     ;calculate fs,sz,gd1,gd2,gd3,gd5
-    contri(9,:) = sum(contri(2:6,:))+contri(8,:)
-    printVarSummary(contri)
-    exit
+    contri(9,:) = dim_sum_n_Wrap(contri(2:6,:),0)+contri(8,:)
+    
+    contribution = new((/dimsizes(g_new_filename),g_new_hours/),double)
+    contribution(0:1,:) = contri(0:1,48:479)
+    contribution(2,:) = contri(7,48:479)
+    contribution(3,:) = contri(9,48:479)
 ; ==============================================================
 ; Mission 3. Prepare the figure data
 ; ==============================================================
 
-	labels    = g_filename	
-	x = (/-2., -1., 0., 1., 2./)
-	contri_avg = dim_avg_n_Wrap(contri_no_day1,1) ;each exp avg
+	labels    = g_new_filename	
+	x = (/-2., -1., 0., 1./)
+	contri_avg = dim_avg_n_Wrap(contribution,1) ;each exp avg
 	do i = 0,dimsizes(labels)-1
-		qsort(contri_no_day1(i,:))
+		qsort(contribution(i,:))
 	end do
-
     ; y1_box(a,b) 
     ;   a = number of experiments
     ;   b = 4 Max
@@ -121,24 +124,18 @@ begin
     ;   b = 1 Lower 1/4
     ;   b = 0 Min
 
-    noday1_size = dimsizes(contri_no_day1)
-    hours_noday1 = noday1_size(1)
-
 	y1_box = new((/dimsizes(labels),5/),"double")
-    quarter=toint(hours_noday1/4)
-	y1_box(:,0) = contri_no_day1(:,0)
-	y1_box(:,1) = contri_no_day1(:,quarter-1)
-	y1_box(:,2) = (contri_no_day1(:,quarter*2)+contri_no_day1(:,quarter*2-1))/2
-	y1_box(:,3) = contri_no_day1(:,3*quarter-1)
-	y1_box(:,4) = contri_no_day1(:,hours_noday1-1)
-
-
+    quarter=toint(g_new_hours/4)
+	y1_box(:,0) = contribution(:,0)
+	y1_box(:,1) = contribution(:,quarter-1)
+	y1_box(:,2) = (contribution(:,quarter*2)+contribution(:,quarter*2-1))/2
+	y1_box(:,3) = contribution(:,3*quarter-1)
+	y1_box(:,4) = contribution(:,g_new_hours-1)
 	;********************************************************
 	; create the plot
 	;********************************************************   
-   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
-   ;plot_box = new((/4/),graphic)
-
+   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+   plot_box = new((/6/),graphic)
 
 	res            = True                         ; plot mods desired
 	res@tmXBLabels = labels ; labels for each box
@@ -146,7 +143,7 @@ begin
     res@tmYLLabelFontHeightF = g_font
     res@tiMainFontHeightF    = g_font
     res@trYMinF = -0.1
-    res@trYMaxF = 0.5
+    res@trYMaxF = 0.8
     res@tmYROn = True
     res@tmXTOn = True
     res@tmXTBorderOn = True 
@@ -161,7 +158,7 @@ begin
 	;**********************************************  
 	opti          = True			
 	opti@boxWidth = .5				; Width of box (x units)
-	opti@boxColors = (/"black","blue","red","orange","purple"/)  	; Color of box(es)
+	opti@boxColors = (/"blue","red","orange","purple"/)  	; Color of box(es)
 	;***********************************************
 	
 	
@@ -191,6 +188,6 @@ begin
 ;	dum1 = gsn_add_polyline(wks,plot_box,(/-3.,3./),(/0,0/),lnres)	
     dum2 = gsn_add_polymarker(wks,plot_box,x,contri_avg,mres) 
 
-   gsn_panel(wks,plot_box,(/1,1/),False)
+   gsn_panel(wks,plot_box,(/1,6/),False)
 
 end
