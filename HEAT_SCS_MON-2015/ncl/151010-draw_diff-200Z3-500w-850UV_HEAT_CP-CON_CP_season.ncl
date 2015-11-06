@@ -39,10 +39,16 @@ begin
     g_sen_cases = (/"/HEAT_SCS_MAM-2015"/)
 
     g_season      =   "MAM"
+
     g_latS=-5.
-    g_latN=45.
-    g_lonW=90.
-    g_lonE=160.
+    g_latN=90.
+    g_lonW=60.
+    g_lonE=240.
+
+    ;g_latS=-5.
+    ;g_latN=45.
+    ;g_lonW=90.
+    ;g_lonE=160.
 ; create an array of desired pressure levels:
 
     g_year_start   =   0 ;Rank from 0
@@ -56,7 +62,8 @@ begin
     g_font = 0.035
     g_var         = (/"UV","Z3","OMEGA"/)
 
-    g_fig_name    =   "../fig/model/diff_"+g_run_period+"_"+g_year_start+"-"+g_year_end+"_850UV_500w_200Z3_HEAT-CON_"+g_season
+    date_stamp = systemfunc("date '+%Y%m%d'")
+    g_fig_name    =   "../fig/model/diff_"+g_run_period+"_"+g_year_start+"-"+g_year_end+"_850UV_500w_200Z3_HEAT-CON_"+g_season+"-"+date_stamp
     ;g_fig_rank    =   "B2000_F19G16_CAM4_CTRL"
     g_fig_rank    =   ""
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
