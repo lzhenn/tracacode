@@ -33,6 +33,7 @@ begin
     g_data_path = "../../data/obv/MSL-197901-201503.nc"
     g_data_path1 = "../../data/obv/U-197901-201408.nc"
     g_data_path2 = "../../data/obv/V-197901-201408.nc"
+    g_data_path3 = "../../data/obv/VV-197901-201408.nc"
 
     g_latS=-5.
     g_latN=45.
@@ -48,7 +49,7 @@ begin
     g_date =systemfunc("date '+%Y%m%d'")
     g_fig_name    =   "../../fig/scientific_reports/Fig1b_MAM_850UV-SLP-"+g_date
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
-    g_fig_title     =  "UV850+Div & SLP Trend"
+    g_fig_title     =  "UV850 SLP W500 Trend"
     ;g_fig_title1   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" SST trend"  ;for dsstdt
     ;g_fig_title2   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" SST' trend" ;for dsst'dt
 
@@ -80,19 +81,31 @@ begin
     ilast   = ind(yyyymm3 .eq. g_lst_mon)
 	var3  =short2flt(ctrl_in3->v(istrt:ilast,{850},:,:))			; p for unify the var name
 
+    ctrl_file4   = g_data_path3
+	ctrl_in4     = addfile (ctrl_file4, "r")   ; note the "s" of addfile
+	time_hist4    = ctrl_in4->time
+    yyyymm4  = cd_calendar(time_hist4,-1)
+    istrt   = ind(yyyymm4 .eq. g_strt_mon)
+    ilast   = ind(yyyymm4 .eq. g_lst_mon)
+	var4  =short2flt(ctrl_in4->w(istrt:ilast,{500},:,:))			; p for unify the var name
+
+
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
     dvar1bar_dt       = var1(0,:,:) ; dvar1dt of the annual mean of var1
     dvar2bar_dt       = var2(0,:,:) ; dvar1dt of the annual mean of var1
     dvar3bar_dt       = var3(0,:,:) ; dvar1dt of the annual mean of var1
+    dvar4bar_dt       = var4(0,:,:) ; dvar1dt of the annual mean of var1
     cor_var1 = dvar1bar_dt
     cor_var2 = dvar2bar_dt
     cor_var3 = dvar3bar_dt
+    cor_var4 = dvar4bar_dt
     
     var1bar = month_to_season(var1,g_season)
     var2bar = month_to_season(var2,g_season)
     var3bar = month_to_season(var3,g_season)
+    var4bar = month_to_season(var4,g_season)
     
     ;var1bar=runave_Wrap(var1bar,3,0)
     ;var2bar=runave_Wrap(var2bar,3,0)
@@ -100,11 +113,13 @@ begin
     var1bar!0 = "time"
     var2bar!0 = "time"
     var3bar!0 = "time"
+    var4bar!0 = "time"
     dimz = dimsizes(var1bar)
     yr_length = dimz(0)
     dvar1bar_dt = (/regCoef(ispan(0,yr_length-1,1), var1bar(latitude|:,longitude|:,time|:))/)
     dvar2bar_dt = (/regCoef(ispan(0,yr_length-1,1), var2bar(latitude|:,longitude|:,time|:))/)
     dvar3bar_dt = (/regCoef(ispan(0,yr_length-1,1), var3bar(latitude|:,longitude|:,time|:))/)
+    dvar4bar_dt = (/regCoef(ispan(0,yr_length-1,1), var4bar(latitude|:,longitude|:,time|:))/)
    
 
     ;For the significance test
@@ -117,6 +132,8 @@ begin
     cor_var3 = escorc(ispan(0,yr_length-1,1),var3bar(latitude|:,longitude|:,time|:))
     prob_var3 = rtest(cor_var3,yr_length,0) 
     
+    cor_var4 = escorc(ispan(0,yr_length-1,1),var4bar(latitude|:,longitude|:,time|:))
+    prob_var4 = rtest(cor_var4,yr_length,0) 
     siglvl = 0.1            ;specified sig level
     
     cor_var1_sig = cor_var1
@@ -125,13 +142,20 @@ begin
     dvar3bar_dt_sig = dvar3bar_dt
     dvar2bar_dt_sig = dvar2bar_dt
 	dvar3bar_dt_sig= (/mask(dvar3bar_dt,(prob_var3 .lt. siglvl) .or. (prob_var2 .lt. siglvl),True)/)
-    
+ 
+
+   
     dvar1bar_dt = yr_length*dvar1bar_dt
+    
     dvar2bar_dt_sig = yr_length*dvar2bar_dt_sig
     dvar3bar_dt_sig = yr_length*dvar3bar_dt_sig
     dvar2bar_dt = yr_length*dvar2bar_dt
     dvar3bar_dt = yr_length*dvar3bar_dt
  
+    dvar4bar_dt = yr_length*dvar4bar_dt
+
+    dvar4bar_dt = where(prob_var4 .lt. siglvl,dvar4bar_dt,dvar4bar_dt@_FillValue)
+    dvar4bar_dt = where(dvar4bar_dt .gt. 0.025,dvar4bar_dt,dvar4bar_dt@_FillValue)
 
     clim_var2bar = dim_avg_n_Wrap(var2bar,0)
     clim_var3bar = dim_avg_n_Wrap(var3bar,0)
@@ -195,9 +219,9 @@ begin
     res@cnMaxLevelValF        =  250          ; set max contour level
     res@cnLevelSpacingF       =  25          ; set contour interval
 
-    ;res@cnMinLevelValF        =  100000          ; set min contour level
-    ;res@cnMaxLevelValF        =  102000          ; set max contour level
-    ;res@cnLevelSpacingF       =  50          ; set contour interval
+    ;res@cnMinLevelValF        =  -0.15          ; set min contour level
+    ;res@cnMaxLevelValF        =  0.15        ; set max contour level
+    ;res@cnLevelSpacingF       =  0.025          ; set contour interval
     ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -267,26 +291,6 @@ begin
     res@tmXBLabelFontHeightF = g_font
     res@tmYLLabelFontHeightF = g_font
     res@gsnStringFontHeightF = g_font
-;-------Set for contour plot--------
-  res_cn                  = True       ; use plot options
-  res_cn@cnFillOn         = False;True       ; Fill contours
-  res_cn@cnLinesOn        = True      ; turn off contour lines
-;for tp masking
-  res_cn@gsnFrame         = False
-  res_cn@gsnDraw  = False
-  res_cn@cnLineLabelsOn   = False      ; turn off contour line labels
-  ;res_cn@cnLineLabelFontHeightF = 0.02
-  res_cn@cnLineThicknessF = 2 
-  res_cn@cnInfoLabelOn = False
- 
- 
-  res_cn@cnLevelSelectionMode="ExplicitLevels"
-  res_cn@cnLevels = (/-10e-7,-20e-7,-30e-7/)
-  res_cn@cnLineColor      = "Red"
-  res_cn@gsnLeftString      = " "
-  res_cn@gsnRightString      = " "
-
-  plot_C(0) = gsn_csm_contour(wks,ddiv_var23bar_dt,res_cn)
 ;-------Set for the vector plot------
     vcres = True
     vcres@gsnDraw          = False           ; don't draw
@@ -306,8 +310,8 @@ begin
     vcres@vcRefAnnoFontHeightF = 0.018
     vcres@vcLineArrowThicknessF     = 1.5    ;thickness of vector
 
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.025
+  vcres@vcLineArrowHeadMinSizeF   = 0.015
+  vcres@vcLineArrowHeadMaxSizeF   = 0.03
     ;----------Set res sig-----------
     res_sig                  = True       ; use plot options
     res_sig@cnFillOn         = True       ; Fill contours
@@ -340,8 +344,19 @@ begin
   
   plot_sig(0) = gsn_csm_contour(wks,cor_var1_sig,res_sig)
 
+    res_sig@cnFillPattern = 5
+    res_sig@cnFillScaleF = 1.2
+    res_sig@cnMonoFillColor = True
+    res_sig@cnFillColor  =  "Red"
+    res_sig@cnFillDotSizeF = 0.0035
+
+
+  plot_C(0) = gsn_csm_contour(wks,dvar4bar_dt,res_sig)
+  
+  
   overlay(plot_S(0),plot_sig(0))
   overlay(plot_S(0),plot_C(0))
+  ;overlay(plot_S(0),plot_C(1))
   overlay(plot_S(0),plot_V(0))
 
  
