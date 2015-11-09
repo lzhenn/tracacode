@@ -288,7 +288,7 @@ begin
     vcres@vcLineArrowThicknessF     = 1.5    ;thickness of vector
 
     vcres@vcLineArrowHeadMinSizeF   = 0.015
-    vcres@vcLineArrowHeadMaxSizeF   = 0.03       
+    vcres@vcLineArrowHeadMaxSizeF   = 0.02       
     
     plot_V(n) = gsn_csm_vector(wks,diff_var2(n+1,:,:),diff_var3(n+1,:,:),vcres)
 
