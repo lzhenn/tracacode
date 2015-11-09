@@ -186,7 +186,7 @@ begin
     cor_var5 = escorc(ispan(0,yr_length-1,1),var4bar(latitude|:,longitude|:,time|:))
     prob_var5 = rtest(cor_var5,yr_length,0) 
     
-    siglvl = 0.15            ;specified sig level
+    siglvl = 0.1            ;specified sig level
     
     dvar2bar_dt_sig = dvar2bar_dt
     dvar3bar_dt_sig = dvar3bar_dt

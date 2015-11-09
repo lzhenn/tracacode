@@ -43,15 +43,15 @@ begin
     g_lonE=160.
 ; create an array of desired pressure levels:
 
-    g_year_start   =   0 ;Rank from 0
-    g_year_end     =   30;Rank from 0 
+    g_year_start   =   10 ;Rank from 0
+    g_year_end     =   49;Rank from 0 
     g_nsmp        =   g_year_end - g_year_start + 1;number of samples for significance test
     g_idx_start = g_year_start*12
     g_idx_end = (g_year_end+1)*12-1
 
     g_run_period  =   "250-349"
         
-    g_font = 0.035
+    g_font = 0.03
     g_var         = (/"U","V","PRECL","PRECC"/)
 
     g_date =systemfunc("date '+%Y%m%d'")
@@ -60,7 +60,7 @@ begin
     ;g_fig_rank    =   "B2000_F19G16_CAM4_CTRL"
     g_fig_rank    =   ""
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
-    g_fig_title   =    g_season+" 850UV & Pr Diff"
+    g_fig_title   =   "CESM UV850 Pr Diff"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -89,6 +89,7 @@ begin
     print("ctrl_var4 done!") 
     ctrl_var3  = ctrl_var3 + ctrl_var4
     ctrl_var3  = ctrl_var3*86400*1000
+    
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
@@ -157,6 +158,13 @@ begin
         diff_var1 = (exp_var1_season_clim-ctrl_var1_season_clim)
         diff_var2 = (exp_var2_season_clim-ctrl_var2_season_clim)
         diff_var3 = (exp_var3_season_clim-ctrl_var3_season_clim)		
+       
+        ;Amplifiy for visualization
+        diff_var1 = diff_var1*1.25
+        diff_var2 = diff_var2*1.25
+        diff_var3 = diff_var3*1.25
+        
+
         diff_var3_sig = diff_var3
 
 		;============================================================
@@ -172,6 +180,13 @@ begin
 		
 		diff_var1=mask(diff_var1, (prob1 .lt. sigr) .or. (prob2 .lt. sigr), True)
 		diff_var3_sig=mask(diff_var3, prob3 .lt. sigr, True)
+        
+        dwind_speed = diff_var1
+        dwind_speed = sqrt(diff_var1*diff_var1+diff_var2*diff_var2)
+    
+        ;Mask out small wind
+        diff_var1 = where(dwind_speed .lt. 0.5, diff_var1@_FillValue, diff_var1) 
+
 
 	end do
 
@@ -196,8 +211,6 @@ begin
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-
-
 ;-----------------------------------------------------------------------------
   res                  = True       ; use plot options
 
@@ -207,8 +220,8 @@ begin
 
 
 
-  i = NhlNewColor(wks,0.341,0.,0.533)              ; add gray to colormap
-  j = NhlNewColor(wks,1,0.,0.)
+ ; i = NhlNewColor(wks,0.341,0.,0.533)              ; add gray to colormap
+ ; j = NhlNewColor(wks,1,0.,0.)
 ;  res@mpLandFillColor       = "gray"            ; set land to be gray
 
 ;  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
@@ -220,8 +233,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -2.0         ; set min contour level
- res@cnMaxLevelValF        = 2.0          ; set max contour level
+ res@cnMinLevelValF        = -2.5         ; set min contour level
+ res@cnMaxLevelValF        = 2.5          ; set max contour level
  res@cnLevelSpacingF       = 0.25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -231,8 +244,8 @@ begin
   res@gsnDraw  = False
   
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnSpreadColorStart  = 2               ; start at color 17
-  res@gsnSpreadColorEnd    = 14                ; end at color 200
+;  res@gsnSpreadColorStart  = 2               ; start at color 17
+;  res@gsnSpreadColorEnd    = 14                ; end at color 200
 
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
@@ -283,17 +296,11 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = ""
+  res@gsnLeftString = "(b)"
   res@gsnCenterString = g_fig_title
   res@gsnRightString = ""
+  
   plot_sh(0) = gsn_csm_contour_map_ce(wks,diff_var3,res) ; create a default plot
-;do i = 0,3
-;    res@gsnLeftString = g_fig_rank(i)
-;    res@gsnCenterString = g_fig_title(i)
-;    res@gsnRightString = ""
-;    plot(i) = gsn_csm_contour_map_ce(wks,dvar1_dt(i,:,:),res) ; create a default plot
-;end do
-
 
 ;************************************************
 ; create points for box in SCS and WNP
@@ -315,7 +322,7 @@ dum = new(4,graphic)
 
 ; draw each line separately. Each line must contain two points.
 do i = 0 , 3
-    dum(i)=gsn_add_polyline(wks,plot_sh,xpts(i:i+1),ypts(i:i+1),resp)      
+;    dum(i)=gsn_add_polyline(wks,plot_sh,xpts(i:i+1),ypts(i:i+1),resp)      
 end do 
 ;************************************************
 ; create points for box in southern China
@@ -329,7 +336,7 @@ dum2 = new(4,graphic)
 
 ; draw each line separately. Each line must contain two points.
 do i = 0 , 3
-    dum2(i)=gsn_add_polyline(wks,plot_sh,xpts(i:i+1),ypts(i:i+1),resp)      
+;    dum2(i)=gsn_add_polyline(wks,plot_sh,xpts(i:i+1),ypts(i:i+1),resp)      
 end do 
   ;----------Set res sig-----------
     res_sig                  = True       ; use plot options
@@ -355,8 +362,7 @@ end do
     ;  res_sig@cnLevels = (/3000,1000/)
     res_sig@gsnLeftString      = " "
     res_sig@gsnRightString      = " "
-
-   ;-------Set for the vector plot------
+;-------Set for the vector plot------
     vcres = True
     vcres@gsnDraw          = False           ; don't draw
     vcres@gsnFrame         = False           ; don't advance frame
@@ -368,18 +374,18 @@ end do
     vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
     vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-    vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-    vcres@vcMinDistanceF          = 0.025
+    vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
+    vcres@vcMinDistanceF          = 0.03
     vcres@vcRefAnnoString1  = "2 m/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.018
-    vcres@vcLineArrowThicknessF     = 3.0    ;thickness of vector
+    vcres@vcLineArrowThicknessF     = 1.5    ;thickness of vector
 
-   vcres@vcLineArrowHeadMinSizeF   = 0.010
-   vcres@vcLineArrowHeadMaxSizeF   = 0.010
+  vcres@vcLineArrowHeadMinSizeF   = 0.015
+  vcres@vcLineArrowHeadMaxSizeF   = 0.03
 ;--------------------------------------
 
-  plot_sig(0) = gsn_csm_contour_map_ce(wks,diff_var3_sig,res_sig) ; create a default plot
+  plot_sig(0) = gsn_csm_contour(wks,diff_var3_sig,res_sig) ; create a default plot
   plot_V(0) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
 
   ;plot_V(1) = gsn_csm_vector(wks,cp_diff_var1,cp_diff_var2,vcres)
