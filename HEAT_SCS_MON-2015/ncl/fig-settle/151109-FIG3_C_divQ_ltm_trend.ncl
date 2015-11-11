@@ -14,6 +14,7 @@
 ;   2015-04-08  Change to fit ECMWF MONLTM MEAN
 ;   2015-05-03  Change to caculate season trend 
 ;   2015-06-22  Change to fit 973 Report Fig1
+;   2015-11-09  Change to fit GRL Fig.3c
 ;*************************************************************
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
@@ -29,9 +30,9 @@ begin
 ;================================================
 ;global variables
     ;Define parameters
-    g_data_path = "../data/obv/U-197901-201408.nc"
-    g_data_path2 = "../data/obv/V-197901-201408.nc"
-    g_data_path3 = "../data/obv/SH-197901-201408.nc"
+    g_data_path = "../../data/obv/U-197901-201408.nc"
+    g_data_path2 = "../../data/obv/V-197901-201408.nc"
+    g_data_path3 = "../../data/obv/SH-197901-201408.nc"
 
     ;g_latS=-30.
     ;g_latN=60.
@@ -47,14 +48,16 @@ begin
 ; create an array of desired pressure levels:
 
         
-    g_font = 0.035
+    g_font = 0.03
 
     g_strt_mon = 197901 
     g_lst_mon = 201312
-    g_fig_name    =   "../fig/obv/"+g_strt_mon+"-"+g_lst_mon+"_divQ_season_ltm_trend_"+g_season
+ 
+    g_date =systemfunc("date '+%Y%m%d'")
+    g_fig_name    =   "../../fig/scientific_reports/FIG3c_divQ-"+g_date
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
-    
-    g_fig_title     = g_season +(/" divQ Long-term Trend"," divQ DynT Long-term Trend"," divQ ThermoT Long-term Trend"/)
+  
+    g_fig_title     = (/"Integrated Moisture Flux Trend"," divQ DynT Long-term Trend"," divQ ThermoT Long-term Trend"/)
    ;g_fig_title1   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr trend"  ;for dsstdt
    ;g_fig_title2   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr' trend" ;for dsst'dt
 
@@ -89,7 +92,7 @@ begin
     ilast   = ind(yyyymm3 .eq. g_lst_mon)
 	var3  =short2flt(ctrl_in3->q(istrt:ilast,:,:,:))			; p for unify the var name
 
-
+    print("Var Read Done!")
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
@@ -114,7 +117,9 @@ begin
     
     wgt_qu = wgt_qu/9.8
     wgt_qv = wgt_qv/9.8
-    
+    delete([/qu,qv/])
+
+
     dQdx  = wgt_qu
     dQdy  = wgt_qv
     g_lon   =   wgt_qu&longitude
@@ -137,25 +142,26 @@ begin
     divQ   =   dQdx + dQdy
     divQ   =   -divQ*86400
     clmdivQ = dim_avg_n_Wrap(divQ,0) 
-    print(clmdivQ({0},:))
+    print("Total divQ Done!")
+    
     dvar1_dt          = divQ(0,:,:) ; dvar1dt of every indivadual season
     var1bar = month_to_season(divQ,g_season_rank(1))
     ;var1bar = (var1bar*10)/365.  ; for UDel datasets
     var1bar!0 = "time"
     dimz = dimsizes(var1bar)
     yr_length = dimz(0)
-    printVarSummary(var1bar)
     dvar1_dt(:,:) = (/regCoef(ispan(0,yr_length-1,1), var1bar(latitude|:,longitude|:,time|:))/)
     dvar1_dt = yr_length*dvar1_dt
-    
-    ;For the significance test
-    cor_var1 = escorc(ispan(0,yr_length-1,1),var1bar(latitude|:,longitude|:,time|:))
-    prob_var1 = rtest(cor_var1,yr_length,0) 
+    print("Trend Total divQ Done!")
 
-    siglvl = 0.1            ;specified sig level
+    ;For the significance test
+    ;cor_var1 = escorc(ispan(0,yr_length-1,1),var1bar(latitude|:,longitude|:,time|:))
+    ;prob_var1 = rtest(cor_var1,yr_length,0) 
+
+    ;siglvl = 0.1            ;specified sig level
     
-    cor_var1_sig = cor_var1
-    cor_var1_sig= mask(cor_var1,prob_var1 .lt. siglvl,True)
+    ;cor_var1_sig = cor_var1
+    ;cor_var1_sig= mask(cor_var1,prob_var1 .lt. siglvl,True)
 
     ;Convergence Term
     dudx = var1
@@ -178,6 +184,8 @@ begin
     wgt_conq=dim_sum_n(dp_cfm*conq,1)               ; sum(var*dp)
     wgt_conq = 86400*wgt_conq/9.8
 
+    delete([/dudx,dvdy,conq/])
+    print("Convergence Term Done!")
 
     ;Advection Term
     dqdx = var3
@@ -200,17 +208,17 @@ begin
     wgt_adv_q=adv_q(:,0,:,:)
     wgt_adv_q=dim_sum_n(dp_cfm*adv_q,1)               ; sum(var*dp)
     wgt_adv_q = 86400*wgt_adv_q/9.8
+    print("Advection Term Done!")
 
     dconq_dt          = wgt_conq(0,:,:) ; dvar1dt of every indivadual season
-    printVarSummary(wgt_conq)
     conq_bar = month_to_season(wgt_conq,g_season)
-    ;var1bar = (var1bar*10)/365.  ; for UDel datasets
     conq_bar!0 = "time"
     dimz = dimsizes(conq_bar)
     yr_length = dimz(0)
     dconq_dt(:,:) = (/regCoef(ispan(0,yr_length-1,1), conq_bar(latitude|:,longitude|:,time|:))/)
     dconq_dt = -yr_length*dconq_dt
- 
+    print("Trend Convergence Term Done!")
+
     dadvq_dt          = wgt_adv_q(0,:,:) ; dvar1dt of every indivadual season
     advq_bar = month_to_season(wgt_adv_q,g_season_rank(1))
     ;var1bar = (var1bar*10)/365.  ; for UDel datasets
@@ -219,7 +227,24 @@ begin
     yr_length = dimz(0)
     dadvq_dt(:,:) = (/regCoef(ispan(0,yr_length-1,1), advq_bar(latitude|:,longitude|:,time|:))/)
     dadvq_dt = -yr_length*dadvq_dt
+    print("Trend Advection Term Done!")
+
+    delete([/conq_bar,advq_bar,wgt_conq/])
+
+    ;Caculate Relative Contribution
+    contrib_conq = dconq_dt
+    contrib_adv = dadvq_dt
+    contrib_conq = where(abs(dvar1_dt) .lt. 1.0, contrib_conq@_FillValue, contrib_conq)
+    contrib_adv = where(abs(dvar1_dt) .lt. 1.0, contrib_adv@_FillValue, contrib_adv)
+    contrib_conq = contrib_conq / dvar1_dt
+    contrib_adv = contrib_adv / dvar1_dt
     
+    contrib_conq_pos = contrib_conq
+    contrib_adv_pos = contrib_adv
+
+    contrib_conq_pos = where(contrib_conq .lt. 0.5, contrib_conq@_FillValue, contrib_conq)
+    contrib_adv_pos = where(contrib_adv .lt. 0.6, contrib_adv@_FillValue, contrib_adv)
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -228,10 +253,11 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  plot_sh = new((/3/),graphic)
-  plot_cn_pos = new((/1/),graphic)
-  plot_cn_neg = new((/1/),graphic)
-  plot_sig = new((/1/),graphic)
+  plot_sh = new((/1/),graphic)
+  plot_cn_conv_pos = new((/1/),graphic)
+  plot_cn_conv_neg = new((/1/),graphic)
+  plot_cn_adv_pos = new((/1/),graphic)
+  plot_cn_adv_neg = new((/1/),graphic)
 ;  plot_V = new((/2/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -241,7 +267,9 @@ begin
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
- gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"MPL_BrBG")
+ gsn_define_colormap(wks,"MPL_RdBu")
 
 
 ;-----------------------------------------------------------------------------
@@ -329,137 +357,11 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = ""
+  res@gsnLeftString = "(c)"
   res@gsnCenterString = g_fig_title(0)
   res@gsnRightString = ""
   plot_sh(0) = gsn_csm_contour_map_ce(wks,dvar1_dt(:,:),res) ; create a default plot
-  res@gsnCenterString = g_fig_title(1)
-  plot_sh(1) = gsn_csm_contour_map_ce(wks,dconq_dt(:,:),res) ; create a default plot
-  res@gsnCenterString = g_fig_title(2)
-  plot_sh(2) = gsn_csm_contour_map_ce(wks,dadvq_dt(:,:),res) ; create a default plot
-;do i = 0,3
-;    res@gsnLeftString = g_fig_rank(i)
-;    res@gsnCenterString = g_fig_title(i)
-;    res@gsnRightString = ""
-;    plot(i) = gsn_csm_contour_map_ce(wks,dvar1_dt(i,:,:),res) ; create a default plot
-;end do
-
-
-;-------------------------------------------------------------------
-  res3                  = True       ; use plot options
-  res3@cnFillOn         = False;True       ; Fill contours
-  res3@cnLinesOn        = True      ; turn off contour lines
-;for tp masking
-  res3@gsnFrame         = False
-  res3@gsnDraw  = False
-  res3@cnLineLabelsOn   = False      ; turn off contour line labels
-  res3@cnLineThicknessF = 4 
-  res3@cnInfoLabelOn = False
- 
- 
-  res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/1.2/)
-  res3@cnLineColor      = "Red"
-  res3@gsnLeftString      = " "
-  res3@gsnRightString      = " "
-
-
- ; plot_cn_pos(0) = gsn_csm_contour(wks,dvar2_dt(1,:,:),res3)
-
-  res3@cnLevels = (/-1.2/)
-  res3@cnLineColor      = "Blue"
-  res3@cnLineDashPattern      = 1
-  
- ; plot_cn_neg(0) = gsn_csm_contour(wks,dvar2_dt(1,:,:),res3)
-
-;************************************************
-; create points for box in SCS and WNP
-;************************************************
-ypts = (/ 15.0,  15.0, -0.0,  -0.0, 15.0/)
-xpts = (/110.0, 155.0,155.0, 110.0,110.0/)
-;************************************************
-; add the box
-;************************************************
-resp                  = True                      ; polyline mods desired
-resp@gsLineColor      = "Black"                     ; color of lines
-resp@gsLineThicknessF = 6.0                       ; thickness of lines
-;resp@gsLineLabelString= "test"                    ; adds a line label string
-
-; create array of dummy graphic variables. This is required, b/c each line
-; must be associated with a unique dummy variable.
-
-dum = new(12,graphic)  
-
-; draw each line separately. Each line must contain two points.
-do i = 0 , 3
-do j = 0, 2
-    dum(3*i+j)=gsn_add_polyline(wks,plot_sh(j),xpts(i:i+1),ypts(i:i+1),resp)      
-end do
-end do 
-;************************************************
-; create points for box in southern China
-;************************************************
-
-resp@gsLineDashPattern      = 1                     ; color of lines
-ypts = (/ 35.0,  35.0, 20.0,  20.0, 35.0/)
-xpts = (/110.0, 135.0,135.0, 110.0,110.0/)
-
-dum2 = new(12,graphic)  
-
-; draw each line separately. Each line must contain two points.
-do i = 0 , 3
-do j = 0, 2
-    dum2(3*i+j)=gsn_add_polyline(wks,plot_sh(j),xpts(i:i+1),ypts(i:i+1),resp)      
-end do
-end do 
-
-
-;-------------------------------------------------
-;-----------------------------------------------------
-  res4                  = True       ; use plot options
-  res4@cnFillOn         = True       ; Fill contours
-  res4@cnLinesOn        = False;True      ; turn off contour lines
-  res4@gsnFrame         = False
-  res4@gsnDraw  = False
-  res4@cnLineLabelsOn   = False      ; turn off contour line labels
-  res4@cnLineThicknessF = 2
-  res4@cnLineColor      = "black"
-  res4@cnInfoLabelOn = False
-  res4@cnMonoFillPattern    = True;False
-  res4@cnFillPattern = 17
-  res4@cnMonoFillScale = True
-  res4@cnFillScaleF = 1.
-  res4@cnMonoFillColor = True
-  res4@cnFillColor  =  "red"
-  res4@cnFillDotSizeF = 0.003
- 
-  res4@lbLabelBarOn = False;True   ; turn off the label bar
- 
-;  res4@cnLevelSelectionMode="ExplicitLevels"
-;  res4@cnLevels = (/3000,1000/)
-  res4@gsnLeftString      = " "
-  res4@gsnRightString      = " "
-;-----------------------------------------------------------------------------
-          
-  vcres = True
-  vcres@gsnDraw          = False           ; don't draw
-  vcres@gsnFrame         = False           ; don't advance frame
-  vcres@gsnRightString   = " "             ; turn off right string
-  vcres@gsnLeftString    = " "             ; turn off left string
-  vcres@gsnCenterString    = " "
- 
-  vcres@vcRefAnnoOn      = True
-  vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.017
-  vcres@vcRefAnnoString1  = "5 m/s"
-  vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.01
- 
-  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-    ;----------Set res sig-----------
+;----------Set res sig-----------
     res_sig                  = True       ; use plot options
     res_sig@cnFillOn         = True       ; Fill contours
     res_sig@cnLinesOn        = False;True      ; turn off contour lines
@@ -470,13 +372,12 @@ end do
     ;res_sig@cnLineColor      = "black"
     res_sig@cnInfoLabelOn = False
     res_sig@cnMonoFillPattern    = True;False
-    res_sig@cnFillPattern = 17
+    res_sig@cnFillPattern = 5
     res_sig@cnMonoFillScale = True
-    res_sig@cnFillScaleF = 2.
+    res_sig@cnFillScaleF = 1.2
     res_sig@cnMonoFillColor = True
-    res_sig@cnFillColor  =  "red"
-    res_sig@cnFillDotSizeF = 0.005
-
+    res_sig@cnFillColor  =  "darkgreen"
+    res_sig@cnFillDotSizeF = 0.0035
     res_sig@lbLabelBarOn = False;True   ; turn off the label bar
 
     ;  res_sig@cnLevelSelectionMode="ExplicitLevels"
@@ -484,29 +385,16 @@ end do
     res_sig@gsnLeftString      = " "
     res_sig@gsnRightString      = " "
 
+    plot_cn_conv_pos(0) = gsn_csm_contour(wks,contrib_conq_pos,res_sig)
+    
+    res_sig@cnFillPattern = 17
+    res_sig@cnFillColor  =  "black"
+    plot_cn_adv_pos(0) =  gsn_csm_contour(wks,contrib_adv_pos,res_sig)
 
 
-;  vcres@vcLineArrowHeadMinSizeF   = 0.010
-;  vcres@vcLineArrowHeadMaxSizeF   = 0.130
-;--------------------------------------
-
-  ;plot_V(0) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
-
-  ;plot_V(1) = gsn_csm_vector(wks,cp_diff_var1,cp_diff_var2,vcres)
-
-;  plot_sh(0) = gsn_csm_contour(wks,diff_var3_sig,res4)
-
-  ;plot_sig(0) = gsn_csm_contour(wks,cor_var1_sig,res_sig)
-
-  ; overlay(plot_sh(0),plot_sig(0))
-  ; overlay(plot_sh(0),plot_cn_neg(0))
-  ;overlay(plot(1),plot_sh(1))
-
-  ;overlay(plot(0),plot_V(0))
-  ;overlay(plot(1),plot_V(1))
-
- 
-  gsn_panel(wks,plot_sh,(/3,1/),False)
+   overlay(plot_sh(0),plot_cn_conv_pos(0))
+   overlay(plot_sh(0),plot_cn_adv_pos(0))
+  gsn_panel(wks,plot_sh,(/1,1/),False)
 
   draw(plot_sh)
   frame(wks)

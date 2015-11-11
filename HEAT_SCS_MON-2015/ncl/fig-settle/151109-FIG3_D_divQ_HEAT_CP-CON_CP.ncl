@@ -14,6 +14,7 @@
 ;   2015-04-08  Change to fit ECMWF MONLTM MEAN
 ;   2015-05-03  Change to caculate season trend 
 ;   2015-06-22  Change to fit 973 Report Fig1
+;   2015-11-09  Change to fit GRL Fig.3d
 ;*************************************************************
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
@@ -21,12 +22,12 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
-    g_plev        =   (/1000.0, 975.0, 950.0, 925.0, 850.0, 700.0, 600.0, 500.0, 400.0, 300.0, 200.0, 100.0, 50.0/)
     g_res  = "f19"
     ;Define parameters
-    g_data_path = "../data/model/pro/"
-    g_ctrl_case = "B2000_F19G16_CAM4_CTRL"
-    g_sen_cases = (/"/HEAT_SCS_MAM-2015"/)
+    g_data_path = "../../data/model/pro/"
+    g_ctrl_case = "B2000_f19g16_CP_CTRL"
+    g_sen_cases = (/"HEAT_SCS_MAM-2015"/)
+
 
     g_season      =   "MAM"
     g_latS=-5.
@@ -35,22 +36,24 @@ begin
     g_lonE=160.
 ; create an array of desired pressure levels:
 
-    g_year_start   =   0 ;Rank from 0
+    g_year_start   =   10 ;Rank from 0
     g_year_end     =   49;Rank from 0 
     g_nsmp        =   g_year_end - g_year_start + 1;number of samples for significance test
     g_idx_start = g_year_start*12
     g_idx_end = (g_year_end+1)*12-1
 
-    g_run_period  =   "0250-0299"
+    g_run_period  =   "250-349"
         
-    g_font = 0.035
-    g_var         = (/"UV","Q"/)
+    g_font = 0.03
+    g_var         = (/"U","V","Q"/)
 
-    g_fig_name    =   "../fig/model/diff_"+g_run_period+"_"+g_year_start+"-"+g_year_end+"_divQ_HEAT-CON_"+g_season
+    g_date =systemfunc("date '+%Y%m%d'")
+    g_fig_name    =   "../../fig/scientific_reports/FIG4d_diff_divQ-"+g_date
+
     ;g_fig_rank    =   "B2000_F19G16_CAM4_CTRL"
-    g_fig_rank    =   ""
+    g_fig_rank    =   "(d)"
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
-    g_fig_title   =    g_season+" divQ "+(/"","DynT"," ThermoT"/)+" Diff"
+    g_fig_title   =    " CESM Integrated Moisture Flux Diff"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -58,32 +61,69 @@ begin
 ; ==============================================================
 ; Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
-
-	ctrl_file1   = g_data_path+g_ctrl_case+"."+g_var(0)+".plvl.mon."+g_run_period+".nc"
-	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-	ctrl_var1  = ctrl_in1->U(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
+    ctrl_file1   = g_data_path+g_ctrl_case+"/"+g_ctrl_case+".cam.h0.U."+g_run_period+".nc"
+    ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
+    ctrl_var1  = ctrl_in1->U(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
+    print("ctrl_var1 done!") 
+    ctrl_file1   = g_data_path+g_ctrl_case+"/"+g_ctrl_case+".cam.h0.V."+g_run_period+".nc"
+    ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
     ctrl_var2  = ctrl_in1->V(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
-	
-    ctrl_file1   = g_data_path+g_ctrl_case+"."+g_var(1)+".plvl.mon."+g_run_period+".nc"
-	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-	ctrl_var3  = ctrl_in1->Q(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
+    
+    print("ctrl_var2 done!") 
+    ctrl_file1   = g_data_path+g_ctrl_case+"/"+g_ctrl_case+".cam.h0.Q."+g_run_period+".nc"
+    ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
+    ctrl_var3  = ctrl_in1->Q(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
+
+    print("ctrl_var3 done!") 
 ;*************************For F_Compset Heat***********************************
 
+;  Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
-; Mission 1. Open the file: Read only the user specified period
-; ==============================================================
-
-    exp_file1   = g_data_path+g_sen_cases(0)+"."+g_var(0)+".plvl.mon."+g_run_period+".nc"
+    exp_file1   = g_data_path+g_sen_cases(0)+"/"+g_sen_cases(0)+".cam.h0.U."+g_run_period+".nc"
     exp_in1     = addfile (exp_file1, "r")   ; note the "s" of addfile
-    
     exp_var1  = exp_in1->U(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
+    
+    print("exp_var1 done!") 
+    exp_file1   = g_data_path+g_sen_cases(0)+"/"+g_sen_cases(0)+".cam.h0.V."+g_run_period+".nc"
+    exp_in1     = addfile (exp_file1, "r")   ; note the "s" of addfile
     exp_var2  = exp_in1->V(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
     
-    exp_file1   = g_data_path+g_sen_cases(0)+"."+g_var(1)+".plvl.mon."+g_run_period+".nc"
+    print("exp_var2 done!") 
+    exp_file1   = g_data_path+g_sen_cases(0)+"/"+g_sen_cases(0)+".cam.h0.Q."+g_run_period+".nc"
     exp_in1     = addfile (exp_file1, "r")   ; note the "s" of addfile
     exp_var3  = exp_in1->Q(g_idx_start:g_idx_end,:,:,:)			; p for unify the var name
+    
+    print("exp_var3 done!") 
 
 
+    ;Amplify to fit the plot
+    ctrl_var1 = ctrl_var1*1.25
+    ctrl_var2 = ctrl_var2*1.25
+    ctrl_var3 = ctrl_var3*1.25
+    
+    exp_var1 = exp_var1*1.25
+    exp_var2 = exp_var2*1.25
+    exp_var3 = exp_var3*1.25
+    
+; ==============================================================
+; Mission 2. post-post process data to deserved results
+; ==============================================================
+    ctrl_qu  = ctrl_var3
+    ctrl_qv  = ctrl_var3
+    ctrl_qu  = ctrl_var1*ctrl_var3
+    ctrl_qv  = ctrl_var2*ctrl_var3
+    ctrl_wgt_qu = ctrl_qu(:,0,:,:)
+    ctrl_wgt_qv = ctrl_qv(:,0,:,:)
+    
+    
+    ;------Cal DivQ-------
+    ;-----------Follow is the vertical integral-----------
+    pver=ctrl_qu&lev_p
+    pver=pver*100
+    pver@units="Pa"
+    dp=dpres_plevel(pver,100000,5000,0)              ; caculate dp
+    dp_cfm=conform_dims(dimsizes(ctrl_qu),dp,1)        ; confirm dp to caculate sum(var*dp)
+    ctrl_wgt_qu=dim_sum_n(dp_cfm*ctrl_qu,1)               ; sum(var*dp)
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
@@ -116,6 +156,9 @@ begin
     g_lon   =   ctrl_wgt_qu&lon
     g_lat   =   ctrl_wgt_qu&lat
     g_nlat  =   dimsizes(g_lat)
+
+    delete([/ctrl_qu,ctrl_qv/])
+    
     ;dQdx
     dlon = (g_lon(2)-g_lon(1))*0.0174533 ; convert to radians
     do i=0,g_nlat-1                      ; loop over each latitude
@@ -186,7 +229,7 @@ begin
        
     ctrl_wgt_adv_qbar = month_to_season(ctrl_wgt_adv_q,g_season)
 
-
+    print("CTRL process done")
 
     exp_qu  = exp_var3
     exp_qv  = exp_var3
@@ -301,6 +344,22 @@ begin
     clm_diff_conQ = dim_avg_n_Wrap(diff_conQ,0)
     clm_diff_advQ = dim_avg_n_Wrap(diff_advQ,0)
 
+    ;Caculate Relative Contribution
+    contrib_conq = clm_diff_conQ
+    contrib_adv = clm_diff_advQ
+    contrib_conq = where(abs(clm_diff_divQ) .lt. 1.0, contrib_conq@_FillValue, contrib_conq)
+    contrib_adv = where(abs(clm_diff_divQ) .lt. 1.0, contrib_adv@_FillValue, contrib_adv)
+    contrib_conq = contrib_conq / clm_diff_divQ
+    contrib_adv = contrib_adv / clm_diff_divQ
+    
+    contrib_conq_pos = contrib_conq
+    contrib_adv_pos = contrib_adv
+
+    contrib_conq_pos = where(contrib_conq .lt. 0.5, contrib_conq@_FillValue, contrib_conq)
+    contrib_adv_pos = where(contrib_adv .lt. 0.5, contrib_adv@_FillValue, contrib_adv)
+
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -309,10 +368,11 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  plot_sh = new((/3/),graphic)
-  plot_cn_pos = new((/1/),graphic)
-  plot_cn_neg = new((/1/),graphic)
-  plot_sig = new((/1/),graphic)
+  plot_sh = new((/1/),graphic)
+  plot_cn_conv_pos = new((/1/),graphic)
+  plot_cn_conv_neg = new((/1/),graphic)
+  plot_cn_adv_pos = new((/1/),graphic)
+  plot_cn_adv_neg = new((/1/),graphic)
 ;  plot_V = new((/2/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -322,7 +382,9 @@ begin
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
- gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"MPL_BrBG")
+ gsn_define_colormap(wks,"MPL_RdBu")
 
 
 ;-----------------------------------------------------------------------------
@@ -410,99 +472,46 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = ""
+  res@gsnLeftString = "(d)"
   res@gsnCenterString = g_fig_title(0)
   res@gsnRightString = ""
-  plot_sh(0) = gsn_csm_contour_map_ce(wks,clm_diff_divQ(:,:),res) ; create a default plot
-  res@gsnCenterString = g_fig_title(1)
-  plot_sh(1) = gsn_csm_contour_map_ce(wks,clm_diff_conQ(:,:),res) ; create a default plot
-  res@gsnCenterString = g_fig_title(2)
-  plot_sh(2) = gsn_csm_contour_map_ce(wks,clm_diff_advQ(:,:),res) ; create a default plot
-;do i = 0,3
-;    res@gsnLeftString = g_fig_rank(i)
-;    res@gsnCenterString = g_fig_title(i)
-;    res@gsnRightString = ""
-;    plot(i) = gsn_csm_contour_map_ce(wks,dvar1_dt(i,:,:),res) ; create a default plot
-;end do
+  plot_sh(0) = gsn_csm_contour_map_ce(wks,clm_diff_divQ,res) ; create a default plot
+;----------Set res sig-----------
+    res_sig                  = True       ; use plot options
+    res_sig@cnFillOn         = True       ; Fill contours
+    res_sig@cnLinesOn        = False;True      ; turn off contour lines
+    res_sig@gsnFrame         = False
+    res_sig@gsnDraw  = False
+    res_sig@cnLineLabelsOn   = False      ; turn off contour line labels
+    res_sig@cnLineThicknessF = 2
+    ;res_sig@cnLineColor      = "black"
+    res_sig@cnInfoLabelOn = False
+    res_sig@cnMonoFillPattern    = True;False
+    res_sig@cnFillPattern = 5
+    res_sig@cnMonoFillScale = True
+    res_sig@cnFillScaleF = 1.2
+    res_sig@cnMonoFillColor = True
+    res_sig@cnFillColor  =  "darkgreen"
+    res_sig@cnFillDotSizeF = 0.0035
+    res_sig@lbLabelBarOn = False;True   ; turn off the label bar
+
+    ;  res_sig@cnLevelSelectionMode="ExplicitLevels"
+    ;  res_sig@cnLevels = (/3000,1000/)
+    res_sig@gsnLeftString      = " "
+    res_sig@gsnRightString      = " "
+
+    plot_cn_conv_pos(0) = gsn_csm_contour(wks,contrib_conq_pos,res_sig)
+    
+    res_sig@cnFillPattern = 17
+    res_sig@cnFillColor  =  "black"
+    plot_cn_adv_pos(0) =  gsn_csm_contour(wks,contrib_adv_pos,res_sig)
 
 
-;-------------------------------------------------------------------
-  res3                  = True       ; use plot options
-  res3@cnFillOn         = False;True       ; Fill contours
-  res3@cnLinesOn        = True      ; turn off contour lines
-;for tp masking
-  res3@gsnFrame         = False
-  res3@gsnDraw  = False
-  res3@cnLineLabelsOn   = False      ; turn off contour line labels
-  res3@cnLineThicknessF = 4 
-  res3@cnInfoLabelOn = False
- 
- 
-  res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/1.2/)
-  res3@cnLineColor      = "Red"
-  res3@gsnLeftString      = " "
-  res3@gsnRightString      = " "
-
-
- ; plot_cn_pos(0) = gsn_csm_contour(wks,dvar2_dt(1,:,:),res3)
-
-  res3@cnLevels = (/-1.2/)
-  res3@cnLineColor      = "Blue"
-  res3@cnLineDashPattern      = 1
-  
- ; plot_cn_neg(0) = gsn_csm_contour(wks,dvar2_dt(1,:,:),res3)
-
-;************************************************
-; create points for box in SCS and WNP
-;************************************************
-ypts = (/ 15.0,  15.0, -0.0,  -0.0, 15.0/)
-xpts = (/110.0, 155.0,155.0, 110.0,110.0/)
-;************************************************
-; add the box
-;************************************************
-resp                  = True                      ; polyline mods desired
-resp@gsLineColor      = "Black"                     ; color of lines
-resp@gsLineThicknessF = 6.0                       ; thickness of lines
-;resp@gsLineLabelString= "test"                    ; adds a line label string
-
-; create array of dummy graphic variables. This is required, b/c each line
-; must be associated with a unique dummy variable.
-
-dum = new(12,graphic)  
-
-; draw each line separately. Each line must contain two points.
-do i = 0 , 3
-do j = 0, 2
-    dum(3*i+j)=gsn_add_polyline(wks,plot_sh(j),xpts(i:i+1),ypts(i:i+1),resp)      
-end do
-end do 
-;************************************************
-; create points for box in southern China
-;************************************************
-
-resp@gsLineDashPattern      = 1                     ; color of lines
-ypts = (/ 35.0,  35.0, 20.0,  20.0, 35.0/)
-xpts = (/110.0, 135.0,135.0, 110.0,110.0/)
-
-dum2 = new(12,graphic)  
-
-; draw each line separately. Each line must contain two points.
-do i = 0 , 3
-do j = 0, 2
-    dum2(3*i+j)=gsn_add_polyline(wks,plot_sh(j),xpts(i:i+1),ypts(i:i+1),resp)      
-end do
-end do 
-  ; overlay(plot_sh(0),plot_sig(0))
-  ; overlay(plot_sh(0),plot_cn_neg(0))
-  ;overlay(plot(1),plot_sh(1))
-
-  ;overlay(plot(0),plot_V(0))
-  ;overlay(plot(1),plot_V(1))
-
- 
-  gsn_panel(wks,plot_sh,(/3,1/),False)
+   overlay(plot_sh(0),plot_cn_conv_pos(0))
+   overlay(plot_sh(0),plot_cn_adv_pos(0))
+  gsn_panel(wks,plot_sh,(/1,1/),False)
 
   draw(plot_sh)
   frame(wks)
 end 
+
