@@ -487,7 +487,7 @@ begin
     ;res_sig@cnLineColor      = "black"
     res_sig@cnInfoLabelOn = False
     res_sig@cnMonoFillPattern    = True;False
-    res_sig@cnFillPattern = 5
+    res_sig@cnFillPattern = 6 
     res_sig@cnMonoFillScale = True
     res_sig@cnFillScaleF = 1.2
     res_sig@cnMonoFillColor = True

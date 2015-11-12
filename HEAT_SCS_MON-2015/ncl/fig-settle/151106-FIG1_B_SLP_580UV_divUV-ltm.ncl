@@ -344,7 +344,7 @@ begin
   
   plot_sig(0) = gsn_csm_contour(wks,cor_var1_sig,res_sig)
 
-    res_sig@cnFillPattern = 5
+    res_sig@cnFillPattern = 6
     res_sig@cnFillScaleF = 1.2
     res_sig@cnMonoFillColor = True
     res_sig@cnFillColor  =  "Red"
