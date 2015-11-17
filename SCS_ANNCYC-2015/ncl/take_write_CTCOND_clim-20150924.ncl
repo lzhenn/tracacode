@@ -25,7 +25,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 begin
    g_var  = "DTCOND"
    g_case_name = "B2000_f09_CAM5_spin-up"
-   g_period="200-300"
+   g_period="201-300"
    g_fn=g_case_name+".cam.h0."+g_var+".hybrid."+g_period+".nc"   
    g_data_path = "../data/model/pro/"
    g_pdata_fn="../data/model/pro/"+g_case_name+".cam.h0."+g_var+".hybrid."+g_period+"clim.nc"
