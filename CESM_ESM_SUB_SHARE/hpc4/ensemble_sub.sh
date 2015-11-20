@@ -98,7 +98,7 @@ do
     if [ $STATUS == "running" ] ; then
         while [ "1" == "1" ]
         do
-            TIME=$(date)" ESM${II} is still running..."
+            TIME=$(date)"${CASENAME} ESM${II} is still running..."
             echo $TIME
             sleep 300 
             STATUS=$(cat ./run_status)
