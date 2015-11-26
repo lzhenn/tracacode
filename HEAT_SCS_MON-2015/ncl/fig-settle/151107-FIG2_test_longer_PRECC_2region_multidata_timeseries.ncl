@@ -51,7 +51,7 @@ begin
 ; create an array of desired pressure levels:
 
         
-    g_font = 0.035
+    g_font = 0.025
 
     g_strt_mon = 197901 
     g_lst_mon = 201312
@@ -169,7 +169,7 @@ begin
              
     res@vpXF     = 0.15
 
-    res@vpWidthF = 0.8
+    res@vpWidthF = 0.9
     res@vpHeightF= 0.3
 
 
@@ -185,7 +185,7 @@ begin
 	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
     res@tiYAxisString = "Pr Rate (mm/day)"
 	res@tmXBValues = ispan(0,dimsizes(var3_season_scmean)-1,5) ;interval
-	res@tmXBLabels = ispan(1948,2013,10)         ;tick label
+	res@tmXBLabels = ispan(1948,2013,5)         ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
 	res@xyLineColors       = (/"blue","brown","darkgreen","red","black"/) ; colors chosen
 	res@xyLineThicknesses	 = (/2.0,2.0,2.0,4.0,5.0/)      ; line thicknesses
