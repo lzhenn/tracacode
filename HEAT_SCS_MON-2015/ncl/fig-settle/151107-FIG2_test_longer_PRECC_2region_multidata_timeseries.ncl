@@ -185,7 +185,7 @@ begin
 	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
     res@tiYAxisString = "Pr Rate (mm/day)"
 	res@tmXBValues = ispan(0,dimsizes(var3_season_scmean)-1,5) ;interval
-	res@tmXBLabels = ispan(1948,2013,5)         ;tick label
+	res@tmXBLabels = ispan(1948,2013,10)         ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
 	res@xyLineColors       = (/"blue","brown","darkgreen","red","black"/) ; colors chosen
 	res@xyLineThicknesses	 = (/2.0,2.0,2.0,4.0,5.0/)      ; line thicknesses
@@ -242,8 +242,8 @@ begin
 
     res_lines@gsLineColor       = "blue"
     yy = (/6.2,6.2/)
-    xx = (/21,23/)
-    text_pos = 23.5
+    xx = (/10,13/)
+    text_pos = 13.5
     dum11 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
     dum12 = gsn_add_text(wks,plot(0),"GPCP",text_pos,yy(0),res_text); add text
     ;dum55 = gsn_add_polymarker(wks,plot,xx,yy,res_lines)   
