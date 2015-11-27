@@ -11,13 +11,13 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=\"/users/yangsong3/cdh/cam4/INDEX2-16-V4-LANINA/exe/\"
+PRE_DIR=\"/users/yangsong3/cdh/cam4/INDEX2-16-V4/exe/\"
 
 # Path of the post processed data
 PRO_DIR=\"/users/yangsong3/cdh/cam4/postdata/\"
 
 # Case name
-CASENAME=\"INDEX2-16-V4-LANINA\"
+CASENAME=\"INDEX2-16-V4\"
 
 
 # Names of 2D fields
