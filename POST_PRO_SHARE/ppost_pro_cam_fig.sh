@@ -26,20 +26,20 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pro/\"
+PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/data/model/pro/\"
 
 # CTRL Case name
 CTRL_CASENAME=\"B2000_f09_CAM5PM_spin-up\"
 
 
 # Path of the post processed data
-PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pro/\"
+PRO_SEN_DIR=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/data/model/pro/\"
 
 # SEN case name
 SEN_CASENAME=\"B2000_f09_CAM5PM_SCS_ANNCYC\"
 
 # Path of outfig
-FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/BRUTAL-TRANS-2015/fig/auto_fig\"
+FIG_PATH=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/fig/auto-fig\"
 
 # History file first year
 FFRSTYEAR=204

@@ -32,7 +32,7 @@ begin
         .not. isvar("sub_frstyear") .or. .not. isvar("sub_lstyear") .or.\
         .not. isvar("lats") .or. .not. isvar("latn") .or.\
         .not. isvar("lonw") .or. .not. isvar("lone") .or.\
-        .not. isvar("ffrstyear") .or. .not. isvar("flstyear") .or. .not. isvar(fig_path)) then 
+        .not. isvar("ffrstyear") .or. .not. isvar("flstyear") .or. .not. isvar("fig_path")) then 
         print("SEASONAL UV850+Pr FIG: At least one argument has not been assigned, cannot continue!");
         exit
     end if
@@ -44,14 +44,14 @@ begin
 ;	var1--------------TS
 ;================================================
 ;global variables
-    g_font = 0.035
+    g_font = 0.025
     
     g_season      =   (/"DJF","MAM","JJA","SON"/)
 
 
-    g_nsmp        =   sub_lrstyear - sub_frstyear + 1;number of samples for significance test
+    g_nsmp        =   sub_lstyear - sub_frstyear + 1;number of samples for significance test
     g_idx_start = (sub_frstyear-ffrstyear)*12
-    g_idx_end = (sub_lrstyear-ffrstyear+1)*12-1
+    g_idx_end = (sub_lstyear-ffrstyear+1)*12-1
 
     g_run_period  =  ffrstyear+"-"+flstyear
 
@@ -60,7 +60,7 @@ begin
     
     g_file_profix = ".cam.h0."+g_var+"."+g_run_period+".nc"
 
-    g_fig_name    =   fig_path+"TSAK1_diff-"+g_run_period+"-season-850UV_Pr-"+sen_casename+"_"+ctrl_casename
+    g_fig_name    =   fig_path+"/TASK1_diff-"+g_run_period+"-ssn-"+lonw+"W"+lone+"E"+latn+"N"+lats+"S"+"-850UV_Pr-"+sen_casename+"_"+ctrl_casename
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)"/)
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
     g_fig_title   =    "850UV+Pr SEN - CON ("+g_season+")"
@@ -93,19 +93,19 @@ begin
     
     sen_file1   = pro_sen_dir+sen_casename+g_file_profix(0)
     sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-	sen_var1  = sen_in1->$g_var(0)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+	exp_var1  = sen_in1->$g_var(0)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
 
 	sen_file1   = pro_sen_dir+sen_casename+g_file_profix(1)
     sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-    sen_var2  = sen_in1->$g_var(1)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+    exp_var2  = sen_in1->$g_var(1)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
 	
 	sen_file1   = pro_sen_dir+sen_casename+g_file_profix(2)
     sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-	sen_var3  = sen_in1->$g_var(2)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
+	exp_var3  = sen_in1->$g_var(2)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
     
     sen_file1   = pro_sen_dir+sen_casename+g_file_profix(3)
     sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-	exp_var4  = exp_in1->$g_var(3)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
+	exp_var4  = sen_in1->$g_var(3)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
 
     exp_var3  = exp_var3+exp_var4
     exp_var3  = exp_var3*86400*1000
@@ -152,30 +152,28 @@ begin
         exp_var3_season_clim(ii,:,:) = dim_avg_n_Wrap(exp_var3_season,0)
         exp_var3_var(ii,:,:) = dim_variance_n(exp_var3_season,0)
     end do
-        diff_var1 = exp_var1_season_clim
-        diff_var2 = exp_var2_season_clim
-        diff_var3 = exp_var3_season_clim	
+    diff_var1 = exp_var1_season_clim
+    diff_var2 = exp_var2_season_clim
+    diff_var3 = exp_var3_season_clim	
 
-        diff_var1 = (exp_var1_season_clim-ctrl_var1_season_clim)
-        diff_var2 = (exp_var2_season_clim-ctrl_var2_season_clim)
-        diff_var3 = (exp_var3_season_clim-ctrl_var3_season_clim)		
-        diff_var3_sig = diff_var3
+    diff_var1 = (exp_var1_season_clim-ctrl_var1_season_clim)
+    diff_var2 = (exp_var2_season_clim-ctrl_var2_season_clim)
+    diff_var3 = (exp_var3_season_clim-ctrl_var3_season_clim)		
+    diff_var3_sig = diff_var3
 
-		;============================================================
-		;Sig test
-		;============================================================
+    ;============================================================
+    ;Sig test
+    ;============================================================
 
-		sigr = 0.1                        ; critical sig lvl for r
+    sigr = 0.1                        ; critical sig lvl for r
 
-		iflag= False                        ; population variance similar
-		prob1 = ttest(ctrl_var1_season_clim,ctrl_var1_var,g_nsmp, exp_var1_season_clim,exp_var1_var,g_nsmp, iflag, False) 
-		prob2 = ttest(ctrl_var2_season_clim,ctrl_var2_var,g_nsmp, exp_var2_season_clim,exp_var2_var,g_nsmp, iflag, False)
-		prob3 = ttest(ctrl_var3_season_clim,ctrl_var3_var,g_nsmp, exp_var3_season_clim,exp_var3_var,g_nsmp, iflag, False)
-		
-		diff_var1=mask(diff_var1, (prob1 .lt. sigr) .or. (prob2 .lt. sigr), True)
-		diff_var3_sig=mask(diff_var3, prob3 .lt. sigr, True)
-
-	end do
+    iflag= False                        ; population variance similar
+    prob1 = ttest(ctrl_var1_season_clim,ctrl_var1_var,g_nsmp, exp_var1_season_clim,exp_var1_var,g_nsmp, iflag, False) 
+    prob2 = ttest(ctrl_var2_season_clim,ctrl_var2_var,g_nsmp, exp_var2_season_clim,exp_var2_var,g_nsmp, iflag, False)
+    prob3 = ttest(ctrl_var3_season_clim,ctrl_var3_var,g_nsmp, exp_var3_season_clim,exp_var3_var,g_nsmp, iflag, False)
+    
+    diff_var1=mask(diff_var1, (prob1 .lt. sigr) .or. (prob2 .lt. sigr), True)
+    diff_var3_sig=mask(diff_var3, prob3 .lt. sigr, True)
 ;-----------------------------------------------------------------------------
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
@@ -267,8 +265,14 @@ begin
 ;  res@tmYRMinorOutwardLengthF = -0.
     
      ; now change the size of the tickmark labels
-  res@tmXBTickSpacingF = 60
-  res@tmYLTickSpacingF = 30 
+    res@tmXBTickSpacingF = 60
+    res@tmYLTickSpacingF = 30 
+  if ( lone-lonw .lt. 180) then
+    res@tmXBTickSpacingF = 30
+  end if
+  if (latn-lats .lt. 90)
+    res@tmYLTickSpacingF = 15
+  end if
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -277,8 +281,6 @@ begin
   res@tmYLLabelFontThicknessF = 2.0
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
-do ii = 0,3
-  end do
 ; res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
 ; res@cnMinLevelValF        = -3.          ; set min contour level
 ; res@cnMaxLevelValF        =  3.          ; set max contour level
