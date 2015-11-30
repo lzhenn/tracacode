@@ -60,7 +60,7 @@ begin
     
     g_file_profix = ".cam.h0."+g_var+"."+g_run_period+".nc"
 
-    g_fig_name    =   fig_path+"/TASK1_diff-"+g_run_period+"-ssn-"+lonw+"W"+lone+"E"+latn+"N"+lats+"S"+"-850UV_Pr-"+sen_casename+"_"+ctrl_casename
+    g_fig_name    =   fig_path+"/TASK1_diff-"+g_run_period+"-season-850UV_Pr-"+sen_casename+"_"+ctrl_casename
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)"/)
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
     g_fig_title   =    "850UV+Pr SEN - CON ("+g_season+")"
@@ -265,14 +265,8 @@ begin
 ;  res@tmYRMinorOutwardLengthF = -0.
     
      ; now change the size of the tickmark labels
-    res@tmXBTickSpacingF = 60
-    res@tmYLTickSpacingF = 30 
-  if ( lone-lonw .lt. 180) then
-    res@tmXBTickSpacingF = 30
-  end if
-  if (latn-lats .lt. 90)
-    res@tmYLTickSpacingF = 15
-  end if
+  res@tmXBTickSpacingF = 60
+  res@tmYLTickSpacingF = 30 
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -334,8 +328,7 @@ begin
 
     vcres@vcLineArrowHeadMinSizeF   = 0.015
     vcres@vcLineArrowHeadMaxSizeF   = 0.03
-;--------------------------------------
-
+--------------------------------------
 do ii=0,3
     res@gsnLeftString = g_fig_rank(ii)
     res@gsnCenterString = g_fig_title(ii)
