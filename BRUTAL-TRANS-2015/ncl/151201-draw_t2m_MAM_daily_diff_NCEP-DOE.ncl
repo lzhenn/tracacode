@@ -48,7 +48,7 @@ begin
 
         
 
-    g_fig_title   =  "MAM T2M std"
+    g_fig_title   =  "MAM diff T2M std"
 
 ;*************************For F_Compset Ctrl***********************************
 
@@ -145,7 +145,7 @@ begin
     res@gsnCenterString = g_fig_title
 
     do nyr = g_strt_yr, g_lst_yr
-        g_fig_name = "../fig/MAM_dtr_t2m_std"+nyr
+        g_fig_name = "../fig/MAM_diff_t2m_std"+nyr
         g_strt_day = nyr*10000+3*100+1
         g_lst_day = nyr*10000+5*100+31
         
@@ -155,19 +155,20 @@ begin
         istrt   = ind(yyyymmdd .eq. g_strt_day)
         ilast   = ind(yyyymmdd .eq. g_lst_day)
         t2m  =short2flt( ctrl_in1->air(istrt:ilast,0,:,:))
-        ;t2m = g2fsh_Wrap(t2m_g,(/72,144/))
-        ;printVarSummary(t2m)
-        ;post process
-        dtr_t2m = t2m
-        dtr_t2m = dtrend_n(t2m, False, 0)
-        dtr_t2m_std = dim_stddev_n_Wrap(dtr_t2m,0)
         
+        diff_t2m = t2m(0:90,:,:)
+        diff_t2m = t2m(1:91,:,:)-t2m(0:90,:,:)
+        ;dtr_t2m = diff_t2m
+        ;dtr_t2m = dtrend_n(t2m, False, 0)
+        dtr_t2m_std = dim_stddev_n_Wrap(diff_t2m,0)
+        pdf_diff_t2m = pdfx(diff_t2m,25,False)
+        print(pdf_diff_t2m)
         ;plot
         wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
         gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
         
         res@gsnLeftString = nyr
-        dtr_t2m_std = where(dtr_t2m_std .lt. 3.0, dtr_t2m_std@_FillValue,dtr_t2m_std)
+        ;dtr_t2m_std = where(dtr_t2m_std .lt. 3.0, dtr_t2m_std@_FillValue,dtr_t2m_std)
         plot_sh = gsn_csm_contour_map_ce(wks,dtr_t2m_std,res) ; create a default plot
         print(nyr+" std:"+wgt_areaave(dtr_t2m_std({45:60},:),1.0,1.0,0))
         draw(plot_sh)
