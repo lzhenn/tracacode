@@ -158,11 +158,10 @@ begin
         
         diff_t2m = t2m(0:90,:,:)
         diff_t2m = t2m(1:91,:,:)-t2m(0:90,:,:)
-        ;dtr_t2m = diff_t2m
-        ;dtr_t2m = dtrend_n(t2m, False, 0)
+        dtr_t2m = diff_t2m
+        dtr_t2m = dtrend_n(diff_t2m, False, 0)
         dtr_t2m_std = dim_stddev_n_Wrap(diff_t2m,0)
-        pdf_diff_t2m = pdfx(diff_t2m,25,False)
-        print(pdf_diff_t2m)
+        
         ;plot
         wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
         gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
