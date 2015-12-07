@@ -26,32 +26,32 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/data/model/pro/\"
+PRO_CTRL_DIR=\"/users/yangsong3/wzq/CTRL_TP_HEAT/post/\"
 
 # CTRL Case name
-CTRL_CASENAME=\"B2000_f09_CAM5PM_spin-up\"
+CTRL_CASENAME=\"CTRL_TP_HEAT\"
 
 
 # Path of the post processed data
-PRO_SEN_DIR=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/data/model/pro/\"
+PRO_SEN_DIR=\"/users/yangsong3/wzq/TP_noPBL_HEAT/post/\"
 
 # SEN case name
-SEN_CASENAME=\"B2000_f09_CAM5PM_SCS_ANNCYC\"
+SEN_CASENAME=\"TP_noPBL_HEAT\"
 
 # Path of outfig
-FIG_PATH=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/fig/auto-fig\"
+FIG_PATH=\"/users/yangsong3/L_Zealot/temp/\"
 
 # History file first year
-FFRSTYEAR=204
+FFRSTYEAR=1
 
 # History file last year
-FLSTYEAR=208
+FLSTYEAR=50
 
 # Subset first year
-SUB_FRSTYEAR=204
+SUB_FRSTYEAR=11
 
 # Subset last year
-SUB_LSTYEAR=208
+SUB_LSTYEAR=50
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
 R_FLAG=1
@@ -60,9 +60,14 @@ R_FLAG=1
 
 if  [ $R_FLAG == 1 ] ; then
 #EA
+#    LATS=-5.
+#    LATN=45.
+#    LONW=90.
+#    LONE=160.
+#Arab-EA
     LATS=-5.
-    LATN=45.
-    LONW=90.
+    LATN=60.
+    LONW=30.
     LONE=160.
 else
     LATS=-90.
@@ -70,6 +75,22 @@ else
     LONW=0.
     LONE=360.
 fi
+#tten_PBL
+ncl pro_ctrl_dir=$PRO_CTRL_DIR              \
+    ctrl_casename=$CTRL_CASENAME            \
+    pro_sen_dir=$PRO_SEN_DIR                \
+    sen_casename=$SEN_CASENAME              \
+    ffrstyear=$FFRSTYEAR                    \
+    flstyear=$FLSTYEAR                      \
+    sub_frstyear=$SUB_FRSTYEAR              \
+    sub_lstyear=$SUB_LSTYEAR                \
+    lats=$LATS                              \
+    latn=$LATN                              \
+    lonw=$LONW                              \
+    lone=$LONE                              \
+    fig_path=$FIG_PATH                      \
+    ./ncl/draw_diff-season-hybrid-tten_PBL_SEN-CTRL-20151207.ncl
+exit
 
 
 #Output post processed 2D fields
@@ -87,6 +108,23 @@ ncl pro_ctrl_dir=$PRO_CTRL_DIR              \
     lone=$LONE                              \
     fig_path=$FIG_PATH                      \
     ./ncl/draw_diff-season-850UV_Pr_SEN-CTRL-20151127.ncl
+
+#SHFLX
+ncl pro_ctrl_dir=$PRO_CTRL_DIR              \
+    ctrl_casename=$CTRL_CASENAME            \
+    pro_sen_dir=$PRO_SEN_DIR                \
+    sen_casename=$SEN_CASENAME              \
+    ffrstyear=$FFRSTYEAR                    \
+    flstyear=$FLSTYEAR                      \
+    sub_frstyear=$SUB_FRSTYEAR              \
+    sub_lstyear=$SUB_LSTYEAR                \
+    lats=$LATS                              \
+    latn=$LATN                              \
+    lonw=$LONW                              \
+    lone=$LONE                              \
+    fig_path=$FIG_PATH                      \
+    ./ncl/draw_diff-season-SHFLX_SEN-CTRL-20151207.ncl
+
 
     
 
