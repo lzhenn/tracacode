@@ -34,7 +34,7 @@ begin
 
     ;for directory 
     g_strt_yr=1948
-    g_lst_yr=1993
+    g_lst_yr=2014
 
     g_data_path = "/home/yangsong3/data/observation/NCEP_NCAR/daily/air.2m1948-2014/"
 
@@ -143,7 +143,7 @@ begin
         ;dtr_t2m = dtrend_n(t2m, False, 0)
         dtr_diff_t2m = dtr_t2m(0:90,:,:)
         dtr_diff_t2m = dtr_t2m(1:91,:,:)-dtr_t2m(0:90,:,:)
-        pdf_diff_t2m = pdfx(dtr_diff_t2m(:,{30:60},:),50,opt)
+        pdf_diff_t2m = pdfx(dtr_diff_t2m(:,{20:45},{110:130}),50,opt)
         pdf_diff_t2m@_FillValue=999
         pdf_diff_t2m = where(pdf_diff_t2m .lt. 1e-7, pdf_diff_t2m@_FillValue, pdf_diff_t2m) 
         ;plot
