@@ -11,13 +11,13 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=\"/home/yangsong3/data/model/L_Zealot/BRUTAL-TRANS-2015/PRD-Trans-2015/pre/\"
+PRE_DIR=\"/users/yangsong3/L_Zealot/F/CLIM-Trans-2015/exe/\"
 
 # Path of the post processed data
-PRO_DIR=\"/home/yangsong3/data/model/L_Zealot/BRUTAL-TRANS-2015/PRD-Trans-2015/pro/\"
+PRO_DIR=\"/users/yangsong3/data/temp/\"
 
 # Case name
-CASENAME=\"PRD-Trans-2015\"
+CASENAME=\"CLIM-Trans-2015\"
 
 
 # Names of 2D fields
@@ -50,30 +50,30 @@ PLEV="(/925,850,700,500,200/)"
 #-----------------------------------------------------------
 
 ##Output post processed 2D fields
-#ncl pre_dir=$PRE_DIR            \
-#    pro_dir=$PRO_DIR            \
-#    fdname2d=$FDNAME2D          \
-#    n_esm=$N_ESM                \
-#    case_name=$CASENAME         \
-#    ./ncl/take_2D_from_raw_data_esm_daily-151122.ncl
-#
-#Output post processed 3D fields
- #ncl pre_dir=$PRE_DIR            \
- #   pro_dir=$PRO_DIR            \
- #   fdname3d=$FDNAME3D          \
- #   n_esm=$N_ESM                \
- #   layers=$LAYERS              \
- #   plev=$PLEV                  \
- #   case_name=$CASENAME         \
- #   ./ncl/take_3D_from_raw_data_esm_daily-151123.ncl
-
+ncl pre_dir=$PRE_DIR            \
+    pro_dir=$PRO_DIR            \
+    fdname2d=$FDNAME2D          \
+    n_esm=$N_ESM                \
+    case_name=$CASENAME         \
+    ./ncl/take_2D_from_raw_data_esm_daily-151122.ncl
 
 #Output post processed 3D fields
 ncl pre_dir=$PRE_DIR            \
-    pro_dir=$PRO_DIR            \
-    fdname3d=$FDNAME3D_HY       \
-    n_esm=$N_ESM                \
-    case_name=$CASENAME         \
-    ./ncl/take_3D_hybrid_from_raw_data_esm_daily-151123.ncl
+   pro_dir=$PRO_DIR            \
+   fdname3d=$FDNAME3D          \
+   n_esm=$N_ESM                \
+   layers=$LAYERS              \
+   plev=$PLEV                  \
+   case_name=$CASENAME         \
+   ./ncl/take_3D_from_raw_data_esm_daily-151123.ncl
+
+
+#Output post processed 3D fields
+#ncl pre_dir=$PRE_DIR            \
+#    pro_dir=$PRO_DIR            \
+#    fdname3d=$FDNAME3D_HY       \
+#    n_esm=$N_ESM                \
+#    case_name=$CASENAME         \
+#    ./ncl/take_3D_hybrid_from_raw_data_esm_daily-151123.ncl
 
 
