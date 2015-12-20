@@ -54,13 +54,13 @@ begin
     g_idx_end = (sub_lstyear-ffrstyear+1)*12-1
 
     g_run_period  =  ffrstyear+"-"+flstyear
-    g_fig_period  =  sub_frstyear+"-"+sub_lstyear
+
         
     g_var         = (/"U","V","PRECC","PRECL"/)
     
     g_file_profix = ".cam.h0."+g_var+"."+g_run_period+".nc"
 
-    g_fig_name    =   fig_path+"/TASK1_diff-"+g_fig_period+"-season-850UV_Pr-"+sen_casename+"_"+ctrl_casename
+    g_fig_name    =   fig_path+"/TASK1_diff-"+g_run_period+"-season-850UV_Pr-"+sen_casename+"_"+ctrl_casename
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)"/)
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
     g_fig_title   =    "850UV+Pr SEN - CON ("+g_season+")"
