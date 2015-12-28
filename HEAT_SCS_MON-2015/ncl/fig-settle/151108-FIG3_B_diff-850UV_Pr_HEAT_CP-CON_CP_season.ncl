@@ -200,7 +200,7 @@ begin
 
   plot_sh = new((/1/),graphic)
   plot_sig = new((/1/),graphic)
-;  plot_sh = new((/2/),graphic)
+  plot_cn_pr = new((/1/),graphic)
   plot_V = new((/1/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -302,42 +302,27 @@ begin
   
   plot_sh(0) = gsn_csm_contour_map_ce(wks,diff_var3,res) ; create a default plot
 
-;************************************************
-; create points for box in SCS and WNP
-;************************************************
-ypts = (/ 15.0,  15.0, -0.0,  -0.0, 15.0/)
-xpts = (/110.0, 155.0,155.0, 110.0,110.0/)
-;************************************************
-; add the box
-;************************************************
-resp                  = True                      ; polyline mods desired
-resp@gsLineColor      = "Black"                     ; color of lines
-resp@gsLineThicknessF = 6.0                       ; thickness of lines
-;resp@gsLineLabelString= "test"                    ; adds a line label string
+;-------------------------------------------------------------------
+  res_cn                  = True       ; use plot options
+  res_cn@cnFillOn         = False;True       ; Fill contours
+  res_cn@cnLinesOn        = True      ; turn off contour lines
+  res_cn@gsnFrame         = False
+  res_cn@gsnDraw  = False
+  res_cn@cnLineLabelsOn   = False      ; turn off contour line labels
+  res_cn@cnLineLabelFontHeightF = 0.02
+  res_cn@cnLineThicknessF = 2 
+  res_cn@cnInfoLabelOn = False
+ 
+ 
+  res_cn@cnLevelSelectionMode="ExplicitLevels"
+  res_cn@cnLevels = (/6.0/)
+  res_cn@cnLineColor      = "Red"
+  res_cn@gsnLeftString      = " "
+  res_cn@gsnRightString      = " "
 
-; create array of dummy graphic variables. This is required, b/c each line
-; must be associated with a unique dummy variable.
 
-dum = new(4,graphic)  
+  plot_cn_pr(0) = gsn_csm_contour(wks,ctrl_var3_season_clim,res_cn)
 
-; draw each line separately. Each line must contain two points.
-do i = 0 , 3
-;    dum(i)=gsn_add_polyline(wks,plot_sh,xpts(i:i+1),ypts(i:i+1),resp)      
-end do 
-;************************************************
-; create points for box in southern China
-;************************************************
-
-resp@gsLineDashPattern      = 1                     ; color of lines
-ypts = (/ 35.0,  35.0, 20.0,  20.0, 35.0/)
-xpts = (/110.0, 135.0,135.0, 110.0,110.0/)
-
-dum2 = new(4,graphic)  
-
-; draw each line separately. Each line must contain two points.
-do i = 0 , 3
-;    dum2(i)=gsn_add_polyline(wks,plot_sh,xpts(i:i+1),ypts(i:i+1),resp)      
-end do 
   ;----------Set res sig-----------
     res_sig                  = True       ; use plot options
     res_sig@cnFillOn         = True       ; Fill contours
@@ -396,7 +381,7 @@ end do
 
    overlay(plot_sh(0),plot_sig(0))
    overlay(plot_sh(0),plot_V(0))
-  ;overlay(plot(1),plot_sh(1))
+  overlay(plot_sh(0),plot_cn_pr(0))
 
   ;overlay(plot(0),plot_V(0))
   ;overlay(plot(1),plot_V(1))

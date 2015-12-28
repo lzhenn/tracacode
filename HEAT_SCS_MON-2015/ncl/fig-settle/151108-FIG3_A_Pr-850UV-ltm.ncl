@@ -354,23 +354,22 @@ begin
   res_cn                  = True       ; use plot options
   res_cn@cnFillOn         = False;True       ; Fill contours
   res_cn@cnLinesOn        = True      ; turn off contour lines
-;for tp masking
   res_cn@gsnFrame         = False
   res_cn@gsnDraw  = False
-  ;res_cn@cnLineLabelsOn   = False      ; turn off contour line labels
+  res_cn@cnLineLabelsOn   = False      ; turn off contour line labels
   res_cn@cnLineLabelFontHeightF = 0.02
   res_cn@cnLineThicknessF = 2 
   res_cn@cnInfoLabelOn = False
  
  
   res_cn@cnLevelSelectionMode="ExplicitLevels"
-  res_cn@cnLevels = (/0.25,0.3,0.35/)
-  res_cn@cnLineColor      = "Blue"
+  res_cn@cnLevels = (/6.0/)
+  res_cn@cnLineColor      = "Red"
   res_cn@gsnLeftString      = " "
   res_cn@gsnRightString      = " "
 
 
-  plot_cn_pr(0) = gsn_csm_contour(wks,clim_var2_season_ratio,res_cn)
+  plot_cn_pr(0) = gsn_csm_contour(wks,clim_var2_season,res_cn)
 
 ;************************************************
 ; create points for box in SCS and WNP
@@ -471,7 +470,7 @@ res_sig@gsnRightString      = " "
 
   ;plot_sh(1) = gsn_csm_contour(wks,cp_diff_var3_sig,res4)
 
-;   overlay(plot_sh_pr(0),plot_cn_pr(0))
+   overlay(plot_sh_pr(0),plot_cn_pr(0))
    overlay(plot_sh_pr(0),plot_sh_pr_sig(0))
 ;   overlay(plot_sh(0),plot_cn_neg(0))
    overlay(plot_sh_pr(0),plot_V(0))
