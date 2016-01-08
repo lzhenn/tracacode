@@ -1,20 +1,18 @@
 ;*************************************************************
-;Aim: draw OLR annually ltm trend 
+;Aim: draw CAPE ltm monthly mean from ECMWF Datasets, contains
+; Mar Apr May Jun Jul Aug
 ;Mission:
-;   1. Read data
+;   1. Read data from ECMWF data
 ;   2. Post-post process
-;     2.1 take the trend 
+;     2.1 Monthly Climatology 
 ;   4. Draw and overlap
 ;                       Zhenning Li
-;                       2015-05-03
+;                       2015-04-08
 ;Last Edited:
 ;   2015-03-01  Create
 ;   2015-03-03  Change to fit HEAT Experiment
 ;   2015-04-05  Change to fit Team Server
-;   2015-04-08  Change to fit ECMWF MONLTM MEAN
-;   2015-05-03  Change to caculate season trend 
-;   2015-07-09  Change to caculate OLR
-;   2015-07-09  Change to fit composite
+;   2015-04-08  Change to fit ECMWF MONLTM MEAN 
 ;*************************************************************
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
@@ -26,31 +24,24 @@ begin
 
 ;================================================
 ;Variables List:
-;	var1--------------OLR
+;	var1--------------TS
 ;================================================
 ;global variables
     ;Define parameters
-    g_data_path = "../data/obv/ERA-Interim/w-197901-201408.nc"
+    g_data_path = "../data/obv/GPCP_precip.197901-201412.nc"
 
-    g_latS=-45.
+    g_latS=-30.
     g_latN=45.
-    g_lonW=30.
-    g_lonE=220.
-    g_season_rank=(/"DJF","MAM","JJA","SON"/)
+    g_lonW=60.
+    g_lonE=180.
 ; create an array of desired pressure levels:
 
         
-    g_font = 0.035
+    g_font = 0.02
 
-    g_strt_mon = 197901 
-    g_lst_mon = 201312
-    
-    g_sp_events = (/198201,199101,199701,200201/)
-    n_events= dimsizes(g_sp_events)
-    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_omega_SP_cmp"
-    g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
-    
-    g_fig_title     = (/"Jan","Feb","Mar","Apr","May","Jun"/)+" OLR"
+    g_fig_name    =   "../fig/obv/1979-2014_pr"
+    g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)"/)
+    g_fig_title   =   "1979-2014 "+(/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)+" PR"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -61,25 +52,17 @@ begin
 
 	ctrl_file1   = g_data_path
 	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-	time_hist    = ctrl_in1->time
-    yyyymm  = cd_calendar(time_hist,-1)
-    istrt   = ind(yyyymm .eq. g_strt_mon)
-    ilast   = ind(yyyymm .eq. g_lst_mon)
-	var1  =short2flt(ctrl_in1->w(istrt:ilast,{500},:,:))			; p for unify the var name
+	ctrl_var1  =short2flt(ctrl_in1->precip)			; p for unify the var name
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
-    cmp_var1 = var1(0:11,:,:)
-    cmp_var1 = 0
-    print(var1(5,{-10:10},120))
-    do ii=0,n_events-1
-        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
-        print(i_evstrt)
-        cmp_var1 = cmp_var1+var1(i_evstrt:i_evstrt+11,:,:)
-    end do
-    cmp_var1 =cmp_var1/n_events
-    clm_var1 = clmMonTLL(var1)
-    ano_cmp_var1 = calcMonAnomTLL(cmp_var1,clm_var1)
+	ctrl_var1_ltmmon = clmMonTLL(ctrl_var1)
+	ctrl_var1_ano = dim_rmvmean_n_Wrap(ctrl_var1_ltmmon,0)
+    ctrl_var1_ano = where(ctrl_var1_ano .gt. 4.0, ctrl_var1_ano, ctrl_var1_ano@_FillValue)
+    ctrl_var1_ano = where(ctrl_var1_ltmmon .gt. 6.0 .or. ctrl_var1_ano .gt. 4.0, ctrl_var1_ltmmon, ctrl_var1_ano@_FillValue)
+	printVarSummary(ctrl_var1_ltmmon)
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -88,7 +71,7 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  plot = new((/6/),graphic)
+  plot = new((/12/),graphic)
 ;  plot_tp = new((/2/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
@@ -97,10 +80,10 @@ begin
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-;  gsn_define_colormap(wks,"precip_diff_12lev")
+  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
- gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
 ;-----------------------------------------------------------------------------
@@ -112,8 +95,8 @@ begin
 
 
 
-;  i = NhlNewColor(wks,0.341,0.,0.533)              ; add gray to colormap
-;  j = NhlNewColor(wks,1,0.,0.)
+ ; i = NhlNewColor(wks,0.341,0.,0.533)              ; add gray to colormap
+ ; j = NhlNewColor(wks,1,0.,0.)
 ;  res@mpLandFillColor       = "gray"            ; set land to be gray
 
 ;  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
@@ -125,9 +108,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -1e-2         ; set min contour level
- res@cnMaxLevelValF        = 1e-2          ; set max contour level
- res@cnLevelSpacingF       = 1e-3          ; set contour interval
+ res@cnMinLevelValF        = -10.0          ; set min contour level
+ res@cnMaxLevelValF        = 10.0          ; set max contour level
+ res@cnLevelSpacingF       = 2.5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -136,8 +119,8 @@ begin
   res@gsnDraw  = False
   
   res@gsnSpreadColors      = True               ; use full color map
-  ;res@gsnSpreadColorStart  = 2               ; start at color 17
-  ;res@gsnSpreadColorEnd    = 14                ; end at color 200
+  res@gsnSpreadColorStart  = 2               ; start at color 17
+  res@gsnSpreadColorEnd    = 14                ; end at color 200
 
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
@@ -189,12 +172,20 @@ begin
 ;-----------------------------------------------------------------------------
      
 
-do i = 0,5
-    res@gsnLeftString = g_fig_rank(i)
-    res@gsnCenterString = g_fig_title(i)
-    res@gsnRightString = ""
-    plot(i) = gsn_csm_contour_map_ce(wks,ano_cmp_var1(i,:,:),res) ; create a default plot
+do i = 0,11
+ res@gsnLeftString = g_fig_rank(i)
+ res@gsnCenterString = g_fig_title(i)
+ res@gsnRightString = ""
+
+ plot(i) = gsn_csm_contour_map_ce(wks,ctrl_var1_ano(i,:,:),res) ; create a default plot
 end do
+; res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+; res@cnMinLevelValF        = -3.          ; set min contour level
+; res@cnMaxLevelValF        =  3.          ; set max contour level
+; res@cnLevelSpacingF       =  0.5          ; set contour interval
+ 
+
+
 
 
 ;-------------------------------------------------------------------
@@ -282,7 +273,7 @@ end do
   ;overlay(plot(1),plot_V(1))
 
  
-  gsn_panel(wks,plot,(/3,2/),False)
+  gsn_panel(wks,plot,(/4,3/),False)
 
   draw(plot)
   frame(wks)
