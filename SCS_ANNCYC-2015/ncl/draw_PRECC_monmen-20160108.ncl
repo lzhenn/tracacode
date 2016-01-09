@@ -37,9 +37,9 @@ begin
 ; create an array of desired pressure levels:
 
         
-    g_font = 0.02
+    g_font = 0.03
 
-    g_fig_name    =   "../fig/obv/1979-2014_pr"
+    g_fig_name    =   "../fig/obv/1979-2014_pr-7mmclm-6mm_dp_ann_mean"
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)"/)
     g_fig_title   =   "1979-2014 "+(/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)+" PR"
 
@@ -58,8 +58,8 @@ begin
 ; ==============================================================
 	ctrl_var1_ltmmon = clmMonTLL(ctrl_var1)
 	ctrl_var1_ano = dim_rmvmean_n_Wrap(ctrl_var1_ltmmon,0)
-    ctrl_var1_ano = where(ctrl_var1_ano .gt. 4.0, ctrl_var1_ano, ctrl_var1_ano@_FillValue)
-    ctrl_var1_ano = where(ctrl_var1_ltmmon .gt. 6.0 .or. ctrl_var1_ano .gt. 4.0, ctrl_var1_ltmmon, ctrl_var1_ano@_FillValue)
+    ;ctrl_var1_ano = where(ctrl_var1_ano .gt. 4.0, ctrl_var1_ano, ctrl_var1_ano@_FillValue)
+    ctrl_var1_ano = where(ctrl_var1_ltmmon .gt. 7.0 .or. ctrl_var1_ano .gt. 4.0, ctrl_var1_ltmmon, ctrl_var1_ano@_FillValue)
 	printVarSummary(ctrl_var1_ltmmon)
 
 
