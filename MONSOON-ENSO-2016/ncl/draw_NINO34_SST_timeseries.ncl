@@ -24,13 +24,13 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
 
-    data_file_name1="/HOME/sysu_hjkx_ys/WORKSPACE/data/model/B2000_f09_CAM5PM_spin-up/B2000_f09_CAM5PM_spin-up.cam.h0.TS.201-250.nc"
-    data_file_name2="/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pro/B2000_f09_CAM5PM_SCS_ANNCYC.cam.h0.TS.201-250.nc"
-    fig_name="/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/SCS_ANNCYC-2015/fig/auto-fig/PM_spin-up_nino34"
+    data_file_name1="../data/model/pro/B2000CTRL/B2000_f19g16_CP_CTRL.cam.h0.TS.250-349.nc"
+    data_file_name2="../data/model/pro/B2000MAM/HEAT_SCS_MAM-2015.cam.h0.TS.250-349.nc"
+    fig_name="../fig/MAM_nino34"
     fig_title="NINO3.4 INDEX Timeseries"
     
-    yrstrt  = 20102
-    yrlast  = 25101
+    yrstrt  = 25002
+    yrlast  = 35001
 
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1,"r")
@@ -87,7 +87,7 @@ begin
     res@vpXF     = 0.15
 
     res@vpWidthF = 0.8
-    res@vpHeightF= 0.3
+    res@vpHeightF= 0.2
 
 
 	res@trYMinF            = min(exp_nino34_idx)-0.5                ; Y axis limits
@@ -98,8 +98,8 @@ begin
 	res@trXMaxF  = dimsizes(exp_nino34_idx)                   ; max value on x-axis
 	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
     res@tiXAxisString = "Year"
-	res@tmXBValues = ispan(1, 600, 60) ;interval
-	res@tmXBLabels = ispan(201,250,5)         ;tick label
+	res@tmXBValues = ispan(1, 1200, 120) ;interval
+	res@tmXBLabels = ispan(250,350,10)         ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
 	res@xyLineColors       = (/"blue","red"/) ; colors chosen
 	res@xyLineThicknesses	 = (/4.0,4.0/)      ; line thicknesses
@@ -115,7 +115,7 @@ begin
 	; setting default code to be a tilde (~) in your .hluresfile.
 	; See: http://www.ncl.ucar.edu/Document/Graphics/hlures.shtml
 	;
-	 top_plot  = gsn_csm_xy (wks,ispan(1,600,1),data,res)   ; create plot
+	 top_plot  = gsn_csm_xy (wks,ispan(1,1200,1),data,res)   ; create plot
 end
 
 
