@@ -55,11 +55,10 @@ begin
 
     exp_nino34 = wgt_areaave(exp_var1(:,{-5:5},{190:240}), 1.0, 1.0, 0)
     exp_rmean_nino34 = runave_Wrap(exp_nino34,3,0)
-    exp_nino34_idx0 = rmAnnCycle1D(exp_rmean_nino34)
-    exp_nino34_idx = exp_nino34_idx0(0:35)
-    exp_nino34_idx = exp_rmean_nino34(0:35)-exp_nino34_idx
+    exp_nino34_idx = rmAnnCycle1D(exp_rmean_nino34)
+    exp_nino34_idx = exp_rmean_nino34
 
-    data=new((/2,dimsizes(exp_nino34_idx)/),float)
+    data=new((/2,dimsizes(exp_nino34)/),float)
     data(0,:)=ctrl_nino34_idx
     data(1,:)=exp_nino34_idx
     print(data)
