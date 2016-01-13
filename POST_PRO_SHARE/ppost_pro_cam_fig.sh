@@ -7,39 +7,40 @@
 # Good Luck!
 #
 # Basic Figures
-#       ----    UV850, with sig    
-#       ----    UV850, without sig    
-#       ----    Pr, with sig
-#       ----    Pr, without sig
-#       ----    UV850 + Pr, with sig
-#       ----    UV850 + Pr, without sig
+#    ANN-->Annual Mean, SSN-->Season Mean
+#
+#       ----    ANN UV850 + Pr, with sig    (1)
+#       ----    SSN UV850 + Pr, with sig    (4)
+#       ----    ANN TS, with sig            (1)
+#       ----    SSN TS, with sig            (4)
+#       ----    ANN PSL, with sig           (1)
+#       ----    SSN PSL, with sig           (4)
 #
 #
-#
-#
-#
-#               Last Modified on  2015-11-27
+#               Last Modified on  2016-01-13
 #               A L_Zealot Product
 #-----------------------------------------------
 
+echo "**************Post-post Processing Start******************"
+echo "  "
 
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pro/\"
+PRO_CTRL_DIR=\"/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/\"
 
 # CTRL Case name
 CTRL_CASENAME=\"B2000_f09_CAM5PM_spin-up\"
 
 
 # Path of the post processed data
-PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pro/\"
+PRO_SEN_DIR=\"/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/\"
 
 # SEN case name
 SEN_CASENAME=\"B2000_f09_CAM5PM_SCS_ANNCYC\"
 
 # Path of outfig
-FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/SCS_ANNCYC-2015/fig/auto-fig\"
+FIG_PATH=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/fig/auto-fig\"
 
 # History file first year
 FFRSTYEAR=201
@@ -54,7 +55,7 @@ SUB_FRSTYEAR=201
 SUB_LSTYEAR=250
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
-R_FLAG=1
+R_FLAG=0
 
 #-----------------------------------------------------------
 
@@ -71,9 +72,50 @@ else
     LONE=360.
 fi
 
+#       ----    ann ts, with sig    (1)
+echo "-----ann ts, with sig    (1)-----"
+ncl -nQ \
+    pro_ctrl_dir=$PRO_CTRL_DIR              \
+    ctrl_casename=$CTRL_CASENAME            \
+    pro_sen_dir=$PRO_SEN_DIR                \
+    sen_casename=$SEN_CASENAME              \
+    ffrstyear=$FFRSTYEAR                    \
+    flstyear=$FLSTYEAR                    \
+    sub_frstyear=$SUB_FRSTYEAR              \
+    sub_lstyear=$SUB_LSTYEAR               \
+    lats=$LATS                              \
+    latn=$LATN                              \
+    lonw=$LONW                              \
+    lone=$LONE                              \
+    fig_path=$FIG_PATH                      \
+    ./ncl/draw_diff-annual-TS_SEN-CTRL-20160113.ncl
 
-#Output post processed 2D fields
-ncl pro_ctrl_dir=$PRO_CTRL_DIR              \
+exit 0
+
+#       ----    ann uv850 + pr, with sig    (1)
+echo "-----ann uv850 + pr, with sig    (1)-----"
+ncl -nQ \
+    pro_ctrl_dir=$PRO_CTRL_DIR              \
+    ctrl_casename=$CTRL_CASENAME            \
+    pro_sen_dir=$PRO_SEN_DIR                \
+    sen_casename=$SEN_CASENAME              \
+    ffrstyear=$FFRSTYEAR              \
+    flstyear=$FLSTYEAR                    \
+    sub_frstyear=$SUB_FRSTYEAR \
+    sub_lstyear=$SUB_LSTYEAR             \
+    lats=$LATS                              \
+    latn=$LATN                              \
+    lonw=$LONW                              \
+    lone=$LONE                              \
+    fig_path=$FIG_PATH                      \
+    ./ncl/draw_diff-annual-850UV_Pr_SEN-CTRL-20160113.ncl
+
+
+
+#       ----    SSN UV850 + Pr, with sig    (4)
+echo "-----SSN UV850 + Pr, with sig    (4)-----"
+ncl -nQ \
+    pro_ctrl_dir=$PRO_CTRL_DIR              \
     ctrl_casename=$CTRL_CASENAME            \
     pro_sen_dir=$PRO_SEN_DIR                \
     sen_casename=$SEN_CASENAME              \
@@ -88,15 +130,4 @@ ncl pro_ctrl_dir=$PRO_CTRL_DIR              \
     fig_path=$FIG_PATH                      \
     ./ncl/draw_diff-season-850UV_Pr_SEN-CTRL-20151127.ncl
 
-    
-
-##Output post processed 3D fields
-#ncl pre_dir=$PRE_DIR            \
-#    pro_dir=$PRO_DIR            \
-#    fdname3d=$FDNAME3D_HY       \
-#    frstyear=$FRSTYEAR          \
-#    lstyear=$LSTYEAR            \
-#    case_name=$CASENAME         \
-#    ./ncl/take_3D_hybrid_from_raw_data-150921.ncl
-
-
+echo "**************Post-post Processing Done!!!****************"

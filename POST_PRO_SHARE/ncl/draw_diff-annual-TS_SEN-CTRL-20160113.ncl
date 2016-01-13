@@ -9,7 +9,7 @@
 ;     2.3 Sig test
 ;   4. Draw and overlap
 ;                       Zhenning Li
-;                       2015-11-27
+;                       2016-01-13
 ;Last Edited:
 ;   2015-03-01  Create
 ;   2015-03-03  Change to fit HEAT Experiment
@@ -17,6 +17,7 @@
 ;   2015-04-06  Change to fit Season jun
 ;   2015-06-23  Change to fit 973Report
 ;   2015-11-27  Change to automatic batch file
+;   2015-11-27  Change to automatic batch file (ssn->ann)
 ;*************************************************************
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
@@ -46,7 +47,6 @@ begin
 ;global variables
     g_font = 0.025
     
-    g_season      =   (/"DJF","MAM","JJA","SON"/)
 
 
     g_nsmp        =   sub_lstyear - sub_frstyear + 1;number of samples for significance test
@@ -56,14 +56,13 @@ begin
     g_run_period  =  ffrstyear+"-"+flstyear
 
         
-    g_var         = (/"U","V","PRECC","PRECL"/)
+    g_var         = (/"TS"/)
     
     g_file_profix = ".cam.h0."+g_var+"."+g_run_period+".nc"
 
-    g_fig_name    =   fig_path+"/diff-"+g_run_period+"-season-850UV_Pr-"+sen_casename+"_"+ctrl_casename
-    g_fig_rank    =   (/"(a)","(b)","(c)","(d)"/)
-    ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
-    g_fig_title   =    "850UV+Pr SEN - CON ("+g_season+")"
+    g_fig_name    =   fig_path+"/diff-"+g_run_period+"-annual-"+g_var+"-"+sen_casename+"_"+ctrl_casename
+    g_fig_rank    =   (/"","(a)","(b)","(c)","(d)"/)
+    g_fig_title   =    "TS SEN - CON (ANN)"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -72,94 +71,33 @@ begin
 ; Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
     print(">>>> Reading data...")
-	ctrl_file1   = pro_ctrl_dir+ctrl_casename+g_file_profix(0)
+   
+    ctrl_file1   = pro_ctrl_dir+ctrl_casename+g_file_profix(0)
     ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-	ctrl_var1  = ctrl_in1->$g_var(0)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+	ctrl_var3 = ctrl_in1->$g_var(0)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
 
-	ctrl_file1   = pro_ctrl_dir+ctrl_casename+g_file_profix(1)
-    ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-    ctrl_var2  = ctrl_in1->$g_var(1)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
-	
-	ctrl_file1   = pro_ctrl_dir+ctrl_casename+g_file_profix(2)
-    ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-	ctrl_var3  = ctrl_in1->$g_var(2)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
-    
-    ctrl_file1   = pro_ctrl_dir+ctrl_casename+g_file_profix(3)
-    ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-	ctrl_var4  = ctrl_in1->$g_var(3)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
-
-    ctrl_var3  = ctrl_var3+ctrl_var4
-    ctrl_var3  = ctrl_var3*86400*1000
     
     sen_file1   = pro_sen_dir+sen_casename+g_file_profix(0)
     sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-	exp_var1  = sen_in1->$g_var(0)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
+	exp_var3  = sen_in1->$g_var(0)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
 
-	sen_file1   = pro_sen_dir+sen_casename+g_file_profix(1)
-    sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-    exp_var2  = sen_in1->$g_var(1)$(g_idx_start:g_idx_end,{850},:,:)			; p for unify the var name
-	
-	sen_file1   = pro_sen_dir+sen_casename+g_file_profix(2)
-    sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-	exp_var3  = sen_in1->$g_var(2)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
-    
-    sen_file1   = pro_sen_dir+sen_casename+g_file_profix(3)
-    sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-	exp_var4  = sen_in1->$g_var(3)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
-
-    exp_var3  = exp_var3+exp_var4
-    exp_var3  = exp_var3*86400*1000
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
 
     print(">>>> Processing data...")
-    ctrl_var1_season_clim = ctrl_var1(0:3,:,:)
-    ctrl_var1_var = ctrl_var1_season_clim
-    ctrl_var2_season_clim = ctrl_var2(0:3,:,:)
-    ctrl_var2_var = ctrl_var2_season_clim
-    ctrl_var3_season_clim = ctrl_var3(0:3,:,:)
-    ctrl_var3_var = ctrl_var3_season_clim
+    ctrl_var3_annual = month_to_annual (ctrl_var3, 1)
+    ctrl_var3_annual_clim = dim_avg_n_Wrap(ctrl_var3_annual,0)
+    ctrl_var3_var = dim_variance_n_Wrap(ctrl_var3_annual,0)
 
-    exp_var1_season_clim = exp_var1(0:3,:,:)
-    exp_var1_var = exp_var1_season_clim
-    exp_var2_season_clim = exp_var2(0:3,:,:)
-    exp_var2_var = exp_var2_season_clim
-    exp_var3_season_clim = exp_var3(0:3,:,:)
-    exp_var3_var = exp_var3_season_clim
+    exp_var3_annual = month_to_annual (exp_var3, 1)
+    exp_var3_annual_clim = dim_avg_n_Wrap(exp_var3_annual,0)
+    exp_var3_var = dim_variance_n_Wrap(exp_var3_annual,0)
     
-    do ii = 0,3
-        ctrl_var1_season = month_to_season (ctrl_var1, g_season(ii))
-        ctrl_var1_season_clim(ii,:,:) = dim_avg_n_Wrap(ctrl_var1_season,0)
-        ctrl_var1_var(ii,:,:) = dim_variance_n(ctrl_var1_season,0)
+    
+    diff_var3 = exp_var3_annual_clim	
 
-        ctrl_var2_season = month_to_season (ctrl_var2, g_season(ii))
-        ctrl_var2_season_clim(ii,:,:) = dim_avg_n_Wrap(ctrl_var2_season,0)
-        ctrl_var2_var(ii,:,:) = dim_variance_n(ctrl_var2_season,0)
-
-        ctrl_var3_season = month_to_season (ctrl_var3, g_season(ii))
-        ctrl_var3_season_clim(ii,:,:) = dim_avg_n_Wrap(ctrl_var3_season,0)
-        ctrl_var3_var(ii,:,:) = dim_variance_n(ctrl_var3_season,0)
-
-        exp_var1_season = month_to_season (exp_var1, g_season(ii))
-        exp_var1_season_clim(ii,:,:) = dim_avg_n_Wrap(exp_var1_season,0)
-        exp_var1_var(ii,:,:) = dim_variance_n(exp_var1_season,0)
-
-        exp_var2_season = month_to_season (exp_var2, g_season(ii))
-        exp_var2_season_clim(ii,:,:) = dim_avg_n_Wrap(exp_var2_season,0)
-        exp_var2_var(ii,:,:) = dim_variance_n(exp_var2_season,0)
-
-        exp_var3_season = month_to_season (exp_var3, g_season(ii))
-        exp_var3_season_clim(ii,:,:) = dim_avg_n_Wrap(exp_var3_season,0)
-        exp_var3_var(ii,:,:) = dim_variance_n(exp_var3_season,0)
-    end do
-    diff_var1 = exp_var1_season_clim
-    diff_var2 = exp_var2_season_clim
-    diff_var3 = exp_var3_season_clim	
-
-    diff_var1 = (exp_var1_season_clim-ctrl_var1_season_clim)
-    diff_var2 = (exp_var2_season_clim-ctrl_var2_season_clim)
-    diff_var3 = (exp_var3_season_clim-ctrl_var3_season_clim)		
+    diff_var3 = (exp_var3_annual_clim-ctrl_var3_annual_clim)		
     diff_var3_sig = diff_var3
 
     ;============================================================
@@ -169,30 +107,28 @@ begin
     sigr = 0.1                        ; critical sig lvl for r
 
     iflag= False                        ; population variance similar
-    prob1 = ttest(ctrl_var1_season_clim,ctrl_var1_var,g_nsmp, exp_var1_season_clim,exp_var1_var,g_nsmp, iflag, False) 
-    prob2 = ttest(ctrl_var2_season_clim,ctrl_var2_var,g_nsmp, exp_var2_season_clim,exp_var2_var,g_nsmp, iflag, False)
-    prob3 = ttest(ctrl_var3_season_clim,ctrl_var3_var,g_nsmp, exp_var3_season_clim,exp_var3_var,g_nsmp, iflag, False)
+    prob3 = ttest(ctrl_var3_annual_clim,ctrl_var3_var,g_nsmp, exp_var3_annual_clim,exp_var3_var,g_nsmp, iflag, False)
     
-    diff_var1=mask(diff_var1, (prob1 .lt. sigr) .or. (prob2 .lt. sigr), True)
     diff_var3_sig=mask(diff_var3, prob3 .lt. sigr, True)
+
 ;-----------------------------------------------------------------------------
-print(">>>> Processing figures...")
-wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+ print(">>>> Processing figures")
+ wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  plot = new((/4/),graphic)
+  plot = new((/1/),graphic)
   ;plot_tp = new((/2/),graphic)
-  plot_sig = new((/4/),graphic)
-  plot_V = new((/4/),graphic)
+  plot_sig = new((/1/),graphic)
+  plot_V = new((/1/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-  gsn_define_colormap(wks,"precip_diff_12lev")
+;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
   res                  = True       ; use plot options
 
@@ -215,9 +151,9 @@ wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -2.5         ; set min contour level
- res@cnMaxLevelValF        = 2.5          ; set max contour level
- res@cnLevelSpacingF       = 0.25          ; set contour interval
+ res@cnMinLevelValF        = -1.5         ; set min contour level
+ res@cnMaxLevelValF        = 1.5          ; set max contour level
+ res@cnLevelSpacingF       = 0.1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -331,20 +267,17 @@ wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
     vcres@vcLineArrowHeadMinSizeF   = 0.015
     vcres@vcLineArrowHeadMaxSizeF   = 0.03
 ;--------------------------------------
-do ii=0,3
+do ii=0,0
     res@gsnLeftString = g_fig_rank(ii)
     res@gsnCenterString = g_fig_title(ii)
-    plot(ii) = gsn_csm_contour_map_ce(wks,diff_var3(ii,:,:),res) ; create a default plot
-    plot_sig(ii) = gsn_csm_contour(wks,diff_var3_sig(ii,:,:),res_sig)
-    plot_V(ii) = gsn_csm_vector(wks,diff_var1(ii,:,:),diff_var2(ii,:,:),vcres)
+    plot(ii) = gsn_csm_contour_map_ce(wks,diff_var3,res) ; create a default plot
+    plot_sig(ii) = gsn_csm_contour(wks,diff_var3_sig,res_sig)
   
     overlay(plot(ii),plot_sig(ii))
-    overlay(plot(ii),plot_V(ii))
 end do
  
-  gsn_panel(wks,plot,(/2,2/),False)
 
   draw(plot)
   frame(wks)
-print(">>>> DONE!!!")
+  print(">>>> DONE!!!")
 end 
