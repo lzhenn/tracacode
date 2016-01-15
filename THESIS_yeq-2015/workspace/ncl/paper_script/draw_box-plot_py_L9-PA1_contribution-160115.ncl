@@ -22,8 +22,8 @@ begin
 	g_species = "PM25"
     g_pm25_species = (/"ASO4J","ASO4I","ANO3J","ANO3I","ANH4J","ANH4I","AALKJ","AXYL1J","AXYL2J","AXYL3J",\
                        "ATOL1J","ATOL2J","ATOL3J","ABNZ1J","ABNZ2J","ABNZ3J","ATRP1J","ATRP2J","AISO1J","AISO2J",\
-                       "ASQTJ","AORGCJ","AORGPAI","AORGPAJ","AECJ","AECI","A25J","A25I","ANAJ","ACLJ",\
-                       "ACLI","ANAI","AISO3J","AOLGAJ","AOLGBJ"/)
+                       "ASQTJ","AORGCJ","AORGPAI","AORGPAJ","AECJ","AECI","A25J","ANAJ","ACLJ",\
+                       "ACLI","AISO3J","AOLGAJ","AOLGBJ"/)
     g_filetime = (/"07","10","13","16","19","22","25"/)
     g_filename = (/"sw","gz","fs","sz","gd1","gd2","gd3","gd4","gd5"/)
     g_new_filename = (/"SW","GZ","FS","SZ","ZQS","YX","ZJZ","DH","YD"/)
@@ -36,7 +36,7 @@ begin
 ; ==============================================================
 
     ;read PM25 CCTM ctrl result
-    ctrl_in      = addfiles("../../data/CCTM/base/201011"+g_filetime+"00_3km.ACONC.ncf","r")
+    ctrl_in      = addfiles("../../data/CCTM/base/201011"+g_filetime+"00_3km.CONC.ncf","r")
     ctrl_var     = ctrl_in[:]->$g_pm25_species(0)$                 ; znw(bottom_top_stag)
     do i=1,dimsizes(g_pm25_species)-1
         ctrl_var     =ctrl_var + ctrl_in[:]->$g_pm25_species(i)$                 ; znw(bottom_top_stag)
@@ -64,7 +64,7 @@ begin
     ;read PM25 CCTM sen result
     sen_var = new((/dimsizes(g_filename),g_hours,1,110,152/),double)  
     do i = 0,dimsizes(g_filename)-1
-        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")    
+        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.CONC.ncf","r")    
         sen_var(i,:,:,:,:)     = sen_in[:]->$g_pm25_species(0)$                 ; znw(bottom_top_stag)
         do j=1,dimsizes(g_pm25_species)-1
             sen_var(i,:,:,:,:)     =sen_var(i,:,:,:,:)+sen_in[:]->$g_pm25_species(j)$                 ; znw(bottom_top_stag)
@@ -112,7 +112,7 @@ begin
     ;contri
     diff = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff(i,:) = sen_var(i,72:95,0,g_lat,g_long)-ctrl_var(72:95,0,g_lat,g_long)
+        diff(i,:) = sen_var(i,72:96,0,g_lat,g_long)-ctrl_var(72:96,0,g_lat,g_long)
     end do
     diff_sum = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
@@ -125,7 +125,7 @@ begin
     
     diff_so4 = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff_so4(i,:) = sen_var_so4(i,72:95,0,g_lat,g_long)-ctrl_var_so4(72:95,0,g_lat,g_long)
+        diff_so4(i,:) = sen_var_so4(i,72:96,0,g_lat,g_long)-ctrl_var_so4(72:96,0,g_lat,g_long)
     end do
     diff_sum_so4 = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
@@ -138,7 +138,7 @@ begin
 
     diff_no3 = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff_no3(i,:) = sen_var_no3(i,72:95,0,g_lat,g_long)-ctrl_var_no3(72:95,0,g_lat,g_long)
+        diff_no3(i,:) = sen_var_no3(i,72:96,0,g_lat,g_long)-ctrl_var_no3(72:96,0,g_lat,g_long)
     end do
     diff_sum_no3 = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
@@ -151,7 +151,7 @@ begin
 
     diff_nh4 = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff_nh4(i,:) = sen_var_nh4(i,72:95,0,g_lat,g_long)-ctrl_var_nh4(72:95,0,g_lat,g_long)
+        diff_nh4(i,:) = sen_var_nh4(i,72:96,0,g_lat,g_long)-ctrl_var_nh4(72:96,0,g_lat,g_long)
     end do
     diff_sum_nh4 = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
@@ -164,7 +164,7 @@ begin
 
     diff_oc = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff_oc(i,:) = sen_var_oc(i,72:95,0,g_lat,g_long)-ctrl_var_oc(72:95,0,g_lat,g_long)
+        diff_oc(i,:) = sen_var_oc(i,72:96,0,g_lat,g_long)-ctrl_var_oc(72:96,0,g_lat,g_long)
     end do
     diff_sum_oc = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
@@ -177,7 +177,7 @@ begin
 
     diff_ec = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff_ec(i,:) = sen_var_ec(i,72:95,0,g_lat,g_long)-ctrl_var_ec(72:95,0,g_lat,g_long)
+        diff_ec(i,:) = sen_var_ec(i,72:96,0,g_lat,g_long)-ctrl_var_ec(72:96,0,g_lat,g_long)
     end do
     diff_sum_ec = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
