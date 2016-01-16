@@ -20,13 +20,12 @@
 #*************************************************************
 
 # Restart Case Name
-CASENAME=CAM5_T
+CASENAME=B2000_f19g16_CP_CTRL
 
 # Rpointer files PATH (must be a separate dir)
-RP_DIR=/users/yangsong3/L_Zealot/project/CESM_SHARE_UTILITY
-
+RP_DIR=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/run
 # Restart point (in yyyy-mm-dd format)
-RPOINT=0666-01-01
+RPOINT=0250-01-01
 
 
 #*************Below to execute the changes*********************
@@ -46,7 +45,7 @@ echo "                                                    2015/01/11"
 echo "*****************CESM RESTART CONGFIGURATION******************"
 echo "                                                              "
 
-#sleep 10
+sleep 10
 
 
 #--------------------------------------
