@@ -31,17 +31,18 @@ begin
     g_lat = 51
     g_long = 76
     g_new_hours = 24
+    g_l = 9
 ; ==============================================================
 ; Mission1.    Read PM2.5
 ; ==============================================================
 
     ;read PM25 CCTM ctrl result
-    ctrl_in      = addfiles("../../data/CCTM/base/201011"+g_filetime+"00_3km.CONC.ncf","r")
-    ctrl_var     = ctrl_in[:]->$g_pm25_species(0)$                 ; znw(bottom_top_stag)
+    ctrl_in      = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/base/201011"+g_filetime+"00_3km.CONC.ncf","r")
+    ctrl_var     = ctrl_in[:]->$g_pm25_species(0)$(:,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
     do i=1,dimsizes(g_pm25_species)-1
-        ctrl_var     =ctrl_var + ctrl_in[:]->$g_pm25_species(i)$                 ; znw(bottom_top_stag)
+        ctrl_var     =ctrl_var + ctrl_in[:]->$g_pm25_species(i)$(:,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
     end do
-
+    
     ctrl_var_so4 = ctrl_in[:]->$g_pm25_species(0)$ 
     ctrl_var_so4 = ctrl_var_so4 + ctrl_in[:]->$g_pm25_species(1)$
 
@@ -62,57 +63,57 @@ begin
     g_hours =dim_ctrl_var(0)
     
     ;read PM25 CCTM sen result
-    sen_var = new((/dimsizes(g_filename),g_hours,1,110,152/),double)  
+    sen_var = new((/dimsizes(g_filename),g_hours/),double)  
     do i = 0,dimsizes(g_filename)-1
-        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.CONC.ncf","r")    
-        sen_var(i,:,:,:,:)     = sen_in[:]->$g_pm25_species(0)$                 ; znw(bottom_top_stag)
+        sen_in = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/cctm_no-"+g_filename(i)+"/201011"+g_filetime+"00_3km.CONC.ncf","r")    
+        sen_var(i,:)     = sen_in[:]->$g_pm25_species(0)$(:,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
         do j=1,dimsizes(g_pm25_species)-1
-            sen_var(i,:,:,:,:)     =sen_var(i,:,:,:,:)+sen_in[:]->$g_pm25_species(j)$                 ; znw(bottom_top_stag)
+            sen_var(i,:)     =sen_var(i,:)+sen_in[:]->$g_pm25_species(j)$(:,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
         end do
     end do
 
-    sen_var_so4 = new((/dimsizes(g_filename),g_hours,1,110,152/),double)
+    sen_var_so4 = new((/dimsizes(g_filename),g_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
-        sen_var_so4(i,:,:,:,:)     = sen_in[:]->$g_pm25_species(0)$                 
-        sen_var_so4(i,:,:,:,:)     = sen_var_so4(i,:,:,:,:) + sen_in[:]->$g_pm25_species(1)$                
+        sen_in = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/cctm_no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
+        sen_var_so4(i,:)     = sen_in[:]->$g_pm25_species(0)$(:,g_l-1,g_lat-1,g_long-1)                 
+        sen_var_so4(i,:)     = sen_var_so4(i,:) + sen_in[:]->$g_pm25_species(1)$(:,g_l-1,g_lat-1,g_long-1)                
     end do
 
-    sen_var_no3 = new((/dimsizes(g_filename),g_hours,1,110,152/),double)
+    sen_var_no3 = new((/dimsizes(g_filename),g_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
-        sen_var_no3(i,:,:,:,:)     = sen_in[:]->$g_pm25_species(2)$
-        sen_var_no3(i,:,:,:,:)     = sen_var_no3(i,:,:,:,:) + sen_in[:]->$g_pm25_species(3)$
+        sen_in = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/cctm_no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
+        sen_var_no3(i,:)     = sen_in[:]->$g_pm25_species(2)$(:,g_l-1,g_lat-1,g_long-1)
+        sen_var_no3(i,:)     = sen_var_no3(i,:) + sen_in[:]->$g_pm25_species(3)$(:,g_l-1,g_lat-1,g_long-1)
     end do
 
-    sen_var_nh4 = new((/dimsizes(g_filename),g_hours,1,110,152/),double)
+    sen_var_nh4 = new((/dimsizes(g_filename),g_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
-        sen_var_nh4(i,:,:,:,:)     = sen_in[:]->$g_pm25_species(4)$
-        sen_var_nh4(i,:,:,:,:)     = sen_var_nh4(i,:,:,:,:) + sen_in[:]->$g_pm25_species(5)$
+        sen_in = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/cctm_no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
+        sen_var_nh4(i,:)     = sen_in[:]->$g_pm25_species(4)$(:,g_l-1,g_lat-1,g_long-1)
+        sen_var_nh4(i,:)     = sen_var_nh4(i,:) + sen_in[:]->$g_pm25_species(5)$(:,g_l-1,g_lat-1,g_long-1)
     end do
 
-    sen_var_oc = new((/dimsizes(g_filename),g_hours,1,110,152/),double)
+    sen_var_oc = new((/dimsizes(g_filename),g_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
-        sen_var_oc(i,:,:,:,:)     = sen_in[:]->$g_pm25_species(22)$
-        sen_var_oc(i,:,:,:,:)     = sen_var_oc(i,:,:,:,:) + sen_in[:]->$g_pm25_species(23)$
+        sen_in = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/cctm_no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
+        sen_var_oc(i,:)     = sen_in[:]->$g_pm25_species(22)$(:,g_l-1,g_lat-1,g_long-1)
+        sen_var_oc(i,:)     = sen_var_oc(i,:) + sen_in[:]->$g_pm25_species(23)$(:,g_l-1,g_lat-1,g_long-1)
     end do
 
-    sen_var_ec = new((/dimsizes(g_filename),g_hours,1,110,152/),double)
+    sen_var_ec = new((/dimsizes(g_filename),g_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        sen_in = addfiles("../../data/CCTM/no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
-        sen_var_ec(i,:,:,:,:)     = sen_in[:]->$g_pm25_species(24)$
-        sen_var_ec(i,:,:,:,:)     = sen_var_ec(i,:,:,:,:) + sen_in[:]->$g_pm25_species(25)$
+        sen_in = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/cctm_no-"+g_filename(i)+"-all/201011"+g_filetime+"00_3km.ACONC.ncf","r")
+        sen_var_ec(i,:)     = sen_in[:]->$g_pm25_species(24)$(:,g_l-1,g_lat-1,g_long-1)
+        sen_var_ec(i,:)     = sen_var_ec(i,:) + sen_in[:]->$g_pm25_species(25)$(:,g_l-1,g_lat-1,g_long-1)
     end do
-    
+    exit
 ;**********************************************************************************************
 ;MISSION.2.1   Compute GZ PM2.5 diurnal domain contri  
 ;**********************************************************************************************
     ;contri
     diff = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff(i,:) = sen_var(i,72:96,0,g_lat,g_long)-ctrl_var(72:96,0,g_lat,g_long)
+        diff(i,:) = sen_var(i,72:96)-ctrl_var(72:96)
     end do
     diff_sum = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
@@ -125,7 +126,7 @@ begin
     
     diff_so4 = new((/dimsizes(g_filename),g_new_hours/),double)
     do i = 0,dimsizes(g_filename)-1
-        diff_so4(i,:) = sen_var_so4(i,72:96,0,g_lat,g_long)-ctrl_var_so4(72:96,0,g_lat,g_long)
+        diff_so4(i,:) = sen_var_so4(i,72:96)-ctrl_var_so4(72:96)
     end do
     diff_sum_so4 = new((/g_new_hours/),double)
     do i = 0,g_new_hours-1
