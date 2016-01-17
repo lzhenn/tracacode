@@ -30,10 +30,10 @@ echo "  "
 
 #**************************CTRL SETTINGS**************************
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/\"
+PRO_CTRL_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/B2000_f19g16_CP_CTRL/pro/\"
 
 # CTRL Case name
-CTRL_CASENAME=\"B2000_f09_CAM5PM_spin-up\"
+CTRL_CASENAME=\"B2000_f19g16_CP_CTRL\"
 
 # CTRL data in one bulk file or severial files, 0 for files
 CTRL_PFILE=1
@@ -48,22 +48,22 @@ FLSTYEAR=349
 
 #**************************SEN SETTINGS**************************
 # Path of the post processed data
-PRO_SEN_DIR=\"/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/\"
+PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/run/\"
 
 # SEN case name
-SEN_CASENAME=\"B2000_f09_CAM5PM_SCS_ANNCYC\"
+SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
 
 # Subset first year in SEN
-SUB_FRSTYEAR=250
+SEN_FRSTYEAR=250
 
 # Subset last year in SEN
-SUB_LSTYEAR=290
+SEN_LSTYEAR=253
 
 
 
 #**************************FIGURE SETTINGS**************************
 # Path of outfig
-FIG_PATH=\"/home/yangsong3/L_Zealot/project/SCS_ANNCYC-2015/fig/auto-fig\"
+FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/MONSOON-ENSO-2016/fig\"
 
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
@@ -95,18 +95,19 @@ echo "-----ann ts, with sig    (1)-----"
 ncl -nQ \
     pro_ctrl_dir=$PRO_CTRL_DIR              \
     ctrl_casename=$CTRL_CASENAME            \
+    ctrl_pfile=$CTRL_PFILE                  \
     pro_sen_dir=$PRO_SEN_DIR                \
     sen_casename=$SEN_CASENAME              \
     ffrstyear=$FFRSTYEAR                    \
     flstyear=$FLSTYEAR                    \
-    sub_frstyear=$SUB_FRSTYEAR              \
-    sub_lstyear=$SUB_LSTYEAR               \
+    sen_frstyear=$SEN_FRSTYEAR              \
+    sen_lstyear=$SEN_LSTYEAR               \
     lats=$LATS                              \
     latn=$LATN                              \
     lonw=$LONW                              \
     lone=$LONE                              \
     fig_path=$FIG_PATH                      \
-    ./ncl/draw_diff-annual-TS_SEN-CTRL-20160113.ncl
+    ./ncl/quickplot_diff-annual-TS_SEN-CTRL-20160113.ncl
 
 exit 0
 
