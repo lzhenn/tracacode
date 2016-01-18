@@ -27,36 +27,38 @@ begin
     g_filetime = (/"07","10","13","16","19","22","25"/)
     g_filename = (/"sw","gz","fs","sz","gd1","gd2","gd3","gd4","gd5"/)
     g_new_filename = (/"SW","GZ","FS","SZ","ZQS","YX","ZJZ","DH","YD"/)
-    g_fig_name = "../../fig/box-plot_py_L9_PA1_contribution"
+    g_fig_name = "../../fig/box-plot_py_L9_PA2_contribution"
     g_lat = 51
     g_long = 76
-    g_new_hours = 25
+    g_new_hours = 73
     g_l = 9
+    g_s = 120 
+    g_e = 192
 ; ==============================================================
 ; Mission1.    Read PM2.5
 ; ==============================================================
 
     ;read PM25 CCTM ctrl result
     ctrl_in      = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/base/201011"+g_filetime+"00_3km.CONC.ncf","r")
-    ctrl_var     = ctrl_in[:]->$g_pm25_species(0)$(72:96,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
+    ctrl_var     = ctrl_in[:]->$g_pm25_species(0)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
     do i=1,dimsizes(g_pm25_species)-1
-        ctrl_var     =ctrl_var + ctrl_in[:]->$g_pm25_species(i)$(72:96,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
+        ctrl_var     =ctrl_var + ctrl_in[:]->$g_pm25_species(i)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
     end do
     
-    ctrl_var_so4 = ctrl_in[:]->$g_pm25_species(0)$(72:96,g_l-1,g_lat-1,g_long-1) 
-    ctrl_var_so4 = ctrl_var_so4 + ctrl_in[:]->$g_pm25_species(1)$(72:96,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_so4 = ctrl_in[:]->$g_pm25_species(0)$(g_s:g_e,g_l-1,g_lat-1,g_long-1) 
+    ctrl_var_so4 = ctrl_var_so4 + ctrl_in[:]->$g_pm25_species(1)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
 
-    ctrl_var_no3 = ctrl_in[:]->$g_pm25_species(2)$(72:96,g_l-1,g_lat-1,g_long-1)
-    ctrl_var_no3 = ctrl_var_no3 + ctrl_in[:]->$g_pm25_species(3)$(72:96,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_no3 = ctrl_in[:]->$g_pm25_species(2)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_no3 = ctrl_var_no3 + ctrl_in[:]->$g_pm25_species(3)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
     
-    ctrl_var_nh4 = ctrl_in[:]->$g_pm25_species(4)$(72:96,g_l-1,g_lat-1,g_long-1)
-    ctrl_var_nh4 = ctrl_var_nh4 + ctrl_in[:]->$g_pm25_species(5)$(72:96,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_nh4 = ctrl_in[:]->$g_pm25_species(4)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_nh4 = ctrl_var_nh4 + ctrl_in[:]->$g_pm25_species(5)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
 
-    ctrl_var_oc = ctrl_in[:]->$g_pm25_species(22)$(72:96,g_l-1,g_lat-1,g_long-1)
-    ctrl_var_oc = ctrl_var_oc + ctrl_in[:]->$g_pm25_species(23)$(72:96,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_oc = ctrl_in[:]->$g_pm25_species(22)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_oc = ctrl_var_oc + ctrl_in[:]->$g_pm25_species(23)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
 
-    ctrl_var_ec = ctrl_in[:]->$g_pm25_species(24)$(72:96,g_l-1,g_lat-1,g_long-1)
-    ctrl_var_ec = ctrl_var_ec + ctrl_in[:]->$g_pm25_species(25)$(72:96,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_ec = ctrl_in[:]->$g_pm25_species(24)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+    ctrl_var_ec = ctrl_var_ec + ctrl_in[:]->$g_pm25_species(25)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
 
     dim_ctrl_var = dimsizes(ctrl_var)
     g_hours =dim_ctrl_var(0)
@@ -70,25 +72,25 @@ begin
     sen_var_ec = new((/dimsizes(g_filename),g_hours/),double)
     do i = 0,dimsizes(g_filename)-1
         sen_in = addfiles("/home/yangsong3/L_Zealot/data-mirror/model/THESIS_yeq-2015/cctm/cctm_no-"+g_filename(i)+"/201011"+g_filetime+"00_3km.CONC.ncf","r")    
-        sen_var(i,:)     = sen_in[:]->$g_pm25_species(0)$(72:96,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
+        sen_var(i,:)     = sen_in[:]->$g_pm25_species(0)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
         do j=1,dimsizes(g_pm25_species)-1
-            sen_var(i,:)     =sen_var(i,:)+sen_in[:]->$g_pm25_species(j)$(72:96,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
+            sen_var(i,:)     =sen_var(i,:)+sen_in[:]->$g_pm25_species(j)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)                 ; znw(bottom_top_stag)
         end do
         
-        sen_var_so4(i,:)     = sen_in[:]->$g_pm25_species(0)$(72:96,g_l-1,g_lat-1,g_long-1)                 
-        sen_var_so4(i,:)     = sen_var_so4(i,:) + sen_in[:]->$g_pm25_species(1)$(72:96,g_l-1,g_lat-1,g_long-1)                
+        sen_var_so4(i,:)     = sen_in[:]->$g_pm25_species(0)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)                 
+        sen_var_so4(i,:)     = sen_var_so4(i,:) + sen_in[:]->$g_pm25_species(1)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)                
  
-        sen_var_no3(i,:)     = sen_in[:]->$g_pm25_species(2)$(72:96,g_l-1,g_lat-1,g_long-1)
-        sen_var_no3(i,:)     = sen_var_no3(i,:) + sen_in[:]->$g_pm25_species(3)$(72:96,g_l-1,g_lat-1,g_long-1)
+        sen_var_no3(i,:)     = sen_in[:]->$g_pm25_species(2)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+        sen_var_no3(i,:)     = sen_var_no3(i,:) + sen_in[:]->$g_pm25_species(3)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
     
-        sen_var_nh4(i,:)     = sen_in[:]->$g_pm25_species(4)$(72:96,g_l-1,g_lat-1,g_long-1)
-        sen_var_nh4(i,:)     = sen_var_nh4(i,:) + sen_in[:]->$g_pm25_species(5)$(72:96,g_l-1,g_lat-1,g_long-1)
+        sen_var_nh4(i,:)     = sen_in[:]->$g_pm25_species(4)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+        sen_var_nh4(i,:)     = sen_var_nh4(i,:) + sen_in[:]->$g_pm25_species(5)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
  
-        sen_var_oc(i,:)     = sen_in[:]->$g_pm25_species(22)$(72:96,g_l-1,g_lat-1,g_long-1)
-        sen_var_oc(i,:)     = sen_var_oc(i,:) + sen_in[:]->$g_pm25_species(23)$(72:96,g_l-1,g_lat-1,g_long-1)
+        sen_var_oc(i,:)     = sen_in[:]->$g_pm25_species(22)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+        sen_var_oc(i,:)     = sen_var_oc(i,:) + sen_in[:]->$g_pm25_species(23)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
  
-        sen_var_ec(i,:)     = sen_in[:]->$g_pm25_species(24)$(72:96,g_l-1,g_lat-1,g_long-1)
-        sen_var_ec(i,:)     = sen_var_ec(i,:) + sen_in[:]->$g_pm25_species(25)$(72:96,g_l-1,g_lat-1,g_long-1)
+        sen_var_ec(i,:)     = sen_in[:]->$g_pm25_species(24)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
+        sen_var_ec(i,:)     = sen_var_ec(i,:) + sen_in[:]->$g_pm25_species(25)$(g_s:g_e,g_l-1,g_lat-1,g_long-1)
  
     end do
 
@@ -139,16 +141,12 @@ begin
         contri_nh4(i,:) = -diff_nh4(i,:)/diff_sum_nh4
         contri_oc(i,:) = -diff_oc(i,:)/diff_sum_oc
         contri_ec(i,:) = -diff_ec(i,:)/diff_sum_ec
-;        contri(i,:) = where(ctrl_var .lt. 75,contri@_FillValue,contri(i,:))
-;        contri_no3(i,:) = where(ctrl_var .lt. 75,contri@_FillValue,contri_no3(i,:))
-;        contri_so4(i,:) = where(ctrl_var .lt. 75,contri@_FillValue,contri_so4(i,:))
-;        contri_nh4(i,:) = where(ctrl_var .lt. 75,contri@_FillValue,contri_nh4(i,:))
-;        contri_oc(i,:) = where(ctrl_var .lt. 75,contri@_FillValue,contri_oc(i,:))
-;        contri_ec(i,:) = where(ctrl_var .lt. 75,contri@_FillValue,contri_ec(i,:))
+        ;contri_no3(i,:) = where(ctrl_var .lt. 25,contri@_FillValue,contri_no3(i,:))
     end do
-    contri_no3(:,10) = 0
-    contri_no3(:,11) = 0
-    contri_no3(:,12) = 0
+    contri_no3(:,14) = 0
+    contri_no3(:,40) = 0
+    contri_no3(:,64) = 0
+    contri_no3(:,71) = 0
 ; ==============================================================
 ; Mission 3. Prepare the figure data
 ; ==============================================================
@@ -267,8 +265,8 @@ begin
     res2@tmXBLabelFontHeightF = g_font
     res2@tmYLLabelFontHeightF = g_font
     res2@tiMainFontHeightF    = 0.03
-    res2@trYMinF = -0.15
-    res2@trYMaxF = 1
+    res2@trYMinF = -1.1
+    res2@trYMaxF = 2
     res2@tmYROn = True
     res2@tmXTOn = True
     res2@tmXTBorderOn = True 
@@ -284,7 +282,7 @@ begin
     res3@tmYLLabelFontHeightF = g_font
     res3@tiMainFontHeightF    = 0.03
     res3@trYMinF = -0.1
-    res3@trYMaxF = 0.6
+    res3@trYMaxF = 0.8
     res3@tmYROn = True
     res3@tmXTOn = True
     res3@tmXTBorderOn = True 

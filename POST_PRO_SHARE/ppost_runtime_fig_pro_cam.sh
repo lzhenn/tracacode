@@ -48,7 +48,7 @@ FLSTYEAR=349
 
 #**************************SEN SETTINGS**************************
 # Path of the post processed data
-PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/run/\"
+PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/data_sen/\"
 
 # SEN case name
 SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
@@ -57,7 +57,7 @@ SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
 SEN_FRSTYEAR=250
 
 # Subset last year in SEN
-SEN_LSTYEAR=253
+SEN_LSTYEAR=269
 
 
 
@@ -68,6 +68,13 @@ FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/MONSOON-ENSO-2016/fig\"
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
 R_FLAG=0
+
+# Draw flags
+ANN_TS_FLAG=0
+SNN_TS_FLAG=1
+
+SNN_PR_FLAG=1
+
 
 #**************************PROCESS SETTINGS**************************
 
@@ -91,46 +98,70 @@ fi
 
 
 #       ----    ann ts, with sig    (1)
-echo "-----ann ts, with sig    (1)-----"
-ncl -nQ \
-    pro_ctrl_dir=$PRO_CTRL_DIR              \
-    ctrl_casename=$CTRL_CASENAME            \
-    ctrl_pfile=$CTRL_PFILE                  \
-    pro_sen_dir=$PRO_SEN_DIR                \
-    sen_casename=$SEN_CASENAME              \
-    ffrstyear=$FFRSTYEAR                    \
-    flstyear=$FLSTYEAR                    \
-    sen_frstyear=$SEN_FRSTYEAR              \
-    sen_lstyear=$SEN_LSTYEAR               \
-    lats=$LATS                              \
-    latn=$LATN                              \
-    lonw=$LONW                              \
-    lone=$LONE                              \
-    fig_path=$FIG_PATH                      \
-    ./ncl/quickplot_diff-annual-TS_SEN-CTRL-20160113.ncl
-
-exit 0
+if [ $ANN_TS_FLAG == 1 ] ; then
+    echo "-----ann ts, with sig    (1)-----"
+    ncl -nQ \
+        pro_ctrl_dir=$PRO_CTRL_DIR              \
+        ctrl_casename=$CTRL_CASENAME            \
+        ctrl_pfile=$CTRL_PFILE                  \
+        pro_sen_dir=$PRO_SEN_DIR                \
+        sen_casename=$SEN_CASENAME              \
+        ffrstyear=$FFRSTYEAR                    \
+        flstyear=$FLSTYEAR                    \
+        sen_frstyear=$SEN_FRSTYEAR              \
+        sen_lstyear=$SEN_LSTYEAR               \
+        lats=$LATS                              \
+        latn=$LATN                              \
+        lonw=$LONW                              \
+        lone=$LONE                              \
+        fig_path=$FIG_PATH                      \
+        ./ncl/quickplot_diff-annual-TS_SEN-CTRL-20160113.ncl
+fi
 
 #       ----    ann uv850 + pr, with sig    (1)
-echo "-----ann uv850 + pr, with sig    (1)-----"
-ncl -nQ \
-    pro_ctrl_dir=$PRO_CTRL_DIR              \
-    ctrl_casename=$CTRL_CASENAME            \
-    pro_sen_dir=$PRO_SEN_DIR                \
-    sen_casename=$SEN_CASENAME              \
-    ffrstyear=$FFRSTYEAR              \
-    flstyear=$FLSTYEAR                    \
-    sub_frstyear=$SUB_FRSTYEAR \
-    sub_lstyear=$SUB_LSTYEAR             \
-    lats=$LATS                              \
-    latn=$LATN                              \
-    lonw=$LONW                              \
-    lone=$LONE                              \
-    fig_path=$FIG_PATH                      \
-    ./ncl/draw_diff-annual-850UV_Pr_SEN-CTRL-20160113.ncl
+if [ $SNN_TS_FLAG == 1 ] ; then
+    echo "-----season ts, with sig    (4)-----"
+    ncl -nQ \
+        pro_ctrl_dir=$PRO_CTRL_DIR              \
+        ctrl_casename=$CTRL_CASENAME            \
+        ctrl_pfile=$CTRL_PFILE                  \
+        pro_sen_dir=$PRO_SEN_DIR                \
+        sen_casename=$SEN_CASENAME              \
+        ffrstyear=$FFRSTYEAR                    \
+        flstyear=$FLSTYEAR                    \
+        sen_frstyear=$SEN_FRSTYEAR              \
+        sen_lstyear=$SEN_LSTYEAR               \
+        lats=$LATS                              \
+        latn=$LATN                              \
+        lonw=$LONW                              \
+        lone=$LONE                              \
+        fig_path=$FIG_PATH                      \
+        ./ncl/quickplot_diff-season-TS_SEN-CTRL-20160113.ncl
+fi
+
+#       ----    ann uv850 + pr, with sig    (1)
+if [ $SNN_PR_FLAG == 1 ] ; then
+    echo "-----season pr, with sig    (4)-----"
+    ncl -nQ \
+        pro_ctrl_dir=$PRO_CTRL_DIR              \
+        ctrl_casename=$CTRL_CASENAME            \
+        ctrl_pfile=$CTRL_PFILE                  \
+        pro_sen_dir=$PRO_SEN_DIR                \
+        sen_casename=$SEN_CASENAME              \
+        ffrstyear=$FFRSTYEAR                    \
+        flstyear=$FLSTYEAR                    \
+        sen_frstyear=$SEN_FRSTYEAR              \
+        sen_lstyear=$SEN_LSTYEAR               \
+        lats=$LATS                              \
+        latn=$LATN                              \
+        lonw=$LONW                              \
+        lone=$LONE                              \
+        fig_path=$FIG_PATH                      \
+        ./ncl/quickplot_diff-season-Pr_SEN-CTRL-20160113.ncl
+fi
 
 
-
+exit 0
 #       ----    SSN UV850 + Pr, with sig    (4)
 echo "-----SSN UV850 + Pr, with sig    (4)-----"
 ncl -nQ \
