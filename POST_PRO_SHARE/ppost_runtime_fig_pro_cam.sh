@@ -48,7 +48,7 @@ FLSTYEAR=349
 
 #**************************SEN SETTINGS**************************
 # Path of the post processed data
-PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/data_sen/\"
+PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/run/\"
 
 # SEN case name
 SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
@@ -57,7 +57,7 @@ SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
 SEN_FRSTYEAR=250
 
 # Subset last year in SEN
-SEN_LSTYEAR=269
+SEN_LSTYEAR=254
 
 
 
@@ -70,7 +70,7 @@ FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/MONSOON-ENSO-2016/fig\"
 R_FLAG=0
 
 # Draw flags
-ANN_TS_FLAG=0
+ANN_TS_FLAG=1
 SNN_TS_FLAG=1
 
 SNN_PR_FLAG=1
@@ -80,10 +80,10 @@ SNN_PR_FLAG=1
 
 if  [ $R_FLAG == 1 ] ; then
 #EA
-    LATS=-5.
+    LATS=-30.
     LATN=45.
-    LONW=90.
-    LONE=160.
+    LONW=60.
+    LONE=180.
 else
     LATS=-90.
     LATN=90.

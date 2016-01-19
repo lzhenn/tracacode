@@ -27,9 +27,9 @@ begin
     g_filetime = (/"07","10","13","16","19","22","25"/)
     g_filename = (/"sw","gz","fs","sz","gd1","gd2","gd3","gd4","gd5"/)
     g_new_filename = (/"SW","GZ","FS","SZ","ZQS","YX","ZJZ","DH","YD"/)
-    g_fig_name = "../../fig/box-plot_py_L15_PA3_contribution"
-    g_lat = 51
-    g_long = 76
+    g_fig_name = "../../fig/box-plot_nh_L15_PA3_contribution"
+    g_lat = 55
+    g_long = 69
     g_new_hours = 49
     g_l = 14
     g_s = 312 
@@ -142,10 +142,6 @@ begin
         contri_oc(i,:) = -diff_oc(i,:)/diff_sum_oc
         contri_ec(i,:) = -diff_ec(i,:)/diff_sum_ec
     end do
-    contri_so4(:,25:26) = 0
-    ;contri_no3(:,40) = 0
-    ;contri_no3(:,64) = 0
-    ;contri_no3(:,71) = 0
 ; ==============================================================
 ; Mission 3. Prepare the figure data
 ; ==============================================================
@@ -265,7 +261,7 @@ begin
     res2@tmYLLabelFontHeightF = g_font
     res2@tiMainFontHeightF    = 0.03
     res2@trYMinF = -0.15
-    res2@trYMaxF = 1
+    res2@trYMaxF = 0.8
     res2@tmYROn = True
     res2@tmXTOn = True
     res2@tmXTBorderOn = True 
@@ -297,7 +293,7 @@ begin
     res4@tmYLLabelFontHeightF = g_font
     res4@tiMainFontHeightF    = 0.03
     res4@trYMinF = -0.1
-    res4@trYMaxF = 0.8
+    res4@trYMaxF = 1
     res4@tmYROn = True
     res4@tmXTOn = True
     res4@tmXTBorderOn = True 
@@ -313,7 +309,7 @@ begin
     res5@tmYLLabelFontHeightF = g_font
     res5@tiMainFontHeightF    = 0.03
     res5@trYMinF = -0.1
-    res5@trYMaxF = 0.8
+    res5@trYMaxF = 1
     res5@tmYROn = True
     res5@tmXTOn = True
     res5@tmXTBorderOn = True 

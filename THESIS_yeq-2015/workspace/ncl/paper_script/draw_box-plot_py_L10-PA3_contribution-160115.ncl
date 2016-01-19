@@ -225,7 +225,7 @@ begin
     ;********************************************************
 	; create the plot
 	;********************************************************   
-    wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+    wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
     plot_box = new((/5/),graphic)
 
 	res            = True                         ; plot mods desired
