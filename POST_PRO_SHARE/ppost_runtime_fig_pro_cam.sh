@@ -57,7 +57,7 @@ SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
 SEN_FRSTYEAR=250
 
 # Subset last year in SEN
-SEN_LSTYEAR=254
+SEN_LSTYEAR=270
 
 
 
@@ -67,7 +67,7 @@ FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/MONSOON-ENSO-2016/fig\"
 
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
-R_FLAG=0
+R_FLAG=1
 
 # Draw flags
 ANN_TS_FLAG=1
