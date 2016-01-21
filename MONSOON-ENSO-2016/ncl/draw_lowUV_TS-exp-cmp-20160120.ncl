@@ -31,15 +31,20 @@ begin
 ;	var1--------------TS
 ;================================================
 ;global variables
+    g_casename  = "B2000_f09_CAM5PM_spin-up"
     g_casename  = "B2000_f09_CAM5PM_SCS_ANNCYC"
     ;Define parameters
     g_data_path_var1 = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename+".cam.h0.TS.201-250.nc"
     g_data_path_var2 = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename+".cam.h0.lowest.U.201-250.nc"
     g_data_path_var3 = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename+".cam.h0.lowest.V.201-250.nc"
     
+    ;g_data_path_var1 = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename+".cam.h0.TS.201-250.nc"
+    ;g_data_path_var2 = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename+".cam.h0.lowest.U.201-250.nc"
+    ;g_data_path_var3 = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename+".cam.h0.lowest.V.201-250.nc"
+    
     g_season      =   "DJF"
-    g_latS=-30.
-    g_latN=30.
+    g_latS=-20.
+    g_latN=20.
     g_lonW=80.
     g_lonE=280.
     ;g_latS=-90.
@@ -48,16 +53,17 @@ begin
     ;g_lonW=0.
 ; create an array of desired pressure levels:
     g_smp_years   = (/2,3,6,9,13,17,20,21,23,29,34,37,38,43,46,47,48/)
+    ;g_smp_years   = (/4,11,13,15,18,20,26,28,29,30,39,41,42,45,46,49/)
     g_nsmp        = dimsizes(g_smp_years)
     g_idx_start = (g_smp_years-1)*12
 
     g_sen_cases = 1    
-    g_font = 0.025
+    g_font = 0.02
 
     g_var         = (/"TS","U","V"/)
 
     g_date =systemfunc("date '+%Y%m%d'")
-    g_fig_name    =   "../fig/SEN-Tropical-botUV-TS-"+g_date
+    g_fig_name    =   "../fig/SEN-Tropical-botUV-TS-20NS-"+g_date
     ;g_fig_rank    =   "B2000_F19G16_CAM4_CTRL"
     g_fig_rank    =   (/"a","a","a","b","b","b","c","c","c"/)
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
@@ -148,7 +154,7 @@ begin
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
     res@cnMinLevelValF        =  -2          ; set min contour level
     res@cnMaxLevelValF        =  2          ; set max contour level
-    res@cnLevelSpacingF       =  0.2          ; set contour interval
+    res@cnLevelSpacingF       =  0.1          ; set contour interval
 
     ;res@cnMinLevelValF        =  -0.15          ; set min contour level
     ;res@cnMaxLevelValF        =  0.15        ; set max contour level
@@ -168,7 +174,7 @@ begin
     res@gsnCenterString = g_fig_title
     res@gsnLeftString = ""
 
-   ;res@gsnMaximize      = True       ; fill up the page
+   res@gsnMaximize      = True       ; fill up the page
     res@gsnAddCyclic   = False
    ; res@gsnPaperOrientation = "portrait"
    ; res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
@@ -177,7 +183,7 @@ begin
     res@lbLabelBarOn = True   ; turn off the label bar
     res@lbOrientation          = "vertical"
     res@lbLabelFontHeightF  = g_font              ; make labels smaller
-    res@lbLabelStride = 4 
+    res@lbLabelStride = 2
 
     res@mpFillOn   = True;False     ; turn off gray continents
     res@mpGeophysicalLineThicknessF = 2 
@@ -265,7 +271,7 @@ begin
     vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-    vcres@vcMinDistanceF          = 0.032
+    vcres@vcMinDistanceF          = 0.03
     vcres@vcRefAnnoString1  = "2 m/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.01

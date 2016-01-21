@@ -67,7 +67,7 @@ FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/MONSOON-ENSO-2016/fig\"
 
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
-R_FLAG=1
+R_FLAG=0
 
 # Draw flags
 ANN_TS_FLAG=1
