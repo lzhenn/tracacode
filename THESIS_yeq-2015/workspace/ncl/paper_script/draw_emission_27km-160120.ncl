@@ -27,7 +27,7 @@ begin
     
     ctrl_in      = addfile("/home/yangsong3/data/model/L_Zealot/THESIS_yeq-2015/SMOKE_source/egt27-all-2010110700.ncf","r")
     ctrl_var     = ctrl_in->SO2(24,0,:,:)                 ; znw(bottom_top_stag)
-    ctrl_var     = ctrl_var*64/1000
+    ctrl_var     = ctrl_var*64/277.77
     ;ave_so2 = dim_avg_n_Wrap(ctrl_var(:,:,:),0)
 
     latlon_in   =  addfile("/home/yangsong3/data/model/L_Zealot/THESIS_yeq-2015/mcip/GRIDCRO2D_27km","r")
@@ -61,7 +61,7 @@ begin
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
  res@cnMinLevelValF        = 0          ; set min contour level
- res@cnMaxLevelValF        = 150          ; set max contour level
+ res@cnMaxLevelValF        = 500          ; set max contour level
  res@cnLevelSpacingF       = 2          ; set contour interval
 
   ;res@cnFillColors =(/2,4,7,8,8,9,11,13/)

@@ -31,20 +31,20 @@ begin
 ;	var1--------------TS
 ;================================================
 ;global variables
-    g_casename  = "B2000_f09_CAM5PM_spin-up"
-    g_casename  = "B2000_f09_CAM5PM_SCS_ANNCYC"
+    g_casename_ctrl  = "B2000_f09_CAM5PM_spin-up"
+    g_casename_sen  = "B2000_f09_CAM5PM_SCS_ANNCYC"
     ;Define parameters
-    g_data_path_var1 = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename+".cam.h0.TS.201-250.nc"
-    g_data_path_var2 = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename+".cam.h0.lowest.U.201-250.nc"
-    g_data_path_var3 = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename+".cam.h0.lowest.V.201-250.nc"
+    g_data_path_var1_sen = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename_sen+".cam.h0.TS.201-250.nc"
+    g_data_path_var2_sen = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename_sen+".cam.h0.lowest.U.201-250.nc"
+    g_data_path_var3_sen = "/home/yangsong3/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/"+g_casename_sen+".cam.h0.lowest.V.201-250.nc"
     
-    ;g_data_path_var1 = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename+".cam.h0.TS.201-250.nc"
-    ;g_data_path_var2 = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename+".cam.h0.lowest.U.201-250.nc"
-    ;g_data_path_var3 = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename+".cam.h0.lowest.V.201-250.nc"
+    g_data_path_var1_ctrl = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename_ctrl+".cam.h0.TS.201-250.nc"
+    g_data_path_var2_ctrl = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename_ctrl+".cam.h0.lowest.U.201-250.nc"
+    g_data_path_var3_ctrl = "/home/yangsong3/data/model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"+g_casename_ctrl+".cam.h0.lowest.V.201-250.nc"
     
-    g_season      =   "DJF"
-    g_latS=-20.
-    g_latN=20.
+    g_season      =   "JJA"
+    g_latS=-30.
+    g_latN=30.
     g_lonW=80.
     g_lonE=280.
     ;g_latS=-90.
@@ -63,11 +63,11 @@ begin
     g_var         = (/"TS","U","V"/)
 
     g_date =systemfunc("date '+%Y%m%d'")
-    g_fig_name    =   "../fig/SEN-Tropical-botUV-TS-20NS-"+g_date
+    g_fig_name    =   "../fig/"+g_season+"-SEN-CTRL-Tropical-botUV-TS-20NS-"+g_date
     ;g_fig_rank    =   "B2000_F19G16_CAM4_CTRL"
     g_fig_rank    =   (/"a","a","a","b","b","b","c","c","c"/)
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
-    g_fig_title   =    "SEN Composite bottom UV and TS"
+    g_fig_title   =    g_season+" SEN-CTRL bottom UV and TS"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -76,13 +76,22 @@ begin
 ; Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
     
-    ctrl_in1 = addfile(g_data_path_var1,"r")
-    ctrl_in2 = addfile(g_data_path_var2,"r")
-    ctrl_in3 = addfile(g_data_path_var3,"r")
+    ctrl_in1 = addfile(g_data_path_var1_ctrl,"r")
+    ctrl_in2 = addfile(g_data_path_var2_ctrl,"r")
+    ctrl_in3 = addfile(g_data_path_var3_ctrl,"r")
 
 	ctrl_var1  = ctrl_in1->TS(:,:,:)			; p for unify the var name
 	ctrl_var2 = ctrl_in2->U(:,:,:)			; p for unify the var name
 	ctrl_var3  = ctrl_in3->V(:,:,:)			; p for unify the var name
+
+    sen_in1 = addfile(g_data_path_var1_sen,"r")
+    sen_in2 = addfile(g_data_path_var2_sen,"r")
+    sen_in3 = addfile(g_data_path_var3_sen,"r")
+
+	sen_var1  = sen_in1->TS(:,:,:)			; p for unify the var name
+	sen_var2 = sen_in2->U(:,:,:)			; p for unify the var name
+	sen_var3  = sen_in3->V(:,:,:)			; p for unify the var name
+
 
 ; ==============================================================
 ; Mission 2. Post process the data, composite
@@ -97,20 +106,28 @@ begin
     clim_ctrl_var3_season = dim_avg_n_Wrap(ctrl_var3_season,0)
     printVarSummary(ctrl_var1_season)
 
-    cmp_var1_season = ctrl_var1_season(g_smp_years(0),:,:)
-    cmp_var2_season = ctrl_var2_season(g_smp_years(0),:,:)
-    cmp_var3_season = ctrl_var3_season(g_smp_years(0),:,:)
-
-    do i =1, g_nsmp-1
-        cmp_var1_season = cmp_var1_season+ctrl_var1_season(g_smp_years(i),:,:)
-        cmp_var2_season = cmp_var2_season+ctrl_var2_season(g_smp_years(i),:,:)
-        cmp_var3_season = cmp_var3_season+ctrl_var3_season(g_smp_years(i),:,:)
-    end do
-    cmp_var1_season =cmp_var1_season/g_nsmp-clim_ctrl_var1_season
-    cmp_var2_season =cmp_var2_season/g_nsmp-clim_ctrl_var2_season
-    cmp_var3_season =cmp_var3_season/g_nsmp-clim_ctrl_var3_season
+    sen_var1_season = month_to_season(sen_var1,g_season) 
+    sen_var2_season = month_to_season(sen_var2,g_season) 
+    sen_var3_season = month_to_season(sen_var3,g_season) 
+    
+    clim_sen_var1_season = dim_avg_n_Wrap(sen_var1_season,0)
+    clim_sen_var2_season = dim_avg_n_Wrap(sen_var2_season,0)
+    clim_sen_var3_season = dim_avg_n_Wrap(sen_var3_season,0)
+    printVarSummary(sen_var1_season)
 
 
+    diff_var1_season = ctrl_var1_season(g_smp_years(0),:,:)
+    diff_var2_season = ctrl_var2_season(g_smp_years(0),:,:)
+    diff_var3_season = ctrl_var3_season(g_smp_years(0),:,:)
+
+    diff_var1_season = clim_sen_var1_season-clim_ctrl_var1_season
+    diff_var2_season = clim_sen_var2_season-clim_ctrl_var2_season
+    diff_var3_season = clim_sen_var3_season-clim_ctrl_var3_season
+
+    diff_speed = diff_var2_season
+    diff_speed = sqrt(diff_var2_season*diff_var2_season + diff_var3_season*diff_var3_season)
+    diff_var2_season@_FillValue= -999
+    diff_var2_season = where(diff_speed .gt. 0.5, diff_var2_season, diff_var2_season@_FillValue)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -152,9 +169,9 @@ begin
     ;  res@cnFillColors =(/-1,20,47,57,94,127,152/)
 
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -2          ; set min contour level
-    res@cnMaxLevelValF        =  2          ; set max contour level
-    res@cnLevelSpacingF       =  0.1          ; set contour interval
+    res@cnMinLevelValF        =  -1          ; set min contour level
+    res@cnMaxLevelValF        =  1          ; set max contour level
+    res@cnLevelSpacingF       =  0.05          ; set contour interval
 
     ;res@cnMinLevelValF        =  -0.15          ; set min contour level
     ;res@cnMaxLevelValF        =  0.15        ; set max contour level
@@ -228,7 +245,7 @@ begin
     res@gsnStringFontHeightF = g_font    
 
 
-    plot_sh(n) = gsn_csm_contour_map_ce(wks,cmp_var1_season,res) ; create a default plot
+    plot_sh(n) = gsn_csm_contour_map_ce(wks,diff_var1_season,res) ; create a default plot
       
       res3                  = True       ; use plot options
       res3@cnFillOn         = False;True       ; Fill contours
@@ -268,11 +285,11 @@ begin
 
     vcres@vcRefAnnoOn      = True
     vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
-    vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+    vcres@vcRefMagnitudeF         = 1.5             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
     vcres@vcMinDistanceF          = 0.03
-    vcres@vcRefAnnoString1  = "2 m/s"
+    vcres@vcRefAnnoString1  = "1.5 m/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.01
     vcres@vcLineArrowThicknessF     = 1.5    ;thickness of vector
@@ -280,7 +297,7 @@ begin
     vcres@vcLineArrowHeadMinSizeF   = 0.015
     vcres@vcLineArrowHeadMaxSizeF   = 0.015       
     
-    plot_V(n) = gsn_csm_vector(wks,cmp_var2_season,cmp_var3_season,vcres)
+    plot_V(n) = gsn_csm_vector(wks,diff_var2_season,diff_var3_season,vcres)
 
     ;do i = 0,3
     ;    res@gsnLeftString = g_fig_rank(i)
