@@ -25,19 +25,18 @@ begin
 ; Mission1.    Read emission & CMAQ_27km lat, lon
 ; ==============================================================
     
-    ctrl_in      = addfile("/home/yangsong3/data/model/L_Zealot/THESIS_yeq-2015/SMOKE_source/egt27-2010110700.ncf","r")
-    ctrl_var     = ctrl_in->SO2                 ; znw(bottom_top_stag)
-   
-    latlon_in   =  addfile("../data/mcip/GRIDCRO2D_27km","r")
-    ctrl_var@lat2d     = latlon_in->LAT(0,0,:,:)                ; znw(bottom_top_stag)
-    ctrl_var@lon2d     = latlon_in->LON(0,0,:,:)                ; znw(bottom_top_stag)
+    ctrl_in      = addfile("/home/yangsong3/data/model/L_Zealot/THESIS_yeq-2015/SMOKE_source/egt27-all-2010110700.ncf","r")
+    ctrl_var     = ctrl_in->SO2(24,0,:,:)                 ; znw(bottom_top_stag)
+    ctrl_var     = ctrl_var*64/1000
+    ;ave_so2 = dim_avg_n_Wrap(ctrl_var(:,:,:),0)
+
+    latlon_in   =  addfile("/home/yangsong3/data/model/L_Zealot/THESIS_yeq-2015/mcip/GRIDCRO2D_27km","r")
+    ctrl_var@lat2d     = latlon_in->LAT(0,0,:,:) 
+    ctrl_var@lon2d     = latlon_in->LON(0,0,:,:)
+    ;ave_so2@lat2d     = latlon_in->LAT(0,0,:,:)                ; znw(bottom_top_stag)
+    ;ave_so2@lon2d     = latlon_in->LON(0,0,:,:)                ; znw(bottom_top_stag)
 
 ;**********************************************************************************************
-;MISSION.2		
-;**********************************************************************************************
-
-
-;************************`**********************************************************************
 ;MISSION.3		Plot Clim monthly mean to check the result
 ;**********************************************************************************************
   res                  = True       ; use plot options
@@ -92,10 +91,10 @@ begin
   res@lbLabelStride          = 10
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   
-  ;res@mpMinLatF            = 20       ; zoom in on map
-  ;res@mpMaxLatF            = 25.62
-  ;res@mpMinLonF            = 109.1
-  ;res@mpMaxLonF            = 117.2
+  res@mpMinLatF            = 18       ; zoom in on map
+  res@mpMaxLatF            = 44
+  res@mpMinLonF            = 90
+  res@mpMaxLonF            = 130
 
   res@mpGeophysicalLineThicknessF = 2.0	;costal line thick
   res@tmXBTickSpacingF = 2
@@ -127,8 +126,8 @@ res@mpInlandWaterFillColor  = "white"
 ;res@mpOceanFillColor        = "white"
 ;res@mpOutlineBoundarySets   = "NoBoundaries"
 
-    g_fig_name =  "../fig/emission-27km"
-	wks = gsn_open_wks("eps",g_fig_name)       ; open file to plot 
+    g_fig_name =  "../../fig/emission-27km"
+	wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
     ;-----------------------------------------------------------------------------
 
     ;plot = new((/1/),graphic)
@@ -144,18 +143,18 @@ res@mpInlandWaterFillColor  = "white"
     ; gsn_define_colormap(wks,"MPL_ocean")
      gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 
-      plot = gsn_csm_contour_map(wks,ctrl_var(j,0,:,:),res) ; dim1 = 0 for lvl = 0
+      plot = gsn_csm_contour_map(wks,ctrl_var,res) ; dim1 = 0 for lvl = 0
      ;>============================================================<
      ;                      add China map
      ;>------------------------------------------------------------<
-             cnres           = True
-             cnres@china     = False       ;draw china map or not
-             cnres@river     = False       ;draw changjiang&huanghe or not
-             cnres@province  = True       ;draw province boundary or not
-             cnres@nanhai    = False       ;draw nanhai or not 
-             cnres@diqu      = True       ; draw diqujie or not
-
-             chinamap = add_china_map(wks,plot,cnres)
+;             cnres           = True
+;             cnres@china     = False       ;draw china map or not
+;             cnres@river     = False       ;draw changjiang&huanghe or not
+;             cnres@province  = True       ;draw province boundary or not
+;             cnres@nanhai    = False       ;draw nanhai or not 
+;             cnres@diqu      = True       ; draw diqujie or not
+;
+;             chinamap = add_china_map(wks,plot,cnres)
      ;>============================================================<
       draw(plot)
       frame(wks)
