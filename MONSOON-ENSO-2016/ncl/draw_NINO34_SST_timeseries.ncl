@@ -29,8 +29,8 @@ begin
     fig_name="../fig/ANNCYC_nino34"
     fig_title="NINO3.4 INDEX Timeseries"
     
-    yrstrt  = 20102
-    yrlast  = 25101 
+;    yrstrt  = 20102
+;    yrlast  = 25101 
 
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1,"r")
