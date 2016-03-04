@@ -1,0 +1,13 @@
+! Users should add all user specific namelist changes below in the form of 
+! namelist_var = new_namelist_value 
+
+! Perturb the initial conditions
+pertlim = 0.1
+
+! Initial data
+ncdata='/users/yangsong3/L_Zealot/F/PRD-Trans-2015/exe/PRD-Trans-2015.cam.i.0006-01-01-00000.nc'
+
+avgflag_pertape = 'A','A'
+nhtfrq = 0,-24
+mfilt  = 1,1
+fincl2 = 'Z200','Z500','U200','U850','UBOT','V200','V850','VBOT','TS','PRECT','PSL','RELHUM','QBOT','TSMX:X', 'TSMN:M'
