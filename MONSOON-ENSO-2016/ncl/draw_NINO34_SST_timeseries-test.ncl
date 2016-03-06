@@ -24,13 +24,13 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
 
-    data_file_name1="~/L_Zealot/temp/B2000_f09_CAM5PM_SCS_ANNCYC.cam.h0.TS.201-203.nc"
-    data_file_name2="~/L_Zealot/data-mirror/model/SCS_ANNCYC-2015/pro/B2000_f09_CAM5PM_spin-up.cam.h0.TS.201-250.nc"
-    fig_name="../fig/MAM_nino34"
+    data_file_name1="/home/yangsong3/data/model/L_Zealot/MONSOON-ENSO-2016/B_ALBD_STR_MONSOON-2015/pro/B_ALBD_STR_MONSOON-2015.cam.h0.TS.250-319.nc"
+    data_file_name2="/home/yangsong3/data/model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/pro/B2000_f19g16_CP_CTRL.cam.h0.TS.250-349.nc"
+    fig_name="../fig/MAM_nino34-B_ALBD-CTRL"
     fig_title="NINO3.4 INDEX Timeseries"
     
-    yrstrt  = 20102
-    yrlast  = 20401 
+    yrstrt  = 25002
+    yrlast  = 32001 
 
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1,"r")
@@ -46,7 +46,7 @@ begin
     t    = time(istrt:ilast) 
     yyyy =floor( cd_calendar(t,4))
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
-    exp_var1 = exp_in1->TS(istrt:ilast+12*40,:,:)
+    exp_var1 = exp_in1->TS(istrt:ilast,:,:)
 ;--------------Proprocessing-----------
     ctrl_nino34 = wgt_areaave(ctrl_var1(:,{-5:5},{190:240}), 1.0, 1.0, 0)
     ctrl_rmean_nino34 = runave_Wrap(ctrl_nino34,3,0)
@@ -100,8 +100,8 @@ exit
 	res@trXMaxF  = dimsizes(exp_nino34_idx)                   ; max value on x-axis
 	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
     res@tiXAxisString = "Year"
-	res@tmXBValues = ispan(1, 1200, 120) ;interval
-	res@tmXBLabels = ispan(250,350,10)         ;tick label
+	res@tmXBValues = ispan(1, 840, 60) ;interval
+	res@tmXBLabels = ispan(250,320,5)         ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
 	res@xyLineColors       = (/"blue","red"/) ; colors chosen
 	res@xyLineThicknesses	 = (/4.0,4.0/)      ; line thicknesses
@@ -117,7 +117,7 @@ exit
 	; setting default code to be a tilde (~) in your .hluresfile.
 	; See: http://www.ncl.ucar.edu/Document/Graphics/hlures.shtml
 	;
-	 top_plot  = gsn_csm_xy (wks,ispan(1,1200,1),data,res)   ; create plot
+	 top_plot  = gsn_csm_xy (wks,ispan(1,840,1),data,res)   ; create plot
 end
 
 
