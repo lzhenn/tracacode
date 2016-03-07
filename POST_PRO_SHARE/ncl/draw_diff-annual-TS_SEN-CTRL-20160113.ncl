@@ -31,6 +31,8 @@ begin
     if (.not. isvar("pro_ctrl_dir") .or. .not. isvar("ctrl_casename") .or.\
         .not. isvar("pro_sen_dir") .or. .not. isvar("sen_casename") .or.\
         .not. isvar("sub_frstyear") .or. .not. isvar("sub_lstyear") .or.\
+        .not. isvar("sen_sub_frstyear") .or. .not. isvar("sen_sub_lstyear") .or.\
+        .not. isvar("sen_ffrstyear") .or. .not. isvar("sen_flstyear") .or.\
         .not. isvar("lats") .or. .not. isvar("latn") .or.\
         .not. isvar("lonw") .or. .not. isvar("lone") .or.\
         .not. isvar("ffrstyear") .or. .not. isvar("flstyear") .or. .not. isvar("fig_path")) then 
@@ -58,9 +60,14 @@ begin
         
     g_var         = (/"TS"/)
     
-    g_file_profix = ".cam.h0."+g_var+"."+g_run_period+".nc"
+    g_ctrl_file_profix = ".cam.h0."+g_var+"."+g_run_period+".nc"
 
-    g_fig_name    =   fig_path+"/diff-"+g_run_period+"-annual-"+g_var+"-"+sen_casename+"_"+ctrl_casename
+    g_idx_start_sen = (sen_sub_frstyear-sen_ffrstyear)*12
+    g_idx_end_sen = (sen_sub_lstyear-sen_ffrstyear+1)*12-1
+    g_run_period_sen  =  sen_ffrstyear+"-"+sen_flstyear
+    g_sen_file_profix = ".cam.h0."+g_var+"."+g_run_period_sen+".nc"
+
+    g_fig_name    =   fig_path+"/diff-"+g_run_period_sen+"-annual-"+g_var+"-"+sen_casename+"_"+ctrl_casename
     g_fig_rank    =   (/"","(a)","(b)","(c)","(d)"/)
     g_fig_title   =    "TS SEN - CON (ANN)"
 
@@ -72,14 +79,14 @@ begin
 ; ==============================================================
     print(">>>> Reading data...")
    
-    ctrl_file1   = pro_ctrl_dir+ctrl_casename+g_file_profix(0)
+    ctrl_file1   = pro_ctrl_dir+ctrl_casename+g_ctrl_file_profix(0)
     ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
 	ctrl_var3 = ctrl_in1->$g_var(0)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
 
     
-    sen_file1   = pro_sen_dir+sen_casename+g_file_profix(0)
+    sen_file1   = pro_sen_dir+sen_casename+g_sen_file_profix(0)
     sen_in1     = addfile (sen_file1, "r")   ; note the "s" of addfile
-	exp_var3  = sen_in1->$g_var(0)$(g_idx_start:g_idx_end,:,:)			; p for unify the var name
+	exp_var3  = sen_in1->$g_var(0)$(g_idx_start_sen:g_idx_end_sen,:,:)			; p for unify the var name
 
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
