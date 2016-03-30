@@ -9,26 +9,26 @@
 #-----------------------------------------------
 
 # Path of the original data
-# Caution: DO NOT DELETE \" IN STRING!\"
-PRE_DIR=\"/home/yangsong3/data/model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/pre/\"
+# Caution: DO NOT DELETE /" IN STRING!
+PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/run/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/home/yangsong3/data/model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/pro/\"
+PRO_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/post_data/\"
 
 # Case name
-CASENAME=\"B2000_f19g16_CP_CTRL\"
-
+CASENAME=\"B_ALBD_STR_MONSOON-2015\"
 
 
 # Names of 2D fields
-#FDNAME2D="(/\"PRECL\",\"PRECC\",\"LHFLX\",\"PS\",\"PSL\",\"QFLX\",\"TS\",\"TMQ\"/)" #often use
-FDNAME2D="(/\"SHFLX\"/)" #often use
+FDNAME2D="(/\"PRECL\",\"PRECC\",\"LHFLX\",\"PS\",\"PSL\",\"QFLX\",\"TS\",\"TMQ\"/)" #often use
+#FDNAME2D="(/\"TS\"/)" #often use
 
 # Names of 3D fields
 FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
+# Names of 3D HY fields
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
 # Layers of 3D fields
@@ -41,14 +41,14 @@ PLEV="(/925,850,700,600,500,400,300,200,100,50/)"
 #PLEV="(/500,300,200/)"
 
 # First year of the subset
-FRSTYEAR=200
+FRSTYEAR=250
 
 # Last year of the subset
-LSTYEAR=349
+LSTYEAR=319
 
 # Process fig flag
 FLAG2D=1
-FLAG3D=0
+FLAG3D=1
 FLAG3DHY=0
 
 #-----------------------------------------------------------
