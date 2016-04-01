@@ -295,25 +295,27 @@ res@tmXBLabelFontHeightF = g_font
     vcres@vcLineArrowHeadMaxSizeF   = 0.03
     ;--------------------------------------
     do ii=0,1
-        res@gsnLeftString = g_fig_rank(ii)
         res@gsnRightString = "mm/day"
         
         if (ii .eq. 0) then  ;multiple files, sen_year=ctrl_year
-            res@gsnCenterString = g_fig_title(ii,0)
+            res@gsnLeftString = g_fig_rank(ii)
+            res@gsnCenterString = g_fig_title(0,0)
             plot(ii) = gsn_csm_contour_map_ce(wks,obv_season_var3_clim(0,:,:),res) ; create a default plot
-            res@gsnCenterString = g_fig_title(ii,1)
-            plot(ii+2) = gsn_csm_contour_map_ce(wks,obv_season_var3_clim(0,:,:),res) ; create a default plot
+            res@gsnLeftString = g_fig_rank(ii+1)
+            res@gsnCenterString = g_fig_title(1,0)
+            plot(ii+2) = gsn_csm_contour_map_ce(wks,ctrl_season_var3_clim(0,:,:),res) ; create a default plot
         else
-            res@gsnCenterString = g_fig_title(ii,0)
-            plot(ii) = gsn_csm_contour_map_ce(wks,ctrl_season_var3_clim(1,:,:),res) ; create a default plot
-            res@gsnCenterString = g_fig_title(ii,1)
+            res@gsnLeftString = g_fig_rank(2*ii)
+            res@gsnCenterString = g_fig_title(0,1)
+            plot(ii) = gsn_csm_contour_map_ce(wks,obv_season_var3_clim(1,:,:),res) ; create a default plot
+            res@gsnLeftString = g_fig_rank(2*ii+1)
+            res@gsnCenterString = g_fig_title(1,1)
             plot(ii+2) = gsn_csm_contour_map_ce(wks,ctrl_season_var3_clim(1,:,:),res) ; create a default plot
         end if
     end do
     gsn_panel(wks,plot,(/2,2/),False)
     
     print(">>>> FIG1 DONE!!!")
-
 
     delete(wks)
     wks = gsn_open_wks("eps",g_fig_name(1))  ; open a ps file
@@ -323,14 +325,18 @@ res@tmXBLabelFontHeightF = g_font
         res@gsnRightString = "mm/day"
         jj=ii-2
         if (jj .eq. 0) then  ;multiple files, sen_year=ctrl_season_year
-            res@gsnCenterString = g_fig_title(jj,2)
+            res@gsnLeftString = g_fig_rank(jj)
+            res@gsnCenterString = g_fig_title(0,2)
             plot(jj) = gsn_csm_contour_map_ce(wks,obv_season_var3_clim(2,:,:),res) ; create a default plot
-            res@gsnCenterString = g_fig_title(jj,3)
-            plot(jj+2) = gsn_csm_contour_map_ce(wks,obv_season_var3_clim(2,:,:),res) ; create a default plot
+            res@gsnLeftString = g_fig_rank(jj+1)
+            res@gsnCenterString = g_fig_title(1,2)
+            plot(jj+2) = gsn_csm_contour_map_ce(wks,ctrl_season_var3_clim(2,:,:),res) ; create a default plot
         else
-            res@gsnCenterString = g_fig_title(jj,2)
-            plot(jj) = gsn_csm_contour_map_ce(wks,ctrl_season_var3_clim(3,:,:),res) ; create a default plot
-            res@gsnCenterString = g_fig_title(jj,3)
+            res@gsnLeftString = g_fig_rank(2*jj)
+            res@gsnCenterString = g_fig_title(0,3)
+            plot(jj) = gsn_csm_contour_map_ce(wks,obv_season_var3_clim(3,:,:),res) ; create a default plot
+            res@gsnLeftString = g_fig_rank(2*jj+1)
+            res@gsnCenterString = g_fig_title(1,3)
             plot(jj+2) = gsn_csm_contour_map_ce(wks,ctrl_season_var3_clim(3,:,:),res) ; create a default plot
         end if
     end do

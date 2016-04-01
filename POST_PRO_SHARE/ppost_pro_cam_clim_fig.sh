@@ -53,7 +53,7 @@ FIG_PATH=\"/home/yangsong3/L_Zealot/project/SPCAM-TEST-2016/fig/\"
 
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
-R_FLAG=0
+R_FLAG=1
 
 # Draw flags
 ANN_TS_FLAG=0
