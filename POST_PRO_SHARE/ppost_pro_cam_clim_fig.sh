@@ -35,7 +35,7 @@ echo "  "
 PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/project/SPCAM-TEST-2016/data/model/pro/\"
 
 # CTRL Case name
-CTRL_CASENAME=\"SPCAM-TEST-2016\"
+CTRL_CASENAME=\"SP-test-sam1mom\"
 
 # CTRL data in one bulk file or severial files, 0 for files
 CTRL_PFILE=1
@@ -59,7 +59,7 @@ R_FLAG=0
 ANN_TS_FLAG=0
 SNN_TS_FLAG=0
 
-ANN_PR_FLAG=1
+ANN_PR_FLAG=0
 SNN_PR_FLAG=1
 
 
@@ -147,7 +147,7 @@ if [ $ANN_PR_FLAG == 1 ] ; then
         lonw=$LONW                              \
         lone=$LONE                              \
         fig_path=$FIG_PATH                      \
-        ./ncl/quickplot_diff-season-Pr_SEN-CTRL-20160113.ncl
+        ./ncl/draw_clim-obv-model-annual-Pr-20160401.ncl
 fi
 
 #       ----    ann uv850 + pr, with sig    (1)
@@ -157,18 +157,14 @@ if [ $SNN_PR_FLAG == 1 ] ; then
         pro_ctrl_dir=$PRO_CTRL_DIR              \
         ctrl_casename=$CTRL_CASENAME            \
         ctrl_pfile=$CTRL_PFILE                  \
-        pro_sen_dir=$PRO_SEN_DIR                \
-        sen_casename=$SEN_CASENAME              \
         ffrstyear=$FFRSTYEAR                    \
         flstyear=$FLSTYEAR                    \
-        sen_frstyear=$SEN_FRSTYEAR              \
-        sen_lstyear=$SEN_LSTYEAR               \
         lats=$LATS                              \
         latn=$LATN                              \
         lonw=$LONW                              \
         lone=$LONE                              \
         fig_path=$FIG_PATH                      \
-        ./ncl/quickplot_diff-season-Pr_SEN-CTRL-20160113.ncl
+        ./ncl/draw_clim-obv-model-season-Pr-20160401.ncl
 fi
 
 
