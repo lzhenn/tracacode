@@ -2,12 +2,14 @@
 #-----------------------------------------------
 #   This is a shell script for configuring the
 # basic p-post processing tool of CAM model, 
-# especially for the runtime plotting.
 # You should set the basic parameters as below. 
 # 
 # Good Luck!
 #
 # Basic Figures
+#
+#   --------THIS IS FOR CLIMATOLOGY!!!---------
+#
 #    ANN-->Annual Mean, SSN-->Season Mean
 #
 #       ----    ANN UV850 + Pr, with sig    (1)
@@ -30,49 +32,34 @@ echo "  "
 
 #**************************CTRL SETTINGS**************************
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/B2000_f19g16_CP_CTRL/pro/\"
+PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/project/SPCAM-TEST-2016/data/model/pro/\"
 
 # CTRL Case name
-CTRL_CASENAME=\"B2000_f19g16_CP_CTRL\"
+CTRL_CASENAME=\"SPCAM-TEST-2016\"
 
 # CTRL data in one bulk file or severial files, 0 for files
 CTRL_PFILE=1
 
 # History pfile first year, set when when CTRL_PFILE=1
-FFRSTYEAR=250
+FFRSTYEAR=1
 
 # History pfile last year, set when CTRL_PFILE=1
-FLSTYEAR=349
-
-
-
-#**************************SEN SETTINGS**************************
-# Path of the post processed data
-PRO_SEN_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/run/\"
-
-# SEN case name
-SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
-
-# Subset first year in SEN
-SEN_FRSTYEAR=250
-
-# Subset last year in SEN
-SEN_LSTYEAR=270
-
+FLSTYEAR=5
 
 
 #**************************FIGURE SETTINGS**************************
 # Path of outfig
-FIG_PATH=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/project/MONSOON-ENSO-2016/fig\"
+FIG_PATH=\"/home/yangsong3/L_Zealot/project/SPCAM-TEST-2016/fig/\"
 
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
 R_FLAG=0
 
 # Draw flags
-ANN_TS_FLAG=1
-SNN_TS_FLAG=1
+ANN_TS_FLAG=0
+SNN_TS_FLAG=0
 
+ANN_PR_FLAG=1
 SNN_PR_FLAG=1
 
 
@@ -84,6 +71,13 @@ if  [ $R_FLAG == 1 ] ; then
     LATN=45.
     LONW=60.
     LONE=180.
+#MC
+    LATS=-30.
+    LATN=30.
+    LONW=80.
+    LONE=150.
+
+    
 else
     LATS=-90.
     LATN=90.
@@ -139,6 +133,23 @@ if [ $SNN_TS_FLAG == 1 ] ; then
         ./ncl/quickplot_diff-season-TS_SEN-CTRL-20160113.ncl
 fi
 
+#       ----    ann pr, with sig    (1)
+if [ $ANN_PR_FLAG == 1 ] ; then
+    echo "-----annual pr, with sig    (1)-----"
+    ncl -nQ \
+        pro_ctrl_dir=$PRO_CTRL_DIR              \
+        ctrl_casename=$CTRL_CASENAME            \
+        ctrl_pfile=$CTRL_PFILE                  \
+        ffrstyear=$FFRSTYEAR                    \
+        flstyear=$FLSTYEAR                    \
+        lats=$LATS                              \
+        latn=$LATN                              \
+        lonw=$LONW                              \
+        lone=$LONE                              \
+        fig_path=$FIG_PATH                      \
+        ./ncl/quickplot_diff-season-Pr_SEN-CTRL-20160113.ncl
+fi
+
 #       ----    ann uv850 + pr, with sig    (1)
 if [ $SNN_PR_FLAG == 1 ] ; then
     echo "-----season pr, with sig    (4)-----"
@@ -159,6 +170,7 @@ if [ $SNN_PR_FLAG == 1 ] ; then
         fig_path=$FIG_PATH                      \
         ./ncl/quickplot_diff-season-Pr_SEN-CTRL-20160113.ncl
 fi
+
 
 
 exit 0
