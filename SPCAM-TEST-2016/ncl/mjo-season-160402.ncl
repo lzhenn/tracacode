@@ -40,6 +40,12 @@ begin
     lonL_IO    =  75.
     lonR_IO    = 100. 
 
+    latS_IO    = -10 
+    latN_IO    =  10
+    lonL_IO    = 0 
+    lonR_IO    = 360 
+
+
     latS_globe = -30.        ; global subset
     latN_globe =  30. 
 
