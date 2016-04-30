@@ -55,7 +55,12 @@ begin
     ctrl_var@lon2d     = latlon_in->LON(0,0,:,:)                ; znw(bottom_top_stag)
 
    ; ctrl_1111 = new((/74,98/),double)
-    ctrl_1111 =  dim_avg_n_Wrap(ctrl_var(437:461,0,:,:),0)
+   ctrl_1111 = dim_avg_n_Wrap(ctrl_var(78:102,0,:,:),0)
+   ;ctrl_1111 = dim_avg_n_Wrap(ctrl_var(150:174,0,:,:),0)
+   ; ctrl_1111 = dim_avg_n_Wrap(ctrl_var(341:365,0,:,:),0)
+    ;ctrl_1111 = dim_avg_n_Wrap(ctrl_var(365:389,0,:,:),0)
+    ;ctrl_1111 = dim_avg_n_Wrap(ctrl_var(413:437,0,:,:),0)
+   ; ctrl_1111 =  dim_avg_n_Wrap(ctrl_var(437:461,0,:,:),0)
     printVarSummary(ctrl_1111)
 ;**********************************************************************************************
 ;MISSION.2		
@@ -87,7 +92,7 @@ begin
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
  res@cnMinLevelValF        = 0          ; set min contour level
- res@cnMaxLevelValF        = 150          ; set max contour level
+ res@cnMaxLevelValF        = 100          ; set max contour level
  res@cnLevelSpacingF       = 2          ; set contour interval
 
   ;res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -117,10 +122,10 @@ begin
   res@lbLabelStride          = 10
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   
-  res@mpMinLatF            = 20       ; zoom in on map
-  res@mpMaxLatF            = 25.62
-  res@mpMinLonF            = 109.1
-  res@mpMaxLonF            = 117.2
+  res@mpMinLatF            = 21.5       ; zoom in on map
+  res@mpMaxLatF            = 25
+  res@mpMinLonF            = 111
+  res@mpMaxLonF            = 116
 
   res@mpGeophysicalLineThicknessF = 2.0	;costal line thick
   res@tmXBTickSpacingF = 2
@@ -181,7 +186,7 @@ hvres@gsnCenterString = ""
 hvres@gsnRightString = ""
  ; do j = 0,71
 	
-    g_fig_name =  "../../fig/CMAQ_PM25_20101125"
+    g_fig_name =  "../../fig/CMAQ_PM25_20101111"
 	wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
     ;-----------------------------------------------------------------------------
 
