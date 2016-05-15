@@ -49,7 +49,7 @@ begin
     do i=1,dimsizes(g_pm25_species)-1
         sen_var     =sen_var+sen_in->$g_pm25_species(i)$                 ; znw(bottom_top_stag)
     end do
-    sen_PA1 = dim_avg_n_Wrap(sen_var(12:22,0,:,:),0) - base
+    sen_PA1 = (dim_avg_n_Wrap(sen_var(12:22,0,:,:),0) - base)/base*100
     sen_PA1@lat2d     = latlon_in->LAT(0,0,:,:)                ; znw(bottom_top_stag)
     sen_PA1@lon2d     = latlon_in->LON(0,0,:,:)                ; znw(bottom_top_stag)
 
@@ -84,7 +84,7 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -40          ; set min contour level
+ res@cnMinLevelValF        = -30          ; set min contour level
  res@cnMaxLevelValF        = 0          ; set max contour level
  res@cnLevelSpacingF       = 0.5          ; set contour interval
 

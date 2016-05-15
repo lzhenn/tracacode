@@ -44,12 +44,12 @@ begin
     base@lat2d     = latlon_in->LAT(0,0,:,:)                ; znw(bottom_top_stag)
     base@lon2d     = latlon_in->LON(0,0,:,:)                ; znw(bottom_top_stag)
 
-    sen_in = addfile("/home/yangsong3/data/model/L_Zealot/THESIS_yeq-2015/control/cctm_PA3-no-ind-agri-50-3-2010111900/2010111900_3km.ACONC.ncf","r")
+    sen_in = addfile("/home/yangsong3/data/model/L_Zealot/THESIS_yeq-2015/control/cctm_PA3-no-ind-agri-10-3-2010111900/2010111900_3km.ACONC.ncf","r")
     sen_var     = sen_in->$g_pm25_species(0)$                 ; znw(bottom_top_stag)
     do i=1,dimsizes(g_pm25_species)-1
         sen_var     =sen_var+sen_in->$g_pm25_species(i)$                 ; znw(bottom_top_stag)
     end do
-    sen_PA3 = dim_avg_n_Wrap(sen_var(34:49,0,:,:),0) - base
+    sen_PA3 = (dim_avg_n_Wrap(sen_var(34:49,0,:,:),0) - base)/base*100
     sen_PA3@lat2d     = latlon_in->LAT(0,0,:,:)                ; znw(bottom_top_stag)
     sen_PA3@lon2d     = latlon_in->LON(0,0,:,:)                ; znw(bottom_top_stag)
 
@@ -84,7 +84,7 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -40          ; set min contour level
+ res@cnMinLevelValF        = -30          ; set min contour level
  res@cnMaxLevelValF        = 0          ; set max contour level
  res@cnLevelSpacingF       = 0.5          ; set contour interval
 
@@ -100,7 +100,7 @@ begin
 
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnLeftString = ""
-  res@gsnCenterString = "50% control" 
+  res@gsnCenterString = "10% control" 
   res@gsnRightString = ""
   res@gsnStringFontHeightF = g_font
   res@gsnMaximize      = True       ; fill up the page
