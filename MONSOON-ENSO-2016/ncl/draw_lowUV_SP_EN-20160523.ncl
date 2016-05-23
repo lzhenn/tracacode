@@ -26,11 +26,13 @@ begin
 
 ;================================================
 ;Variables List:
-;	var1--------------OLR
+;	var1--------------U
+;	var2--------------V
 ;================================================
 ;global variables
     ;Define parameters
-    g_data_path = "../data/obv/OLR/olr1974-2013.nc"
+    g_data_path1 = "../data/obv/ERA-Interim/U-197901-201408.nc"
+    g_data_path2 = "../data/obv/ERA-Interim/V-197901-201408.nc"
 
     g_latS=-45.
     g_latN=45.
@@ -42,16 +44,17 @@ begin
         
     g_font = 0.035
 
-    g_strt_mon = 197501 
+    g_strt_mon = 197901 
     g_lst_mon = 201312
     
     g_sp_events = (/198201,199101,199701,200201/)
     n_events= dimsizes(g_sp_events)
-    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_SP_cmp"
+    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_lowUV_SP_cmp"
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = (/"Jan","Feb","Mar","Apr","May","Jun"/)+"_0 OLR"
+    ;g_fig_title     = (/"Jul","Aug","Sep","Oct","Nov","Dec"/)+" (-1) 1000UV & Curl"
 
+    g_fig_title     = (/"Jan","Feb","Mar","Apr","May","Jun"/)+"(0) 1000UV & Curl"
 
 ;*************************For F_Compset Ctrl***********************************
 
@@ -59,13 +62,18 @@ begin
 ; Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
 
-	ctrl_file1   = g_data_path
+	ctrl_file1   = g_data_path1
 	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
 	time_hist    = ctrl_in1->time
     yyyymm  = cd_calendar(time_hist,-1)
     istrt   = ind(yyyymm .eq. g_strt_mon)
     ilast   = ind(yyyymm .eq. g_lst_mon)
-	var1  =short2flt(ctrl_in1->olr(istrt:ilast,:,:))			; p for unify the var name
+	var1  =short2flt(ctrl_in1->u(istrt:ilast,{1000},:,:))			; p for unify the var name
+
+    ctrl_file2   = g_data_path2
+	ctrl_in2     = addfile (ctrl_file2, "r")   ; note the "s" of addfile
+	var2  =short2flt(ctrl_in2->v(istrt:ilast,{1000},:,:))			; p for unify the var name
+
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
@@ -79,6 +87,24 @@ begin
     cmp_var1 =cmp_var1/n_events
     clm_var1 = clmMonTLL(var1)
     ano_cmp_var1 = calcMonAnomTLL(cmp_var1,clm_var1)
+
+    cmp_var2 = var2(0:11,:,:)
+    cmp_var2 = 0
+    do ii=0,n_events-1
+        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
+        cmp_var2 = cmp_var2+var2(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_var2 =cmp_var2/n_events
+    clm_var2 = clmMonTLL(var2)
+    ano_cmp_var2 = calcMonAnomTLL(cmp_var2,clm_var2)
+
+    cmp_vr    = uv2vrF_Wrap (ano_cmp_var1,ano_cmp_var2)         ; u,v ==> vorticity (rel)
+
+    diff_speed = ano_cmp_var1
+    diff_speed = sqrt(ano_cmp_var1*ano_cmp_var1 + ano_cmp_var2*ano_cmp_var2)
+    ano_cmp_var1@_FillValue= -999
+    ano_cmp_var1 = where(diff_speed .gt. 1.0, ano_cmp_var1, ano_cmp_var1@_FillValue)
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -90,7 +116,7 @@ begin
   plot = new((/6/),graphic)
 ;  plot_tp = new((/2/),graphic)
 ;  plot_sh = new((/2/),graphic)
-;  plot_V = new((/2/),graphic)
+  plot_V = new((/6/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
@@ -100,6 +126,7 @@ begin
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+ gsn_define_colormap(wks,"NCV_jaisnd")
 
 
 ;-----------------------------------------------------------------------------
@@ -122,12 +149,10 @@ begin
 ;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
-
- res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -50         ; set min contour level
- res@cnMaxLevelValF        = 50          ; set max contour level
- res@cnLevelSpacingF       = 5          ; set contour interval
-
+    res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+    res@cnMinLevelValF        =  -5e-6          ; set min contour level
+    res@cnMaxLevelValF        =  5e-6          ; set max contour level
+    res@cnLevelSpacingF       =  5e-7          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -152,10 +177,10 @@ begin
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   ;res@lbLabelStride = 1
 
-  res@mpFillOn   = False     ; turn off gray continents
+  res@mpFillOn   = True     ; turn off gray continents
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
-  ;res@mpFillDrawOrder="PostDraw"
+  res@mpFillDrawOrder="PostDraw"
   res@mpCenterLonF = 180.
   res@mpMaxLatF  = g_latN
   res@mpMinLatF  = g_latS
@@ -192,7 +217,7 @@ do i = 0,5
     res@gsnLeftString = g_fig_rank(i)
     res@gsnCenterString = g_fig_title(i)
     res@gsnRightString = ""
-    plot(i) = gsn_csm_contour_map_ce(wks,ano_cmp_var1(i,:,:),res) ; create a default plot
+    plot(i) = gsn_csm_contour_map_ce(wks,cmp_vr(i,:,:),res) ; create a default plot
 end do
 
 
@@ -243,38 +268,32 @@ end do
   res4@gsnLeftString      = " "
   res4@gsnRightString      = " "
 ;-----------------------------------------------------------------------------
-          
-  vcres = True
-  vcres@gsnDraw          = False           ; don't draw
-  vcres@gsnFrame         = False           ; don't advance frame
-  vcres@gsnRightString   = " "             ; turn off right string
-  vcres@gsnLeftString    = " "             ; turn off left string
-  vcres@gsnCenterString    = " "
- 
-  vcres@vcRefAnnoOn      = True
-  vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.017
-  vcres@vcRefAnnoString1  = "5 m/s"
-  vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.01
- 
-  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-;  vcres@vcLineArrowHeadMinSizeF   = 0.010
-;  vcres@vcLineArrowHeadMaxSizeF   = 0.130
-;--------------------------------------
+     ;-----------------------------------------------------------------------------
+       ;-------Set for the vector plot------
+    vcres = True
+    vcres@gsnDraw          = False           ; don't draw
+    vcres@gsnFrame         = False           ; don't advance frame
+    vcres@gsnRightString   = " "             ; turn off right string
+    vcres@gsnLeftString    = " "             ; turn off left string
+    vcres@gsnCenterString    = " "
 
-  ;plot_V(0) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
+    vcres@vcRefAnnoOn      = True
+    vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
+    vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+    vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+    vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
+    vcres@vcMinDistanceF          = 0.03
+    vcres@vcRefAnnoString1  = "2 m/s"
+    vcres@vcRefAnnoString2  = ""
+    vcres@vcRefAnnoFontHeightF = 0.01
+    vcres@vcLineArrowThicknessF     = 1.5    ;thickness of vector
 
-  ;plot_V(1) = gsn_csm_vector(wks,cp_diff_var1,cp_diff_var2,vcres)
-
-;  plot_sh(0) = gsn_csm_contour(wks,diff_var3_sig,res4)
-
-  ;plot_sh(1) = gsn_csm_contour(wks,cp_diff_var3_sig,res4)
-
- ; overlay(plot(0),plot_sh(0))
+    vcres@vcLineArrowHeadMinSizeF   = 0.015
+    vcres@vcLineArrowHeadMaxSizeF   = 0.015       
+do ii = 0,5
+    plot_V(ii) = gsn_csm_vector(wks,ano_cmp_var1(ii,:,:),ano_cmp_var2(ii,:,:),vcres)
+    overlay(plot(ii),plot_V(ii))
+end do
   ;overlay(plot(1),plot_sh(1))
 
   ;overlay(plot(0),plot_V(0))
