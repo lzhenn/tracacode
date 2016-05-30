@@ -35,7 +35,7 @@ begin
     g_res  = "f19"
     ;Define parameters
     g_data_path_ctrl = "../../data/model/pre/Ideal_phy/CTRL"
-    g_data_path_sen = "../../data/model/pre/Ideal_phy/SEN"
+    g_data_path_sen = "../../data/model/pre/Ideal_phy/esm01"
     
     g_sen_cases   = (/"heat-0.25-folding"/)
     g_season      =   "MAM"
@@ -63,7 +63,7 @@ begin
     g_lev         = 12 
 
     g_date =systemfunc("date '+%Y%m%d'")
-    g_fig_name    =   "../../fig/scientific_reports/R1-FIG4a-c_Ideal_day3_9-PSL-"+g_date
+    g_fig_name    =   "../../fig/scientific_reports/R1-esm-FIG4a-c_Ideal_day3_9-PSL-"+g_date
     ;g_fig_rank    =   "B2000_F19G16_CAM4_CTRL"
     g_fig_rank    =   (/"a","a","a","b","b","b","c","c","c"/)
     ;g_fig_title   =   g_season+" HEAT_CP-CON_CP"
