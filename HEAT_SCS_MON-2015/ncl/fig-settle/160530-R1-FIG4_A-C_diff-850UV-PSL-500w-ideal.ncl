@@ -34,8 +34,8 @@ begin
     g_plev        =   (/925.0, 850.0, 700.0, 600.0, 500.0, 400.0, 300.0, 200.0, 100.0, 50.0/)
     g_res  = "f19"
     ;Define parameters
-    g_data_path_ctrl = "../../data/model/pre/Ideal_phy/CTRL"
-    g_data_path_sen = "../../data/model/pre/Ideal_phy/esm01"
+    g_data_path_ctrl = "../../data/model/pre/Ideal_phy/esm03-ctrl"
+    g_data_path_sen = "../../data/model/pre/Ideal_phy/esm03"
     
     g_sen_cases   = (/"heat-0.25-folding"/)
     g_season      =   "MAM"
