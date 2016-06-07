@@ -1,10 +1,12 @@
 
-Sub 宏1()
+Sub refresh_cite_number()
 '
 ' Macro: Refresh all citing number in plain-texted word doc
 '                       
 '                           Zhenning Li
 '                           20160607
+    Dim nSpace As integer
+    nSpace = 2
     Selection.Find.ClearFormatting
     Selection.Find.Replacement.ClearFormatting
     With Selection.Find.Replacement.Font
