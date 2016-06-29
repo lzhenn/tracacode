@@ -36,6 +36,13 @@ begin
     g_latN=45.
     g_lonW=30.
     g_lonE=220.
+
+    ;Smaller Region
+    g_latS=-30.
+    g_latN=30.
+    g_lonW=90.
+    g_lonE=210.
+
     g_season_rank=(/"DJF","MAM","JJA","SON"/)
 ; create an array of desired pressure levels:
 
@@ -45,12 +52,14 @@ begin
     g_strt_mon = 197501 
     g_lst_mon = 201312
     
-    g_sp_events = (/198201,198601,199101,199701,200401,200901/)
-    n_events= dimsizes(g_sp_events)
-    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_LE_cmp"
+    g_sp_events = (/198201,198601,198701,199101,199701,200401,200901/)
+    g_su_events = (/197701,197901,199401,200201,200601/)
+    n_sp_events= dimsizes(g_sp_events)
+    n_su_events= dimsizes(g_su_events)
+    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_LE-SE_cmp"
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = (/"Jan","Feb","Mar","Apr","May","Jun"/)+"_0 OLR"
+    g_fig_title     = "LE-SE "+(/"Jan","Feb","Mar","Apr","May","Jun"/)+"0 OLR"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -69,16 +78,45 @@ begin
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
-    cmp_var1 = var1(0:11,:,:)
-    cmp_var1 = 0
-    do ii=0,n_events-1
+    smp_sp_var1 = var1(0:12*n_sp_events-1,:,:)
+    do ii=0,n_sp_events-1
         i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
         print(i_evstrt)
-        cmp_var1 = cmp_var1+var1(i_evstrt:i_evstrt+11,:,:)
+        smp_sp_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_var1 =cmp_var1/n_events
-    clm_var1 = clmMonTLL(var1)
-    ano_cmp_var1 = calcMonAnomTLL(cmp_var1,clm_var1)
+    cmp_sp_var1_avg = clmMonTLL(smp_sp_var1)
+
+    smp_su_var1 = var1(0:12*n_su_events-1,:,:)
+    do ii=0,n_su_events-1
+        i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
+        print(i_evstrt)
+        smp_su_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_su_var1_avg = clmMonTLL(smp_su_var1)
+    
+    cmp_sp_var1_var = cmp_sp_var1_avg
+    cmp_su_var1_var = cmp_su_var1_avg
+    do ii = 0,11 
+        cmp_sp_var1_var(ii,:,:) = dim_variance_n(smp_sp_var1(ii::12,:,:),0)
+        cmp_su_var1_var(ii,:,:) = dim_variance_n(smp_su_var1(ii::12,:,:),0)
+    end do
+    cmp_var1 = cmp_sp_var1_avg
+    cmp_var1 = cmp_sp_var1_avg - cmp_su_var1_avg
+
+    ;--------------------------------
+    ;--------Sig Test----------------
+    ;--------------------------------
+
+    sigr = 0.15                        ; critical sig lvl for r
+
+    iflag= False                        ; population variance similar
+    diff_cmp_var1_sig = cmp_var1
+    do ii = 0,11
+        prob1 = ttest(cmp_sp_var1_avg(ii,:,:),cmp_sp_var1_var(ii,:,:),n_sp_events, cmp_su_var1_avg(ii,:,:), cmp_su_var1_var(ii,:,:), n_su_events, iflag, False) 
+        diff_cmp_var1_sig(ii,:,:) = mask(diff_cmp_var1_sig(ii,:,:), prob1 .lt. sigr,True)
+    end do
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -89,7 +127,7 @@ begin
 
   plot = new((/6/),graphic)
 ;  plot_tp = new((/2/),graphic)
-;  plot_sh = new((/2/),graphic)
+  plot_sig = new((/6/),graphic)
 ;  plot_V = new((/2/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -124,8 +162,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -50         ; set min contour level
- res@cnMaxLevelValF        = 50          ; set max contour level
+ res@cnMinLevelValF        = -40         ; set min contour level
+ res@cnMaxLevelValF        = 40          ; set max contour level
  res@cnLevelSpacingF       = 5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -186,13 +224,40 @@ begin
   res@tmYLLabelFontThicknessF = 2.0
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
-     
+ ;-------------------------------------------------
+;-----------------------------------------------------
+  res4                  = True       ; use plot options
+  res4@cnFillOn         = True       ; Fill contours
+  res4@cnLinesOn        = False;True      ; turn off contour lines
+  res4@gsnFrame         = False
+  res4@gsnDraw  = False
+  res4@cnLineLabelsOn   = False      ; turn off contour line labels
+  res4@cnLineThicknessF = 2
+  res4@cnLineColor      = "black"
+  res4@cnInfoLabelOn = False
+  res4@cnMonoFillPattern    = True;False
+  res4@cnFillPattern = 3 
+  res4@cnMonoFillScale = True
+  res4@cnFillScaleF = 0.6 
+  res4@cnMonoFillColor = True
+  res4@cnFillColor  =  "black"
+  res4@cnFillDotSizeF = 0.0025
+ 
+  res4@lbLabelBarOn = False;True   ; turn off the label bar
+ 
+;  res4@cnLevelSelectionMode="ExplicitLevels"
+;  res4@cnLevels = (/3000,1000/)
+  res4@gsnLeftString      = " "
+  res4@gsnRightString      = " "
+    
 
 do i = 0,5
     res@gsnLeftString = g_fig_rank(i)
     res@gsnCenterString = g_fig_title(i)
     res@gsnRightString = ""
-    plot(i) = gsn_csm_contour_map_ce(wks,ano_cmp_var1(i,:,:),res) ; create a default plot
+    plot(i) = gsn_csm_contour_map_ce(wks,cmp_var1(i,:,:),res) ; create a default plot
+    plot_sig(i) = gsn_csm_contour(wks,diff_cmp_var1_sig(i,:,:),res4)  ; Create shaded contours
+    overlay(plot(i),plot_sig(i))
 end do
 
 
@@ -217,31 +282,6 @@ end do
 
   ;plot_tp = gsn_csm_contour(wks,phis,res3)
 
-;-------------------------------------------------
-;-----------------------------------------------------
-  res4                  = True       ; use plot options
-  res4@cnFillOn         = True       ; Fill contours
-  res4@cnLinesOn        = False;True      ; turn off contour lines
-  res4@gsnFrame         = False
-  res4@gsnDraw  = False
-  res4@cnLineLabelsOn   = False      ; turn off contour line labels
-  res4@cnLineThicknessF = 2
-  res4@cnLineColor      = "black"
-  res4@cnInfoLabelOn = False
-  res4@cnMonoFillPattern    = True;False
-  res4@cnFillPattern = 17
-  res4@cnMonoFillScale = True
-  res4@cnFillScaleF = 1.
-  res4@cnMonoFillColor = True
-  res4@cnFillColor  =  "red"
-  res4@cnFillDotSizeF = 0.003
- 
-  res4@lbLabelBarOn = False;True   ; turn off the label bar
- 
-;  res4@cnLevelSelectionMode="ExplicitLevels"
-;  res4@cnLevels = (/3000,1000/)
-  res4@gsnLeftString      = " "
-  res4@gsnRightString      = " "
 ;-----------------------------------------------------------------------------
           
   vcres = True
@@ -274,7 +314,6 @@ end do
 
   ;plot_sh(1) = gsn_csm_contour(wks,cp_diff_var3_sig,res4)
 
- ; overlay(plot(0),plot_sh(0))
   ;overlay(plot(1),plot_sh(1))
 
   ;overlay(plot(0),plot_V(0))

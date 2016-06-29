@@ -45,12 +45,12 @@ begin
     g_strt_mon = 197501 
     g_lst_mon = 201312
     
-    g_sp_events = (/198201,198601,199101,199701,200401,200901/)
-    n_events= dimsizes(g_sp_events)
-    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_LE_cmp"
+    g_su_events = (/197601,197701,197901,199401,200201,200601/)
+    n_events= dimsizes(g_su_events)
+    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_SE_cmp"
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = (/"Jan","Feb","Mar","Apr","May","Jun"/)+"_0 OLR"
+    g_fig_title     = (/"Jan","Feb","Mar","Apr","May","Jun"/)+" OLR"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -72,7 +72,7 @@ begin
     cmp_var1 = var1(0:11,:,:)
     cmp_var1 = 0
     do ii=0,n_events-1
-        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
+        i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
         print(i_evstrt)
         cmp_var1 = cmp_var1+var1(i_evstrt:i_evstrt+11,:,:)
     end do
