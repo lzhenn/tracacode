@@ -52,8 +52,8 @@ begin
     g_strt_mon = 197501 
     g_lst_mon = 201312
     
-    g_sp_events = (/198201,198601,198701,199101,199701,200401,200901/)
-    g_su_events = (/197701,197901,199401,200201,200601/)
+    g_sp_events = (/198201,198601,199101,199701/)
+    g_su_events = (/197901,199401,200201,200401,200601,200901/)
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
     g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_LE-SE_cmp"
