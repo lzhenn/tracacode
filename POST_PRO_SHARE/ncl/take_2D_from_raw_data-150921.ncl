@@ -36,14 +36,7 @@ begin
     
     all_files = new(12*(lstyear-frstyear+1),string)
     do i =frstyear,lstyear
-        if (i .lt. 10) then
-            yr_str="000"+i
-        else if (i .lt. 100) then
-            yr_str="00"+i
-        else
-            yr_str="0"+i
-        end if
-        end if
+        yr_str=sprinti("%0.4i",(i))
         all_files(12*(i-frstyear):12*(i-frstyear)+11) = pre_dir+case_name+".cam.h0."+yr_str+"-"+mon_str+".nc"
     end do
     ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
