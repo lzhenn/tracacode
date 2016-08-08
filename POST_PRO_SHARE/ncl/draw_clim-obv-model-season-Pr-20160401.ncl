@@ -61,7 +61,7 @@ begin
 
     g_fig_name    =   fig_path+"/clim-"+g_run_period+"-snn-"+(/"SuWi","SpFa"/)+"-PR-"+lats+latn+lonw+lone+"-"+ctrl_casename
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)"/)
-    g_fig_title   =   (/"CMAP PR 81-10 "+g_seasons+" CLIM","MODEL PR "+g_run_period+" "+g_seasons+" CLIM"/)
+    g_fig_title   =   (/"CMAP PR 81-10 "+g_seasons+" CLIM",ctrl_casename+" PR "+g_run_period+" "+g_seasons+" CLIM"/)
 
 
 ;*************************For F_Compset Ctrl***********************************

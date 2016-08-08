@@ -32,19 +32,19 @@ echo "  "
 
 #**************************CTRL SETTINGS**************************
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/project/SPCAM-TEST-2016/data/model/pro/\"
+PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/data-mirror/model/SPCAM-TEST-2016/F_AMIP/\"
 
 # CTRL Case name
-CTRL_CASENAME=\"SP-test-sam1mom\"
+CTRL_CASENAME=\"F_AMIP\"
 
 # CTRL data in one bulk file or severial files, 0 for files
 CTRL_PFILE=1
 
 # History pfile first year, set when when CTRL_PFILE=1
-FFRSTYEAR=1
+FFRSTYEAR=1979
 
 # History pfile last year, set when CTRL_PFILE=1
-FLSTYEAR=5
+FLSTYEAR=2005
 
 
 #**************************FIGURE SETTINGS**************************
@@ -59,7 +59,7 @@ R_FLAG=1
 ANN_TS_FLAG=0
 SNN_TS_FLAG=0
 
-ANN_PR_FLAG=0
+ANN_PR_FLAG=1
 SNN_PR_FLAG=1
 
 
@@ -72,10 +72,10 @@ if  [ $R_FLAG == 1 ] ; then
     LONW=60.
     LONE=180.
 #MC
-    LATS=-30.
-    LATN=30.
-    LONW=80.
-    LONE=150.
+#    LATS=-30.
+#    LATN=30.
+#    LONW=80.
+#    LONE=150.
 
     
 else
