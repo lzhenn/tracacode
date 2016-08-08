@@ -32,10 +32,10 @@ echo "  "
 
 #**************************CTRL SETTINGS**************************
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/data-mirror/model/SPCAM-TEST-2016/F_AMIP/\"
+PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/data-mirror/model/SPCAM-TEST-2016/SP_AMIP/\"
 
 # CTRL Case name
-CTRL_CASENAME=\"F_AMIP\"
+CTRL_CASENAME=\"SP_AMIP\"
 
 # CTRL data in one bulk file or severial files, 0 for files
 CTRL_PFILE=1
@@ -76,6 +76,13 @@ if  [ $R_FLAG == 1 ] ; then
 #    LATN=30.
 #    LONW=80.
 #    LONE=150.
+
+#MC
+    LATS=-30.
+    LATN=30.
+    LONW=0.
+    LONE=360.
+
 
     
 else

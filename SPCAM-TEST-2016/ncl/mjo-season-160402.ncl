@@ -18,21 +18,23 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/diagnostics_cam.ncl"
 
 ;******************** MAIN **********************************
 begin
-    yr0    = "0003"
-    yr1    = "0004"
-    twStrt = 00030701        ; include enough temporal buffer for filter
-    twLast = 00040930        ; at least 100 days on each side of season
+    casename = "SP_AMIP"
+    yr0    = "2000"
+    yr1    = "2001"
+    twStrt = 20000701        ; include enough temporal buffer for filter
+    twLast = 20010930        ; at least 100 days on each side of season
 
-    cwStrt = 00031101        ; correlation window for specified season 
-    cwLast = 00040531       
+    cwStrt = 20001101        ; correlation window for specified season 
+    cwLast = 20010531       
 
-    pName  = "PRECT"        ; name of variable on precipitation file
-    dirp   = "../data/model/pro/"
-    filp   = (/"SP-test-sam1mom.cam.h1.YEAR."+yr0+".daily.PRECT.nc","SP-test-sam1mom.cam.h1.YEAR."+yr1+".daily.PRECT.nc"/)
+    pName  = (/"PRECC","PRECL"/)        ; name of variable on precipitation file
+    dirp   = "../data/model/pro/"+casename+"/"
+    filp1   = (/casename+".cam.h1.YEAR."+yr0+".daily.PRECC.nc",casename+".cam.h1.YEAR."+yr1+".daily.PRECC.nc"/)
+    filp2   = (/casename+".cam.h1.YEAR."+yr0+".daily.PRECL.nc",casename+".cam.h1.YEAR."+yr1+".daily.PRECL.nc"/)
 
-    uName  = "U850"        ; name of variable on U-anomaly file
-    diru   = "../data/model/pro/"
-    filu   = (/"SP-test-sam1mom.cam.h1.YEAR."+yr0+".daily.U850.nc","SP-test-sam1mom.cam.h1.YEAR."+yr1+".daily.U850.nc"/)
+    uName  = "U"        ; name of variable on U-anomaly file
+    diru   = "../data/model/pro/"+casename+"/"
+    filu   = (/casename+".cam.h1.YEAR."+yr0+".daily.U.nc",casename+".cam.h1.YEAR."+yr1+".daily.U.nc"/)
 
     nameRegion = "IO"        ; Indian Ocean base region
     latS_IO    = -10.
@@ -55,7 +57,7 @@ begin
     lonl       =  80.        ; lon band for (lag,lat) Fig 6
     lonr       = 100.
 
-    pltName    = "mjo"       ; output plot name         
+    pltName    = "mjo-"+casename       ; output plot name         
     pltType    = "eps"        ; x11, ps, eps, pdf, png 
     pltDir     = "../fig"        ; output plot directory
 
@@ -75,7 +77,8 @@ begin
     ;     Read user specified period
     ;************************************************************
     setfileoption("nc","SuppressClose",False) ; close too many files
-    f      = addfiles(dirp+filp, "r")  
+    f      = addfiles(dirp+filp1, "r")  
+    f2      = addfiles(dirp+filp2, "r")  
     ListSetType(f,"cat")
     date_p = cd_calendar(f[0]->time, -2)   ; entire file
     iStrt  = ind(date_p.eq.twStrt)      ; desired dates
@@ -83,10 +86,12 @@ begin
     iLast  = ind(date_p.eq.twLast)+365
     delete(date_p)
     ; P(time,lat,lon)
-    if (getfilevartypes(f[0],pName) .eq. "short") then
-        P  = short2flt( f[:]->$pName$(iStrt:iLast,{latS_globe:latN_globe},:)) 
+    if (getfilevartypes(f[0],pName(0)) .eq. "short") then
+        P  = short2flt( f[:]->$pName(0)$(iStrt:iLast,{latS_globe:latN_globe},:)) 
     else
-        P  = f[:]->$pName$(iStrt:iLast,{latS_globe:latN_globe},:) 
+        P  = f[:]->$pName(0)$(iStrt:iLast,{latS_globe:latN_globe},:) 
+        P2  = f2[:]->$pName(1)$(iStrt:iLast,{latS_globe:latN_globe},:) 
+        P =P+P2
     end if
 
     if (P&lon(0) .lt. 0) then  ; test if -180 to +180
@@ -119,7 +124,7 @@ begin
     if (getfilevartypes(f[0],uName) .eq. "short") then
         U  = short2flt( f[:]->$uName$(iStrt:iLast,{latS_globe:latN_globe},:)) 
     else
-        U  = f[:]->$uName$(iStrt:iLast,{latS_globe:latN_globe},:) 
+        U  = f[:]->$uName$(iStrt:iLast,{850},{latS_globe:latN_globe},:) 
     end if
 
     ;printVarSummary( U )
