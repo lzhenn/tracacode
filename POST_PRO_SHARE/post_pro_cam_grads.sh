@@ -10,14 +10,14 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/home/yangsong3/data/model/CESM_CTRL/F2000_F19_CAM4_CTRL/pre/\"
+PRE_DIR=\"/users/yangsong3/jyt/CESM/F/F_hist_ENSO/exe/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/home/yangsong3/data/model/CESM_CTRL/F2000_F19_CAM4_CTRL/pro/\"
+PRO_DIR=\"/users/yangsong3/jyt/CESM/F/F_hist_ENSO/post_data/\"
 
 # Case name
-CASENAME=\"CTRL\"
+CASENAME=\"F_hist_ENSO\"
 
 
 # Names of 2D fields
@@ -46,7 +46,7 @@ PLEV="(/925,850,700,600,500,400,300,200,100,50/)"
 FRSTYEAR=1
 
 # Last year of the subset
-LSTYEAR=110
+LSTYEAR=50
 
 # Process fig flag
 FLAG2D=1
