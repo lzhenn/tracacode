@@ -10,14 +10,14 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/users/yangsong3/jyt/CESM/F/F_hist_ENSO/exe/\"
+PRE_DIR=\"/users/yangsong3/wangzq/TP_noPBL_HEAT2/exe/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/jyt/CESM/F/F_hist_ENSO/post_data/\"
+PRO_DIR=\"$HOME/L_Zealot/temp/\"
 
 # Case name
-CASENAME=\"F_hist_ENSO\"
+CASENAME=\"TP_noPBL_HEAT2\"
 
 
 # Names of 2D fields
