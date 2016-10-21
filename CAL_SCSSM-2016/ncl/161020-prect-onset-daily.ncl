@@ -35,18 +35,18 @@ begin
     ;for directory 
     g_day_rank=(/135,140,150,155,145,140,150,135,160,145,160,140,160,140,150,125,135,130,140,140,150,135,130,135,145,140,150,140,145,125,150,145,130,140/)
     g_strt_yr=1979
-    g_lst_yr=2012
+    g_lst_yr=2010
     g_day_shift=10
 
-    g_var_name = "uwnd"
-    g_data_path ="../data/NCEP_DOE/"+g_var_name+"1979-2013/"
+    g_var_name = "r"
+    g_data_path ="../data/ERA-interim/surface/"
 
     g_font = 0.035
     
     g_latS=0.
-    g_latN=60.
-    g_lonW=60.
-    g_lonE=145.
+    g_latN=25.
+    g_lonW=105.
+    g_lonE=125.
     ; create an array of desired pressure levels:
     g_fig_name = "../fig/obv/"+g_var_name+"_P1-P0"
         
@@ -56,19 +56,19 @@ begin
 
 
 ;Prepare the variables
-    ctrl_in1     = addfile (g_data_path+g_var_name+".1979.nc", "r")   ; note the "s" of addfile
+    ctrl_in1     = addfile (g_data_path+g_var_name+"ain.daily.interim.1979.nc", "r")   ; note the "s" of addfile
     ref_day_rank =g_day_rank(0)-1
-    t2m_accu  =short2flt( ctrl_in1->$g_var_name$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
+    t2m_accu  = ctrl_in1->$g_var_name$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,:,:)
     print("1979 done!")
     do nyr = g_strt_yr+1, g_lst_yr
         print(nyr+" done!")
-        ctrl_in1     = addfile (g_data_path+g_var_name+"."+nyr+".nc", "r")   ; note the "s" of addfile
+        ctrl_in1     = addfile (g_data_path+g_var_name+"ain.daily.interim."+nyr+".nc", "r")   ; note the "s" of addfile
         ref_day_rank =g_day_rank(nyr-1979)-1
         ;time_hist    = ctrl_in1->time
         ;yyyymmdd  = cd_calendar(time_hist,-2)
         ;istrt   = ind(yyyymmdd .eq. g_strt_day)
         ;ilast   = ind(yyyymmdd .eq. g_lst_day)
-        t2m  =short2flt( ctrl_in1->$g_var_name$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
+        t2m  = ctrl_in1->$g_var_name$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,:,:)
         t2m_accu = t2m + t2m_accu       
     end do
     
@@ -96,10 +96,10 @@ begin
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-;  gsn_define_colormap(wks,"precip_diff_12lev")
+  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
- gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
 ;-----------------------------------------------------------------------------
@@ -124,9 +124,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -15         ; set min contour level
- res@cnMaxLevelValF        = 15         ; set max contour level
- res@cnLevelSpacingF       = 3         ; set contour interval
+ res@cnMinLevelValF        = -6        ; set min contour level
+ res@cnMaxLevelValF        = 6         ; set max contour level
+ res@cnLevelSpacingF       = 0.5         ; set contour interval
  res@mpDataBaseVersion    = "MediumRes"
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -176,8 +176,8 @@ begin
 ;  res@tmYRMinorOutwardLengthF = -0.
     
      ; now change the size of the tickmark labels
-  res@tmXBTickSpacingF = 15
-  res@tmYLTickSpacingF = 15
+  res@tmXBTickSpacingF = 5
+  res@tmYLTickSpacingF = 5
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
