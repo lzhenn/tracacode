@@ -1,7 +1,7 @@
 #!/bin/sh
 
 NC=\"`pwd`/$1\" #for the nc filename
-SCRIPT_DIR=$HOME/L_Zealot/project/UTILITY-2016/ncl
+SCRIPT_DIR=$HOME/project/UTILITY-2016/ncl
 
 # -n no line number
 # -Q no copyright info
