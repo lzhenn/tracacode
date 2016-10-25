@@ -26,7 +26,8 @@ begin
 
 ;======================================================
 ;Variables List:
-;	t2m--------------Air Temperature (K, TLL)
+;	var1--------------U (K, TLL)
+;	var2--------------V (K, TLL)
 ;======================================================
 
 ;global variables
@@ -38,8 +39,10 @@ begin
     g_lst_yr=2012
     g_day_shift=10
 
-    g_var_name = "uwnd"
-    g_data_path ="../data/daily/"+g_var_name+"1979-2013/"
+    g_var_name1 = "uwnd"
+    g_var_name2 = "vwnd"
+    g_data1_path ="../data/daily/"+g_var_name1+"1979-2013/"
+    g_data2_path ="../data/daily/"+g_var_name2+"1979-2013/"
 
     g_font = 0.035
     
@@ -54,50 +57,69 @@ begin
     g_lonE=145.
 
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/"+g_var_name+"_sync_earliest_comp_P1-P0"
+    g_fig_name = "../fig/obv/"+g_var_name1+g_var_name2+"_sync_earliest_comp_P1-P0"
         
     g_fig_rank    = (/"(a)","(b)","(c)"/)
-    g_fig_title   = (/" 23-25P Er-La ","+2Pts ", "Diff "/)+g_var_name
+    g_fig_title   = (/" 23-25P Er-La ","+2Pts ", "Diff "/)+"UV"
 
     npos_year = 0
     nneg_year = 0
 
 
 ;Prepare the variables
-    ctrl_in1     = addfile (g_data_path+g_var_name+".1979.nc", "r")   ; note the "s" of addfile
+    ctrl_in1     = addfile (g_data1_path+g_var_name1+".1979.nc", "r")   ; note the "s" of addfile
+    ctrl_in2     = addfile (g_data2_path+g_var_name2+".1979.nc", "r")   ; note the "s" of addfile
     ref_day_rank =125-1
-    t2m_accu_pos  =short2flt( ctrl_in1->$g_var_name$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
-    t2m_accu_all = t2m_accu_pos
-    t2m_accu_pos = 0
-    t2m_accu_neg = t2m_accu_pos
+    var1_accu_pos  =short2flt( ctrl_in1->$g_var_name1$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
+    var2_accu_pos  =short2flt( ctrl_in2->$g_var_name2$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
+    var1_accu_all = var1_accu_pos
+    var2_accu_all = var2_accu_pos
+    var1_accu_pos = 0
+    var2_accu_pos = 0
+    var1_accu_neg = var1_accu_pos
+    var2_accu_neg = var2_accu_pos
     print("1979 done!")
     do nyr = g_strt_yr+1, g_lst_yr
         print(nyr+" done!")
-        ctrl_in1     = addfile (g_data_path+g_var_name+"."+nyr+".nc", "r")   ; note the "s" of addfile
+        ctrl_in1     = addfile (g_data1_path+g_var_name1+"."+nyr+".nc", "r")   ; note the "s" of addfile
+        ctrl_in2     = addfile (g_data2_path+g_var_name2+"."+nyr+".nc", "r")   ; note the "s" of addfile
         ;time_hist    = ctrl_in1->time
         ;yyyymmdd  = cd_calendar(time_hist,-2)
         ;istrt   = ind(yyyymmdd .eq. g_strt_day)
         ;ilast   = ind(yyyymmdd .eq. g_lst_day)
-        t2m  =short2flt( ctrl_in1->$g_var_name$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
-        t2m_accu_all = t2m+t2m_accu_all
+        var1  =short2flt( ctrl_in1->$g_var_name1$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
+        var2  =short2flt( ctrl_in2->$g_var_name2$(ref_day_rank-g_day_shift:ref_day_rank+g_day_shift-1,{200},:,:))
+        var1_accu_all = var1+var1_accu_all
+        var2_accu_all = var2+var2_accu_all
         if (g_day_rank(nyr-1979) .gt. 149) then
-            t2m_accu_pos = t2m + t2m_accu_pos       
+            var1_accu_pos = var1 + var1_accu_pos       
+            var2_accu_pos = var2 + var2_accu_pos       
             npos_year = npos_year+1
         else if (g_day_rank(nyr-1979) .lt. 131) then
-            t2m_accu_neg = t2m + t2m_accu_neg
+            var1_accu_neg = var1 + var1_accu_neg
+            var2_accu_neg = var2 + var2_accu_neg
             nneg_year = nneg_year+1
         end if
         end if
     end do
     
-    t2m_pt0 = t2m_accu_pos(0,:,:)
-    t2m_pt1 = t2m_accu_pos(0,:,:)
-    t2m_accu_all_avg = t2m_accu_pos(0,:,:)
-    t2m_diff = t2m_accu_pos(0,:,:)
-    t2m_pt0 = dim_avg_n_Wrap(t2m_accu_pos(0:g_day_shift-1,:,:),0)/npos_year
-    t2m_pt1 = dim_avg_n_Wrap(t2m_accu_neg(0:g_day_shift-1,:,:),0)/nneg_year
-    t2m_accu_all_avg = dim_avg_n_Wrap(t2m_accu_all(0:g_day_shift-1,:,:),0)/dimsizes(g_day_rank)
-    t2m_diff = t2m_pt1 - t2m_pt0
+    var1_pt0 = var1_accu_pos(0,:,:)
+    var2_pt0 = var2_accu_pos(0,:,:)
+    var1_pt1 = var1_accu_pos(0,:,:)
+    var2_pt1 = var2_accu_pos(0,:,:)
+    var1_accu_all_avg = var1_accu_pos(0,:,:)
+    var2_accu_all_avg = var2_accu_pos(0,:,:)
+    var1_diff = var1_accu_pos(0,:,:)
+    var2_diff = var2_accu_pos(0,:,:)
+    var1_pt0 = dim_avg_n_Wrap(var1_accu_pos(0:g_day_shift-1,:,:),0)/npos_year
+    var2_pt0 = dim_avg_n_Wrap(var2_accu_pos(0:g_day_shift-1,:,:),0)/npos_year
+    var1_pt1 = dim_avg_n_Wrap(var1_accu_neg(0:g_day_shift-1,:,:),0)/nneg_year
+    var2_pt1 = dim_avg_n_Wrap(var2_accu_neg(0:g_day_shift-1,:,:),0)/nneg_year
+    var1_accu_all_avg = dim_avg_n_Wrap(var1_accu_all(0:g_day_shift-1,:,:),0)/dimsizes(g_day_rank)
+    var2_accu_all_avg = dim_avg_n_Wrap(var2_accu_all(0:g_day_shift-1,:,:),0)/dimsizes(g_day_rank)
+    var1_accu_all_avg = where(wind_speed(var1_accu_all_avg,var2_accu_all_avg) .lt. 20, var1_accu_all_avg@_FillValue, var1_accu_all_avg)
+    var1_diff = var1_pt1 - var1_pt0
+    var2_diff = var2_pt1 - var2_pt0
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -109,7 +131,7 @@ begin
   plot = new((/3/),graphic)
   plot_jet = new((/3/),graphic)
   plot_sh = new((/3/),graphic)
-;  plot_V = new((/2/),graphic)
+  plot_V = new((/3/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
@@ -211,7 +233,7 @@ begin
   
   
   
-  plot(0) = gsn_csm_contour_map_ce(wks,t2m_diff,res)
+  plot(0) = gsn_csm_contour_map_ce(wks,var1_diff,res)
  
       res3                  = True       ; use plot options
       res3@cnFillOn         = False;True       ; Fill contours
@@ -225,15 +247,42 @@ begin
      
      
       res3@cnLevelSelectionMode="ExplicitLevels"
-      res3@cnLevels = (/20,30/)
+      res3@cnLevels = (/20,30,40/)
       res3@cnLineColor      = "Red"
       res3@gsnLeftString      = " "
       res3@gsnRightString      = " "
 
 
-      plot_jet(0) = gsn_csm_contour(wks,t2m_accu_all_avg,res3)
+      plot_jet(0) = gsn_csm_contour(wks,var1_accu_all_avg,res3)
+    ;-----------------------------------------------------------------------------
+          
+      vcres = True
+      vcres@gsnDraw          = False           ; don't draw
+      vcres@gsnFrame         = False           ; don't advance frame
+      vcres@gsnRightString   = " "             ; turn off right string
+      vcres@gsnLeftString    = " "             ; turn off left string
+      vcres@gsnCenterString    = " "
+     
+      vcres@vcRefAnnoOn      = True
+      vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
+      vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+      vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+      vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
+      vcres@vcMinDistanceF          = 0.017
+      vcres@vcRefAnnoString1  = "5 m/s"
+      vcres@vcRefAnnoString2  = ""
+      vcres@vcRefAnnoFontHeightF = 0.01
+     
+      vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
+    ;  vcres@vcLineArrowHeadMinSizeF   = 0.010
+    ;  vcres@vcLineArrowHeadMaxSizeF   = 0.130
+    ;--------------------------------------
+
+      plot_V(0) = gsn_csm_vector(wks,var1_accu_all_avg,var2_accu_all_avg,vcres)
+
 
   overlay(plot(0),plot_jet(0))  
+  overlay(plot(0),plot_V(0))  
   gsn_panel(wks,plot(0),(/1,1/),False)
 
   draw(plot)
