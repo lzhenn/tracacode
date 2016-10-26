@@ -57,10 +57,10 @@ begin
     g_lonE=145.
 
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/"+g_var_name1+g_var_name2+"_sync_earliest_comp_P1-P0"
+    g_fig_name = "../fig/obv/"+g_var_name1+g_var_name2+"_sync_comp_P1-P0"
         
     g_fig_rank    = (/"(a)","(b)","(c)"/)
-    g_fig_title   = (/" 23-25P Er-La ","+2Pts ", "Diff "/)+"UV"
+    g_fig_title   = (/" 24-25P Er-La ","+2Pts ", "Diff "/)+"UV"
 
     npos_year = 0
     nneg_year = 0
