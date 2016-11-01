@@ -28,7 +28,7 @@ for mdf_plt in pt_ids:
     fn_plt_str='%s%s' % (fn_plt_str,mdf_plt) 
 fn_plt_str='pol%s' % fn_plt_str
 
-opt_path='../data/obv/2005/mobile/pathv1_hk_mobile-%s-%dpt.txt' % (fn_plt_str,scale_f*100)
+opt_path='../data/obv/2005/mobile/pathv1_hk_mobile-%s-%dpt2.txt' % (fn_plt_str,scale_f*100)
 
 
 #---------------Parameter setting----------------------
@@ -71,14 +71,14 @@ for item in lines:
         info_line = '' # Modification information displayed on screen
         item_rec = ''  # Written line
 
-        for ii in range(len(pt_ids)):
-            pt_pos = pt_ids[ii]-1
-            pt_org = float(item[p_start+pt_pos*p_span:p_start+pt_pos*p_span+p_length])
-            info_line = info_line+'%4s: %*.3f --> %*.3f | ' % (pollutant[pt_ids[ii]], 8, pt_org, 8, pt_org*scale_f)
-            scl_itm=pt_org*scale_f
-            item_rec=item_rec+item[p_org_line:p_start+pt_pos*p_span]+'%*.3f'% (p_length, scl_itm)
-            p_org_line=p_start+ii*p_span+p_length
-#        print info_line
+        for mdf_plt in pt_ids:
+            pt_pos = p_start+(mdf_plt-1)*p_span # Current modified pollutent (CMP) start position
+            pt_value = float(item[pt_pos:pt_pos+p_length]) # CMP value
+            info_line = info_line+'%4s: %*.3f --> %*.3f | ' % (pollutant[mdf_plt], 8, pt_value, 8, pt_value*scale_f)
+            scl_itm=pt_value*scale_f #Change it!
+            item_rec=item_rec+item[p_org_line:pt_pos]+'%*.3f'% (p_length, scl_itm)
+            p_org_line=pt_pos+p_length
+            #print info_line
         item_rec=item_rec+item[p_org_line:]
         fw.write(item_rec)
 
