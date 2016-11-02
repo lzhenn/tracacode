@@ -134,7 +134,7 @@ begin
   res@gsnSpreadColors      = True               ; use full color map
   res@gsnStringFontHeightF = g_font
   res@tmYLMode = "Explicit"
-  res@tmYLValues = (/ 0. , 30., 61., 89., 120., 150.,181, 211, 242, 273, 303, 334 /)
+  res@tmYLValues = (/ 0. , 31., 59., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
   res@tmYLLabels = (/"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" /)
 
 ;  res@gsnMaximize      = True       ; fill up the page
@@ -158,11 +158,14 @@ begin
         res@gsnLeftString=g_fig_rank(ii)
         res@gsnCenterString=g_fig_title(ii)
         if (ii .eq. 0) then
-            plot(ii) = gsn_csm_hov(wks, var1_pt1(89:181,:), res ) 
+;            plot(ii) = gsn_csm_hov(wks, var1_pt1(89:181,:), res ) 
+            plot(ii) = gsn_csm_hov(wks, var1_pt1, res ) 
         else if (ii .eq. 1) then
-            plot(ii) = gsn_csm_hov(wks, var1_pt0(89:181,:), res ) 
+;            plot(ii) = gsn_csm_hov(wks, var1_pt0(89:181,:), res ) 
+            plot(ii) = gsn_csm_hov(wks, var1_pt0, res ) 
         else 
-            plot(ii) = gsn_csm_hov(wks, var1_accu_all_avg(89:181,:), res ) 
+ ;           plot(ii) = gsn_csm_hov(wks, var1_accu_all_avg(89:181,:), res ) 
+            plot(ii) = gsn_csm_hov(wks, var1_accu_all_avg, res ) 
         end if
         end if
   end do

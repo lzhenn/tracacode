@@ -134,7 +134,7 @@ begin
   res@gsnSpreadColors      = True               ; use full color map
   res@gsnStringFontHeightF = g_font
   res@tmYLMode = "Explicit"
-  res@tmYLValues = (/ 0. , 30., 61., 89., 120., 150.,181, 211, 242, 273, 303, 334 /)
+  res@tmYLValues = (/ 0. , 31., 59., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
   res@tmYLLabels = (/"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" /)
 
 ;  res@gsnMaximize      = True       ; fill up the page
