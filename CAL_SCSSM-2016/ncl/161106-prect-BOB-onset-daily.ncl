@@ -144,7 +144,8 @@ begin
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-  gsn_define_colormap(wks,"precip_diff_12lev")
+;  gsn_define_colormap(wks,"precip_diff_12lev")
+  gsn_define_colormap(wks,"WhiteBlue")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
@@ -169,8 +170,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 12         ; set min contour level
- res@cnMaxLevelValF        = 0         ; set max contour level
+ res@cnMinLevelValF        = 0         ; set min contour level
+ res@cnMaxLevelValF        = 12         ; set max contour level
  res@cnLevelSpacingF       = 1         ; set contour interval
  res@mpDataBaseVersion    = "MediumRes"
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
