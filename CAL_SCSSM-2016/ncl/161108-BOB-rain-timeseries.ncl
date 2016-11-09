@@ -54,10 +54,10 @@ begin
     g_lonE=100.
 
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/"+"OnsetPentad-AndamanConv-Corr"
+    g_fig_name = "../fig/obv/"+"AndamanConv-P24-25"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)"/)
-    g_fig_title   = "-2pAmSeaConv-SCS Onset"
+    g_fig_title   = "ASConv24-25"
 
     npos_year = 0
     nneg_year = 0
@@ -71,50 +71,27 @@ begin
     ;istrt   = ind(yyyymmdd .eq. g_strt_day)
     ;ilast   = ind(yyyymmdd .eq. g_lst_day) 
     ListSetType (ctrl_in3, "join")
-    var3  =ctrl_in3[:]->r(:,:,:,:)
-    var3_366  =ctrl_in3[1::4]->r(:,:,:,:)
+    var3  =ctrl_in3[:]->r(:,115:124,:,:)
+    var3_366  =ctrl_in3[1::4]->r(:,116:125,:,:)
     adm_mean_var3=wgt_areaave_Wrap(var3(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    adm_mean_p2425_var3=dim_avg_n_Wrap(adm_mean_var3,1)
     
     adm_mean_var3_366=wgt_areaave_Wrap(var3_366(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    adm_mean_p2425_var3_366=dim_avg_n_Wrap(adm_mean_var3_366,1)
+    
     
     var3_data = new((/32/),"float")
-    copy_VarMeta(adm_mean_var3, var3_data)
+    copy_VarMeta(adm_mean_p2425_var3, var3_data)
     sp = 0
-    adm_mean_var3_p2425_366=adm_mean_var3(0,0:9)
-    
-    clim_var3=adm_mean_var3(0,0:364)
-    clim_var3=dim_avg_n_Wrap(adm_mean_var3,0)*0.75+dim_avg_n_Wrap(adm_mean_var3_366(:,0:364),0)*0.25
     do ii=0,31
-        period_0=g_day_rank(ii)-g_day_shift
-        period_1=g_day_rank(ii)+g_day_shift-1
         if (mod((ii-1),4) .eq. 0) then
-            adm_mean_var3_p2425=100*(adm_mean_var3_366((ii-1)/4,period_0:period_1)-clim_var3(period_0:period_1))/clim_var3(period_0:period_1)
-            var3_data(ii) = dim_avg_Wrap(adm_mean_var3_p2425)
+            var3_data(ii) = adm_mean_p2425_var3_366((ii-1)/4)
             sp = sp+1
         else
-            adm_mean_var3_p2425=100*(adm_mean_var3(ii-sp,period_0:period_1)-clim_var3(period_0:period_1))/clim_var3(period_0:period_1)
-            var3_data(ii) = dim_avg_Wrap(adm_mean_var3_p2425)
+            var3_data(ii) = adm_mean_p2425_var3(ii-sp)
         end if
     end do
     print(var3_data)
-
-    
-    ; ==============================================================
-    ; Mission 3. Set plot parameters and plot
-    ; ==============================================================
-    ;************************************************
-    ; Create an array to hold both the original data
-    ; and the calculated regression line.
-    ;************************************************
-    var_reg=regline(g_day_rankp(0:31), var3_data)
-    r = escorc(g_day_rankp(0:31), var3_data)
-    sig = rtest(r,32,0) 
-    print(r)
-    print(sig)
-    yreg = var_reg*ispan(min(g_day_rankp),max(g_day_rankp),1) + var_reg@yintercept   ; ncl array notation 
-
-
-
     ;************************************************
     ; plotting parameters
     ;************************************************
@@ -151,10 +128,9 @@ begin
     res@gsnStringFontHeightF = g_font
     res@tiXAxisFontHeightF   = g_font
     res@tiYAxisFontHeightF   = g_font
-    res@gsnLeftString     = g_fig_title
-    res@tiYAxisString     = "Pr Anomaly (%)"
+    res@gsnLeftString     = "P24-25 AmSeaConv-SCS Onset"
+    res@tiYAxisString     = "Pr Rate (mm/day)"
     res@tiXAxisString = "Onset Pentad"
-    plot(0)  = gsn_csm_xy (wks,g_day_rankp(0:31),var3_data,res)
 
     delete([/res@xyMarkerSizeF,res@xyMarkerColor,res@xyMarkers,res@xyMarkerThicknessF/])
     
@@ -164,8 +140,7 @@ begin
     res@xyDashPattern=0.
 
         
-    plot(1) = gsn_csm_xy (wks,ispan(min(g_day_rankp),max(g_day_rankp),1),yreg,res) ; create plot
-    overlay(plot(0),plot(1))
+    plot(0) = gsn_csm_xy (wks,ispan(1979,2010,1),var3_data,res) ; create plot
     draw(plot(0))
     frame(wks)
 end
