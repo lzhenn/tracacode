@@ -92,6 +92,7 @@ begin
         end if
     end do
     print(var3_data)
+    var3_data_std= dim_standardize_Wrap(var3_data,1)
     ;************************************************
     ; plotting parameters
     ;************************************************
@@ -116,31 +117,33 @@ begin
 
 
     ;---Set some marker resources
-    res@xyMarkLineMode     = "Markers"
-    res@xyMarkerSizeF      = 0.015
-    res@xyMarkerThicknessF = 2.0
-    res@xyMarkerColor     = "Red"  ; It's okay to list more than you need here
-    res@xyMarkers          = (/4,6,7/)  ; Again, you can list more than you need.
-
  
     res@tmYLLabelFontHeightF = g_font
     res@tmXBLabelFontHeightF = g_font
     res@gsnStringFontHeightF = g_font
     res@tiXAxisFontHeightF   = g_font
     res@tiYAxisFontHeightF   = g_font
-    res@gsnLeftString     = "P24-25 AmSeaConv-SCS Onset"
-    res@tiYAxisString     = "Pr Rate (mm/day)"
-    res@tiXAxisString = "Onset Pentad"
+    res@gsnLeftString     = g_fig_title    
+    res@tiYAxisString     = "Pr Rate (std)"
+    res@tiXAxisString = "Year"
 
-    delete([/res@xyMarkerSizeF,res@xyMarkerColor,res@xyMarkers,res@xyMarkerThicknessF/])
-    
     res@xyMarkLineMode     = "Lines"
     res@xyLineColors       = "Black" ; colors chosen
     res@xyLineThicknesses    = 4.0      ; line thicknesses
     res@xyDashPattern=0.
-
+    res@tmXBValues = ispan(0,31,5) ;interval
+    res@tmXBLabels = ispan(1979,2010,5) ;tick label
         
-    plot(0) = gsn_csm_xy (wks,ispan(1979,2010,1),var3_data,res) ; create plot
+    res@trXMinF            = 1979           ; X axis limits
+    do ii =0,31
+        if (var3_data_std(ii) .gt. 1) then
+            print("+"+(ii+1979))
+        else if (var3_data_std(ii) .lt. -1) then
+            print("-"+(ii+1979))
+        end if
+        end if
+    end do
+    plot(0) = gsn_csm_xy (wks,ispan(1979,2010,1),var3_data_std,res) ; create plot
     draw(plot(0))
     frame(wks)
 end
