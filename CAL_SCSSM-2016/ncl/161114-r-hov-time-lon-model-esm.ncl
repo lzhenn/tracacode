@@ -37,9 +37,8 @@ begin
     g_lst_yr=2010
     g_day_shift=10
 
-    g_var_name1 = "prect"
-    g_data1_path ="../data/model/TP10_dayclim_PRECT.nc"
-    g_data2_path ="../data/model/TP10a_dayclim_PRECT.nc"
+    g_var_name1 = "PRECT"
+    g_data1_path ="/Users/zhenningli/project/CAL_SCSSM-2016/data/model/PRD-esm/"
 
     g_font = 0.02
     
@@ -51,23 +50,24 @@ begin
     ; create an array of desired pressure levels:
         
     g_fig_rank    = (/"(a)","(b)","(c)"/)
-    g_fig_title   = (/"CTRL","-20SW SEN", "Clim"/)+" "+g_var_name1
-    g_fig_name   = "../fig/obv/hov_lon_time_model_"+g_var_name1
+    g_fig_title   = (/"CTRL_ESM","-20SW SEN", "Clim"/)+" "+g_var_name1
+    g_fig_name   = "../fig/obv/hov_lon_time_model_esm_"+g_var_name1
     npos_year = 0
     nneg_year = 0
 
 
 ;Prepare the variables
-    ctrl_in1     = addfile (g_data1_path, "r")   ; note the "s" of addfile
-    var1_accu_ctrl  =ctrl_in1->$g_var_name1$(:364,{g_latS:g_latN},{g_lonW:g_lonE})
+    all_files = systemfunc("ls "+g_data1_path+"*PRECT*")
+    ctrl_in1     = addfiles (all_files, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in1, "join")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    var1_accu_ctrl  =ctrl_in1[:]->$g_var_name1$(:,:,{g_latS:g_latN},{g_lonW:g_lonE})
     
-    sen_in1     = addfile (g_data2_path, "r")   ; note the "s" of addfile
-    var1_accu_sen  =sen_in1->$g_var_name1$(:364,{g_latS:g_latN},{g_lonW:g_lonE})
-    
-    var1_ctrl = dim_avg_n_Wrap(var1_accu_ctrl(:,:,:),1)
+    printVarSummary(var1_accu_ctrl)
+   
+    var1_ctrl_clim = dim_avg_n_Wrap(var1_accu_ctrl,0)
+    var1_ctrl = dim_avg_n_Wrap(var1_ctrl_clim,1)
     var1_ctrl = var1_ctrl*86400*1000
-    var1_sen = dim_avg_n_Wrap(var1_accu_sen(:,:,:),1)
-    var1_sen = var1_sen*86400*1000
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -101,7 +101,7 @@ begin
     res@cnLinesOn        = False               ; turn off contour lines
     res@cnLevelSpacingF  = 5                   ; contour spacing
     res@vpWidthF = 0.3
-    res@vpHeightF = 0.9
+    res@vpHeightF = 0.45
 
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
@@ -116,7 +116,7 @@ begin
   res@gsnSpreadColors      = True               ; use full color map
   res@gsnStringFontHeightF = g_font
   res@tmYLMode = "Explicit"
-  res@tmYLValues = (/ 0. , 31., 59., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)*1440
+  res@tmYLValues = (/ 0. , 31., 59., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
   res@tmYLLabels = (/"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" /)
 
 ;  res@gsnMaximize      = True       ; fill up the page
@@ -136,7 +136,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
     res@gsnRightString=""
-    do ii=0,2  
+    do ii=0,0  
         res@gsnLeftString=g_fig_rank(ii)
         res@gsnCenterString=g_fig_title(ii)
         if (ii .eq. 0) then
