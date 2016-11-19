@@ -121,8 +121,8 @@ begin
         
         var1_bk_std=dim_standardize_Wrap(var2_bk,1)
         reg_var1 = var1_region(0,:,:)
-        printVarSummary(reg_var1)
-        printVarSummary(var1_bk_std)
+        print(var2_ak_std)
+        print(var1_bk_std)
         printVarSummary(var1_region_LLT)
         reg_var1 = (/regCoef(var2_ak_std(0,:), var1_region_LLT)/) 
         reg_var1 = - reg_var1 
