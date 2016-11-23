@@ -40,6 +40,7 @@ begin
 
     g_var_name1 = "r"
     g_data3_path ="../data/obv/NCEP-DOE/daily/ERA-rain/"
+    g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/"
 
     g_font = 0.025
     
@@ -48,11 +49,17 @@ begin
     g_lonW=80.
     g_lonE=120.
 
+    g_latS2=0.
+    g_latN2=40.
+    g_lonW2=45
+    g_lonE2=75.
+
+
     ; create an array of desired pressure levels:
         
     g_fig_rank    = (/"(a)","(b)","(c)"/)
     g_fig_title   = (/"Early","Late", "Clim"/)+" "+g_var_name1
-    g_fig_name   = "../fig/obv/hov_lon_time_EOF_"+g_var_name1
+    g_fig_name   = "../fig/obv/hov_lon_time_EOF_U200_"+g_var_name1
     npos_year = 0
     nneg_year = 0
 
@@ -78,23 +85,46 @@ begin
             var3_hov_data(ii,:,:) = var3_hov(ii-sp,:,:)
         end if
     end do
-    printVarSummary(var3_hov_data)
+
+    var3_hov_anom = dim_rmvmean_n_Wrap(var3_hov_data, 0)
+    var3_rg    = var3_hov_anom(time|:,lon|:,ncl_join|:)
+    
+    ctrl_in2_files = systemfunc("ls "+g_data2_path+"*19* "+g_data2_path+"*200* "+g_data2_path+"*2010*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in2     = addfiles (ctrl_in2_files, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in2, "join")
+    var2  =short2flt(ctrl_in2[:]->uwnd(:,89:151,{200},{g_latS2:g_latN2},{g_lonW2:g_lonE2}))
+    var2_366  =short2flt(ctrl_in2[1::4]->uwnd(:,89:151,{200},{g_latS2:g_latN2},{g_lonW2:g_lonE2}))
+    var2_hov =dim_avg_n_Wrap(var2(:,:,:,:),3) 
+    var2_366_hov =dim_avg_n_Wrap(var2_366(:,:,:,:),3) 
+    var2_hov_dim = dimsizes(var2_hov)
+    var2_hov_data = new((/32,var2_hov_dim(1),var2_hov_dim(2)/),"float")
+    copy_VarMeta(var2_hov, var2_hov_data)
+    sp = 0
+    do ii=0,31
+        if (mod((ii-1),4) .eq. 0) then
+            var2_hov_data(ii,:,:) = var2_366_hov((ii-1)/4,:,:)
+            sp = sp+1
+        else
+            var2_hov_data(ii,:,:) = var2_hov(ii-sp,:,:)
+        end if
+    end do
+    var2_hov_data&time = var3_hov_data&time 
+    var2_hov_anom = dim_rmvmean_n_Wrap(var2_hov_data, 0)
+    var2_rg    = var2_hov_anom(time|:,lat|:,ncl_join|:)
 
     neof=3
     optEOF=True
     optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
     optETS = False
      
-    var3_hov_anom = dim_rmvmean_n_Wrap(var3_hov_data, 0)
-    var3_rg    = var3_hov_anom(time|:,lon|:,ncl_join|:)
     eof    = eofunc_Wrap(var3_rg, neof, optEOF)      
+    eof0    = eofunc_Wrap(var2_rg, neof, optEOF)      
     eof_ts = eofunc_ts_Wrap (var3_rg, eof, optETS)
     ;eof_ts = dtrend(eof_ts,False)
     eof_ts = dim_standardize_n(eof_ts, 0, 1)      ; normalize
     ; regress the field
-    eof_regres = eof                               ; create an array w meta data
-
-   
+    eof_regres = eof0                            ; create an array w meta data
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -112,10 +142,10 @@ begin
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-  gsn_define_colormap(wks,"precip_diff_12lev")
+;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
 ;-----------------------------------------------------------------------------
@@ -133,8 +163,8 @@ begin
 
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -4         ; set min contour level
- res@cnMaxLevelValF        = 4         ; set max contour level
+ res@cnMinLevelValF        = -5         ; set min contour level
+ res@cnMaxLevelValF        = 5         ; set max contour level
  res@cnLevelSpacingF       = 1         ; set contour interval
 
 
@@ -168,9 +198,9 @@ begin
   
   
   ;--------------------------------------
-
+    printVarSummary(var2_rg)
     do ne=0,neof-1
-        eof_regres(ne,:,:) = (/ regCoef(eof_ts(ne,:), var3_rg(time|:,lon|:,ncl_join|:)) /)
+        eof_regres(ne,:,:) = (/ regCoef(eof_ts(ne,:), var2_rg(time|:,lat|:,ncl_join|:)) /)
         res@gsnLeftString=g_fig_rank(ne)
         res@gsnCenterString=sprintf("%5.1f", eof@pcvar(ne)) +"%"
         plot(ne) = gsn_csm_hov(wks, eof_regres(ne,:,:), res) 
@@ -185,4 +215,5 @@ begin
   frame(wks)
  
 end
+
 

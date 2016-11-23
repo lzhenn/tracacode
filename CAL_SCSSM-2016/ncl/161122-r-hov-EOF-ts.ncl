@@ -52,7 +52,7 @@ begin
         
     g_fig_rank    = (/"(a)","(b)","(c)"/)
     g_fig_title   = (/"Early","Late", "Clim"/)+" "+g_var_name1
-    g_fig_name   = "../fig/obv/hov_lon_time_EOF_"+g_var_name1
+    g_fig_name   = "../fig/obv/hov_lon_time_EOF_ts_"+g_var_name1
     npos_year = 0
     nneg_year = 0
 
@@ -98,85 +98,61 @@ begin
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
+    ;-----------------------------------------------------------------------------
+    wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+    ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
+    ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
-;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
-;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
+    plot = new((/3/),graphic)
+    rts           = True
+    rts@gsnDraw   = False       ; don't draw yet
+    rts@gsnFrame  = False       ; don't advance frame yet
+    rts@gsnScale  = True        ; force text scaling               
 
-  plot = new((/3/),graphic)
-;  plot_jet = new((/3/),graphic)
-;  plot_sh = new((/3/),graphic)
-;  plot_V = new((/3/),graphic)
+    ; these four rtsources allow the user to stretch the plot size, and
+    ; decide exactly where on the page to draw it.
 
-;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
-;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
-;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
-;  gsn_define_colormap(wks,"precip4_diff_19lev")
-  gsn_define_colormap(wks,"precip_diff_12lev")
-; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
-; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-
-
-;-----------------------------------------------------------------------------
-
-    res                  = True                ; plot mods desired
-
-    res@cnFillOn         = True                ; color on
-    res@lbLabelStride    = 2                   ; every other label
-    res@lbOrientation    = "Vertical"          ; vertical label bar
-    res@lbLabelFontHeightF    = g_font          ; vertical label bar
-    res@cnLinesOn        = False               ; turn off contour lines
-    res@cnLevelSpacingF  = 5                   ; contour spacing
-    res@vpWidthF = 0.4
-    res@vpHeightF = 0.4
+    rts@vpHeightF = 0.30        ; Changes the aspect ratio
+    rts@vpWidthF  = 0.80
+    rts@vpXF      = 0.10        ; change start locations
+    rts@vpYF      = 0.75        ; the plot
 
 
- res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -4         ; set min contour level
- res@cnMaxLevelValF        = 4         ; set max contour level
- res@cnLevelSpacingF       = 1         ; set contour interval
+    rts@tiYAxisString = "Standardized"          ; y-axis label      
+
+    rts@gsnYRefLine           = 0.              ; reference line   
+    rts@gsnXYBarChart         = True            ; create bar chart 
+    rts@gsnAboveYRefLineColor = "red"           ; above ref line fill red
+    rts@gsnBelowYRefLineColor = "blue"          ; below ref line fill blue
+
+    rts@trYMinF            = -3.0                 ; Y axis limits
+    rts@trYMaxF            = 3.5
 
 
-  res@gsnFrame         = False
-  res@gsnDraw  = False
-  
-  res@gsnSpreadColors      = True               ; use full color map
-  res@gsnStringFontHeightF = g_font
-  res@tmYLMode = "Explicit"
-  res@tmYLValues = (/ 0. , 31., 59., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
-  res@tmYLLabels = (/"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" /)
+    ;rts@tmXBLabelStride     = 1
+    rts@tmYLLabelStride     = 2
 
-;  res@gsnMaximize      = True       ; fill up the page
-;  res@gsnAddCyclic   = True;False
-;  res@gsnPaperOrientation = "portrait"
-;  res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
-   
-     ; now change the size of the tickmark labels
+    rts@tmYLMajorThicknessF = 3.0
+    rts@tmXBMinorThicknessF = 3.0
+    rts@tmYLMinorThicknessF = 3.0
+    rts@tmBorderThicknessF = 3.0
 
-
- res@tmXBLabelFontHeightF = g_font
- ; res@tmXBLabelFontAspectF = 1.6
-  res@tmXBLabelFontThicknessF = 2.0
-  res@tmYLLabelFontHeightF = g_font
-; res@tmYLLabelFontAspectF = 1.3
-  res@tmYLLabelFontThicknessF = 2.0
-; res@tmYLLabelFontQuality =
-;-----------------------------------------------------------------------------
-  res@gsnRightString=""
-
-  
-  
-  ;--------------------------------------
-
+    rts@tmXBLabelFontHeightF = g_font
+    rts@tmYLLabelFontHeightF = g_font
+    rts@gsnStringFontHeightF = g_font
+    rts@tiYAxisFontHeightF   = g_font
+    
     do ne=0,neof-1
-        eof_regres(ne,:,:) = (/ regCoef(eof_ts(ne,:), var3_rg(time|:,lon|:,ncl_join|:)) /)
-        res@gsnLeftString=g_fig_rank(ne)
-        res@gsnCenterString=sprintf("%5.1f", eof@pcvar(ne)) +"%"
-        plot(ne) = gsn_csm_hov(wks, eof_regres(ne,:,:), res) 
+        YYYY=ispan(1979,2010,1)
+        plot(ne) = gsn_csm_xy(wks,YYYY,eof_ts(ne,:),rts)
     end do
 
 
+    gsn_panel(wks,plot,(/4,1/),False)
+
+    draw(plot)
+frame(wks)
+    
 ;  overlay(plot(0),plot_jet(0))  
 ;  overlay(plot(0),plot_V(0))  
   gsn_panel(wks,plot,(/3,1/),False)
