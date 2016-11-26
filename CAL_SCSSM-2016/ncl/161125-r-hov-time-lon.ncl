@@ -38,39 +38,39 @@ begin
     g_lst_yr=2010
     g_day_shift=10
 
-    g_var_name1 = "uwnd"
-    g_data1_path ="../data/obv/ERA-daily/u/"
+    g_var_name1 = "r"
+    g_data1_path ="../data/obv/ERA-rain/"
 
     g_font = 0.025
     
     g_t_bg=88
     g_t_ed=160
-    g_latS=0.
-    g_latN=45.
-    g_lonW=60.
-    g_lonE=90.
-    g_lvl=300.
+
+    g_latS=10.
+    g_latN=20.
+    g_lonW=90.
+    g_lonE=120.
 
     ; create an array of desired pressure levels:
         
     g_fig_rank    = (/"(a)","(b)","(c)"/)
-    g_fig_title   = (/"Early","Late", "Clim"/)+" Time-Lat "+g_var_name1
-    g_fig_name   = "../fig/hov_clim_90-120"+g_var_name1
+    g_fig_title   = (/"Early","Late", "Clim"/)+" "+g_var_name1
+    g_fig_name   = "../fig/obv/hov_lon_time_"+g_var_name1
     npos_year = 0
     nneg_year = 0
 
 
 ;Prepare the variables
-    ctrl_in1     = addfile (g_data1_path+g_var_name1+".interim."+g_strt_yr+".nc", "r")   ; note the "s" of addfile
-    var1_accu_pos  =short2flt( ctrl_in1->$g_var_name1$(g_t_bg:g_t_ed,{g_lvl},{g_latS:g_latN},{g_lonW:g_lonE}))
+    ctrl_in1     = addfile (g_data1_path+g_var_name1+"ain.daily.interim."+g_strt_yr+".nc", "r")   ; note the "s" of addfile
+    var1_accu_pos  =short2flt( ctrl_in1->$g_var_name1$(g_t_bg:g_t_ed,{g_latS:g_latN},{g_lonW:g_lonE}))
     var1_accu_all = var1_accu_pos
     var1_accu_pos = 0
     var1_accu_neg = var1_accu_pos
     print(g_strt_yr+" done!")
     do nyr = g_strt_yr+1, g_lst_yr
         print(nyr+" done!")
-        ctrl_in1     = addfile (g_data1_path+g_var_name1+".interim."+nyr+".nc", "r")   ; note the "s" of addfile
-        var1  =short2flt( ctrl_in1->$g_var_name1$(g_t_bg:g_t_ed,{g_lvl},{g_latS:g_latN},{g_lonW:g_lonE}))
+        ctrl_in1     = addfile (g_data1_path+g_var_name1+"ain.daily.interim."+nyr+".nc", "r")   ; note the "s" of addfile
+        var1  =short2flt( ctrl_in1->$g_var_name1$(g_t_bg:g_t_ed,{g_latS:g_latN},{g_lonW:g_lonE}))
         var1_accu_all = var1+var1_accu_all
         if (g_day_rank(nyr-1979) .gt. 149) then
             var1_accu_pos = var1 + var1_accu_pos       
@@ -81,13 +81,14 @@ begin
         end if
         end if
     end do
-    
-    var1_pt0 = var1_accu_pos(:,:,0)
-    var1_pt1 = var1_accu_pos(:,:,0)
-    var1_accu_all_avg = var1_accu_pos(:,:,0)
-    var1_pt0 = dim_avg_n_Wrap(var1_accu_pos(:,:,:),2)/npos_year
-    var1_pt1 = dim_avg_n_Wrap(var1_accu_neg(:,:,:),2)/nneg_year
-    var1_accu_all_avg = dim_avg_n_Wrap(var1_accu_all(:,:,:),2)/(g_lst_yr-g_strt_yr+1)
+    date0 = cd_calendar(var1_accu_pos&time,0)
+    var1_accu_pos&time=ispan(g_t_bg,g_t_ed,1)
+    var1_pt0 = var1_accu_pos(:,0,:)
+    var1_pt1 = var1_accu_pos(:,0,:)
+    var1_accu_all_avg = var1_accu_pos(:,0,:)
+    var1_pt0 = dim_avg_n_Wrap(var1_accu_pos(:,:,:),1)/npos_year
+    var1_pt1 = dim_avg_n_Wrap(var1_accu_neg(:,:,:),1)/nneg_year
+    var1_accu_all_avg = dim_avg_n_Wrap(var1_accu_all(:,:,:),1)/(g_lst_yr-g_strt_yr+1)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -101,13 +102,13 @@ begin
 ;  plot_sh = new((/3/),graphic)
 ;  plot_V = new((/3/),graphic)
 
-  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
+;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
-; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+ gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
@@ -116,17 +117,18 @@ begin
     res                  = True                ; plot mods desired
 
     res@cnFillOn         = True                ; color on
+    res@lbLabelFontHeightF=g_font
     res@lbLabelStride    = 2                   ; every other label
     res@lbOrientation    = "Vertical"          ; vertical label bar
-    res@cnLinesOn        = True               ; turn off contour lines
+    res@cnLinesOn        = False               ; turn off contour lines
     res@cnLevelSpacingF  = 5                   ; contour spacing
-    res@vpWidthF = 0.7
+    res@vpWidthF = 0.4
     res@vpHeightF = 0.3
 
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -10.         ; set min contour level
- res@cnMaxLevelValF        = 30.         ; set max contour level
+ res@cnMinLevelValF        = 0         ; set min contour level
+ res@cnMaxLevelValF        = 14         ; set max contour level
  res@cnLevelSpacingF       = 2         ; set contour interval
 
 
@@ -136,19 +138,19 @@ begin
   res@gsnSpreadColors      = True               ; use full color map
   res@gsnStringFontHeightF = g_font
   res@tmYLMode = "Explicit"
-  res@tmYLValues = (/ 0. , 30., 61., 89., 120., 151.,181, 212, 243, 273, 301, 331 /)
+  res@tmYLValues = (/ 0. , 31., 59., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
   res@tmYLLabels = (/"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" /)
 
-  res@gsnMaximize      = True       ; fill up the page
-   res@gsnAddCyclic   = False
-  res@gsnPaperOrientation = "portrait"
-  res@gsnContourZeroLineThicknessF = 3.  ;set thickness of zero
-  res@tmXBTickSpacingF = 10 
+;  res@gsnMaximize      = True       ; fill up the page
+;  res@gsnAddCyclic   = True;False
+;  res@gsnPaperOrientation = "portrait"
+;  res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
+   
      ; now change the size of the tickmark labels
 
-res@lbLabelFontHeightF = g_font
-res@tmXBLabelFontHeightF = g_font
-; res@tmXBLabelFontAspectF = 1.6
+
+ res@tmXBLabelFontHeightF = g_font
+ ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
   res@tmYLLabelFontHeightF = g_font
 ; res@tmYLLabelFontAspectF = 1.3
@@ -156,18 +158,69 @@ res@tmXBLabelFontHeightF = g_font
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
     res@gsnRightString=""
+   res@tmXBTickSpacingF = 10 
     do ii=0,2  
         res@gsnLeftString=g_fig_rank(ii)
         res@gsnCenterString=g_fig_title(ii)
         if (ii .eq. 0) then
-            plot(ii) = gsn_csm_time_lat(wks, var1_pt1, res ) 
+;            plot(ii) = gsn_csm_hov(wks, var1_pt1(89:181,:), res ) 
+            plot(ii) = gsn_csm_hov(wks, var1_pt1, res ) 
         else if (ii .eq. 1) then
-            plot(ii) = gsn_csm_time_lat(wks, var1_pt0, res ) 
+;            plot(ii) = gsn_csm_hov(wks, var1_pt0(89:181,:), res ) 
+            plot(ii) = gsn_csm_hov(wks, var1_pt0, res ) 
         else 
-            plot(ii) = gsn_csm_time_lat(wks, var1_accu_all_avg, res ) 
+ ;           plot(ii) = gsn_csm_hov(wks, var1_accu_all_avg(89:181,:), res ) 
+            plot(ii) = gsn_csm_hov(wks, var1_accu_all_avg, res ) 
         end if
         end if
   end do
+  
+  
+ 
+      res3                  = True       ; use plot options
+      res3@cnFillOn         = False;True       ; Fill contours
+      res3@cnLinesOn        = True      ; turn off contour lines
+    ;for tp masking
+      res3@gsnFrame         = False
+      res3@gsnDraw  = False
+      res3@cnLineLabelsOn   = False      ; turn off contour line labels
+      res3@cnLineThicknessF = 3 
+      res3@cnInfoLabelOn = False
+     
+     
+      res3@cnLevelSelectionMode="ExplicitLevels"
+      res3@cnLevels = (/20/)
+      res3@cnLineColor      = "Red"
+      res3@gsnLeftString      = " "
+      res3@gsnRightString      = " "
+
+
+;      plot_jet(0) = gsn_csm_contour(wks,var1_accu_all_avg,res3)
+    ;-----------------------------------------------------------------------------
+          
+      vcres = True
+      vcres@gsnDraw          = False           ; don't draw
+      vcres@gsnFrame         = False           ; don't advance frame
+      vcres@gsnRightString   = " "             ; turn off right string
+      vcres@gsnLeftString    = " "             ; turn off left string
+      vcres@gsnCenterString    = " "
+     
+      vcres@vcRefAnnoOn      = True
+      vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
+      vcres@vcRefMagnitudeF         = 25.0             ; define vector ref mag
+      vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+      vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
+      vcres@vcMinDistanceF          = 0.017
+      vcres@vcRefAnnoString1  = "25 m/s"
+      vcres@vcRefAnnoString2  = ""
+      vcres@vcRefAnnoFontHeightF = 0.01
+     
+      vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
+    ;  vcres@vcLineArrowHeadMinSizeF   = 0.010
+    ;  vcres@vcLineArrowHeadMaxSizeF   = 0.130
+    ;--------------------------------------
+
+
 
 ;  overlay(plot(0),plot_jet(0))  
 ;  overlay(plot(0),plot_V(0))  
