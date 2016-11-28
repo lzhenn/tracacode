@@ -1,0 +1,258 @@
+Variable: q1
+Type: float
+Total Size: 136 bytes
+            34 values
+Number of Dimensions: 2
+Dimensions and sizes:   [time | 2] x [lev | 17]
+Coordinates:
+            time: [1571232..1580016]
+            lev: [1000..10]
+Number Of Attributes: 8
+  lon :  0
+  lat : 90
+  NMO : 3
+  operation_tag :       calculate_monthly_values: ave
+  units :       K/s
+  long_name :   MAM: Monthly Q1 Calculated from daily on Pressure Levels
+  time :        1569072
+  _FillValue :  -32767
+(0,0)   2.315658e-06
+(0,1)   4.764167e-06
+(0,2)   5.313329e-06
+(0,3)   8.576636e-06
+(0,4)   1.140002e-05
+(0,5)   1.321379e-05
+(0,6)   1.531075e-05
+(0,7)   1.396428e-05
+(0,8)   8.771283e-06
+(0,9)   6.523953e-06
+(0,10)  6.637368e-06
+(0,11)  1.095022e-07
+(0,12)  -2.80491e-06
+(0,13)  -3.314711e-06
+(0,14)  -6.912629e-06
+(0,15)  -1.960319e-05
+(0,16)  -3.686193e-05
+(1,0)   8.258289e-07
+(1,1)   2.807729e-06
+(1,2)   4.08041e-06
+(1,3)   1.003449e-05
+(1,4)   1.466032e-05
+(1,5)   1.775918e-05
+(1,6)   1.899623e-05
+(1,7)   1.655873e-05
+(1,8)   1.066107e-05
+(1,9)   7.162873e-06
+(1,10)  4.331474e-06
+(1,11)  3.930528e-07
+(1,12)  -1.349397e-05
+(1,13)  -8.363171e-06
+(1,14)  -7.204544e-06
+(1,15)  -2.11125e-05
+(1,16)  -3.447711e-05
+
+
+Variable: diab_q
+Type: float
+Total Size: 296 bytes
+            74 values
+Number of Dimensions: 2
+Dimensions and sizes:   [time | 2] x [lev | 37]
+Coordinates:
+            lev: [100..100000]
+Number Of Attributes: 18
+  lon :  0
+  lat : 90
+  NMO : 3
+  initial_time :        01/01/1979 (00:00)
+  forecast_time_units : hours
+  forecast_time :       0
+  number_in_average :   <ARRAY of 37 elements>
+  statistical_process_duration :        1 hours (beginnng at forecast time)
+  type_of_statistical_processing :      Average of forecast averages, each of an equal specified duration, with 6-hour intervals between forecasts.
+  level_type :  Isobaric surface (Pa)
+  parameter_template_discipline_category_number :       ( 8, 0, 0, 198 )
+  parameter_discipline_and_category :   Meteorological products, Temperature
+  grid_type :   Latitude/longitude
+  units :       K s-1
+  long_name :   MAM: Temperature tendency by all physics
+  production_status :   Operational products
+  center :      US National Weather Service - NCEP (WMC)
+  _FillValue :  1e+20
+(0,0)   2.678001e-05
+(0,1)   1.876176e-05
+(0,2)   1.512635e-05
+(0,3)   1.377699e-05
+(0,4)   1.197211e-05
+(0,5)   1.009926e-05
+(0,6)   4.865976e-06
+(0,7)   3.139625e-06
+(0,8)   2.010479e-06
+(0,9)   3.668905e-06
+(0,10)  5.328126e-06
+(0,11)  3.937147e-06
+(0,12)  2.541273e-06
+(0,13)  1.746862e-06
+(0,14)  1.880094e-06
+(0,15)  3.05854e-06
+(0,16)  4.821588e-06
+(0,17)  7.791788e-06
+(0,18)  1.055818e-05
+(0,19)  1.258029e-05
+(0,20)  1.365212e-05
+(0,21)  1.38965e-05
+(0,22)  1.35704e-05
+(0,23)  1.213544e-05
+(0,24)  9.294417e-06
+(0,25)  3.22543e-06
+(0,26)  6.971597e-06
+(0,27)  7.870985e-06
+(0,28)  6.873192e-06
+(0,29)  4.95624e-06
+(0,30)  3.356566e-06
+(0,31)  2.745767e-06
+(0,32)  3.803503e-06
+(0,33)  4.327676e-06
+(0,34)  2.599329e-06
+(0,35)  3.350681e-06
+(0,36)  5.136293e-06
+(1,0)   2.749039e-05
+(1,1)   1.914655e-05
+(1,2)   1.408948e-05
+(1,3)   1.559443e-05
+(1,4)   1.342025e-05
+(1,5)   1.391817e-05
+(1,6)   2.87838e-06
+(1,7)   2.869261e-06
+(1,8)   2.227845e-06
+(1,9)   4.085201e-06
+(1,10)  5.504032e-06
+(1,11)  4.246945e-06
+(1,12)  3.224002e-06
+(1,13)  2.999978e-06
+(1,14)  4.572237e-06
+(1,15)  7.122962e-06
+(1,16)  1.001391e-05
+(1,17)  1.430252e-05
+(1,18)  1.785928e-05
+(1,19)  2.088177e-05
+(1,20)  2.308742e-05
+(1,21)  2.381493e-05
+(1,22)  2.297792e-05
+(1,23)  2.069918e-05
+(1,24)  1.676792e-05
+(1,25)  1.082033e-05
+(1,26)  1.207187e-05
+(1,27)  1.170666e-05
+(1,28)  1.016779e-05
+(1,29)  7.939268e-06
+(1,30)  5.674896e-06
+(1,31)  3.918778e-06
+(1,32)  4.195887e-06
+(1,33)  3.667117e-06
+(1,34)  5.00263e-07
+(1,35)  1.650866e-06
+(1,36)  5.328043e-06
+
+
+Variable: dpcv_q
+Type: float
+Total Size: 296 bytes
+            74 values
+Number of Dimensions: 2
+Dimensions and sizes:   [time | 2] x [lev | 37]
+Coordinates:
+            lev: [100..100000]
+Number Of Attributes: 18
+  lon :  0
+  lat : 90
+  NMO : 3
+  initial_time :        01/01/1979 (00:00)
+  forecast_time_units : hours
+  forecast_time :       0
+  number_in_average :   <ARRAY of 37 elements>
+  statistical_process_duration :        1 hours (beginnng at forecast time)
+  type_of_statistical_processing :      Average of forecast averages, each of an equal specified duration, with 6-hour intervals between forecasts.
+  level_type :  Isobaric surface (Pa)
+  parameter_template_discipline_category_number :       ( 8, 0, 0, 196 )
+  parameter_discipline_and_category :   Meteorological products, Temperature
+  grid_type :   Latitude/longitude
+  units :       K s-1
+  long_name :   MAM: Deep convective heating rate
+  production_status :   Operational products
+  center :      US National Weather Service - NCEP (WMC)
+  _FillValue :  1e+20
+(0,0)   1e-15
+(0,1)   1e-15
+(0,2)   1e-15
+(0,3)   1e-15
+(0,4)   1e-15
+(0,5)   1e-15
+(0,6)   1e-15
+(0,7)   1e-15
+(0,8)   1e-15
+(0,9)   1e-15
+(0,10)  4.859937e-08
+(0,11)  6.740316e-07
+(0,12)  2.526689e-06
+(0,13)  4.723907e-06
+(0,14)  6.876207e-06
+(0,15)  9.567668e-06
+(0,16)  1.265037e-05
+(0,17)  2.005057e-05
+(0,18)  2.699864e-05
+(0,19)  3.247433e-05
+(0,20)  3.407388e-05
+(0,21)  3.461124e-05
+(0,22)  3.280817e-05
+(0,23)  3.134495e-05
+(0,24)  3.205814e-05
+(0,25)  3.712017e-05
+(0,26)  2.98763e-05
+(0,27)  2.433967e-05
+(0,28)  1.975416e-05
+(0,29)  1.815851e-05
+(0,30)  1.656167e-05
+(0,31)  1.485268e-05
+(0,32)  1.285772e-05
+(0,33)  2.568377e-06
+(0,34)  -1.142306e-05
+(0,35)  -1.333862e-05
+(0,36)  -1.499376e-05
+(1,0)   1e-15
+(1,1)   1e-15
+(1,2)   1e-15
+(1,3)   1e-15
+(1,4)   1e-15
+(1,5)   1e-15
+(1,6)   1e-15
+(1,7)   1e-15
+(1,8)   1e-15
+(1,9)   1e-15
+(1,10)  5.912285e-08
+(1,11)  1.020076e-06
+(1,12)  3.753833e-06
+(1,13)  6.553773e-06
+(1,14)  9.485329e-06
+(1,15)  1.319467e-05
+(1,16)  1.735169e-05
+(1,17)  2.663217e-05
+(1,18)  3.55411e-05
+(1,19)  4.248667e-05
+(1,20)  4.429608e-05
+(1,21)  4.35239e-05
+(1,22)  3.879203e-05
+(1,23)  3.54695e-05
+(1,24)  3.540701e-05
+(1,25)  4.033414e-05
+(1,26)  3.231246e-05
+(1,27)  2.643628e-05
+(1,28)  2.195195e-05
+(1,29)  2.026196e-05
+(1,30)  1.815511e-05
+(1,31)  1.537537e-05
+(1,32)  1.281659e-05
+(1,33)  5.316348e-06
+(1,34)  -1.134217e-05
+(1,35)  -1.392501e-05
+(1,36)  -1.607141e-05
