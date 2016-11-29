@@ -52,17 +52,17 @@ begin
     g_strt_mon = 197501 
     g_lst_mon = 201312
     
-    ; long events larger than 10 months
-    g_sp_events = (/198301,198701,199201,199801/)
-    
-    ; short events with 10 months
-    g_su_events = (/198001,199501,200301,200501,200701,201001/)
+    ;long events without 10 months
+    g_sp_events = (/198201,198601,199101,199701/)
+    ;short events with 10 months
+    g_su_events = (/197901,199401,200201,200401,200601,200901/)
+
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
-    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_LE-SE_decay-10mSE-cmp"
+    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_OLR_LE-SE_cmp_lfcyc"
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = "LE-SE "+(/"Jan","Feb","Mar","Apr","May","Jun"/)+"1 OLR"
+    g_fig_title     = "LE-SE "+(/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)+"0 OLR"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -254,13 +254,14 @@ begin
   res4@gsnRightString      = " "
     
 
-do i = 0,5
+do i = 6,11
+;do i = 0,5
     res@gsnLeftString = g_fig_rank(i)
     res@gsnCenterString = g_fig_title(i)
     res@gsnRightString = ""
-    plot(i) = gsn_csm_contour_map_ce(wks,cmp_var1(i,:,:),res) ; create a default plot
-    plot_sig(i) = gsn_csm_contour(wks,diff_cmp_var1_sig(i,:,:),res4)  ; Create shaded contours
-    overlay(plot(i),plot_sig(i))
+    plot(i-6) = gsn_csm_contour_map_ce(wks,cmp_var1(i,:,:),res) ; create a default plot
+    plot_sig(i-6) = gsn_csm_contour(wks,diff_cmp_var1_sig(i,:,:),res4)  ; Create shaded contours
+    overlay(plot(i-6),plot_sig(i-6))
 end do
 
 
