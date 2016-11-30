@@ -23,43 +23,56 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name1="/home/yangsong3/L_Zealot/project/MONSOON-ENSO-2016/data/model/pro/B2000CTRL/B2000_f09_CAM5PM_spin-up.cam.h0.TS.1-300.nc"
-    data_file_name2="/home/yangsong3/L_Zealot/project/MONSOON-ENSO-2016/data/model/pro/B2000CTRL/B2000_f09_CAM5PM_spin-up.cam.h0.TS.1-300.nc"
+    data_file_name1="/home/yangsong3/data-model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/B2000_f09_CAM5PM_spin-up.cam.h0.TS.1-300.nc"
+    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/CAM5PM_SCS_STR_HEAT/pro/esmt261_1/B2000_f09_CAM5PM_SCS_ANNCYC.cam.h0.TS.261-262.nc"
     fig_name="../fig/nino34"
     fig_title="NINO3.4 INDEX Timeseries"
     
     ;one month rightward shift
-    yrstrt  = 102 
-    yrlast  = 30101 
+    yrstrt1  = 20102
+    yrlast1  = 30101
+    yrstrt2  = 26102
+    yrlast2  = 26301 
 
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1,"r")
-    exp_in1 = addfile(data_file_name2,"r")
-    
     time = ctrl_in1->time
-    
-    yyyymm0 =floor( cd_calendar(time,-1))
-    yyyymm = array_append_record (101., yyyymm0, 0)
-    istrt = ind(yyyymm0 .eq. yrstrt)
-    ilast = ind(yyyymm0 .eq. yrlast)
-   
-    t    = time(istrt:ilast) 
-    yyyy =floor( cd_calendar(t,4))
+    yyyymm =floor( cd_calendar(time,-1))
+    ;yyyymm = array_append_record (101., yyyymm0, 0)
+    istrt = ind(yyyymm .eq. yrstrt1)
+    ilast = ind(yyyymm .eq. yrlast1)
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
+    
+    delete([/time/])
+    exp_in1 = addfile(data_file_name2,"r")
+    time = exp_in1->time
+    yyyymm0 =floor( cd_calendar(time,-1))
+   ; yyyymm = array_append_record (101., yyyymm0, 0)
+    istrt = ind(yyyymm0 .eq. yrstrt2)
+    ilast = ind(yyyymm0 .eq. yrlast2)
+
     exp_var1 = exp_in1->TS(istrt:ilast,:,:)
 ;--------------Proprocessing-----------
     ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,{-5:5},{190:240}), 1.0, 1.0, 0)
     ctrl_rmean_nino34 = runave_Wrap(ctrl_nino34,3,0)
     ctrl_nino34_idx = rmAnnCycle1D(ctrl_rmean_nino34)
-    ctrl_nino34_clim_anncyc = ctrl_rmean_nino34
 
-    exp_nino34 = wgt_areaave(exp_var1(:,{-5:5},{190:240}), 1.0, 1.0, 0)
-    exp_rmean_nino34 = runave_Wrap(exp_nino34,3,0)
-    exp_nino34_idx = rmAnnCycle1D(exp_rmean_nino34)
+    exp_nino34 = wgt_areaave_Wrap(exp_var1(:,{-5:5},{190:240}), 1.0, 1.0, 0)
+    exp_nino34_idx = exp_nino34
+    
+    time0 = ctrl_nino34_idx&time
+    yyyymm1 =floor( cd_calendar(time0,-1))
+   ; yyyymm = array_append_record (101., yyyymm0, 0)
+    istrt = ind(yyyymm1 .eq. yrstrt2)
+    ilast = ind(yyyymm1 .eq. yrlast2)
+
+
     do ii=0,11
-        ctrl_nino34_clim_anncyc(ii::12) = avg(ctrl_rmean_nino34(ii::12))
+        exp_nino34_idx(ii::12) = exp_nino34_idx(ii::12)-avg(ctrl_rmean_nino34(ii::12))
     end do   
-    exp_nino34_ctrl_ann_idx = exp_rmean_nino34 - ctrl_nino34_clim_anncyc
+    print (yyyymm1(istrt:ilast)+" CTRL:"+ctrl_nino34_idx(istrt:ilast)+" EXP:"+exp_nino34_idx)
+    exit
+    
     data=new((/3,dimsizes(exp_nino34_idx)/),float)
     data(0,:)=ctrl_nino34_idx
     data(1,:)=exp_nino34_idx
