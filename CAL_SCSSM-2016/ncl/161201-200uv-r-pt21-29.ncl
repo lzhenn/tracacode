@@ -44,7 +44,7 @@ begin
     g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/"
     g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/"
     g_data1_path ="../data/obv/PRECT/precip.pentad.mean.nc"
-    g_plvl =850
+    g_plvl =200
     g_font = 0.035
     
     g_latS=0.
@@ -56,8 +56,8 @@ begin
     ; create an array of desired pressure levels:
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)"/)
-    g_fig_title   = ispan(21,29,1)+"p R+UV850"
-    g_fig_name   = "../fig/obv/850UV_Pr_21-29p_Clim"
+    g_fig_title   = ispan(21,29,1)+"p R+UV"+g_plvl
+    g_fig_name   = "../fig/obv/"+g_plvl+"UV_Pr_21-29p_Clim"
 
 
 ;Prepare the variables
@@ -215,11 +215,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 15.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "15 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  

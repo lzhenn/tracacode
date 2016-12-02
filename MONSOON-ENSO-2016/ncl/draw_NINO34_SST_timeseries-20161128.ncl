@@ -24,7 +24,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
     data_file_name1="/home/yangsong3/data-model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/B2000_f09_CAM5PM_spin-up.cam.h0.TS.1-300.nc"
-    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/CAM5PM_SCS_STR_HEAT/pro/esmt261_3/B2000_f09_CAM5PM_SCS_ANNCYC.cam.h0.TS.261-262.nc"
+    data_file_name2="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/MONSOON-ENSO-2016/CAM5PM_SCS_STR_HEAT/pro/esmt261_3/B2000_f09_CAM5PM_SCS_ANNCYC.cam.h0.TS.261-262.nc"
     fig_name="../fig/nino34"
     fig_title="NINO3.4 INDEX Timeseries"
     

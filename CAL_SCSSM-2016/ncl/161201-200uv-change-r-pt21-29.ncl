@@ -38,13 +38,13 @@ begin
     g_strt_mon=197901
     g_lst_mon=201312
     g_yr_len = g_lst_yr-g_strt_yr+1
-    g_day_strt=99
-    g_day_lst=144
+    g_day_strt=94
+    g_day_lst=149
     g_var_name1 = "r"
     g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/"
     g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/"
     g_data1_path ="../data/obv/PRECT/precip.pentad.mean.nc"
-    g_plvl =850
+    g_plvl =200
     g_font = 0.035
     
     g_latS=0.
@@ -56,8 +56,8 @@ begin
     ; create an array of desired pressure levels:
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)"/)
-    g_fig_title   = ispan(21,29,1)+"p R+UV850"
-    g_fig_name   = "../fig/obv/850UV_Pr_21-29p_Clim"
+    g_fig_title   = ispan(21,29,1)+"p Change: R+UV"+g_plvl
+    g_fig_name   = "../fig/obv/"+g_plvl+"UV_Pr_change_21-29p_Clim"
 
 
 ;Prepare the variables
@@ -105,6 +105,7 @@ begin
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
   plot_sh = new((/9/),graphic)
+  plot_cn_zero = new((/9/),graphic)
   plot_V = new((/9/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
@@ -124,6 +125,7 @@ begin
   res                  = True       ; use plot options
 
   res@cnFillOn             = True               ; turn on color for contours
+  res@cnFillMode             = "CellFill"               ; turn on color for contours
   res@cnLinesOn            = False              ; turn off contour lines
   res@cnLineLabelsOn       = False              ; turn off contour line labels
 
@@ -140,9 +142,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 0         ; set min contour level
- res@cnMaxLevelValF        = 16.0          ; set max contour level
- res@cnLevelSpacingF       = 2.0          ; set contour interval
+ res@cnMinLevelValF        = 0.5         ; set min contour level
+ res@cnMaxLevelValF        = 6.0          ; set max contour level
+ res@cnLevelSpacingF       = 0.5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -205,8 +207,30 @@ begin
      
   res@gsnLeftString = ""
   res@gsnRightString = ""
-       
-  vcres = True
+  ;-------------------------------------------------------------------
+
+
+
+  res3                  = True       ; use plot options
+  res3@cnFillOn         = False;True       ; Fill contours
+  res3@cnLinesOn        = True      ; turn off contour lines
+;for tp masking
+  res3@gsnFrame         = False
+  res3@gsnDraw  = False
+  res3@cnLineLabelsOn   = False      ; turn off contour line labels
+  res3@cnLineThicknessF = 4 
+  res3@cnInfoLabelOn = False
+ 
+ 
+  res3@cnLevelSelectionMode="ExplicitLevels"
+  res3@cnLevels = (/99./)
+  res3@cnLineColor      = "Red"
+  res3@gsnLeftString      = " "
+  res3@gsnRightString      = " "
+
+
+
+    vcres = True
   vcres@gsnDraw          = False           ; don't draw
   vcres@gsnFrame         = False           ; don't advance frame
   vcres@gsnRightString   = " "             ; turn off right string
@@ -241,12 +265,24 @@ begin
     res@gsnLeftString = g_fig_rank(ii)
     res@gsnCenterString = g_fig_title(ii)
     var1_data_clim_pt = dim_avg_n_Wrap(var1((ii+20)::73,:,:),0)
-    var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim(ii*5:ii*5+4,:,:),0)
+    var1_data_clim_pt = var1_data_clim_pt-dim_avg_n_Wrap(var1((ii+19)::73,:,:),0)
+    var1_data_clim_pt = where(var1_data_clim_pt .lt. 0, 0,var1_data_clim_pt)
+        var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim(ii*5:ii*5+4,:,:),0)
+    plot_cn_zero(ii) = gsn_csm_contour(wks,var2_data_clim_pt,res3)
+    var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim((ii+1)*5:(ii+1)*5+4,:,:),0)-var2_data_clim_pt
     var3_data_clim_pt=dim_avg_n_Wrap(var3_data_clim(ii*5:ii*5+4,:,:),0)
-    printVarSummary(var1_data_clim_pt)
-    plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
+    var3_data_clim_pt=dim_avg_n_Wrap(var3_data_clim((ii+1)*5:(ii+1)*5+4,:,:),0)-var3_data_clim_pt
+    var2_data_clim_pt= where(wind_speed(var2_data_clim_pt,var3_data_clim_pt) .lt. 1, var2_data_clim_pt@_FillValue, var2_data_clim_pt)
     plot_V(ii) = gsn_csm_vector(wks,var2_data_clim_pt,var3_data_clim_pt,vcres) 
+    
+    var2_dim :=dimsizes(var2_data_clim_pt)
+    do jj=0,var2_dim(1)-1
+        var2_data_clim_pt(:,jj)=where(var1_data_clim_pt(:,jj) .lt.max(var1_data_clim_pt(:,jj)),var1_data_clim_pt(:,jj),100)
+    end do
+    plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
+
     overlay(plot_sh(ii),plot_V(ii))
+    overlay(plot_sh(ii),plot_cn_zero(ii))
   end do
   gsn_panel(wks,plot_sh,(/3,3/),resP)
 

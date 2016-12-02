@@ -33,68 +33,52 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_strt_yr=1979
+    g_strt_yr=1982
     g_lst_yr=2013
-    g_strt_mon=197901
+    g_strt_mon=198201
     g_lst_mon=201312
     g_yr_len = g_lst_yr-g_strt_yr+1
     g_day_strt=99
     g_day_lst=144
     g_var_name1 = "r"
-    g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/"
-    g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/"
-    g_data1_path ="../data/obv/PRECT/precip.pentad.mean.nc"
+    g_data2_path ="../data/obv/SST/OISST_daily/OISST_daily/"
     g_plvl =850
     g_font = 0.035
     
     g_latS=0.
-    g_latN=50.
-    g_lonW=60.
-    g_lonE=140.
+    g_latN=30.
+    g_lonW=70.
+    g_lonE=130.
 
 
     ; create an array of desired pressure levels:
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)"/)
-    g_fig_title   = ispan(21,29,1)+"p R+UV850"
-    g_fig_name   = "../fig/obv/850UV_Pr_21-29p_Clim"
+    g_fig_title   = ispan(21,29,1)+"p SST"
+    g_fig_name   = "../fig/obv/SST_21-29p_Clim"
 
 
 ;Prepare the variables
 
-    ctrl_in1 = addfile(g_data1_path, "r")
-    time_hist    = ctrl_in1->time
-    yyyymm  = cd_calendar(time_hist,-1)
-    var1  = ctrl_in1->precip(:g_yr_len*73-1,{g_latS:g_latN},{g_lonW:g_lonE})
-    ctrl_in2_files = systemfunc("ls "+g_data2_path)
-    ctrl_in3_files = systemfunc("ls "+g_data3_path)
+     ctrl_in2_files = systemfunc("ls "+g_data2_path)
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in2     = addfiles (g_data2_path+ctrl_in2_files, "r")   ; note the "s" of addfile
-    ctrl_in3     = addfiles (g_data3_path+ctrl_in3_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in2, "join")
-    ListSetType (ctrl_in3, "join")
-    var2  =short2flt(ctrl_in2[:]->uwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var3  =short2flt(ctrl_in3[:]->vwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var2_366  =short2flt(ctrl_in2[1::4]->uwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var3_366  =short2flt(ctrl_in3[1::4]->vwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
+    var2  =short2flt(ctrl_in2[:]->sst(:,g_day_strt:g_day_lst,{g_latS:g_latN},{g_lonW:g_lonE}))
+    var2_366  =short2flt(ctrl_in2[1::4]->sst(:,g_day_strt:g_day_lst,{g_latS:g_latN},{g_lonW:g_lonE}))
     var2_dim = dimsizes(var2)
     var2_data = new((/g_yr_len,var2_dim(1),var2_dim(2),var2_dim(3)/),"float")
-    var3_data = new((/g_yr_len,var2_dim(1),var2_dim(2),var2_dim(3)/),"float")
     copy_VarMeta(var2,var2_data)
-    copy_VarMeta(var3,var3_data)
     sp = 0
     do ii=0,g_yr_len-1
         if (mod((ii-1),4) .eq. 0) then
             var2_data(ii,:,:,:) = var2_366((ii-1)/4,:,:,:)
-            var3_data(ii,:,:,:) = var3_366((ii-1)/4,:,:,:)
-            sp=sp+1
+            sp=sp+1 
         else
             var2_data(ii,:,:,:) = var2(ii-sp,:,:,:)
-            var3_data(ii,:,:,:) = var3(ii-sp,:,:,:)
         end if
     end do
     var2_data_clim=dim_avg_n_Wrap(var2_data,0)
-    var3_data_clim=dim_avg_n_Wrap(var3_data,0)
     printVarSummary(var2_data_clim)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -116,8 +100,8 @@ begin
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
- gsn_define_colormap(wks,"precip2_17lev")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"precip2_17lev")
 
 
 ;-----------------------------------------------------------------------------
@@ -140,9 +124,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 0         ; set min contour level
- res@cnMaxLevelValF        = 16.0          ; set max contour level
- res@cnLevelSpacingF       = 2.0          ; set contour interval
+ res@cnMinLevelValF        = 26.0         ; set min contour level
+ res@cnMaxLevelValF        = 30.0          ; set max contour level
+ res@cnLevelSpacingF       = 0.25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -169,7 +153,7 @@ begin
   res@lbLabelStride = 2 
 
 
-  res@mpFillOn   = False     ; turn off gray continents
+  res@mpFillOn   = True     ; turn off gray continents
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
@@ -192,8 +176,8 @@ begin
 ;  res@tmYRMinorOutwardLengthF = -0.
     
      ; now change the size of the tickmark labels
-  res@tmXBTickSpacingF = 30
-  res@tmYLTickSpacingF = 15
+  res@tmXBTickSpacingF = 20 
+  res@tmYLTickSpacingF = 10 
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -206,27 +190,7 @@ begin
   res@gsnLeftString = ""
   res@gsnRightString = ""
        
-  vcres = True
-  vcres@gsnDraw          = False           ; don't draw
-  vcres@gsnFrame         = False           ; don't advance frame
-  vcres@gsnRightString   = " "             ; turn off right string
-  vcres@gsnLeftString    = " "             ; turn off left string
-  vcres@gsnCenterString    = " "
  
-  vcres@vcRefAnnoOn      = True
-  vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
-  vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.02
- 
-  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.01
-  
 ;************************************************
 ; create panel
 ;************************************************
@@ -240,13 +204,9 @@ begin
   do ii=0,8
     res@gsnLeftString = g_fig_rank(ii)
     res@gsnCenterString = g_fig_title(ii)
-    var1_data_clim_pt = dim_avg_n_Wrap(var1((ii+20)::73,:,:),0)
     var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim(ii*5:ii*5+4,:,:),0)
-    var3_data_clim_pt=dim_avg_n_Wrap(var3_data_clim(ii*5:ii*5+4,:,:),0)
-    printVarSummary(var1_data_clim_pt)
-    plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
-    plot_V(ii) = gsn_csm_vector(wks,var2_data_clim_pt,var3_data_clim_pt,vcres) 
-    overlay(plot_sh(ii),plot_V(ii))
+    printVarSummary(var2_data_clim_pt)
+    plot_sh(ii) = gsn_csm_contour_map(wks,var2_data_clim_pt,res) ; create a default plot
   end do
   gsn_panel(wks,plot_sh,(/3,3/),resP)
 
