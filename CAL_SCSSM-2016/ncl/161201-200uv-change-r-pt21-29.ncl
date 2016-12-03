@@ -105,8 +105,9 @@ begin
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
   plot_sh = new((/9/),graphic)
-  plot_cn_zero = new((/9/),graphic)
+  plot_cn_max = new((/9/),graphic)
   plot_V = new((/9/),graphic)
+  plot_cn_band = new((/9/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
 
@@ -223,11 +224,15 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/99./)
+  res3@cnLevels = (/900./)
   res3@cnLineColor      = "Red"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
 
+  res4=res3
+  res4@cnLevels = (/25./)
+  res4@cnLineColor      = "Blue"
+  res4@cnLineThicknessF = 3 
 
 
     vcres = True
@@ -267,22 +272,31 @@ begin
     var1_data_clim_pt = dim_avg_n_Wrap(var1((ii+20)::73,:,:),0)
     var1_data_clim_pt = var1_data_clim_pt-dim_avg_n_Wrap(var1((ii+19)::73,:,:),0)
     var1_data_clim_pt = where(var1_data_clim_pt .lt. 0, 0,var1_data_clim_pt)
-        var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim(ii*5:ii*5+4,:,:),0)
-    plot_cn_zero(ii) = gsn_csm_contour(wks,var2_data_clim_pt,res3)
+    plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
+    var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim(ii*5:ii*5+4,:,:),0)
+    var2_data_mx_pt = var2_data_clim_pt
+    
+    ;get 25m/s
+    
+    plot_cn_band(ii) = gsn_csm_contour(wks,var2_data_mx_pt,res4) ; create a default plot
+    ;get max
+    var2_dim :=dimsizes(var2_data_clim_pt)
+    do jj=0,var2_dim(1)-1
+        var2_data_mx_pt(:,jj)=where(var2_data_mx_pt(:,jj) .lt.max(var2_data_mx_pt(:,jj)),var2_data_mx_pt(:,jj),1000.)
+    end do
+    plot_cn_max(ii) = gsn_csm_contour(wks,var2_data_mx_pt,res3)
+
     var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim((ii+1)*5:(ii+1)*5+4,:,:),0)-var2_data_clim_pt
     var3_data_clim_pt=dim_avg_n_Wrap(var3_data_clim(ii*5:ii*5+4,:,:),0)
     var3_data_clim_pt=dim_avg_n_Wrap(var3_data_clim((ii+1)*5:(ii+1)*5+4,:,:),0)-var3_data_clim_pt
     var2_data_clim_pt= where(wind_speed(var2_data_clim_pt,var3_data_clim_pt) .lt. 1, var2_data_clim_pt@_FillValue, var2_data_clim_pt)
     plot_V(ii) = gsn_csm_vector(wks,var2_data_clim_pt,var3_data_clim_pt,vcres) 
     
-    var2_dim :=dimsizes(var2_data_clim_pt)
-    do jj=0,var2_dim(1)-1
-        var2_data_clim_pt(:,jj)=where(var1_data_clim_pt(:,jj) .lt.max(var1_data_clim_pt(:,jj)),var1_data_clim_pt(:,jj),100)
-    end do
-    plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
+    
 
     overlay(plot_sh(ii),plot_V(ii))
-    overlay(plot_sh(ii),plot_cn_zero(ii))
+    overlay(plot_sh(ii),plot_cn_band(ii))
+    overlay(plot_sh(ii),plot_cn_max(ii))
   end do
   gsn_panel(wks,plot_sh,(/3,3/),resP)
 
