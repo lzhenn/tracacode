@@ -26,50 +26,48 @@ begin
 
 ;================================================
 ;Variables List:
-;	var1--------------OLR
+;	var1--------------U
+;	var2--------------V
 ;================================================
 ;global variables
     ;Define parameters
-    g_data_path = "/Users/zhenningli/data/obv/PRECT/precip.mon.mean.nc"
+    g_data_path1 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
+    g_data_path2 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
 
     g_latS=-45.
     g_latN=45.
     g_lonW=30.
     g_lonE=220.
-
+    
     ;Smaller Region
     g_latS=-20.
     g_latN=20.
     g_lonW=100.
     g_lonE=200.
-
-    g_season_rank=(/"DJF","MAM","JJA","SON"/)
-; create an array of desired pressure levels:
+    
+    ; create an array of desired pressure levels:
 
         
     g_font = 0.035
 
     g_strt_mon = 197901 
     g_lst_mon = 201512
-    
     ; long events larger than 10 months, develop
-    ;g_sp_events = (/198201,198601,199101,199701/)
     g_sp_events = (/201501/)
     ; short events with 10 months, develop
-    ;g_su_events = (/197901,199401,200201,200401,200601,200901/)
     g_su_events = (/201401/)
 
     ; long events larger than 10 months, decay
     ;g_sp_events = (/198301,198701,199201,199801/)
     ; short events with 10 months, decay
     ;g_su_events = (/198001,199501,200301,200501,200701,201001/)
+
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
-    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_pr_2015-2014_develop-spring-3rm-cmp"
-    g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_lowUV_2015-2014_develop-spring-3rm-cmp"
+    g_fig_rank    =   (/"(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     g_fig_title     = "2015-2014 "+(/"FMA","MAM","AMJ","Apr","May","Jun"/)+" Pr"
-
 
 ;*************************For F_Compset Ctrl***********************************
 
@@ -77,55 +75,69 @@ begin
 ; Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
 
-	ctrl_file1   = g_data_path
+	ctrl_file1   = g_data_path1
 	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
 	time_hist    = ctrl_in1->time
     yyyymm  = cd_calendar(time_hist,-1)
     istrt   = ind(yyyymm .eq. g_strt_mon)
     ilast   = ind(yyyymm .eq. g_lst_mon)
-	var1  =ctrl_in1->precip(istrt:ilast,:,:)			; p for unify the var name
+	var1  =short2flt(ctrl_in1->uwnd(istrt:ilast,0,:,:))			; p for unify the var name
+
+    ctrl_file2   = g_data_path2
+	ctrl_in2     = addfile (ctrl_file2, "r")   ; note the "s" of addfile
+	var2  =short2flt(ctrl_in2->vwnd(istrt:ilast,0,:,:))			; p for unify the var name
+
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
 ; ==============================================================
+
     var1=month_to_season12(var1)
-    smp_sp_var1 = var1(0:12*n_sp_events-1,:,:)
+    var2=month_to_season12(var2)
+
+
+
+    cmp_var1 = var1(0:11,:,:)
+    cmp_var1 = 0
     do ii=0,n_sp_events-1
         i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
         print(i_evstrt)
-        smp_sp_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
+        cmp_var1 = cmp_var1+var1(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_sp_var1_avg = clmMonTLL(smp_sp_var1)
+    cmp_var1 =cmp_var1/n_sp_events
 
-    smp_su_var1 = var1(0:12*n_su_events-1,:,:)
+    cmp_var2 = var2(0:11,:,:)
+    cmp_var2 = 0
+    do ii=0,n_sp_events-1
+        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
+        cmp_var2 = cmp_var2+var2(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_var2 =cmp_var2/n_sp_events
+
+    cmp_var1_su = var1(0:11,:,:)
+    cmp_var1_su = 0
     do ii=0,n_su_events-1
         i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
         print(i_evstrt)
-        smp_su_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
+        cmp_var1_su = cmp_var1_su+var1(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_su_var1_avg = clmMonTLL(smp_su_var1)
-    
-    cmp_sp_var1_var = cmp_sp_var1_avg
-    cmp_su_var1_var = cmp_su_var1_avg
-    do ii = 0,11 
-        cmp_sp_var1_var(ii,:,:) = dim_variance_n(smp_sp_var1(ii::12,:,:),0)
-        cmp_su_var1_var(ii,:,:) = dim_variance_n(smp_su_var1(ii::12,:,:),0)
+    cmp_var1_su =cmp_var1_su/n_su_events
+
+    cmp_var2_su = var2(0:11,:,:)
+    cmp_var2_su = 0
+    do ii=0,n_su_events-1
+        i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
+        cmp_var2_su = cmp_var2_su+var2(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_var1 = cmp_sp_var1_avg
-    cmp_var1 = cmp_sp_var1_avg - cmp_su_var1_avg
+    cmp_var2_su =cmp_var2_su/n_su_events
 
-    ;--------------------------------
-    ;--------Sig Test----------------
-    ;--------------------------------
+    cmp_var1 = cmp_var1 - cmp_var1_su
+    cmp_var2 = cmp_var2 - cmp_var2_su
+    cmp_vr    = uv2vrF_Wrap (cmp_var1,cmp_var2)         ; u,v ==> vorticity (rel)
 
-    sigr = 0.15                        ; critical sig lvl for r
-
-    iflag= False                        ; population variance similar
-    diff_cmp_var1_sig = cmp_var1
-    do ii = 0,11
-        prob1 = ttest(cmp_sp_var1_avg(ii,:,:),cmp_sp_var1_var(ii,:,:),n_sp_events, cmp_su_var1_avg(ii,:,:), cmp_su_var1_var(ii,:,:), n_su_events, iflag, False) 
-        diff_cmp_var1_sig(ii,:,:) = mask(diff_cmp_var1_sig(ii,:,:), prob1 .lt. sigr,True)
-    end do
-
+    diff_speed = cmp_var1
+    diff_speed = sqrt(cmp_var1*cmp_var1 + cmp_var2*cmp_var2)
+    cmp_var1@_FillValue= -999
+    cmp_var1 = where(diff_speed .gt. 1.0, cmp_var1, cmp_var1@_FillValue)
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -137,17 +149,18 @@ begin
 
   plot = new((/6/),graphic)
 ;  plot_tp = new((/2/),graphic)
-  plot_sig = new((/6/),graphic)
-;  plot_V = new((/2/),graphic)
+;  plot_sh = new((/2/),graphic)
+  plot_V = new((/6/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-  gsn_define_colormap(wks,"precip_diff_12lev")
+;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+ gsn_define_colormap(wks,"MPL_bwr")
+; gsn_define_colormap(wks,"NCV_jaisnd")
 
 
 ;-----------------------------------------------------------------------------
@@ -170,12 +183,10 @@ begin
 ;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
-
- res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -5.0       ; set min contour level
- res@cnMaxLevelValF        = 5.0        ; set max contour level
- res@cnLevelSpacingF       = 0.5          ; set contour interval
-
+    res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+    res@cnMinLevelValF        =  -5e-6          ; set min contour level
+    res@cnMaxLevelValF        =  5e-6          ; set max contour level
+    res@cnLevelSpacingF       =  5e-7          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -189,10 +200,10 @@ begin
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
 
-  ;res@gsnMaximize      = True       ; fill up the page
-  ;res@gsnAddCyclic   = True;False
+  res@gsnMaximize      = True       ; fill up the page
+  res@gsnAddCyclic   = True;False
   res@gsnPaperOrientation = "portrait"
-  ;res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
+  res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
 
   res@lbLabelBarOn = False   ; turn off the label bar
@@ -200,10 +211,10 @@ begin
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   ;res@lbLabelStride = 1
 
-  res@mpFillOn   = False     ; turn off gray continents
+  res@mpFillOn   = True     ; turn off gray continents
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
-  ;res@mpFillDrawOrder="PostDraw"
+  res@mpFillDrawOrder="PostDraw"
   res@mpCenterLonF = 180.
   res@mpMaxLatF  = g_latN
   res@mpMinLatF  = g_latS
@@ -234,41 +245,7 @@ begin
   res@tmYLLabelFontThicknessF = 2.0
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
- ;-------------------------------------------------
-;-----------------------------------------------------
-  res4                  = True       ; use plot options
-  res4@cnFillOn         = True       ; Fill contours
-  res4@cnLinesOn        = False;True      ; turn off contour lines
-  res4@gsnFrame         = False
-  res4@gsnDraw  = False
-  res4@cnLineLabelsOn   = False      ; turn off contour line labels
-  res4@cnLineThicknessF = 2
-  res4@cnLineColor      = "black"
-  res4@cnInfoLabelOn = False
-  res4@cnMonoFillPattern    = True;False
-  res4@cnFillPattern = 3 
-  res4@cnMonoFillScale = True
-  res4@cnFillScaleF = 0.6 
-  res4@cnMonoFillColor = True
-  res4@cnFillColor  =  "black"
-  res4@cnFillDotSizeF = 0.0025
- 
-  res4@lbLabelBarOn = False;True   ; turn off the label bar
- 
-;  res4@cnLevelSelectionMode="ExplicitLevels"
-;  res4@cnLevels = (/3000,1000/)
-  res4@gsnLeftString      = " "
-  res4@gsnRightString      = " "
-    
-
-do i = 0,2
-    res@gsnLeftString = g_fig_rank(i)
-    res@gsnCenterString = g_fig_title(i)
-    res@gsnRightString = ""
-    plot(i) = gsn_csm_contour_map_ce(wks,cmp_var1(i+2,:,:),res) ; create a default plot
-  ;  plot_sig(i) = gsn_csm_contour(wks,diff_cmp_var1_sig(i+2,:,:),res4)  ; Create shaded contours
-  ;  overlay(plot(i),plot_sig(i))
-end do
+     
 
 
 ;-------------------------------------------------------------------
@@ -292,55 +269,84 @@ end do
 
   ;plot_tp = gsn_csm_contour(wks,phis,res3)
 
+;-------------------------------------------------
+;-----------------------------------------------------
+  res4                  = True       ; use plot options
+  res4@cnFillOn         = True       ; Fill contours
+  res4@cnLinesOn        = False;True      ; turn off contour lines
+  res4@gsnFrame         = False
+  res4@gsnDraw  = False
+  res4@cnLineLabelsOn   = False      ; turn off contour line labels
+  res4@cnLineThicknessF = 2
+  res4@cnLineColor      = "black"
+  res4@cnInfoLabelOn = False
+  res4@cnMonoFillPattern    = True;False
+  res4@cnFillPattern = 17
+  res4@cnMonoFillScale = True
+  res4@cnFillScaleF = 1.
+  res4@cnMonoFillColor = True
+  res4@cnFillColor  =  "red"
+  res4@cnFillDotSizeF = 0.003
+ 
+  res4@lbLabelBarOn = False;True   ; turn off the label bar
+ 
+;  res4@cnLevelSelectionMode="ExplicitLevels"
+;  res4@cnLevels = (/3000,1000/)
+  res4@gsnLeftString      = " "
+  res4@gsnRightString      = " "
 ;-----------------------------------------------------------------------------
-          
-  vcres = True
-  vcres@gsnDraw          = False           ; don't draw
-  vcres@gsnFrame         = False           ; don't advance frame
-  vcres@gsnRightString   = " "             ; turn off right string
-  vcres@gsnLeftString    = " "             ; turn off left string
-  vcres@gsnCenterString    = " "
- 
-  vcres@vcRefAnnoOn      = True
-  vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.017
-  vcres@vcRefAnnoString1  = "5 m/s"
-  vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.01
- 
-  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-;  vcres@vcLineArrowHeadMinSizeF   = 0.010
-;  vcres@vcLineArrowHeadMaxSizeF   = 0.130
-;--------------------------------------
+     ;-----------------------------------------------------------------------------
+       ;-------Set for the vector plot------
+    vcres = True
+    vcres@gsnDraw          = False           ; don't draw
+    vcres@gsnFrame         = False           ; don't advance frame
+    vcres@gsnRightString   = " "             ; turn off right string
+    vcres@gsnLeftString    = " "             ; turn off left string
+    vcres@gsnCenterString    = " "
 
-  ;plot_V(0) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
+    vcres@vcRefAnnoOn      = True
+    vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
+    vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+    vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+    vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
+    vcres@vcMinDistanceF          = 0.03
+    vcres@vcRefAnnoString1  = "2 m/s"
+    vcres@vcRefAnnoString2  = ""
+    vcres@vcRefAnnoFontHeightF = 0.02
+    vcres@vcLineArrowThicknessF     = 1.5    ;thickness of vector
 
-  ;plot_V(1) = gsn_csm_vector(wks,cp_diff_var1,cp_diff_var2,vcres)
+    vcres@vcLineArrowHeadMinSizeF   = 0.015
+    vcres@vcLineArrowHeadMaxSizeF   = 0.015       
+do i = 0,2
+    res@gsnLeftString = g_fig_rank(i)
+    res@gsnCenterString = g_fig_title(i)
+    res@gsnRightString = ""
+    cmpvrsmoth=smth9_Wrap(cmp_vr(i+2,:,:),0.5,0.25, True)
+    plot(i) = gsn_csm_contour_map_ce(wks,cmpvrsmoth,res) ; create a default plot
 
-;  plot_sh(0) = gsn_csm_contour(wks,diff_var3_sig,res4)
-
-  ;plot_sh(1) = gsn_csm_contour(wks,cp_diff_var3_sig,res4)
+    plot_V(i) = gsn_csm_vector(wks,cmp_var1(i+2,:,:),cmp_var2(i+2,:,:),vcres)
+    overlay(plot(i),plot_V(i))
+end do
 
   ;overlay(plot(1),plot_sh(1))
 
   ;overlay(plot(0),plot_V(0))
   ;overlay(plot(1),plot_V(1))
+
     pres                 = True 
     pres@gsnPanelLabelBar   = True      ;Universial colorbar
     ;pres@pmLabelBarWidthF   = 0.5  
     ;pres@gsnPanelRowSpec = True                   ; tell panel what order to plt
     pres@lbLabelAutoStride    = False
-    pres@lbLabelStride       = 2 
-    pres@lbTitleString       = "Pr (mm/day)"
+    pres@lbLabelStride       = 4 
+    pres@lbTitleString       = "Vorticity (s~S~-1~N~)"
     pres@lbLabelFontHeightF = 0.015 
     pres@lbTitleFontHeightF = 0.015
     pres@pmLabelBarOrthogonalPosF = -0.02 ; move label bar down
- 
+
   gsn_panel(wks,plot(0:2),(/1,3/),pres)
 
   draw(plot)
   frame(wks)
-end 
+
+ end 
