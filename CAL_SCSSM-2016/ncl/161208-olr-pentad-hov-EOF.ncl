@@ -33,18 +33,23 @@ begin
     ;Define parameters
 
     ;for directory 
+    g_strt_ymd=19790101
+    g_lst_ymd=20131231
     g_strt_yr=1979
-    g_lst_yr=2014
+    g_lst_yr=2013
     g_yr_len=g_lst_yr-g_strt_yr+1
     g_var_name1 = "r"
 
-    g_data3_path ="../data/obv/PRECT/precip.pentad.mean.nc"
+    g_data3_path ="../data/obv/NOAA-OLR/olr.day.mean.f10.nc"
     g_font = 0.025
     
     g_latS=5.
     g_latN=20.
     g_lonW=80.
     g_lonE=120.
+    g_daystrt=96
+    g_daylst=175
+    g_daylen=g_daylst-g_daystrt+1
 
     ; create an array of desired pressure levels:
         
@@ -53,19 +58,35 @@ begin
 
 
 ;Prepare the variables
-    ctrl_in3 = addfile(g_data3_path, "r")
-    time_hist    = ctrl_in3->time
-    yyyymm  = cd_calendar(time_hist,-1)
-    var3  = ctrl_in3->precip(:g_yr_len*73-1,{g_latS:g_latN},{g_lonW:g_lonE})
-    dimvar3=dimsizes(var3)
-    var3_pt  = reshape(var3,(/g_yr_len,73,dimvar3(1),dimvar3(2)/))
-    copy_VarAtts(var3,var3_pt)
-    var3_pt!0="year"
-    var3_pt!1="pt"
-    var3_pt!2=var3!1
-    var3_pt!3=var3!2
-    var3_pt&lon=var3&lon
-    var3_pt&lat=var3&lat
+    
+    ctrl_in     = addfile (g_data3_path, "r")   ; note the "s" of addfile
+    time_hist    = ctrl_in->time
+    yyyymmdd  = cd_calendar(time_hist,-2)
+    istrt   = ind(yyyymmdd .eq. g_strt_ymd)
+    ilast   = ind(yyyymmdd .eq. g_lst_ymd)
+ 
+
+    var3  =short2flt(ctrl_in->olr(istrt:ilast,{g_latS:g_latN},{g_lonW:g_lonE}))
+    var3_slice = var3(0:79,:,:)
+    slice_dim = dimsizes(var3_slice)
+    var3_slice := conform_dims((/g_yr_len,slice_dim(0),slice_dim(1),slice_dim(2)/),var3_slice,(/1,2,3/))
+    printVarSummary(var3_slice)
+    exit
+    do ii=g_strt_yr,g_lst_yr
+        g_strt_ymd=ii+"0406"
+        g_lst_ymd=ii+"0624"
+        istrt   = ind(yyyymmdd .eq. g_strt_ymd)
+        ilast   = ind(yyyymmdd .eq. g_lst_ymd)
+    end do
+
+
+    printVarSummary(var3)
+    exit
+    adm_mean_var3=wgt_areaave_Wrap(var3(:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    adm_mean_var3=where(adm_mean_var3 .lt. 235, 1, 0)
+    print(yyyymmdd+": "+adm_mean_var3) 
+
+    
     var3_pt_hov=dim_avg_n_Wrap(var3_pt(:,19:34,:,:),2)
    
    

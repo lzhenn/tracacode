@@ -49,7 +49,7 @@ begin
     ; create an array of desired pressure levels:
         
     g_fig_rank    = (/"(a)","(b)","(c)"/)
-    g_fig_name   = "../fig/obv/hov_lon_time_pt_EOF_"+g_var_name1
+    g_fig_name   = "../fig/obv/hov_lon_time_pt_Clim_"+g_var_name1
 
 
 ;Prepare the variables
@@ -67,23 +67,7 @@ begin
     var3_pt&lon=var3&lon
     var3_pt&lat=var3&lat
     var3_pt_hov=dim_avg_n_Wrap(var3_pt(:,19:34,:,:),2)
-   
-   
-   
-    neof=3
-    optEOF=True
-    optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
-    optETS = False
-     
-    var3_hov_anom = dim_rmvmean_n_Wrap(var3_pt_hov, 0)
-    var3_rg    = var3_hov_anom(pt|:,lon|:,year|:)
-    eof    = eofunc_Wrap(var3_rg, neof, optEOF)      
-    eof_ts = eofunc_ts_Wrap (var3_rg, eof, optETS)
-    ;eof_ts = dtrend(eof_ts,False)
-    eof_ts = dim_standardize_n(eof_ts, 0, 1)      ; normalize
-    ; regress the field
-    eof_regres = eof                               ; create an array w meta data
-
+    var3_pt_hov_clim = dim_avg_n_Wrap(var3_pt_hov,0) 
    
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -102,9 +86,9 @@ begin
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-  gsn_define_colormap(wks,"precip_diff_12lev")
+;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
-; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+ gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
@@ -123,8 +107,8 @@ begin
 
  res@cnFillMode = "CellFill" 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -4         ; set min contour level
- res@cnMaxLevelValF        = 4         ; set max contour level
+ res@cnMinLevelValF        = 0         ; set min contour level
+ res@cnMaxLevelValF        = 16         ; set max contour level
  res@cnLevelSpacingF       = 1         ; set contour interval
 
 
@@ -145,8 +129,6 @@ begin
 ;  res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
    
      ; now change the size of the tickmark labels
-
-
  res@tmXBTickSpacingF = 10
  res@tmXBLabelFontHeightF = g_font
  ; res@tmXBLabelFontAspectF = 1.6
@@ -157,22 +139,19 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
   res@gsnRightString=""
+  res@gsnLeftString=""
+  res@gsnCenterString="Clim Pr (mm/day)"
 
   
   
   ;--------------------------------------
 
-    do ne=0,neof-1
-        eof_regres(ne,:,:) = -(/ regCoef(eof_ts(ne,:), var3_rg(pt|:,lon|:,year|:)) /)
-        res@gsnLeftString=g_fig_rank(ne)
-        res@gsnCenterString=sprintf("%5.1f", eof@pcvar(ne)) +"%"
-        plot(ne) = gsn_csm_hov(wks, eof_regres(ne,:,:), res) 
-    end do
+  plot(0) = gsn_csm_hov(wks, var3_pt_hov_clim, res) 
 
 
 ;  overlay(plot(0),plot_jet(0))  
 ;  overlay(plot(0),plot_V(0))  
-  gsn_panel(wks,plot,(/3,1/),False)
+  gsn_panel(wks,plot,(/1,1/),False)
 
   draw(plot)
   frame(wks)
