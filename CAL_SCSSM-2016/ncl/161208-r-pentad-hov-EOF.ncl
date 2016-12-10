@@ -44,7 +44,7 @@ begin
     g_latS=5.
     g_latN=20.
     g_lonW=80.
-    g_lonE=120.
+    g_lonE=122.
 
     ; create an array of desired pressure levels:
         
@@ -66,7 +66,7 @@ begin
     var3_pt!3=var3!2
     var3_pt&lon=var3&lon
     var3_pt&lat=var3&lat
-    var3_pt_hov=dim_avg_n_Wrap(var3_pt(:,19:34,:,:),2)
+    var3_pt_hov=dim_avg_n_Wrap(var3_pt(:,21:33,:,:),2)
    
    
    
@@ -75,10 +75,12 @@ begin
     optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
     optETS = False
      
+    var3_hov_std = dim_rmvmean_n_Wrap(var3_pt_hov, 0)
     var3_hov_anom = dim_rmvmean_n_Wrap(var3_pt_hov, 0)
     var3_rg    = var3_hov_anom(pt|:,lon|:,year|:)
-    eof    = eofunc_Wrap(var3_rg, neof, optEOF)      
-    eof_ts = eofunc_ts_Wrap (var3_rg, eof, optETS)
+    var3_rg_std    = var3_hov_std(pt|:,lon|:,year|:)
+    eof    = eofunc_Wrap(var3_rg_std, neof, optEOF)      
+    eof_ts = eofunc_ts_Wrap (var3_rg_std, eof, optETS)
     ;eof_ts = dtrend(eof_ts,False)
     eof_ts = dim_standardize_n(eof_ts, 0, 1)      ; normalize
     ; regress the field
@@ -121,7 +123,7 @@ begin
     res@vpWidthF = 0.4
     res@vpHeightF = 0.4
 
- res@cnFillMode = "CellFill" 
+ ;res@cnFillMode = "CellFill" 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
  res@cnMinLevelValF        = -4         ; set min contour level
  res@cnMaxLevelValF        = 4         ; set max contour level
@@ -134,8 +136,8 @@ begin
   res@gsnSpreadColors      = True               ; use full color map
   res@gsnStringFontHeightF = g_font
   res@tmYLMode = "Explicit"
-  res@tmYLValues = ispan(0,15,2) 
-  res@tmYLLabels = ispan(20,35,2)
+  res@tmYLValues = ispan(0,12,2) 
+  res@tmYLLabels = ispan(22,34,2)
 
 ;  res@tmYLValues = (/ 0. , 7., 12., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
 ;  res@tmYLLabels = (/"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" /)

@@ -34,11 +34,11 @@ begin
 
     ;for directory 
     g_strt_ymd=19790101
-    g_lst_ymd=20131231
+    g_lst_ymd=20121231
     g_strt_yr=1979
-    g_lst_yr=2013
+    g_lst_yr=2012
     g_yr_len=g_lst_yr-g_strt_yr+1
-    g_var_name1 = "r"
+    g_var_name1 = "olr"
 
     g_data3_path ="../data/obv/NOAA-OLR/olr.day.mean.f10.nc"
     g_font = 0.025
@@ -66,28 +66,30 @@ begin
     ilast   = ind(yyyymmdd .eq. g_lst_ymd)
  
 
-    var3  =short2flt(ctrl_in->olr(istrt:ilast,{g_latS:g_latN},{g_lonW:g_lonE}))
+    var3  =ctrl_in->olr(istrt:ilast,{g_latS:g_latN},{g_lonW:g_lonE})
     var3_slice = var3(0:79,:,:)
     slice_dim = dimsizes(var3_slice)
     var3_slice := conform_dims((/g_yr_len,slice_dim(0),slice_dim(1),slice_dim(2)/),var3_slice,(/1,2,3/))
-    printVarSummary(var3_slice)
-    exit
+    copy_VarAtts(var3,var3_slice)
+    var3_slice!0="year"
+    var3_slice!1="time"
+    var3_slice!2=var3!1
+    var3_slice!3=var3!2
+    var3_slice&lon=var3&lon
+    var3_slice&lat=var3&lat
+    var3_slice&time=var3&time(0:79)
+    var3_slice&time=ispan(g_daystrt,g_daylst,1)
+    
     do ii=g_strt_yr,g_lst_yr
-        g_strt_ymd=ii+"0406"
-        g_lst_ymd=ii+"0624"
+        g_strt_ymd=10000*ii+406
+        g_lst_ymd=10000*ii+624
         istrt   = ind(yyyymmdd .eq. g_strt_ymd)
         ilast   = ind(yyyymmdd .eq. g_lst_ymd)
+        var3_slice(ii-g_strt_yr,:,:,:)=var3(istrt:ilast,:,:)
     end do
-
-
-    printVarSummary(var3)
-    exit
-    adm_mean_var3=wgt_areaave_Wrap(var3(:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-    adm_mean_var3=where(adm_mean_var3 .lt. 235, 1, 0)
-    print(yyyymmdd+": "+adm_mean_var3) 
-
-    
-    var3_pt_hov=dim_avg_n_Wrap(var3_pt(:,19:34,:,:),2)
+       
+    var3_slice_hov=dim_avg_n_Wrap(var3_slice,2)
+    var3_slice_hov=-var3_slice_hov
    
    
    
@@ -96,8 +98,8 @@ begin
     optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
     optETS = False
      
-    var3_hov_anom = dim_rmvmean_n_Wrap(var3_pt_hov, 0)
-    var3_rg    = var3_hov_anom(pt|:,lon|:,year|:)
+    var3_hov_anom = dim_rmvmean_n_Wrap(var3_slice_hov, 0)
+    var3_rg    = var3_hov_anom(time|:,lon|:,year|:)
     eof    = eofunc_Wrap(var3_rg, neof, optEOF)      
     eof_ts = eofunc_ts_Wrap (var3_rg, eof, optETS)
     ;eof_ts = dtrend(eof_ts,False)
@@ -123,10 +125,10 @@ begin
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-  gsn_define_colormap(wks,"precip_diff_12lev")
+;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
 ;-----------------------------------------------------------------------------
@@ -144,9 +146,9 @@ begin
 
  res@cnFillMode = "CellFill" 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -4         ; set min contour level
- res@cnMaxLevelValF        = 4         ; set max contour level
- res@cnLevelSpacingF       = 1         ; set contour interval
+ res@cnMinLevelValF        = -20         ; set min contour level
+ res@cnMaxLevelValF        = 20         ; set max contour level
+ res@cnLevelSpacingF       = 4         ; set contour interval
 
 
   res@gsnFrame         = False
@@ -155,7 +157,7 @@ begin
   res@gsnSpreadColors      = True               ; use full color map
   res@gsnStringFontHeightF = g_font
   res@tmYLMode = "Explicit"
-  res@tmYLValues = ispan(0,15,2) 
+  res@tmYLValues = ispan(g_daystrt,g_daylst,10) 
   res@tmYLLabels = ispan(20,35,2)
 
 ;  res@tmYLValues = (/ 0. , 7., 12., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
@@ -184,7 +186,7 @@ begin
   ;--------------------------------------
 
     do ne=0,neof-1
-        eof_regres(ne,:,:) = -(/ regCoef(eof_ts(ne,:), var3_rg(pt|:,lon|:,year|:)) /)
+        eof_regres(ne,:,:) = -(/ regCoef(eof_ts(ne,:), var3_rg(time|:,lon|:,year|:)) /)
         res@gsnLeftString=g_fig_rank(ne)
         res@gsnCenterString=sprintf("%5.1f", eof@pcvar(ne)) +"%"
         plot(ne) = gsn_csm_hov(wks, eof_regres(ne,:,:), res) 

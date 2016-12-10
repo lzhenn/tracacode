@@ -43,8 +43,8 @@ begin
     
     g_latS=5.
     g_latN=20.
-    g_lonW=80.
-    g_lonE=120.
+    g_lonW=85.
+    g_lonE=122.
 
     ; create an array of desired pressure levels:
         
@@ -66,7 +66,7 @@ begin
     var3_pt!3=var3!2
     var3_pt&lon=var3&lon
     var3_pt&lat=var3&lat
-    var3_pt_hov=dim_avg_n_Wrap(var3_pt(:,19:34,:,:),2)
+    var3_pt_hov=dim_avg_n_Wrap(var3_pt(:,21:36,:,:),2)
     var3_pt_hov_clim = dim_avg_n_Wrap(var3_pt_hov,0) 
    
 ; ==============================================================
@@ -119,7 +119,7 @@ begin
   res@gsnStringFontHeightF = g_font
   res@tmYLMode = "Explicit"
   res@tmYLValues = ispan(0,15,2) 
-  res@tmYLLabels = ispan(20,35,2)
+  res@tmYLLabels = ispan(22,37,2)
 
 ;  res@tmYLValues = (/ 0. , 7., 12., 90., 120., 151.,181, 212, 243, 273, 301, 331 /)
 ;  res@tmYLLabels = (/"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC" /)
