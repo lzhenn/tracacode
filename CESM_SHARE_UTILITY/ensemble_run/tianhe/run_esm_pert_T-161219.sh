@@ -35,10 +35,10 @@
 WPATH=PRD-Trans-2015
 
 # Case Name
-CASENAME=PRD-Trans-2015
+CASENAME=`basename $WPATH`
 
 # Storage Path
-WPATH=PRD-Trans-2015
+SPATH=PRD-Trans-2015
 
 # Storage Dir Prefix 
 SDPRE=ESM_
@@ -75,105 +75,106 @@ echo "**************************************************************"
 echo "                                                              "
 
 echo "Current working PATH: ${WPATH}"
-# DIR Validation
+# Init DIR Validation
 if [ $INIT_DIR == "" ] || [ ! -d $INIT_DIR ]; then
     echo "PATH: \"${INIT_DIR}\" NO FOUND! Please check it!"
     exit 1
 fi
-if [ $RP_DIR == "" ] || [ ! -d $RP_DIR ]; then
-    echo "PATH: \"${RP_DIR}\" NO FOUND! Please check it!"
-    exit 1
+
+# Backup rpointer files and initial files 
+$RP_DIR=${WPATH}/rpoint
+if [ ! -d $RP_DIR ]; then
+    mkdir $RP_DIR
 fi
-
-# N_ESM Validation
-II=1
-
+cp ${WPATH}/run/rpoint* $RP_DIR
+cp $INIT_DIR/$INIT_NAME $INIT_DIR/${INIT_NAME}.org
 
 
+NCL_INIT_PATH=\"${INIT_DIR}${INIT_NAME}/\"
 
 
-
-
-echo "Total number of ensemble experiments: ${N_ESM}"
-for INIT_NAME in $INIT_FILES
+# Main Loop
+for II in `seq 1 $N_ESM`
 do
-    if [ ! -f "run_status" ]; then
-        echo "Initial run..."
-        
-        cp $WPATH/$RP_DIR/* $WPATH/exe/
-        cp $WPATH/$INIT_DIR/$INIT_NAME $WPATH/exe/$NC_INIT_F
-        # submit the task
-        echo "ESM${II}, with init condition: ${INIT_NAME}, is processing!"
-        $WPATH/$CASENAME.run >& /dev/null
-        echo "ESM${II}, with init condition: ${INIT_NAME}, has been submitted!"
-        sleep 20
-        continue
-    fi
-
-    STATUS=$(cat ./run_status)
+    echo "ESM${II}/${N_ESM}, with init condition: ${INIT_NAME}, is processing!"
     
-    if [ $STATUS == "running" ] ; then
-        
-        # Loop until finished
-        while [ "1" == "1" ]
-        do
-            TIME=$(date)"${CASENAME} ESM${II} is still running..."
-            echo $TIME
-            sleep 300 
-            STATUS=$(cat ./run_status)
-            if [ $STATUS == "finished" ] ; then
-                break
-            fi
-        done
+    # Perturb initial filed
+    ncl -nQ pre_dir=$NCL_INIT_PATH  \
+        t_purb=$T_PURB              \
+        ../ncl/perturb_init_T-161219.ncl
 
-        # Loop out, finished! post-processing...
+    
+    # Submit task
+    $WPATH/$CASENAME.run >& /dev/null
+    echo "ESM${II}/${N_ESM}, with perturbated init condition: ${INIT_NAME}, has been submitted!"
+    sleep 60
+    
+    #Check status
+    if [ -f "$WPATH/run/cesm.log" ]; then 
+        echo "Found cesm.log!"
 
-        FINISH=$(date)" ESM${II} is finished!!! "
-        echo "                                  "
-        echo "**********************************"
-        echo $FINISH
-        echo "**********************************"
-        echo "                                  "
-        
-        # post process the output
-        echo "Post process, moving history files..."
-        mkdir $WPATH/exe/esm_$II
-        mv $WPATH/exe/*cam.h1* $WPATH/exe/esm_$II
-        
-        # Check if a new run is needed
-        if [ $II == $N_ESM ]; then
-            # Well-done and exit
-            break 
-        else
-            # Submit another new run
-            # renew rpointer and initial data
-            echo "Post process, moving rpointer and initial files"
-            cp $WPATH/$RP_DIR/* $WPATH/exe/
-            cp $WPATH/$INIT_DIR/$INIT_NAME $WPATH/exe/$NC_INIT_F
-        
-            II=$(($II+1))
-            
-            # submit the task
-            echo "ESM${II}, with init condition: ${INIT_NAME}, is processing!"
-            $WPATH/$CASENAME.run >& /dev/null
-            echo "ESM${II}, with init condition: ${INIT_NAME}, has been submitted!"
-            sleep 20
-        fi
     else
-        echo "Job may successfully finished before, please check the status"
-        exit 0
+        echo "cesm.log not found, problem may occured, please check the run."    
+        exit
     fi
+    
+    # Loop until finished
+    while [ "1" == "1" ]
+    do
+        
+        # Check status
+        $LOG_SIZE0=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
+        echo "cesm.log with size ${LOG_SIZE0} byte detected."
+        TIMER=$(date)" ${CASENAME} ESM${II}/${N_ESM} is still running..."
+        echo $TIMER
+
+        sleep 180
+        
+        $LOG_SIZE1=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
+        
+        if [ "$LOG_SIZE0" -eq "$LOG_SIZE1" -a $LOG_SIZE1 -gt 102400 ]; then
+            
+            FINISH=$(date)" ESM${II}/${N_ESM} finished!!! "
+            echo "                                  "
+            echo "**********************************"
+            echo $FINISH
+            echo "**********************************"
+            echo "                                  "
+            
+            # post process the output
+            echo "Post process, moving history files..."
+            if [ ! -d $SPATH ]; then
+                mkdir $SPATH
+            fi
+            mkdir $SPATH/${SDPRE}${II}
+            mv $WPATH/run/*cam.h* $SPATH/${SDPRE}${II}
+            break
+
+        else
+            if [ "$LOG_SIZE0" -eq "$LOG_SIZE1" ]; then
+                echo "Log file size increment stopped, please check if ESM${II}/${N_ESM} failed."
+                exit
+            fi
+        fi
+    done
+    
+       
+    # Move back the init file
+    cp  $INIT_DIR/${INIT_NAME}.org $INIT_DIR/$INIT_NAME
+    if [ $II == $N_ESM ]; then
+        echo "                                                              "
+        echo "*******************CESM ENSEMBLE RUN SCRIPT*******************"
+        echo "                                                              "
+        echo "                                                              "
+        echo "              CONGRATULATIONS!!! ALL TASKS DONE!!!            "
+        echo "                                                              "
+        echo "                                                              "
+        echo "                                            A L_Zealot Product"
+        echo "                                                    2016/12/18"
+        echo "**************************************************************"
+        echo "                                                              "
+    fi
+
 done
-if [ $II == $N_ESM ]; then
-    echo "                                                              "
-    echo "*****************CESM CAM ENSEMBLE RUN SCRIPT*****************"
-    echo "                                                              "
-    echo "              CONGRATULATIONS!!! ALL TASKS DONE!!!            "
-    echo "                                                              "
-    echo "                                                              "
-    echo "                                            A L_Zealot Product"
-    echo "                                                    2015/11/21"
-    echo "*****************CESM CAM ENSEMBLE RUN SCRIPT*****************"
-    echo "                                                              "
-    exit 0
-fi
+
+
