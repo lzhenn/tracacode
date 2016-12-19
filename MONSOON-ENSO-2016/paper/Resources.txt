@@ -1,0 +1,6 @@
+NINO3.4 data from CPC
+
+Monthly ERSSTv4  Ni?o 3.4 (5°„North-5°„South)(170-120°„West)
+http://www.cpc.ncep.noaa.gov/data/indices/
+
+
