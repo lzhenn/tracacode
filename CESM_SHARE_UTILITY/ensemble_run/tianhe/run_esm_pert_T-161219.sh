@@ -50,7 +50,7 @@ INIT_DIR=$WPATH/data
 INIT_NAME=B2000_f09_CAM5PM_spin-up.cam.i.0261-01-01-00000.nc
 
 # Ensemble Members
-N_ESM=11
+N_ESM=6
 
 # Standard Divation of Normal Distributed Perturbation in T Field (Kelvin)
 T_PURB=0.05
@@ -85,14 +85,15 @@ if [ ! -d $RP_DIR ]; then
 fi
 cp ${WPATH}/run/rpoint* $RP_DIR
 
-if [ -f  $WPATH/run/cesm.log ]; then
-    rm $WPATH/run/cesm.log
-fi
-
 if [ ! -f  $INIT_DIR/${INIT_NAME}.org ]; then
     cp $INIT_DIR/${INIT_NAME} $INIT_DIR/${INIT_NAME}.org
 else
     cp $INIT_DIR/${INIT_NAME}.org $INIT_DIR/${INIT_NAME}
+fi
+
+# Clean the cesm.log 
+if [ -f  $WPATH/run/cesm.log ]; then
+    rm $WPATH/run/cesm.log
 fi
 
 NCL_INIT_PATH=\"${INIT_DIR}/${INIT_NAME}/\"
@@ -108,17 +109,23 @@ do
         t_purb=$T_PURB              \
         ../ncl/perturb_init_T-161219.ncl
 
-    
     # Submit task
     $WPATH/$CASENAME.run 
     echo "ESM${II}/${N_ESM}, with perturbated init condition: ${INIT_NAME}, has been submitted!"
-    sleep 60
     
     #Check status
     while [ ! -f "$WPATH/run/cesm.log" ]
     do
-        echo "cesm.log not found, will try another time..."    
+        TASK=`task | grep lzn`
+        if [ -n "$TASK" ]; then
+            echo "Task on but cesm.log not found, will try another time..."    
+            sleep 60
+        else
+            echo "No task info and no cesm.log, error may occur..."
+            exit
+        fi
     done
+
     # Loop until finished
     while [ "1" == "1" ]
     do
@@ -126,35 +133,43 @@ do
         # Check status
         LOG_SIZE0=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
         echo "cesm.log with size ${LOG_SIZE0} byte detected."
-        TIMER=$(date)" ${CASENAME} ESM${II}/${N_ESM} is still running..."
-        echo $TIMER
 
-        sleep 180
+        sleep 300
         
         LOG_SIZE1=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
         
         if [ "$LOG_SIZE0" -eq "$LOG_SIZE1" -a $LOG_SIZE1 -gt 102400 ]; then
             
-            FINISH=$(date)" ESM${II}/${N_ESM} finished!!! "
-            echo "                                  "
-            echo "**********************************"
-            echo $FINISH
-            echo "**********************************"
-            echo "                                  "
+            TASK=`task | grep lzn`
+            if [ -n "$TASK" ]; then
             
-            # post process the output
-            echo "Post process, moving history files..."
-            if [ ! -d $SPATH ]; then
-                mkdir $SPATH
+                FINISH=$(date)" ESM${II}/${N_ESM} finished!!! "
+                echo "                                  "
+                echo "**********************************"
+                echo $FINISH
+                echo "**********************************"
+                echo "                                  "
+                
+                # post process the output
+                echo "Post process, moving history files..."
+                if [ ! -d $SPATH ]; then
+                    mkdir $SPATH
+                fi
+                mkdir $SPATH/${SDPRE}${II}
+                mv $WPATH/run/*cam.h* $SPATH/${SDPRE}${II}
+                mv $WPATH/run/cesm.log $SPATH/${SDPRE}${II}
+                break
+            else
+                echo "Still found running task, wait next test or interupt.."
             fi
-            mkdir $SPATH/${SDPRE}${II}
-            mv $WPATH/run/*cam.h* $SPATH/${SDPRE}${II}
-            break
-
         else
             if [ "$LOG_SIZE0" -eq "$LOG_SIZE1" ]; then
                 echo "Log file size increment stopped, please check if ESM${II}/${N_ESM} failed."
                 exit
+            else
+                DIFF_LOG_SIZ=`expr $LOG_SIZE1 - $LOG_SIZE0`
+                TIMER=$(date)" ${CASENAME} ESM${II}/${N_ESM} with size increment $DIFF_LOG_SIZ is still running..."
+                echo $TIMER
             fi
         fi
     done
@@ -162,6 +177,10 @@ do
        
     # Move back the init file
     cp  $INIT_DIR/${INIT_NAME}.org $INIT_DIR/$INIT_NAME
+    
+    # Move back the rpointers
+    cp  $RP_DIR/* ${WPATH}/run/
+    
     if [ $II == $N_ESM ]; then
         echo "                                                              "
         echo "*******************CESM ENSEMBLE RUN SCRIPT*******************"
