@@ -23,7 +23,10 @@ CASENAME=\"B2000_f09_CAM5PM_SCS_ANNCYC\"
 ESM_NAME=ESMt261_
 
 # ESM folder memebers
-ESM_NUMBER=12
+ESM_STRT=1
+
+# ESM folder memebers
+ESM_LAST=11
 
 # Names of 2D fields
 #FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use
@@ -58,9 +61,10 @@ FLAG3D=1
 FLAG3DHY=0
 
 #-----------------------------------------------------------
-for II in `seq 1 $ESM_NUMBER`
+for II in `seq $ESM_STRT $ESM_LAST`
 do
     FULL_PRE_DIR=\"${PRE_DIR}${ESM_NAME}${II}/\"
+    OUT_NAME=\"${ESM_NAME}${II}\"
     echo "ESM $II is under processing..."
     #Output post processed 2D fields
     if  [ $FLAG2D == 1 ] ; then
@@ -70,7 +74,8 @@ do
         frstyear=$FRSTYEAR          \
         lstyear=$LSTYEAR            \
         case_name=$CASENAME         \
-        ./ncl/take_2D_from_raw_data-150921.ncl
+        out_name=$OUT_NAME         \
+        ./ncl/take_2D_esm_from_raw_data-161204.ncl
     fi
     #Output post processed 3D fields
     if  [ $FLAG3D == 1 ] ; then
@@ -82,7 +87,8 @@ do
         frstyear=$FRSTYEAR          \
         lstyear=$LSTYEAR            \
         case_name=$CASENAME         \
-        ./ncl/take_3D_from_raw_data-grads-151114.ncl
+        out_name=$OUT_NAME         \
+        ./ncl/take_3D_esm_from_raw_data-grads-161204.ncl
     fi
 
     ##Output post processed 3D fields

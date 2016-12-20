@@ -19,7 +19,7 @@
 #   RUN_TYPE="hybrid" (and relavant configurations)
 #
 # 2. Please set "ncdata" namelist variable in user_nl_cam,
-# which share the same name as NC_INIT_F
+# which share the same name as INIT_NAME 
 #
 # 3. Please check your specific init conditions and restart
 # files are in the proper dir, also provide your rpointers 
@@ -32,28 +32,25 @@
 
 
 # Workspace Path
-WPATH=PRD-Trans-2015
+WPATH=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5PM_SCS_ANNCYC
 
 # Case Name
 CASENAME=`basename $WPATH`
 
 # Storage Path
-SPATH=PRD-Trans-2015
+SPATH=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/DATA_B2000_f09_CAM5PM_SCS_ANNCYC/esmrun/ctrl
 
 # Storage Dir Prefix 
-SDPRE=ESM_
+SDPRE=ESMc_
 
 # Init Dir PATH (must be a separate dir)
-INIT_DIR=init-pmctrl
+INIT_DIR=$WPATH/data
 
 # Init File Name (same as ncdata in user_nl_cam)
-NC_INIT_F=PRD-Trans-2015.cam.i.0006-01-01-00000.nc
-
-# Rpointer Dir (must be a separate dir)
-RP_DIR=rpoint
+INIT_NAME=B2000_f09_CAM5PM_spin-up.cam.i.0261-01-01-00000.nc
 
 # Ensemble Members
-N_ESM=10
+N_ESM=11
 
 # Standard Divation of Normal Distributed Perturbation in T Field (Kelvin)
 T_PURB=0.05
@@ -82,15 +79,23 @@ if [ $INIT_DIR == "" ] || [ ! -d $INIT_DIR ]; then
 fi
 
 # Backup rpointer files and initial files 
-$RP_DIR=${WPATH}/rpoint
+RP_DIR=${WPATH}/rpoint
 if [ ! -d $RP_DIR ]; then
     mkdir $RP_DIR
 fi
 cp ${WPATH}/run/rpoint* $RP_DIR
-cp $INIT_DIR/$INIT_NAME $INIT_DIR/${INIT_NAME}.org
 
+if [ -f  $WPATH/run/cesm.log ]; then
+    rm $WPATH/run/cesm.log
+fi
 
-NCL_INIT_PATH=\"${INIT_DIR}${INIT_NAME}/\"
+if [ ! -f  $INIT_DIR/${INIT_NAME}.org ]; then
+    cp $INIT_DIR/${INIT_NAME} $INIT_DIR/${INIT_NAME}.org
+else
+    cp $INIT_DIR/${INIT_NAME}.org $INIT_DIR/${INIT_NAME}
+fi
+
+NCL_INIT_PATH=\"${INIT_DIR}/${INIT_NAME}/\"
 
 
 # Main Loop
@@ -105,32 +110,28 @@ do
 
     
     # Submit task
-    $WPATH/$CASENAME.run >& /dev/null
+    $WPATH/$CASENAME.run 
     echo "ESM${II}/${N_ESM}, with perturbated init condition: ${INIT_NAME}, has been submitted!"
     sleep 60
     
     #Check status
-    if [ -f "$WPATH/run/cesm.log" ]; then 
-        echo "Found cesm.log!"
-
-    else
-        echo "cesm.log not found, problem may occured, please check the run."    
-        exit
-    fi
-    
+    while [ ! -f "$WPATH/run/cesm.log" ]
+    do
+        echo "cesm.log not found, will try another time..."    
+    done
     # Loop until finished
     while [ "1" == "1" ]
     do
         
         # Check status
-        $LOG_SIZE0=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
+        LOG_SIZE0=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
         echo "cesm.log with size ${LOG_SIZE0} byte detected."
         TIMER=$(date)" ${CASENAME} ESM${II}/${N_ESM} is still running..."
         echo $TIMER
 
         sleep 180
         
-        $LOG_SIZE1=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
+        LOG_SIZE1=`ls -l ${WPATH}/run/cesm.log | awk '{ print $5 }'`
         
         if [ "$LOG_SIZE0" -eq "$LOG_SIZE1" -a $LOG_SIZE1 -gt 102400 ]; then
             

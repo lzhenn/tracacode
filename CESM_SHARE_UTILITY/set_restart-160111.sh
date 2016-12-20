@@ -20,12 +20,15 @@
 #*************************************************************
 
 # Restart Case Name
-CASENAME=B2000_f19g16_CP_CTRL
+CASENAME=B2000_f09_CAM5PM_spin-up
 
 # Rpointer files PATH (must be a separate dir)
-RP_DIR=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B_ALBD_STR_MONSOON-2015/run
+RP_DIR=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5PM_SCS_ANNCYC/run
+# Restart files PATH
+RS_DIR=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5PM_spin-up/run
+
 # Restart point (in yyyy-mm-dd format)
-RPOINT=0250-01-01
+RPOINT=0261-01-01
 
 
 #*************Below to execute the changes*********************
@@ -45,7 +48,6 @@ echo "                                                    2015/01/11"
 echo "*****************CESM RESTART CONGFIGURATION******************"
 echo "                                                              "
 
-sleep 10
 
 
 #--------------------------------------
@@ -66,12 +68,15 @@ $CASENAME.cam.r.$RPOINT-00000.nc
 # 
 # 
 EOF
+cp $RS_DIR/$CASENAME.cam.r.$RPOINT-00000.nc $RP_DIR/
+cp $RS_DIR/$CASENAME.cam.rs.$RPOINT-00000.nc $RP_DIR/
 echo "atm done!"
 
 # rpointer.drv
 cat << EOF > $RP_DIR/rpointer.drv
 $CASENAME.cpl.r.$RPOINT-00000.nc                                                                                                                                                                                                                     
 EOF
+cp $RS_DIR/$CASENAME.cpl.r.$RPOINT-00000.nc $RP_DIR
 echo "drv done!"
 
 
@@ -79,6 +84,7 @@ echo "drv done!"
 cat << EOF > $RP_DIR/rpointer.ice
 $CASENAME.cice.r.$RPOINT-00000.nc                                                                                                                                                                                                                     
 EOF
+cp $RS_DIR/$CASENAME.cice.r.$RPOINT-00000.nc $RP_DIR
 echo "ice done!"
 
 
@@ -86,6 +92,7 @@ echo "ice done!"
 cat << EOF > $RP_DIR/rpointer.lnd
 ./$CASENAME.clm2.r.$RPOINT-00000.nc                                                                                                                                                                                                                     
 EOF
+cp $RS_DIR/$CASENAME.clm2.r.$RPOINT-00000.nc $RP_DIR
 echo "lnd done!"
 
 
@@ -93,6 +100,7 @@ echo "lnd done!"
 cat << EOF > $RP_DIR/rpointer.ocn.ovf
 ./$CASENAME.pop.ro.$RPOINT-00000                                                                                                                                                                                                            
 EOF
+cp $RS_DIR/$CASENAME.pop.ro.$RPOINT-00000 $RP_DIR
 echo "ocn.ovf done!"
 
 
@@ -101,6 +109,7 @@ cat << EOF > $RP_DIR/rpointer.ocn.restart
 ./$CASENAME.pop.r.$RPOINT-00000.nc
 RESTART_FMT=nc
 EOF
+cp $RS_DIR/$CASENAME.pop.r.$RPOINT-00000.nc $RP_DIR
 echo "ocn.restart done!"
 
 
@@ -108,6 +117,7 @@ echo "ocn.restart done!"
 cat << EOF > $RP_DIR/rpointer.rof
 ./$CASENAME.rtm.r.$RPOINT-00000.nc                                                                                                                                                                                                                     
 EOF
+cp $RS_DIR/$CASENAME.rtm.r.$RPOINT-00000.nc $RP_DIR
 echo "rof done!"
 
 
