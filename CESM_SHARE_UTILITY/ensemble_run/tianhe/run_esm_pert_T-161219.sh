@@ -29,7 +29,7 @@
 #*************************************************************
 #--------------Below for user defined part--------------------
 #*************************************************************
-
+alias task="/usr/bin/yhqueue -u sysu_hjkx_ys"
 
 # Workspace Path
 WPATH=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5PM_SCS_ANNCYC
@@ -50,7 +50,7 @@ INIT_DIR=$WPATH/data
 INIT_NAME=B2000_f09_CAM5PM_spin-up.cam.i.0261-01-01-00000.nc
 
 # Ensemble Members
-N_ESM=6
+N_ESM=3
 
 # Standard Divation of Normal Distributed Perturbation in T Field (Kelvin)
 T_PURB=0.05
@@ -142,7 +142,8 @@ do
             
             TASK=`task | grep lzn`
             if [ -n "$TASK" ]; then
-            
+                echo "Still found running task, wait next test or interupt.."
+            else
                 FINISH=$(date)" ESM${II}/${N_ESM} finished!!! "
                 echo "                                  "
                 echo "**********************************"
@@ -159,8 +160,7 @@ do
                 mv $WPATH/run/*cam.h* $SPATH/${SDPRE}${II}
                 mv $WPATH/run/cesm.log $SPATH/${SDPRE}${II}
                 break
-            else
-                echo "Still found running task, wait next test or interupt.."
+
             fi
         else
             if [ "$LOG_SIZE0" -eq "$LOG_SIZE1" ]; then
