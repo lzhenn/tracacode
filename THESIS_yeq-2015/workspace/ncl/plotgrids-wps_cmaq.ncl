@@ -19,7 +19,7 @@ begin
   wks = gsn_open_wks(type,"wps_show_dom4")
 
 ; read the following namelist file
-  filename = "./namelist.wps"
+  filename = "./namelist-cmaq.wps"
 
 
 ; Set the colors to be used
@@ -42,13 +42,14 @@ begin
   mpres@mpPerimLineColor            = "Black"
   mpres@mpUSStateLineColor          = "Black"
   ;mpres@mpGridSpacingF              = 45
-  mpres@tiMainString                = " WPS Domain Configuration  "
+  mpres@tiMainString                = " WPS and CMAQ Domain Configuration  "
 
   lnres = True 
   lnres@gsLineThicknessF = 2.5
-  lnres@domLineColors    = (/ "white", "Red" , "Red" , "Blue" /)
+  lnres@domLineColors    = (/"Red" , "Blue", "Red" , "Blue", "Red" /)
 
   txres = True
+  txres@txString=""
   txres@txFont = "helvetica-bold"
   ;txres@txJust = "BottomLeft"
   txres@txJust = "TopLeft"
@@ -114,14 +115,13 @@ begin
     e_sn(n0)              = stringtoint(systemfunc("grep e_sn              " +filename+ " | cut -f2 -d'=' | cut -f"+n+" -d','" ) )
  
   end do 
-print(parent_id)
-  mpres@parent_id         = parent_id
+ mpres@parent_id         = parent_id
   mpres@parent_grid_ratio = parent_grid_ratio
-  mpres@i_parent_start    = i_parent_start+(/52,0,0/)
-  mpres@j_parent_start    = j_parent_start+(/22,0,0/)
-  mpres@e_we              = (/182,0,0/)
-  mpres@e_sn              = (/138,0,0/)
-  
+  mpres@i_parent_start    = i_parent_start
+  mpres@j_parent_start    = j_parent_start
+  mpres@e_we              = e_we 
+  mpres@e_sn              = e_sn
+ 
   mp = wrf_wps_dom (wks,mpres,lnres,txres)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
