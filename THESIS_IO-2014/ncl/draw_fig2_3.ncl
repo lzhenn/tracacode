@@ -37,9 +37,9 @@ begin
 
     exp_code    =   (/"BIO","NIO","SIO","TIO"/)
     fig_num     =   (/"(e)","(f)","(g)","(h)"/)
-    data_path   =   "../../../data/sst/monthly/"
-    fig_name1   =   "../../../fig/IO_paper/fig2_1_sst_EOF_pattern_2"
-    fig_name2   =   "../../../fig/IO_paper/fig2_2_sst_EOF_timeseries_2"
+    data_path   =   "/Users/zhenningli/data/THESIS-IO-2014/"
+    fig_name1   =   "../fig/fig2_1_sst_EOF_pattern_2"
+    fig_name2   =   "../fig/fig2_2_sst_EOF_timeseries_2"
     
     season      =   "MAM"
 
@@ -72,7 +72,7 @@ begin
 ; for land sea mask
     var1_org = var1_0
 
-    a    = addfile("../../../data/domain/domain.lnd.fv1.9x2.5_gx1v6.090206.nc","r")
+    a    = addfile(data_path+"domain.lnd.fv1.9x2.5_gx1v6.090206.nc","r")
     lsdata = a->mask
     var1_0@_FillValue = -999
     var1 = var1_0
