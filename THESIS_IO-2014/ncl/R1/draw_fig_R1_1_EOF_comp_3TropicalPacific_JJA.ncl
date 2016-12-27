@@ -232,8 +232,10 @@ begin
 
     ;----Composite----
         cmp_var1_ano = (warm_var1_ano-cold_var1_ano)
-        if (i .eq. 1) then
-            cmp_var1_ano = -cmp_var1_ano
+        if (i .eq. 0) then
+            bio_var1_ano = cmp_var1_ano
+        else
+            res@gsnRightString ="R="+sprintf("%4.2f",pattern_cor(bio_var1_ano({latS:latN},{lonL:lonR}),cmp_var1_ano({latS:latN},{lonL:lonR}), 1.0, 0))
         end if
         printVarSummary(cmp_var1_ano)
         
