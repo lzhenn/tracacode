@@ -49,7 +49,7 @@ begin
     var1_end  =   12*(need_end-1850)+11 
 	
     yr_warm = (/(/1983, 1987, 1988, 1991, 1998, 2005, 2010,    0/),\
-                (/1983, 1989, 1992, 1993, 1999, 2008, 2011,    0/),\
+                (/1989, 1992, 1993, 1999, 2008, 2011,    0,    0/),\
                 (/1983, 1987, 1988, 1998, 2002, 2005, 2010,    0/),\
                 (/1983, 1987, 1988, 1991, 1998, 2003, 2005, 2010/)/)
 	
@@ -57,7 +57,7 @@ begin
                 (/1988, 1991, 1998, 2001, 2003, 2010,    0,    0/),\ 
                 (/1982, 1984, 1986, 1999, 2000, 2006, 2008, 2011/),\
                 (/1984, 1986, 1989, 1994, 1999, 2000, 2008, 2011/)/)
-    n_warm  = (/7, 7, 7, 8/)
+    n_warm  = (/7, 6, 7, 8/)
     n_cold  = (/7, 6, 8, 8/)
 
 	idx_warm = 12*(yr_warm-need_start)
@@ -235,6 +235,9 @@ begin
         if (i .eq. 0) then
             bio_var1_ano = cmp_var1_ano
         else
+            if (i .eq. 1) then
+                cmp_var1_ano = -cmp_var1_ano
+            end if
             res@gsnRightString ="R="+sprintf("%4.2f",pattern_cor(bio_var1_ano({latS:latN},{lonL:lonR}),cmp_var1_ano({latS:latN},{lonL:lonR}), 1.0, 0))
         end if
         printVarSummary(cmp_var1_ano)
