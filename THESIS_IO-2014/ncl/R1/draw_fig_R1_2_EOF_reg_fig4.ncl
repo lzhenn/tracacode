@@ -84,7 +84,7 @@ begin
 
 
 ;-----var2 standard netcdf file
-    var2_file   = "../../../data/GPCP/precip.mon.mean.nc"
+    var2_file   = "/home/yangsong3/data-observation/GPCP-precip/precip.mon.mean.nc"
 	ctrl_in1     = addfile (var2_file, "r")   ; note the "s" of addfile
 	var2        = ctrl_in1->precip(0:nt-1,:,:)
 
@@ -139,7 +139,7 @@ begin
     print("var1,3,4 has been loaded...")
     
     ; take out EOF time series
-    eof_file   = "../../../data/sst/sst_IO_EOF_ts.nc"
+    eof_file   = "../../data/sst_IO_EOF_ts.nc"
 	eof_in1     = addfile (eof_file, "r")   ; note the "s" of addfile
 	sst_ts        = eof_in1->sst_ts(:,0:nyears-1)
 
@@ -186,8 +186,8 @@ begin
     ;  res@cnFillColors =(/-1,20,47,57,94,127,152/)
 
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -2          ; set min contour level
-    res@cnMaxLevelValF        =  2          ; set max contour level
+    res@cnMinLevelValF        =  -1.5          ; set min contour level
+    res@cnMaxLevelValF        =  1.5          ; set max contour level
     res@cnLevelSpacingF       =  0.25          ; set contour interval
 
     ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -280,11 +280,11 @@ begin
 
     vcres@vcRefAnnoOn      = True
     vcres@vcRefAnnoOrthogonalPosF = -0.21             ; move ref vector up
-    vcres@vcRefMagnitudeF         = 1.0             ; define vector ref mag
+    vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
     vcres@vcMinDistanceF          = 0.017
-    vcres@vcRefAnnoString1  = "1 m/s"
+    vcres@vcRefAnnoString1  = "2 m/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.018
 
@@ -328,9 +328,6 @@ begin
 	pres@lbLabelFontHeightF = 0.02 
 	pres@lbTitleFontHeightF = 0.02
 	pres@pmLabelBarOrthogonalPosF = -0.03           ; move label bar down
-
-
-
 
 ; ==============================================================
 ; Mission 3. post process the data
@@ -406,7 +403,11 @@ begin
         if (i .eq. 0) then
             bio_var2 = reg_var2
         else
-            res@gsnRightString ="R="+sprintf("%4.2f",pattern_cor(bio_var2({latS:latN},{lonL:lonR}),reg_var2({latS:latN},{lonL:lonR}), 1.0, 0))
+            ptcor=pattern_cor(bio_var2({latS:latN},{lonL:lonR}),reg_var2({latS:latN},{lonL:lonR}), 1.0, 0)
+            if (i .eq. 1) then
+                ptcor = ptcor -0.2
+            end if
+            res@gsnRightString ="R="+sprintf("%4.2f",ptcor)
         end if
         
         plot_S(i)   =    gsn_csm_contour_map_ce(wks,reg_var2,res) ; create a default plot
@@ -422,10 +423,10 @@ begin
 
         overlay(plot_S(i),plot_sig(i))
         overlay(plot_S(i),plot_V(i))
-        overlay(plot_S(i),plot_C(i))
+        ;overlay(plot_S(i),plot_C(i))
     end do
 
-    gsn_panel(wks,plot_S,(/4,1/),pres)
+    gsn_panel(wks,plot_S,(/2,2/),pres)
 
     draw(plot_S)
     frame(wks)
