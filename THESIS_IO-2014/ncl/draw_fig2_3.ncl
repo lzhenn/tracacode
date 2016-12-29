@@ -168,8 +168,8 @@ begin
     
     ;---------------archive---------------
     
-    system("rm -f ../../../data/sst/sst_IO_EOF_ts.nc")
-    ncdf     = addfile("../../../data/sst/sst_IO_EOF_ts.nc" ,"c")  ; open output netCDF file
+    system("rm -f ../data/sst_IO_EOF_ts.nc")
+    ncdf     = addfile("../data/sst_IO_EOF_ts.nc" ,"c")  ; open output netCDF file
     
     eof_ts_archive&time@units="years since 1979-01-01"
 	; output variables directly
