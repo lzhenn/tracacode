@@ -11,13 +11,13 @@
 
 #--------------User defined parameters--------------
 # Inventory type (options: ARINV/MBINV/PTINV)
-#inv_type='PTINV'
-inv_type='ARINV'
+inv_type='PTINV'
+#inv_type='ARINV'
 
 # Inventory file path
-inv_path='../data/obv/arinv.2012PRDEIv2.0.GD_ALL.LARES.ida.beta.ida.161008.txt'
+inv_path='../data/obv/ptinve.2012PRDEIv2.3.GD_ALL.LARES.ida.161008.csv'
 
-opt_path='../data/obv/arinv.2012PRDEIv2.0.GD_ALL.LARES.ida.beta.ida.161008.modtest.txt'
+opt_path='../data/obv/ptinve.2012PRDEIv2.3.GD_ALL.LARES.ida.161008.modtest.csv'
 
 #-------------------------------------
 # City Dictionary
@@ -34,10 +34,10 @@ opt_path='../data/obv/arinv.2012PRDEIv2.0.GD_ALL.LARES.ida.beta.ida.161008.modte
 #  --> SO2*0.5, NOx*0.3 
 #-------------------------------------
 
-dic_city={  'GuangZhou':['010',{1:0.5,2:0.3}],\
-            'ShaoGuan':['020',{1:0.5,2:0.1}],\
-            'ShenZhen':['030',{1:0.5,2:0.5}],\
-            'ZhuHai':['040',{1:0.5,2:0.3}]}            
+dic_city={  'GuangZhou':['010',{1:1.5,2:1.3,3:7.0,4:0.1}],\
+            'ShaoGuan':['020',{1:0.5,2:0.1}]}
+#            'ShenZhen':['030',{1:0.5,2:0.5}],\
+#            'ZhuHai':['040',{1:0.5,2:0.3}],\            
 #            'ShanTou':['050',{1:0.5,2:0.3}],\
 #            'FoShan':['060',{1:0.5,2:0.3}],\
 #            'JiangMen':['070',{1:0.5,2:0.3}],\
@@ -88,35 +88,40 @@ for item in lines:
             pollutant=item.split()
             print'----------File Head-----------'
     else: #Content
+        w_flag=True   # Flag indicates whether we need to write a line with no modification
         for city,value in dic_city.items():
             if value[0] == item[2:5]:   # Test city number
                 #Traversing pollutants and made modification
+                
+                p_org_line = 0 # Start positon to write original line data
+                info_line = '' # Modification information displayed on screen
+                item_rec = ''  # Written line
+                
                 for mdf_plt, scale_f in value[1].items():   
-                    # Here we start from 1, because pollutant[0]='#DATA'
-                    print '%s: %s modified by %dpt (%s)' % (item[0:15], pollutant[mdf_plt], (scale_f*100), city)
-                    
-                    p_org_line = 0 # Start positon to write original line data
-                    info_line = '' # Modification information displayed on screen
-                    item_rec = ''  # Written line
                     
                     pt_pos = p_start+(mdf_plt-1)*p_span # Current modified pollutent (CMP) start position
                     pt_value = float(item[pt_pos:pt_pos+p_length]) # CMP value
-                    info_line = info_line+'%4s: %*.3f --> %*.3f | ' % (pollutant[mdf_plt], 8, pt_value, 8, pt_value*scale_f)
+                    
+                    # Here we start from 1, because pollutant[0]='#DATA'
+                    info_line = info_line+'%4s: %*.3f x%d%%=%*.3f \n' % (pollutant[mdf_plt], 9, pt_value, scale_f*100, 9, pt_value*scale_f)
                     scl_itm=pt_value*scale_f #Change it!
                     item_rec=item_rec+item[p_org_line:pt_pos]+'%*.3f'% (p_length, scl_itm)
                     p_org_line=pt_pos+p_length
-                    #print info_line
-
+                
+                print '%16s (%s):\n %s' % (item[0:15], city, info_line)
                 item_rec=item_rec+item[p_org_line:]
 
                 if item_rec[-1]=='\n':
                     fw.write(item_rec)
                 else:
                     fw.write(item_rec+'\n')
-            # CLZ: Test city number
-        # CLZ: Traversing city dict
-    # CLZ: Headline test
-# CLZ: Traversing the inventory file
+                w_flag=False    # Line modified, no need to write the repeat line
+            #CLZ IF: Test city number
+        # CLZ FOR: Traversing city dict
+        if w_flag:
+            fw.write(item)
+    # CLZ IF: Headline test
+# CLZ FOR: Traversing the inventory file
 
 print '%s written!' % opt_path 
 fr.close()
