@@ -11,13 +11,14 @@
 
 #--------------User defined parameters--------------
 # Inventory type (options: ARINV/MBINV/PTINV)
-inv_type='ARINV'
+inv_type='PTINV'
+#inv_type='ARINV'
 
 # Inventory file path
-inv_path='../data/obv/2005/mobile/pathv1_hk_mobile.txt'
+inv_path='/disk/hq233/huangyeq/forecast-test/smoke/cmaq/Smoke37.combine.v1/data/inventory/2012/point/ptinve.2012PRDEIv2.3.GD_ALL.LARES.ida.noshipline.csv'
 
 # Producing Pollutant ID [list style]
-pt_ids=[2, 5, 6, 7]
+pt_ids=[1]
 
 # Scaling factor [list or number]
 scale_f=0.5
@@ -28,7 +29,7 @@ for mdf_plt in pt_ids:
     fn_plt_str='%s%s' % (fn_plt_str,mdf_plt) 
 fn_plt_str='pol%s' % fn_plt_str
 
-opt_path='../data/obv/2005/mobile/pathv1_hk_mobile-%s-%dpt2.txt' % (fn_plt_str,scale_f*100)
+opt_path='/disk/scratch/huangyeq/test_data/inv-test/PRD_point-%s-%dpt2.txt' % (fn_plt_str,scale_f*100)
 
 
 #---------------Parameter setting----------------------
