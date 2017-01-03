@@ -65,6 +65,7 @@ for item in lines:
             print'----------File Head-----------'
             print '>>>>>>>>MODIFICATIONS>>>>>>>>'
             for mdf_plt in pt_ids:
+                # Here we start from 1, because pollutant[0]='#DATA'
                 print 'We will modify %s by %dpt' % (pollutant[mdf_plt], (scale_f*100))
             print'<<<<<<<<MODIFICATIONS<<<<<<<<\n'
     else:
