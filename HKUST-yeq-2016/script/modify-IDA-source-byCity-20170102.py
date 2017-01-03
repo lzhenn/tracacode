@@ -11,13 +11,13 @@
 
 #--------------User defined parameters--------------
 # Inventory type (options: ARINV/MBINV/PTINV)
-inv_type='PTINV'
-#inv_type='ARINV'
+#inv_type='PTINV'
+inv_type='ARINV'
 
 # Inventory file path
-inv_path='/disk/hq233/huangyeq/forecast-test/smoke/cmaq/Smoke37.combine.v1/data/inventory/2012/point/ptinve.2012PRDEIv2.3.GD_ALL.LARES.ida.noshipline.csv'
+inv_path='../data/obv/arinv.2012PRDEIv2.0.GD_ALL.LARES.ida.beta.ida.161008.txt'
 
-opt_path='PRD_point-pt2.txt'
+opt_path='../data/obv/arinv.2012PRDEIv2.0.GD_ALL.LARES.ida.beta.ida.161008.modtest.txt'
 
 #-------------------------------------
 # City Dictionary
@@ -26,7 +26,7 @@ opt_path='PRD_point-pt2.txt'
 #  'GuangZhou':['010',{1:0.5,2:0.3}]
 #   City Name    Num,  Scale Dict
 #
-# Pollutant Number:
+# Pollutant Numberi (example):
 #  #DATA     SO2 NOx CO PM10 PM2_5 ...
 #           1   2   3  4    5     ...
 #
@@ -35,29 +35,27 @@ opt_path='PRD_point-pt2.txt'
 #-------------------------------------
 
 dic_city={  'GuangZhou':['010',{1:0.5,2:0.3}],\
-            'ShaoGuan':['020',{1:0.5,2:0.3}],\
-            'ShenZhen':['030',{1:0.5,2:0.3}],\
-            'ZhuHai':['040',{1:0.5,2:0.3}],\
-            'ShanTou':['050',{1:0.5,2:0.3}],\
-            'FoShan':['060',{1:0.5,2:0.3}],\
-            'JiangMen':['070',{1:0.5,2:0.3}],\
-            'ZhanJiang':['080',{1:0.5,2:0.3}],\
-            'MaoMing':['090',{1:0.5,2:0.3}],\
-            'ZhaoQing':['120',{1:0.5,2:0.3}],\
-            'HuiZhou':['130',{1:0.5,2:0.3}],\
-            'MeiZhou':['140',{1:0.5,2:0.3}],\
-            'ShanWei':['150',{1:0.5,2:0.3}],\
-            'HeYuan':['160',{1:0.5,2:0.3}],\
-            'YangJiang':['170',{1:0.5,2:0.3}],\
-            'QingYuan':['180',{1:0.5,2:0.3}],\
-            'DongGuan':['190',{1:0.5,2:0.3}],\
-            'ZhongShan':['200',{1:0.5,2:0.3}],\
-            'ChaoZhou':['510',{1:0.5,2:0.3}],\
-            'JieYang':['520',{1:0.5,2:0.3}],\
-            'YunFu':['530',{1:0.5,2:0.3}],\
-        }
+            'ShaoGuan':['020',{1:0.5,2:0.1}],\
+            'ShenZhen':['030',{1:0.5,2:0.5}],\
+            'ZhuHai':['040',{1:0.5,2:0.3}]}            
+#            'ShanTou':['050',{1:0.5,2:0.3}],\
+#            'FoShan':['060',{1:0.5,2:0.3}],\
+#            'JiangMen':['070',{1:0.5,2:0.3}],\
+#            'ZhanJiang':['080',{1:0.5,2:0.3}],\
+#            'MaoMing':['090',{1:0.5,2:0.3}],\
+#            'ZhaoQing':['120',{1:0.5,2:0.3}],\
+#            'HuiZhou':['130',{1:0.5,2:0.3}],\
+#            'MeiZhou':['140',{1:0.5,2:0.3}],\
+#            'ShanWei':['150',{1:0.5,2:0.3}],\
+#            'HeYuan':['160',{1:0.5,2:0.3}],\
+#            'YangJiang':['170',{1:0.5,2:0.3}],\
+#            'QingYuan':['180',{1:0.5,2:0.3}],\
+#            'DongGuan':['190',{1:0.5,2:0.3}],\
+#            'ZhongShan':['200',{1:0.5,2:0.3}],\
+#            'ChaoZhou':['510',{1:0.5,2:0.3}],\
+#            'JieYang':['520',{1:0.5,2:0.3}],\
+#            'YunFu':['530',{1:0.5,2:0.3}],\
 
-exit()
 #--------------Parameter setting----------------------
 if inv_type == 'ARINV':
     p_start = 15
@@ -110,10 +108,16 @@ for item in lines:
                     #print info_line
 
                 item_rec=item_rec+item[p_org_line:]
+
                 if item_rec[-1]=='\n':
                     fw.write(item_rec)
                 else:
                     fw.write(item_rec+'\n')
-        print '%s written!' % opt_path 
+            # CLZ: Test city number
+        # CLZ: Traversing city dict
+    # CLZ: Headline test
+# CLZ: Traversing the inventory file
+
+print '%s written!' % opt_path 
 fr.close()
 fw.close()
