@@ -50,7 +50,7 @@ begin
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc*TS*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMc0*TS*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
