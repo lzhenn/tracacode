@@ -54,7 +54,6 @@ begin
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
-    printVarSummary(exp_var1)
 ;--------------Proprocessing-----------
     ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
     ctrl_rmean_nino34 = runave_Wrap(ctrl_nino34,3,0)
@@ -62,7 +61,8 @@ begin
 
     exp_nino34 = wgt_areaave_Wrap(exp_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
     ;exp_nino34_idx = runave_Wrap(exp_nino34,3,1)
-    exp_nino34_idx = exp_nino34+0.1
+    exp_nino34_idx = exp_nino34
+    print(exp_nino34_idx)
     
     time = ctrl_nino34_idx&time
     yyyymm1 =floor( cd_calendar(time,-1))
@@ -136,7 +136,7 @@ begin
 	res2@xyLineThicknessF	 = 2.0      ; line thicknesses
 	res2@xyDashPattern	 = 0      ; make all lines solid
     plot  = gsn_csm_xy (wks,ispan(1,24,1),exp_nino34_idx,res2)   ; create plot
-    overlay(plot,top_plot)
+    ;overlay(plot,top_plot)
 ;--------------------------------------------------------------------------
     res_lines                   = True                  ; polyline mods desired
     res_lines@gsLineDashPattern = 0.                    ; solid line
