@@ -55,8 +55,9 @@ begin
     g_latN2=25
     g_lonW2=85.
     g_lonE2=125.
+
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/mca_pr_u_left_pentad"
+    g_fig_name = "../fig/obv/mca_pr_u_right_pentad"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)"/)
 
@@ -188,10 +189,10 @@ begin
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-;  gsn_define_colormap(wks,"precip_diff_12lev")
+  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
- gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
 ;-----------------------------------------------------------------------------
@@ -216,9 +217,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -5         ; set min contour level
- res@cnMaxLevelValF        = 5         ; set max contour level
- res@cnLevelSpacingF       = 1         ; set contour interval
+ res@cnMinLevelValF        = -3         ; set min contour level
+ res@cnMaxLevelValF        = 3         ; set max contour level
+ res@cnLevelSpacingF       = 0.5         ; set contour interval
  res@mpDataBaseVersion    = "MediumRes"
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -249,10 +250,10 @@ begin
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
   res@mpCenterLonF = 180.
-  res@mpMaxLatF  = g_latN1
-  res@mpMinLatF  = g_latS1
-  res@mpMaxLonF  = g_lonE1
-  res@mpMinLonF  = g_lonW1
+  res@mpMaxLatF  = g_latN2
+  res@mpMinLatF  = g_latS2
+  res@mpMaxLonF  = g_lonE2
+  res@mpMinLonF  = g_lonW2
 
 ;  res@mpShapeMode = "FreeAspect" 
 
@@ -268,8 +269,8 @@ begin
 ;  res@tmYRMinorOutwardLengthF = -0.
     
      ; now change the size of the tickmark labels
-  res@tmXBTickSpacingF = 15
-  res@tmYLTickSpacingF = 15
+  res@tmXBTickSpacingF = 10
+  res@tmYLTickSpacingF = 5
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -282,7 +283,7 @@ begin
     do ii=0,11
         res@gsnCenterString="Pentad"+(g_p_strt+ii+1)
         res@gsnLeftString=g_fig_rank(ii)
-        plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var2(ii,:,:),res) ; create a default plot
+        plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var1(ii,:,:),res) ; create a default plot
     end do
     gsn_panel(wks,plot_S,(/4,3/),False)
 end 
