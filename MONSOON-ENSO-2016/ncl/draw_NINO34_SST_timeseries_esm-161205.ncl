@@ -50,7 +50,7 @@ begin
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc0*TS*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMc*TS*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
@@ -136,7 +136,7 @@ begin
 	res2@xyLineThicknessF	 = 2.0      ; line thicknesses
 	res2@xyDashPattern	 = 0      ; make all lines solid
     plot  = gsn_csm_xy (wks,ispan(1,24,1),exp_nino34_idx,res2)   ; create plot
-    ;overlay(plot,top_plot)
+    overlay(plot,top_plot)
 ;--------------------------------------------------------------------------
     res_lines                   = True                  ; polyline mods desired
     res_lines@gsLineDashPattern = 0.                    ; solid line
