@@ -34,8 +34,8 @@ begin
     g_lst_mon=201312
     g_yr_len = g_lst_yr-g_strt_yr+1
     
-    g_day_strt=90
-    g_day_lst=149
+    g_day_strt=100
+    g_day_lst=144
 
     g_p_strt=g_day_strt/5 ;(Index)
     g_p_lst=(g_day_lst+1)/5-1 ;
@@ -122,7 +122,7 @@ begin
 ; ==============================================================
 ; Mission 3. post process the data
 ; ==============================================================
-    nmca = 1 ; how many MCA we need
+    nmca = 4 ; how many MCA we need
 
 
 
@@ -152,14 +152,14 @@ begin
     var2_ano_line!0 = "time" 
     var2_ano_line!1 = "pattern" 
           
-    mca_var2 = svdcov(var2_ano_line(pattern|:,time|:),var1_ano_line(pattern|:,time|:),nmca,homlft,hetlft,homrgt,hetrgt) 
+    mca_var2 = svdcov(var1_ano_line(pattern|:,time|:),var2_ano_line(pattern|:,time|:),nmca,homrgt,hetrgt,homlft,hetlft) 
     ak   = onedtond(mca_var2@ak,(/nmca,var2_size(0)/)) ;timeseries
     bk   = onedtond(mca_var2@bk,(/nmca,var2_size(0)/)) ;timeseries
     ak!0 = "sv"
     ak!1 = "time"
     bk!0 = "sv"
     bk!1 = "time"
-   
+    print("svdcov: percent variance= " + mca_var2) 
     ak_std=dim_standardize_Wrap(ak,1)
     bk_std=dim_standardize_Wrap(bk,1)
     reg_var2 = var2_pt_data(0,:,:,:)
@@ -285,6 +285,13 @@ begin
         plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var2(ii,:,:),res) ; create a default plot
     end do
     gsn_panel(wks,plot_S,(/4,3/),False)
+   
+    data_path="../data/obv/"
+    ncdf_name="obv_svd_acbc.nc"
+    system("rm "+data_path+ncdf_name)
+    ncdf     = addfile(data_path+ncdf_name ,"c")  ; open output netCDF file
+    ncdf->ak_std=ak_std
+    ncdf->bk_std=bk_std
 end 
 
 

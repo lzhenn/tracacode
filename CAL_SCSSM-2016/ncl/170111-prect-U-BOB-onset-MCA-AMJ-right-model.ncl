@@ -253,9 +253,17 @@ begin
     do ii=0,11
         res@gsnCenterString="Pentad"+(g_p_strt+ii+1)
         res@gsnLeftString=g_fig_rank(ii)
-        plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var1(ii,:,:),res) ; create a default plot
+        plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var2(ii,:,:),res) ; create a default plot
     end do
     gsn_panel(wks,plot_S,(/4,3/),False)
+
+    data_path="../data/model/"
+    ncdf_name="model_svd_acbc.nc"
+    system("rm "+data_path+ncdf_name)
+    ncdf     = addfile(data_path+ncdf_name ,"c")  ; open output netCDF file
+    ncdf->ak_std=ak_std
+    ncdf->bk_std=bk_std
+
 end 
 
 
