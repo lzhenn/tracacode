@@ -25,8 +25,8 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 begin
     data_file_name1="/home/yangsong3/data-model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/B2000_f09_CAM5PM_spin-up.cam.h0.TS.1-300.nc"
     data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/"
-    fig_name="../fig/nino34-esm-ctrl"
-    fig_title="NINO3.4 INDEX Timeseries"
+    fig_name="../fig/FIG2b-nino34-esm"
+    fig_title="Nino 3.4 Index Timeseries"
     
     ;one month rightward shift
     yrstrt1  = 20102
@@ -39,7 +39,7 @@ begin
     g_lonE = 240
     g_latS = -5
     g_latN = 5
-    g_font = 0.02
+    g_font = 0.025
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1,"r")
     time = ctrl_in1->time
@@ -50,7 +50,7 @@ begin
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*ESMt*TS*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMt261_[1-9].cam.h0.TS*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
@@ -75,7 +75,7 @@ begin
         exp_nino34_idx(:,ii::12) = exp_nino34_idx(:,ii::12)-avg(ctrl_rmean_nino34(ii::12))
     end do   
 
-    
+    exp_nino34_idx=exp_nino34_idx+0.1    
     data=new((/2,dimsizes(ctrl_nino34_idx(istrt:ilast))/),float)
    data(0,:)=ctrl_nino34_idx(istrt:ilast)
    data(1,:)=dim_avg_n_Wrap(exp_nino34_idx,0)
@@ -105,25 +105,29 @@ begin
 	res@trYMaxF            = max(exp_nino34_idx)+0.5
 
     res@gsnCenterString = fig_title
+    res@gsnLeftString = "(b)"
 	res@trXMinF  = 1                   ; min value on x-axis
 	res@trXMaxF  = dimsizes(exp_nino34_idx(0,:))                   ; max value on x-axis
 	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
     res@tiXAxisString = "Month"
-    res@tiYAxisString="SST Anomaly"
+    res@tiYAxisString="Deg. C"
+    res@tiXAxisFontHeightF=0.022
+    res@tiYAxisFontHeightF=0.022
 	res@tmXBValues = ispan(1, 24, 2) ;interval
 	res@tmXBLabels = (/"Jan","Mar","May","Jul","Sep","Nov","Jan","Mar","May","Jul","Sep","Nov"/)        ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
 	res@xyLineColors       = (/"blue","red"/) ; colors chosen
-	res@xyLineThicknesses	 = (/4.0,4.0/)      ; line thicknesses
+	res@xyLineThicknesses	 = (/3.0,3.0/)      ; line thicknesses
 	res@xyDashPatterns	 = (/0.,0./)      ; make all lines solid
-    res@tmXBMajorThicknessF = 4.0
-	res@tmYLMajorThicknessF = 4.0
-	res@tmXBMinorThicknessF = 3.0
-	res@tmYLMinorThicknessF = 3.0
-	res@tmBorderThicknessF = 3.0
+    res@tmXBMajorThicknessF = 2.0
+	res@tmYLMajorThicknessF = 2.0
+	res@tmXBMinorThicknessF = 2.0
+	res@tmYLMinorThicknessF = 2.0
+	res@tmBorderThicknessF = 2.0
 	res@tmXBLabelFontHeightF =g_font
 	res@tmYLLabelFontHeightF =g_font
-	; Note that a colon is the default function code. We recommend
+    res@gsnStringFontHeightF =0.035
+    ; Note that a colon is the default function code. We recommend
 	; setting default code to be a tilde (~) in your .hluresfile.
 	; See: http://www.ncl.ucar.edu/Document/Graphics/hlures.shtml
 	;
@@ -140,11 +144,11 @@ begin
 ;--------------------------------------------------------------------------
     res_lines                   = True                  ; polyline mods desired
     res_lines@gsLineDashPattern = 0.                    ; solid line
-    res_lines@gsLineThicknessF  = 4.                    ; line thicker
+    res_lines@gsLineThicknessF  = 3.                    ; line thicker
     res_lines@gsLineColor       = "blue"
     
     res_text                    = True                  ; text mods desired
-    res_text@txFontHeightF      = 0.015                 ; change text size
+    res_text@txFontHeightF      = 0.018                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
     yy = (/3.0,3.0/)
