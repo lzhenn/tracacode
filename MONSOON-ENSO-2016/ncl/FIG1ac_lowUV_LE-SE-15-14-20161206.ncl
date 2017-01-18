@@ -33,7 +33,7 @@ begin
     ;Define parameters
     g_data_path1 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
     g_data_path2 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
-    g_data_path3 = "/Users/zhenningli/data/obv/PRECT/precip.mon.mean.nc"
+    g_data_path3 = "/Users/zhenningli/data/obv/PRECT/gpcp.precip.mon.nc"
     g_latS=-45.
     g_latN=45.
     g_lonW=30.
@@ -63,10 +63,10 @@ begin
     ;g_su_events = (/198001,199501,200301,200501,200701,201001/)
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
-    g_fig_name    =   "../fig/FIG1ac_"+g_strt_mon+"-"+g_lst_mon+"_10mUV_LE-SE-cmp"
+    g_fig_name    =   "../fig/FIG1ac_"+g_strt_mon+"-"+g_lst_mon+"_10mUV_LE-SE-cmp-gpcp"
     g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = "Pr, UV10m & Vorticity"
+    g_fig_title     = "LE-SE Pr, UV10m & Vorticity"
 
 ;*************************For F_Compset Ctrl***********************************
 
