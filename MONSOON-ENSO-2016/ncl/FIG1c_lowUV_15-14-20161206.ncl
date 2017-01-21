@@ -127,7 +127,6 @@ begin
     end do
     cmp_su_var2_avg = clmMonTLL(smp_su_var2)
 
-        ; Var3
 
     ctrl_file3   = g_data_path3
 	ctrl_in3     = addfile (ctrl_file3, "r")   ; note the "s" of addfile

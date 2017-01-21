@@ -33,7 +33,6 @@ begin
     ;Define parameters
     g_data_path1 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
     g_data_path2 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
-    g_data_path3 = "/Users/zhenningli/data/obv/PRECT/gpcp.precip.mon.nc"
     g_latS=-45.
     g_latN=45.
     g_lonW=30.
@@ -63,10 +62,10 @@ begin
     ;g_su_events = (/198001,199501,200301,200501,200701,201001/)
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
-    g_fig_name    =   "../fig/FIG1ac_"+g_strt_mon+"-"+g_lst_mon+"_10mUV_LE-SE-cmp-gpcp"
+    g_fig_name    =   "../fig/FIG1b_"+g_strt_mon+"-"+g_lst_mon+"_10mUV_sverdrup_LE-SE-cmp"
     g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = "LE-SE Pr, UV10m & Vorticity"
+    g_fig_title     = "Sverdrup Transport"
 
 ;*************************For F_Compset Ctrl***********************************
 
@@ -93,86 +92,52 @@ begin
     var1=month_to_season12(var1)
     var2=month_to_season12(var2)
 
-
-
-    cmp_var1 = var1(0:11,:,:)
-    cmp_var1 = 0
+    smp_sp_var1 = var1(0:12*n_sp_events-1,:,:)
     do ii=0,n_sp_events-1
         i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
         print(i_evstrt)
-        cmp_var1 = cmp_var1+var1(i_evstrt:i_evstrt+11,:,:)
+        smp_sp_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_var1 =cmp_var1/n_sp_events
+    cmp_sp_var1_avg = clmMonTLL(smp_sp_var1)
 
-    cmp_var2 = var2(0:11,:,:)
-    cmp_var2 = 0
-    do ii=0,n_sp_events-1
-        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
-        cmp_var2 = cmp_var2+var2(i_evstrt:i_evstrt+11,:,:)
-    end do
-    cmp_var2 =cmp_var2/n_sp_events
-
-    cmp_var1_su = var1(0:11,:,:)
-    cmp_var1_su = 0
+    smp_su_var1 = var1(0:12*n_su_events-1,:,:)
     do ii=0,n_su_events-1
         i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
         print(i_evstrt)
-        cmp_var1_su = cmp_var1_su+var1(i_evstrt:i_evstrt+11,:,:)
+        smp_su_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_var1_su =cmp_var1_su/n_su_events
-
-    cmp_var2_su = var2(0:11,:,:)
-    cmp_var2_su = 0
-    do ii=0,n_su_events-1
-        i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
-        cmp_var2_su = cmp_var2_su+var2(i_evstrt:i_evstrt+11,:,:)
-    end do
-    cmp_var2_su =cmp_var2_su/n_su_events
-
-    cmp_var1 = cmp_var1 - cmp_var1_su
-    cmp_var2 = cmp_var2 - cmp_var2_su
-    cmp_vr    = uv2vrF_Wrap (cmp_var1,cmp_var2)         ; u,v ==> vorticity (rel)
-
-    diff_speed = cmp_var1
-    diff_speed = sqrt(cmp_var1*cmp_var1 + cmp_var2*cmp_var2)
-    cmp_var1@_FillValue= -999
-    cmp_var1 = where(diff_speed .gt. 1.0, cmp_var1, cmp_var1@_FillValue)
-
-    ; Var3
-
-    ctrl_file3   = g_data_path3
-	ctrl_in3     = addfile (ctrl_file3, "r")   ; note the "s" of addfile
-	time_hist1    = ctrl_in3->time
-    yyyymm1  = cd_calendar(time_hist1,-1)
-    istrt   = ind(yyyymm1 .eq. g_strt_mon)
-    ilast   = ind(yyyymm1 .eq. g_lst_mon)
-	var3  =ctrl_in3->precip(istrt:ilast,:,:)			; p for unify the var name
-    
-    var3=month_to_season12(var3)
-    smp_sp_var3 = var3(0:12*n_sp_events-1,:,:)
+    cmp_su_var1_avg = clmMonTLL(smp_su_var1)
+ 
+    smp_sp_var2 = var2(0:12*n_sp_events-1,:,:)
     do ii=0,n_sp_events-1
         i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
         print(i_evstrt)
-        smp_sp_var3(ii*12:ii*12+11,:,:) = var3(i_evstrt:i_evstrt+11,:,:)
+        smp_sp_var2(ii*12:ii*12+11,:,:) = var2(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_sp_var3_avg = clmMonTLL(smp_sp_var3)
+    cmp_sp_var2_avg = clmMonTLL(smp_sp_var2)
 
-    smp_su_var3 = var3(0:12*n_su_events-1,:,:)
+    smp_su_var2 = var2(0:12*n_su_events-1,:,:)
     do ii=0,n_su_events-1
         i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
         print(i_evstrt)
-        smp_su_var3(ii*12:ii*12+11,:,:) = var3(i_evstrt:i_evstrt+11,:,:)
+        smp_su_var2(ii*12:ii*12+11,:,:) = var2(i_evstrt:i_evstrt+11,:,:)
     end do
-    cmp_su_var3_avg = clmMonTLL(smp_su_var3)
-    
-    cmp_sp_var3_var = cmp_sp_var3_avg
-    cmp_su_var3_var = cmp_su_var3_avg
-    do ii = 0,11 
-        cmp_sp_var3_var(ii,:,:) = dim_variance_n(smp_sp_var3(ii::12,:,:),0)
-        cmp_su_var3_var(ii,:,:) = dim_variance_n(smp_su_var3(ii::12,:,:),0)
-    end do
-    cmp_var3 = cmp_sp_var3_avg
-    cmp_var3 = cmp_sp_var3_avg - cmp_su_var3_avg
+    cmp_su_var2_avg = clmMonTLL(smp_su_var2)
+
+    printVarSummary(cmp_sp_var2_var)
+
+    ; Calculate the Sverdrup Transport
+    ; Vs=(1/beta)*curl(tao)
+    ;   tao=ruo*Cd*U
+    ;   ruo*Cd=2kg/m3
+    ;   beta=partial(f)/(a*partial(fai))
+    ;   f=2*om*sin(fai)
+
+    Rcd=2 ; 2kg/m3
+    a=6371000 ; R of the earth
+    om=7.29e-5
+
+
 
     ;--------------------------------
     ;--------Sig Test----------------
@@ -180,23 +145,11 @@ begin
 
     sigr = 0.15                       ; critical sig lvl for r
 
-    iflag= False                        ; population variance similar
-    diff_cmp_var3_sig = cmp_var3
-    do ii = 0,11
-        prob1 = ttest(cmp_sp_var3_avg(ii,:,:),cmp_sp_var3_var(ii,:,:),n_sp_events, cmp_su_var3_avg(ii,:,:), cmp_su_var3_var(ii,:,:), n_su_events, iflag, False) 
-        diff_cmp_var3_sig(ii,:,:) = mask(diff_cmp_var3_sig(ii,:,:), prob1 .lt. sigr,True)
-    end do
-
-
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
   plot = new((/6/),graphic)
-  plot_cn_pos = new((/6/),graphic)
-  plot_cn_neg = new((/6/),graphic)
-  plot_sig = new((/6/),graphic)
-  plot_V = new((/6/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
