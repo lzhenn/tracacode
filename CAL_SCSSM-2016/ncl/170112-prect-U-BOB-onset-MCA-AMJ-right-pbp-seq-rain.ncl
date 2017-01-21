@@ -34,8 +34,8 @@ begin
     g_lst_mon=201312
     g_yr_len = g_lst_yr-g_strt_yr+1
     
-    g_day_strt=100
-    g_day_lst=149
+    g_day_strt=0
+    g_day_lst=364
 
     g_p_strt=g_day_strt/5 ;(Index)
     g_p_lst=(g_day_lst+1)/5-1 ;
@@ -172,8 +172,8 @@ begin
     print("svdcov: percent variance= " + mca_var2) 
     print("ak variance= " + variance(ak(0,:))) 
     print("bk variance= " + variance(bk(0,:))) 
-    ak_reshape=reshape(ak(0,:),(/35,10/))
-    bk_reshape=reshape(bk(0,:),(/35,10/))
+    ak_reshape=reshape(ak(0,:),(/35,g_p_lst-g_p_strt+1/))
+    bk_reshape=reshape(bk(0,:),(/35,g_p_lst-g_p_strt+1/))
     print(dim_variance_n(ak_reshape,0))
     print(dim_variance_n(bk_reshape,0))
 
@@ -301,7 +301,7 @@ begin
 ;-----------------------------------------------------------------------------
     res@gsnRightString=""
     do ii=0,0
-        res@gsnCenterString="Pr Day101-150"
+        res@gsnCenterString="Pr Day"+(g_day_strt+1)+"-"+(g_day_lst+1)
         res@gsnLeftString=g_fig_rank(ii)
         reg_var1=-reg_var1
         plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var1(:,:),res) ; create a default plot
