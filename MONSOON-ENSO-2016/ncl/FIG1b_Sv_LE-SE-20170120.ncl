@@ -124,7 +124,7 @@ begin
     end do
     cmp_su_var2_avg = clmMonTLL(smp_su_var2)
 
-    printVarSummary(cmp_sp_var2_var)
+    printVarSummary(cmp_sp_var2_avg)
 
     ; Calculate the Sverdrup Transport
     ; Vs=(1/beta)*curl(tao)
