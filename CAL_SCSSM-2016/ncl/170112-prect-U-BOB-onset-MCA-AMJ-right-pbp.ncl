@@ -58,11 +58,11 @@ begin
     
     g_latS1=0.
     g_latN1=45.
-    g_lonW1=30.
-    g_lonE1=130.
+    g_lonW1=60.
+    g_lonE1=105.
     
     g_latS2=5
-    g_latN2=25
+    g_latN2=20
     g_lonW2=85.
     g_lonE2=125.
     ; create an array of desired pressure levels:
