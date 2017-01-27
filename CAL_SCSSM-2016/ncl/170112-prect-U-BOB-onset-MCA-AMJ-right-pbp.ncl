@@ -64,7 +64,7 @@ begin
     g_latS2=5
     g_latN2=20
     g_lonW2=85.
-    g_lonE2=125.
+    g_lonE2=100.
     ; create an array of desired pressure levels:
     g_fig_name = "../fig/obv/mca_pr_u_right_pentad_Ulag1"
         
