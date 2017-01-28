@@ -92,6 +92,9 @@ begin
     var1=month_to_season12(var1)
     var2=month_to_season12(var2)
 
+    g_lon=var1&lon
+    g_lat=var1&lat
+
     smp_sp_var1 = var1(0:12*n_sp_events-1,:,:)
     do ii=0,n_sp_events-1
         i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
@@ -134,20 +137,47 @@ begin
     ;   f=2*om*sin(fai)
 
     Rcd=2 ; 2kg/m3
-    a=6371000 ; R of the earth
+    a=6378388 ; R of the earth
     om=7.29e-5
+    d2r=0.0174533 ; convert to radians
+
+    tao_x_sp=cmp_sp_var1_avg 
+    tao_y_sp=cmp_sp_var1_avg 
+    
+    tao_x_su=cmp_sp_var1_avg 
+    tao_y_su=cmp_sp_var1_avg 
 
     tao_x_sp=Rcd*cmp_sp_var1_avg
     tao_y_sp=Rcd*cmp_sp_var2_avg
 
     tao_x_su=Rcd*cmp_su_var1_avg
     tao_y_su=Rcd*cmp_su_var2_avg
+    
+    curl_sp=uv2vrF_Wrap(tao_x_sp,tao_y_sp)
+    curl_su=uv2vrF_Wrap(tao_x_su,tao_y_su)
+
+    printVarSummary(tao_x_su)
+    exit
+
+    ;***********TERM [2], this is a little tricky*******
+    adv_s_x =  z    ;u*ds0dx
+    adv_s_y =  z    ;v*ds0dy
+
+    ;u*ds0dx
+    dlon = (g_lon(2)-g_lon(1))*d2r
+    
+    do i=0,g_nlat-1                      ; loop over each latitude
+        f = 2*om*sin(d2r*g_lat(i))
+        dx = a*cos(d2r*g_lat(i))*dlon  ; constant at this latitude
+        adv_s_x(:,:,i,:) = center_finite_diff_n (s0(:,:,i,:), dx , True,0,2) ; be careful with the dimison downscale
+    end do
+
+
 
     ;--------------------------------
     ;--------Sig Test----------------
     ;--------------------------------
 
-    sigr = 0.15                       ; critical sig lvl for r
 
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
