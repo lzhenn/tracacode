@@ -62,7 +62,7 @@ begin
     ;g_su_events = (/198001,199501,200301,200501,200701,201001/)
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
-    g_fig_name    =   "../fig/FIG1b_"+g_strt_mon+"-"+g_lst_mon+"_10mUV_sverdrup_LE-SE-cmp"
+    g_fig_name    =   "../fig/FIG1b_"+g_strt_mon+"-"+g_lst_mon+"_10mUV_sverdrup_LE-SE-cmp2"
     g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     g_fig_title     = "Sverdrup Transport"
@@ -156,23 +156,25 @@ begin
     curl_sp=uv2vrF_Wrap(tao_x_sp,tao_y_sp)
     curl_su=uv2vrF_Wrap(tao_x_su,tao_y_su)
 
-    printVarSummary(tao_x_su)
-    exit
 
     ;***********TERM [2], this is a little tricky*******
-    adv_s_x =  z    ;u*ds0dx
-    adv_s_y =  z    ;v*ds0dy
 
-    ;u*ds0dx
-    dlon = (g_lon(2)-g_lon(1))*d2r
-    
-    do i=0,g_nlat-1                      ; loop over each latitude
-        f = 2*om*sin(d2r*g_lat(i))
-        dx = a*cos(d2r*g_lat(i))*dlon  ; constant at this latitude
-        adv_s_x(:,:,i,:) = center_finite_diff_n (s0(:,:,i,:), dx , True,0,2) ; be careful with the dimison downscale
+    f = curl_sp(0,:,:) 
+    dfdy = f
+
+    dlat = (g_lat(2)-g_lat(1))*d2r ; convert to radians
+    dy = a*dlat 
+    do i=0,dimsizes(g_lat)-1                      ; loop over each latitude
+        f(i,:) = 2*om*sin(d2r*g_lat(i))
     end do
-
-
+    
+    dfdy = center_finite_diff_n (f, dy , False, 0, 0) ; be careful with the dimison downscale
+    
+    sv_sp = curl_sp
+    sv_su = curl_su
+      
+    sv_sp = sv_sp/conform(sv_sp,dfdy,(/1,2/))
+    sv_su = sv_su/conform(sv_sp,dfdy,(/1,2/))
 
     ;--------------------------------
     ;--------Sig Test----------------
@@ -192,8 +194,8 @@ begin
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
- gsn_define_colormap(wks,"MPL_bwr")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"MPL_bwr")
 ;-----------------------------------------------------------------------------
   res                  = True       ; use plot options
 
@@ -215,9 +217,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -5e-6          ; set min contour level
-    res@cnMaxLevelValF        =  5e-6          ; set max contour level
-    res@cnLevelSpacingF       =  5e-7          ; set contour interval
+    res@cnMinLevelValF        =  -1e6          ; set min contour level
+    res@cnMaxLevelValF        =  1e6          ; set max contour level
+    res@cnLevelSpacingF       =  1e5          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -237,7 +239,7 @@ begin
   res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
 
-  res@lbLabelBarOn = False   ; turn off the label bar
+  res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   ;res@lbLabelStride = 1
@@ -276,103 +278,14 @@ begin
   res@tmYLLabelFontThicknessF = 2.0
 ; res@tmYLLabelFontQuality =
 
-
-;-----------------------------------------------------------------------------
-    res3                  = True       ; use plot options
-    res3@cnFillOn         = False;True       ; Fill contours
-    res3@cnLinesOn        = True      ; turn off contour lines
-    ;for tp masking
-    res3@gsnFrame         = False
-    res3@gsnDraw  = False
-    res3@cnLineLabelsOn   = False      ; turn off contour line labels
-    res3@cnLineThicknessF = 2 
-    res3@cnInfoLabelOn = False
-
-
-    res3@cnLevelSelectionMode="ExplicitLevels"
-    res3@cnLevels = (/1.0,1.5,2.0,2.5/)
-    res3@cnLineColor      = "Blue"
-    res3@gsnLeftString      = " "
-    res3@gsnRightString      = " "
-
-    do i = 0,2
-        cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
-        plot_cn_pos(i) = gsn_csm_contour(wks,cmpvarsmoth,res3) ; create a default plot
-    end do
-    
-    res3@cnLevels = -res3@cnLevels
-    res3@cnLineColor      = "Red"
-    res3@cnLineDashPattern      = 1
-    do i = 0,2
-        cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
-        plot_cn_neg(i) = gsn_csm_contour(wks,cmpvarsmoth,res3) ; create a default plot
-    end do
-
-
-;-------------------------------------------------
-;-----------------------------------------------------
-  res4                  = True       ; use plot options
-  res4@cnFillOn         = True       ; Fill contours
-  res4@cnLinesOn        = False;True      ; turn off contour lines
-  res4@gsnFrame         = False
-  res4@gsnDraw  = False
-  res4@cnLineLabelsOn   = False      ; turn off contour line labels
-  res4@cnLineThicknessF = 2
-  res4@cnLineColor      = "black"
-  res4@cnInfoLabelOn = False
-  res4@cnMonoFillPattern    = True;False
-  res4@cnFillPattern = 3 
-  res4@cnMonoFillScale = True
-  res4@cnFillScaleF = 0.6 
-  res4@cnMonoFillColor = True
-  res4@cnFillColor  =  "black"
-  res4@cnFillDotSizeF = 0.0025
- 
-  res4@lbLabelBarOn = False;True   ; turn off the label bar
- 
-;  res4@cnLevelSelectionMode="ExplicitLevels"
-;  res4@cnLevels = (/3000,1000/)
-  res4@gsnLeftString      = " "
-  res4@gsnRightString      = " "
- 
-;-----------------------------------------------------------------------------
-     ;-----------------------------------------------------------------------------
-       ;-------Set for the vector plot------
-    vcres = True
-    vcres@gsnDraw          = False           ; don't draw
-    vcres@gsnFrame         = False           ; don't advance frame
-    vcres@gsnRightString   = " "             ; turn off right string
-    vcres@gsnLeftString    = " "             ; turn off left string
-    vcres@gsnCenterString    = " "
-
-    vcres@vcRefAnnoOn      = True
-    vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
-    vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
-    vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-    vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-    vcres@vcMinDistanceF          = 0.03
-    vcres@vcRefAnnoString1  = "2 m/s"
-    vcres@vcRefAnnoString2  = ""
-    vcres@vcRefAnnoFontHeightF = 0.015
-    vcres@vcLineArrowThicknessF     = 2    ;thickness of vector
-
-    vcres@vcLineArrowHeadMinSizeF   = 0.015
-    vcres@vcLineArrowHeadMaxSizeF   = 0.015       
 do i = 0,2
     res@gsnLeftString = g_fig_rank(i)
     res@gsnCenterString = g_fig_title
     res@gsnRightString = ""
 
-    cmpvrsmoth=smth9_Wrap(cmp_vr(i+2,:,:),0.5,0.25, True)
-    plot(i) = gsn_csm_contour_map_ce(wks,cmpvrsmoth,res)
+    plot(i) = gsn_csm_contour_map_ce(wks,sv_sp(i,:,:),res)
 
-    plot_sig(i) = gsn_csm_contour(wks,diff_cmp_var3_sig(i+2,:,:),res4)  ; Create shaded contours
-    plot_V(i) = gsn_csm_vector(wks,cmp_var1(i+2,:,:),cmp_var2(i+2,:,:),vcres)
-    overlay(plot(i),plot_V(i))
-    overlay(plot(i),plot_sig(i))
-    overlay(plot(i),plot_cn_neg(i))
-    overlay(plot(i),plot_cn_pos(i))
-end do
+ end do
   draw(plot(1))
   frame(wks)
 
