@@ -1,121 +1,198 @@
-;*****************************************************
-;Missions:
-;   1. Read ggas data of RCP4.5 forcing field
-;   2. Calculate 2026-2035 mean
-;   3. Draw the Monthly Timeseries of CO2
-;                   Zhenning Li
-;                    2015-01-22
-;*****************************************************
+;*************************************************************
+;Aim: draw OLR annually ltm trend 
+;Mission:
+;   1. Read data
+;   2. Post-post process
+;     2.1 take the trend 
+;   4. Draw and overlap
+;                       Zhenning Li
+;                       2015-05-03
+;Last Edited:
+;   2015-03-01  Create
+;   2015-03-03  Change to fit HEAT Experiment
+;   2015-04-05  Change to fit Team Server
+;   2015-04-08  Change to fit ECMWF MONLTM MEAN
+;   2015-05-03  Change to caculate season trend 
+;   2015-07-09  Change to caculate OLR
+;   2015-07-09  Change to fit composite
+;*************************************************************
 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
+begin
+
+
 ;================================================
 ;Variables List:
-;	var1--------------CO2
-;	var2--------------CH4
-;	var3--------------N2O
-;	var4--------------f11
-;	var5--------------f12
+;	var1--------------U
+;	var2--------------V
 ;================================================
-
-
-
-begin
-    data_file_name1="/home/yangsong3/data-model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"
-    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/"
-    g_fig_name="../fig/FIG3_model"
-    g_fig_title="ESM-CTRL Pr, UV10m & Vorticity"
-    g_font =0.025
-    g_fig_rank=(/"(a)"/)
-    ;one month rightward shift
-    yrstrt1  = 26102
-    yrlast1  = 36301
-    yrstrt2  = 26102
-    yrlast2  = 26301 
-
+;global variables
+    ;Define parameters
+    g_data_path1 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
+    g_data_path2 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
+    g_data_path3 = "/Users/zhenningli/data/obv/SST/sst.mnmean.nc"
+    g_latS=-45.
+    g_latN=45.
+    g_lonW=30.
+    g_lonE=220.
+    
     ;Smaller Region
     g_latS=-20.
     g_latN=20.
     g_lonW=100.
-    g_lonE=200.
-;---------------Read data-------------------
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.U.261-262.nc","r")
-    ctrl_var1 = ctrl_in1->U(2:4,0,:,:)
+    g_lonE=290.
     
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.V.261-262.nc","r")
-    ctrl_var2 = ctrl_in1->V(2:4,0,:,:)    
+    ; create an array of desired pressure levels:
+
+        
+    g_font = 0.03
+
+    g_strt_mon = 198201 
+    g_lst_mon = 201512
+    ; long events larger than 10 months, develop
+    g_sp_events = (/198201,198601,199101,199701/)
+    ;g_sp_events = (/201501/)
+    ; short events with 10 months, develop
+    g_su_events = (/199401,200201,200401,200601,200901/)
+    ;g_su_events = (/201401/)
+
+    ; long events larger than 10 months, decay
+    ;g_sp_events = (/198301,198701,199201,199801/)
+    ; short events with 10 months, decay
+    ;g_su_events = (/198001,199501,200301,200501,200701,201001/)
+    n_sp_events= dimsizes(g_sp_events)
+    n_su_events= dimsizes(g_su_events)
+    g_fig_name    =   "../fig/FIG1ac_"+g_strt_mon+"-"+g_lst_mon+"_SST_LE-SE-cmp"    
+    g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.PRECC.261-262.nc","r")
-    ctrl_var3 = ctrl_in1->PRECC(2:4,:,:)    
+    g_fig_title     = "LE-SE SST"
+
+;*************************For F_Compset Ctrl***********************************
+
+; ==============================================================
+; Mission 1. Open the file: Read only the user specified period
+; ==============================================================
+
+	ctrl_file1   = g_data_path1
+	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
+	time_hist    = ctrl_in1->time
+    yyyymm  = cd_calendar(time_hist,-1)
+    istrt   = ind(yyyymm .eq. g_strt_mon)
+    ilast   = ind(yyyymm .eq. g_lst_mon)
+	var1  =short2flt(ctrl_in1->uwnd(istrt:ilast,0,:,:))			; p for unify the var name
+
+    ctrl_file2   = g_data_path2
+	ctrl_in2     = addfile (ctrl_file2, "r")   ; note the "s" of addfile
+	var2  =short2flt(ctrl_in2->vwnd(istrt:ilast,0,:,:))			; p for unify the var name
+
+; ==============================================================
+; Mission 2. post-post process data to deserved results
+; ==============================================================
+
+    var1=month_to_season12(var1)
+    var2=month_to_season12(var2)
+
+    smp_sp_var1 = var1(0:12*n_sp_events-1,:,:)
+    do ii=0,n_sp_events-1
+        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
+        smp_sp_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_sp_var1_avg = clmMonTLL(smp_sp_var1)
+
+    smp_su_var1 = var1(0:12*n_su_events-1,:,:)
+    do ii=0,n_su_events-1
+        i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
+        smp_su_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_su_var1_avg = clmMonTLL(smp_su_var1)
+ 
+    smp_sp_var2 = var2(0:12*n_sp_events-1,:,:)
+    do ii=0,n_sp_events-1
+        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
+        smp_sp_var2(ii*12:ii*12+11,:,:) = var2(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_sp_var2_avg = clmMonTLL(smp_sp_var2)
+
+    smp_su_var2 = var2(0:12*n_su_events-1,:,:)
+    do ii=0,n_su_events-1
+        i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
+        smp_su_var2(ii*12:ii*12+11,:,:) = var2(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_su_var2_avg = clmMonTLL(smp_su_var2)
+
+        ; Var3
+
+    ctrl_file3   = g_data_path3
+	ctrl_in3     = addfile (ctrl_file3, "r")   ; note the "s" of addfile
+	time_hist1    = ctrl_in3->time
+    yyyymm1  = cd_calendar(time_hist1,-1)
+    istrt   = ind(yyyymm1 .eq. g_strt_mon)
+    ilast   = ind(yyyymm1 .eq. g_lst_mon)
+	var3  =short2flt(ctrl_in3->sst(istrt:ilast,:,:))		; p for unify the var name
+    printVarSummary(var3)
+    var3=month_to_season12(var3)
+    smp_sp_var3 = var3(0:12*n_sp_events-1,:,:)
+    do ii=0,n_sp_events-1
+        i_evstrt= ind(yyyymm1 .eq. g_sp_events(ii)) - istrt
+        smp_sp_var3(ii*12:ii*12+11,:,:) = var3(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_sp_var3_avg = clmMonTLL(smp_sp_var3)
+
+    smp_su_var3 = var3(0:12*n_su_events-1,:,:)
+    do ii=0,n_su_events-1
+        i_evstrt= ind(yyyymm1 .eq. g_su_events(ii)) - istrt
+        print(i_evstrt)
+        smp_su_var3(ii*12:ii*12+11,:,:) = var3(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_su_var3_avg = clmMonTLL(smp_su_var3)
     
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.PRECL.261-262.nc","r")
-    ctrl_var4 = ctrl_in1->PRECL(2:4,:,:)
-    ctrl_var3 = (ctrl_var3+ctrl_var4)*86400*1000
+    cmp_sp_var1_var = cmp_sp_var1_avg
+    cmp_su_var1_var = cmp_su_var1_avg
+    cmp_sp_var2_var = cmp_sp_var2_avg
+    cmp_su_var2_var = cmp_su_var2_avg
+    cmp_sp_var3_var = cmp_sp_var3_avg
+    cmp_su_var3_var = cmp_su_var3_avg
+    do ii = 0,11 
+        cmp_sp_var1_var(ii,:,:) = dim_variance_n(smp_sp_var1(ii::12,:,:),0)
+        cmp_su_var1_var(ii,:,:) = dim_variance_n(smp_su_var1(ii::12,:,:),0)
+        cmp_sp_var2_var(ii,:,:) = dim_variance_n(smp_sp_var2(ii::12,:,:),0)
+        cmp_su_var2_var(ii,:,:) = dim_variance_n(smp_su_var2(ii::12,:,:),0)
+        cmp_sp_var3_var(ii,:,:) = dim_variance_n(smp_sp_var3(ii::12,:,:),0)
+        cmp_su_var3_var(ii,:,:) = dim_variance_n(smp_su_var3(ii::12,:,:),0)
+    end do
+    cmp_var1 = cmp_sp_var1_avg
+    cmp_var1 = cmp_sp_var1_avg - cmp_su_var1_avg
+    cmp_var2 = cmp_sp_var2_avg
+    cmp_var2 = cmp_sp_var2_avg - cmp_su_var2_avg
+    cmp_var3 = cmp_sp_var3_avg
+    cmp_var3 = cmp_sp_var3_avg - cmp_su_var3_avg
 
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.U.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var1 = exp_in[:]->U(:,2:4,{1000},:,:)
-
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.V.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var2 = exp_in[:]->V(:,2:4,{1000},:,:)
-
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.PRECC.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var3 = exp_in[:]->PRECC(:,2:4,:,:)
-
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.PRECL.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var4 = exp_in[:]->PRECL(:,2:4,:,:)
-    exp_var3 = (exp_var3+exp_var4)*86400*1000
-
-;--------------Proprocessing-----------
-    ctrl_var1_ssn=dim_avg_n_Wrap(ctrl_var1,0)
-    ctrl_var2_ssn=dim_avg_n_Wrap(ctrl_var2,0)
-    ctrl_var3_ssn=dim_avg_n_Wrap(ctrl_var3,0)
-   
-    exp_var1_ssn=dim_avg_n_Wrap(exp_var1,1)
-    exp_var2_ssn=dim_avg_n_Wrap(exp_var2,1)
-    exp_var3_ssn=dim_avg_n_Wrap(exp_var3,1)
-
-    exp_var1_var=dim_variance_n_Wrap(exp_var1_ssn,0)
-    exp_var2_var=dim_variance_n_Wrap(exp_var2_ssn,0)
-    exp_var3_var=dim_variance_n_Wrap(exp_var3_ssn,0)
-
-    exp_var1_ssnmean=dim_avg_n_Wrap(exp_var1_ssn,0)
-    exp_var2_ssnmean=dim_avg_n_Wrap(exp_var2_ssn,0)
-    exp_var3_ssnmean=dim_avg_n_Wrap(exp_var3_ssn,0)
-
-    diff_var1 = ctrl_var1_ssn
-    diff_var2 = ctrl_var2_ssn
-    diff_var3 = ctrl_var3_ssn
-
-    diff_var1 = exp_var1_ssnmean - ctrl_var1_ssn
-    diff_var2 = exp_var2_ssnmean - ctrl_var2_ssn
-    diff_var3 = exp_var3_ssnmean - ctrl_var3_ssn
-
-    cmp_vr    = uv2vrF_Wrap (diff_var1,diff_var2)         ; u,v ==> vorticity (rel)
+    cmp_vr    = uv2vrF_Wrap (cmp_var1,cmp_var2)         ; u,v ==> vorticity (rel)
     ;--------------------------------
     ;--------Sig Test----------------
     ;--------------------------------
-    diff_speed = diff_var1
-    diff_speed = sqrt(diff_var1*diff_var1 + diff_var2*diff_var2)
-    diff_var1@_FillValue= -999
-    diff_var1 = where(diff_speed .gt. 1.0, diff_var1, diff_var1@_FillValue)
+    diff_speed = cmp_var1
+    diff_speed = sqrt(cmp_var1*cmp_var1 + cmp_var2*cmp_var2)
+    cmp_var1@_FillValue= -999
+    cmp_var1 = where(diff_speed .gt. 1.0, cmp_var1, cmp_var1@_FillValue)
 
 
     siglvl = 0.1                       ; critical sig lvl for r
 
     iflag= False                        ; population variance similar
-    diff_var1_sig = diff_var1
-    diff_var2_sig = diff_var2
-    diff_var3_sig = diff_var3
+    diff_cmp_var1_sig = cmp_var1
+    diff_cmp_var2_sig = cmp_var2
+    diff_cmp_var3_sig = cmp_var3
+    do ii = 0,11
+        prob1 = ttest(cmp_sp_var1_avg(ii,:,:),cmp_sp_var1_var(ii,:,:),n_sp_events, cmp_su_var1_avg(ii,:,:), cmp_su_var1_var(ii,:,:), n_su_events, iflag, False) 
+        prob2 = ttest(cmp_sp_var2_avg(ii,:,:),cmp_sp_var2_var(ii,:,:),n_sp_events, cmp_su_var2_avg(ii,:,:), cmp_su_var2_var(ii,:,:), n_su_events, iflag, False) 
+        prob3 = ttest(cmp_sp_var3_avg(ii,:,:),cmp_sp_var3_var(ii,:,:),n_sp_events, cmp_su_var3_avg(ii,:,:), cmp_su_var3_var(ii,:,:), n_su_events, iflag, False) 
+        diff_cmp_var3_sig(ii,:,:) = mask(diff_cmp_var3_sig(ii,:,:), prob3 .lt. siglvl,True)
+        ;diff_cmp_var1_sig= (/mask(diff_cmp_var1_sig,(prob1 .lt. siglvl) .or. (prob2 .lt. siglvl),True)/)    
+    end do
 
     wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 
@@ -234,21 +311,21 @@ begin
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    res3@cnLevels = (/1.0,1.5,2.0,3.0/)
-    res3@cnLineColor      = "Blue"
+    res3@cnLevels = (/0.2,0.4/)
+    res3@cnLineColor      = "Red"
     res3@gsnLeftString      = " "
     res3@gsnRightString      = " "
 
     do i = 0,2
-        cmpvarsmoth=smth9_Wrap(diff_var3,0.5,0.25, True)
+        cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
         plot_cn_pos(i) = gsn_csm_contour(wks,cmpvarsmoth,res3) ; create a default plot
     end do
     
     res3@cnLevels = -res3@cnLevels
-    res3@cnLineColor      = "Red"
+    res3@cnLineColor      = "Blue"
     res3@cnLineDashPattern      = 1
     do i = 0,2
-        cmpvarsmoth=smth9_Wrap(diff_var3,0.5,0.25, True)
+        cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
         plot_cn_neg(i) = gsn_csm_contour(wks,cmpvarsmoth,res3) ; create a default plot
     end do
 
@@ -302,28 +379,22 @@ begin
 
     vcres@vcLineArrowHeadMinSizeF   = 0.015
     vcres@vcLineArrowHeadMaxSizeF   = 0.015       
-do i = 0,0
+do i = 0,2
     res@gsnLeftString = g_fig_rank(i)
     res@gsnCenterString = g_fig_title
     res@gsnRightString = ""
 
-    cmpvrsmoth=smth9_Wrap(cmp_vr,0.5,0.25, True)
+    cmpvrsmoth=smth9_Wrap(cmp_vr(i+2,:,:),0.5,0.25, True)
     plot(i) = gsn_csm_contour_map_ce(wks,cmpvrsmoth,res)
 
-    plot_V(i) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
+    plot_sig(i) = gsn_csm_contour(wks,diff_cmp_var3_sig(i+2,:,:),res4)  ; Create shaded contours
+    plot_V(i) = gsn_csm_vector(wks,diff_cmp_var1_sig(i+2,:,:),diff_cmp_var2_sig(i+2,:,:),vcres)
     overlay(plot(i),plot_V(i))
+    overlay(plot(i),plot_sig(i))
     overlay(plot(i),plot_cn_neg(i))
     overlay(plot(i),plot_cn_pos(i))
 end do
-  draw(plot(0))
+  draw(plot(1))
   frame(wks)
 
-
-
-
-
-end
-
-
-
-
+ end 

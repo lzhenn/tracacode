@@ -39,8 +39,8 @@ begin
     g_day_lst2=139
     
     ; Pr P21-29
-    g_day_strt1=100
-    g_day_lst1=144
+    g_day_strt1=95
+    g_day_lst1=139
 
 
     g_p_strt1=g_day_strt1/5 ;(Index)
@@ -58,11 +58,11 @@ begin
     
     g_latS1=0.
     g_latN1=45.
-    g_lonW1=30.
-    g_lonE1=130.
+    g_lonW1=45.
+    g_lonE1=105.
     
     g_latS2=5
-    g_latN2=25
+    g_latN2=20
     g_lonW2=85.
     g_lonE2=125.
     ; create an array of desired pressure levels:
@@ -123,7 +123,6 @@ begin
     var1_4d2&lat=var1&lat
     var1_4d2&lon=var1&lon
 
-    printVarSummary(var1_4d2)
 
 ; ==============================================================
 ; Mission 2. Set plot parameters and plot
@@ -237,7 +236,7 @@ begin
 ; ==============================================================
 ; Mission 3. post process the data
 ; ==============================================================
-    nmca = 4 ; how many MCA we need
+    nmca = 1 ; how many MCA we need
 
 
 

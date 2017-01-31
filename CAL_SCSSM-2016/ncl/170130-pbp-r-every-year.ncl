@@ -44,7 +44,7 @@ begin
     g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/"
     g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/"
     g_data1_path ="../data/obv/PRECT/precip.pentad.mean.nc"
-    g_plvl =850
+    g_plvl =200
     g_font = 0.035
     
     g_latS=0.
@@ -57,7 +57,6 @@ begin
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)"/)
     g_fig_title   = ispan(21,29,1)+"p R+UV"+g_plvl
-    g_fig_name   = "../fig/obv/"+g_plvl+"UV_Pr_21-29p_Clim"
 
 
 ;Prepare the variables
@@ -95,12 +94,10 @@ begin
     end do
     var2_data_clim=dim_avg_n_Wrap(var2_data,0)
     var3_data_clim=dim_avg_n_Wrap(var3_data,0)
-    printVarSummary(var3_data)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -117,7 +114,6 @@ begin
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
- gsn_define_colormap(wks,"precip2_17lev")
 
 
 ;-----------------------------------------------------------------------------
@@ -215,11 +211,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 15.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "15 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -237,21 +233,24 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
   
-  do ii=0,8
-    res@gsnLeftString = g_fig_rank(ii)
-    res@gsnCenterString = g_fig_title(ii)
-    var1_data_clim_pt = dim_avg_n_Wrap(var1((ii+20)::73,:,:),0)
-    var2_data_clim_pt=dim_avg_n_Wrap(var2_data_clim(ii*5:ii*5+4,:,:),0)
-    var3_data_clim_pt=dim_avg_n_Wrap(var3_data_clim(ii*5:ii*5+4,:,:),0)
-    plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
-    plot_V(ii) = gsn_csm_vector(wks,var2_data_clim_pt,var3_data_clim_pt,vcres) 
-    overlay(plot_sh(ii),plot_V(ii))
+  do jj=0,34
+      g_fig_name   = "../fig/obv/every-year/"+g_plvl+"UV_Pr_21-29p-"+(jj+1979)
+      wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+      gsn_define_colormap(wks,"precip2_17lev")
+      do ii=0,8
+        res@gsnLeftString = g_fig_rank(ii)
+        res@gsnCenterString = (jj+1979)+" "+g_fig_title(ii)
+        var1_data_clim_pt = var1((ii+20)+73*jj,:,:)
+        var2_data_clim_pt=dim_avg_n_Wrap(var2_data(jj,ii*5:ii*5+4,:,:),0)
+        var3_data_clim_pt=dim_avg_n_Wrap(var3_data(jj,ii*5:ii*5+4,:,:),0)
+        plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
+        plot_V(ii) = gsn_csm_vector(wks,var2_data_clim_pt,var3_data_clim_pt,vcres) 
+        overlay(plot_sh(ii),plot_V(ii))
+      end do
+      print((jj+1979)+"done")
+      gsn_panel(wks,plot_sh,(/3,3/),resP)
+      delete(wks)
   end do
-  gsn_panel(wks,plot_sh,(/3,3/),resP)
-
-  draw(plot_sh)
-  frame(wks)
-
 end
 
 

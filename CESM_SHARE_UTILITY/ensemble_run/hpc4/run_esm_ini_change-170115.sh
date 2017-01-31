@@ -7,7 +7,7 @@
 # set the basic parameters as below. Good Luck!
 #
 # 2015-11-17 Created
-# 2016-12-18 Change to fit Tianhe2
+# 2016-01-16 Change to fit HPC4
 #
 #                      A L_Zealot Product
 #-----------------------------------------------

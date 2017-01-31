@@ -50,7 +50,7 @@ begin
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*ESMt*TS*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMc*TS*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
@@ -58,11 +58,10 @@ begin
     ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
     ctrl_rmean_nino34 = runave_Wrap(ctrl_nino34,3,0)
     ctrl_nino34_idx = rmAnnCycle1D(ctrl_rmean_nino34)
-
+    print(yyyymm(istrt:ilast)+": "+ctrl_nino34_idx(:))
     exp_nino34 = wgt_areaave_Wrap(exp_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
     ;exp_nino34_idx = runave_Wrap(exp_nino34,3,1)
     exp_nino34_idx = exp_nino34
-    print(exp_nino34_idx)
     
     time = ctrl_nino34_idx&time
     yyyymm1 =floor( cd_calendar(time,-1))

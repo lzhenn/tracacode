@@ -39,8 +39,8 @@ begin
     g_day_lst2=139
     
     ; Pr P21-29
-    g_day_strt1=100
-    g_day_lst1=144
+    g_day_strt1=g_day_strt2
+    g_day_lst1=g_day_strt2
 
 
     g_p_strt1=g_day_strt1/5 ;(Index)
@@ -58,8 +58,8 @@ begin
     
     g_latS1=0.
     g_latN1=45.
-    g_lonW1=30.
-    g_lonE1=130.
+    g_lonW1=60.
+    g_lonE1=105.
     
     g_latS2=5
     g_latN2=25
@@ -132,7 +132,7 @@ begin
 ; ==============================================================
 ; Mission 3. post process the data
 ; ==============================================================
-    nmca = 4 ; how many MCA we need
+    nmca = 1 ; how many MCA we need
 
 
 

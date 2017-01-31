@@ -39,8 +39,8 @@ begin
     g_day_lst2=139
     
     ; Pr P21-29
-    g_day_strt1=100
-    g_day_lst1=144
+    g_day_strt1=g_day_strt2+5
+    g_day_lst1=g_day_lst2+5
 
 
     g_p_strt1=g_day_strt1/5 ;(Index)
@@ -64,7 +64,7 @@ begin
     g_latS2=5
     g_latN2=20
     g_lonW2=85.
-    g_lonE2=100.
+    g_lonE2=105.
     ; create an array of desired pressure levels:
     g_fig_name = "../fig/obv/mca_pr_u_right_pentad_Ulag1"
         
@@ -237,7 +237,7 @@ begin
 ; ==============================================================
 ; Mission 3. post process the data
 ; ==============================================================
-    nmca = 4 ; how many MCA we need
+    nmca = 1 ; how many MCA we need
 
 
 
