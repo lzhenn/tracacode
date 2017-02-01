@@ -30,17 +30,17 @@ begin
     ;for directory 
     g_strt_yr=1979
     g_lst_yr=2013
-    g_strt_mon=197901
-    g_lst_mon=201312
+    g_strt_day=19790101
+    g_lst_day=20131231
     g_yr_len = g_lst_yr-g_strt_yr+1
     
     ; U200 P20-28
     g_day_strt2=95
-    g_day_lst2=139
+    g_day_lst2=144
     
     ; Pr P21-29
-    g_day_strt1=g_day_strt2
-    g_day_lst1=g_day_strt2
+    g_day_strt1=g_day_strt2+5
+    g_day_lst1=g_day_lst2+5
 
 
     g_p_strt1=g_day_strt1/5 ;(Index)
@@ -52,9 +52,10 @@ begin
 
     g_var_name1 = "r"
     g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
-    g_data1_path ="../data/obv/PRECT/precip.pentad.mean.nc"
+    g_data1_path ="../data/obv/NOAA-OLR/olr.day.mean.f25.nc"
     g_plvl =200
     g_font = 0.035
+    
     
     g_latS1=0.
     g_latN1=45.
@@ -64,9 +65,9 @@ begin
     g_latS2=5
     g_latN2=25
     g_lonW2=85.
-    g_lonE2=125.
+    g_lonE2=100.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/mca_pr_u_left_pentad"
+    g_fig_name = "../fig/obv/mca_olr_u_left_olr_pentad"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)"/)
 
@@ -75,9 +76,35 @@ begin
 
     ctrl_in1 = addfile(g_data1_path, "r")
     time_hist    = ctrl_in1->time
-    yyyymm  = cd_calendar(time_hist,-1)
-    var1  = ctrl_in1->precip(:g_yr_len*73-1,{g_latS2:g_latN2},{g_lonW2:g_lonE2})
+    yyyymmdd  = cd_calendar(time_hist,-2)
+    istrt   = ind(yyyymmdd .eq. g_strt_day)
+    ilast   = ind(yyyymmdd .eq. g_lst_day)
+    var1  = short2flt(ctrl_in1->olr(:,{g_latS2:g_latN2},{g_lonW2:g_lonE2}))
+   
+
+
+    var1_slice = var1(0:g_day_lst1-g_day_strt1,:,:)
+    slice_dim = dimsizes(var1_slice)
+    var1_slice := conform_dims((/g_yr_len,slice_dim(0),slice_dim(1),slice_dim(2)/),var1_slice,(/1,2,3/))
+    copy_VarAtts(var1,var1_slice)
+    var1_slice!0="year"
+    var1_slice!1="time"
+    var1_slice!2=var1!1
+    var1_slice!3=var1!2
+    var1_slice&lon=var1&lon
+    var1_slice&lat=var1&lat
+    var1_slice&time=ispan(g_day_strt1,g_day_lst1,1)
     
+    yyyymmdd  := cd_calendar(var1&time,-2)
+    printVarSummary(var1)
+    printVarSummary(var1_slice)
+    do ii=g_strt_yr,g_lst_yr
+        g_strt_ymd=10000*ii+411
+        g_lst_ymd=10000*ii+530
+        istrt   = ind(yyyymmdd .eq. g_strt_ymd)
+        ilast   = ind(yyyymmdd .eq. g_lst_ymd)
+        var1_slice(ii-g_strt_yr,:,:,:)=(/var1(istrt:ilast,:,:)/)
+    end do 
     
     ctrl_in2_files = systemfunc("ls "+g_data2_path)
     setfileoption("nc","SuppressClose",False) ; close too many files
@@ -100,92 +127,29 @@ begin
         end if
     end do
 
+
     var2_pt_data = var2_data(:,0:g_p_lst2-g_p_strt2,:,:)    
-    
+    var1_pt_data = var1_slice(:,0:g_p_lst2-g_p_strt2,:,:)    
     ; Calculate pentad data
     do ii=g_p_strt2-1,g_p_lst2-1
         jj = ii - g_p_strt2 +1
         var2_pt_data(:,jj,:,:)=dim_avg_n_Wrap(var2_data(:,jj*5:jj*5+4,:,:),1)
+        var1_pt_data(:,jj,:,:)=dim_avg_n_Wrap(var1_slice(:,jj*5:jj*5+4,:,:),1)
     end do
     var2_pt_data!1="pentad"
-    ;var2_pt_data_reshape =  reshape(var2_pt_data,(/g_yr_len,(g_p_lst-g_p_strt+1)*var2_dim(2),var2_dim(3)/))
-    
-    var1_dim = dimsizes(var1) 
-    var1_4d  = reshape(var1,(/g_yr_len,73,var1_dim(1),var1_dim(2)/))
-    var1_4d2 = var1_4d(:,g_p_strt1:g_p_lst1,:,:)
-    ;printVarSummary(var1_pt_data_reshape)
-   
-    var1_4d2!0="year" 
-    var1_4d2!1="pentad"
-    var1_4d2!2="lat"
-    var1_4d2!3="lon"
-    ;var1_4d2&pentad=var2_pt_data&pentad
-    var1_4d2&lat=var1&lat
-    var1_4d2&lon=var1&lon
-
-    printVarSummary(var1_4d2)
-    
-    ;var2_pt_data_reshape!0="time"
-    ;var2_pt_data_reshape!1="lat"
-    ;var2_pt_data_reshape!2="lon"
+    var1_pt_data!1="pentad"
 
 ; ==============================================================
 ; Mission 3. post process the data
 ; ==============================================================
     nmca = 1 ; how many MCA we need
-
-
-
-    ;Right field
-
-    var1_LLLT = var1_4d2(pentad|:,lat|:,lon|:,year|:)
-    var1_ano = dim_rmvmean_n_Wrap(var1_4d2,0)
     
-    var1_size = dimsizes(var1_ano)
-    n_var1_size = var1_size(1)*var1_size(2)*var1_size(3)
-    homrgt = new((/nmca,n_var1_size/),float)
-    hetrgt = new((/nmca,n_var1_size/),float)
-    var1_ano_line = reshape(var1_ano,(/var1_size(0),n_var1_size/))
-    var1_ano_line!0 = "time" 
-    var1_ano_line!1 = "pattern" 
-
- 
-    ;Left field
-    var2_LLLT = var2_pt_data(pentad|:,lat|:,lon|:,ncl_join|:)
-    var2_ano = dim_rmvmean_n_Wrap(var2_pt_data,0)
-    
-    var2_size = dimsizes(var2_ano)
-    n_var2_size = var2_size(1)*var2_size(2)*var2_size(3)
-    homlft = new((/nmca,n_var2_size/),float)
-    hetlft = new((/nmca,n_var2_size/),float)
-    var2_ano_line = reshape(var2_ano,(/var2_size(0),n_var2_size/))
-    var2_ano_line!0 = "time" 
-    var2_ano_line!1 = "pattern" 
-    reg_var2 = var2_pt_data(0,:,:,:) 
-    printVarSummary(reg_var2)
-    mca_var2 = svdcov(var1_ano_line(pattern|:,time|:),var2_ano_line(pattern|:,time|:),nmca,homrgt,hetrgt,homlft,hetlft) 
-    ak   = onedtond(mca_var2@ak,(/nmca,var2_size(0)/)) ;timeseries
-    bk   = onedtond(mca_var2@bk,(/nmca,var2_size(0)/)) ;timeseries
-    ak!0 = "sv"
-    ak!1 = "time"
-    bk!0 = "sv"
-    bk!1 = "time"
-    print("svdcov: percent variance= " + mca_var2) 
-    ak_std=dim_standardize_Wrap(ak,1)
-    bk_std=dim_standardize_Wrap(bk,1)
-    
-    reg_var2 = (/regCoef(bk_std(0,:), var2_LLLT)/) 
-    
-    reg_var1 = var1_4d2(0,:,:,:)
-    reg_var1 = (/regCoef(ak_std(0,:), var1_LLLT)/) 
-
-    print("MCA done!") 
-  
+    wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+    res                  = True       ; use plot options
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -205,7 +169,6 @@ begin
 
 
 ;-----------------------------------------------------------------------------
-  res                  = True       ; use plot options
 
   res@cnFillOn             = True               ; turn on color for contours
   res@cnLinesOn            = False              ; turn off contour lines
@@ -289,19 +252,66 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
     res@gsnRightString=""
-    do ii=0,8
-        res@gsnCenterString="Pentad"+(g_p_strt2+ii+1)
+
+    ;Right field
+
+    var1_LLLT = var1_pt_data(pentad|:,lat|:,lon|:,year|:)
+    var1_ano = dim_rmvmean_n_Wrap(var1_pt_data,0)
+    
+    var1_size = dimsizes(var1_ano)
+    n_var1_size = var1_size(2)*var1_size(3)
+    homrgt = new((/nmca,n_var1_size/),float)
+    hetrgt = new((/nmca,n_var1_size/),float)
+ 
+    ;Left field
+    var2_LLLT = var2_pt_data(pentad|:,lat|:,lon|:,ncl_join|:)
+    var2_ano = dim_rmvmean_n_Wrap(var2_pt_data,0)
+    
+    var2_size = dimsizes(var2_ano)
+    n_var2_size = var2_size(2)*var2_size(3)
+    homlft = new((/nmca,n_var2_size/),float)
+    hetlft = new((/nmca,n_var2_size/),float)
+
+    reg_var2 = var2_pt_data(0,:,:,:)
+    reg_var1 = var1_pt_data(0,:,:,:)
+
+    do ii = 0, var1_size(1)-1
+        
+        var1_ano_line = reshape(var1_ano(:,ii,:,:),(/var1_size(0),n_var1_size/))
+        var1_ano_line!0 = "time" 
+        var1_ano_line!1 = "pattern" 
+        var2_ano_line = reshape(var2_ano(:,ii,:,:),(/var2_size(0),n_var2_size/))
+        var2_ano_line!0 = "time" 
+        var2_ano_line!1 = "pattern" 
+
+        mca_var2 = svdcov(var1_ano_line(pattern|:,time|:),var2_ano_line(pattern|:,time|:),nmca,homrgt,hetrgt,homlft,hetlft) 
+        
+        ak   = onedtond(mca_var2@ak,(/nmca,var2_size(0)/)) ;timeseries
+        bk   = onedtond(mca_var2@bk,(/nmca,var2_size(0)/)) ;timeseries
+        ak!0 = "sv"
+        ak!1 = "time"
+        bk!0 = "sv"
+        bk!1 = "time"
+        print("svdcov: percent variance= " + mca_var2) 
+        ak_std=dim_standardize_Wrap(ak,1)
+        bk_std=dim_standardize_Wrap(bk,1)
+    
+        reg_var2(ii,:,:) = (/regCoef(bk_std(0,:), var2_LLLT(ii,:,:,:))/) 
+        reg_var1(ii,:,:) = (/regCoef(ak_std(0,:), var1_LLLT(ii,:,:,:))/) 
+       
+        reg_var2 = -reg_var2
+        reg_var1 = -reg_var1
+        res@gsnCenterString="Pentad"+(g_p_strt1+ii+1)
         res@gsnLeftString=g_fig_rank(ii)
-        plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var2(ii,:,:),res) ; create a default plot
+        res@gsnRightString=sprintf("%4.2f",mca_var2(0))+"%"
+        plot_S(ii)   =    gsn_csm_contour_map_ce(wks,reg_var1(ii,:,:),res) ; create a default plot
+
+   
     end do
+    print("MCA done!") 
+  
     gsn_panel(wks,plot_S,(/3,3/),False)
    
-    data_path="../data/obv/"
-    ncdf_name="obv_svd_acbc.nc"
-    system("rm "+data_path+ncdf_name)
-    ncdf     = addfile(data_path+ncdf_name ,"c")  ; open output netCDF file
-    ncdf->ak_std=ak_std
-    ncdf->bk_std=bk_std
 end 
 
 

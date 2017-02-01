@@ -234,7 +234,7 @@ begin
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
   
   do jj=0,34
-      g_fig_name   = "../fig/obv/every-year/"+g_plvl+"UV_Pr_21-29p-"+(jj+1979)
+      g_fig_name   = "../fig/obv/every-year/"+g_plvl+"UVrmmean_Pr_21-29p-"+(jj+1979)
       wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
       gsn_define_colormap(wks,"precip2_17lev")
       do ii=0,8
@@ -242,7 +242,9 @@ begin
         res@gsnCenterString = (jj+1979)+" "+g_fig_title(ii)
         var1_data_clim_pt = var1((ii+20)+73*jj,:,:)
         var2_data_clim_pt=dim_avg_n_Wrap(var2_data(jj,ii*5:ii*5+4,:,:),0)
+        var2_data_clim_pt= var2_data_clim_pt-dim_avg_n_Wrap(dim_avg_n_Wrap(var2_data(:,ii*5:ii*5+4,:,:),0),0)
         var3_data_clim_pt=dim_avg_n_Wrap(var3_data(jj,ii*5:ii*5+4,:,:),0)
+        var3_data_clim_pt= var3_data_clim_pt-dim_avg_n_Wrap(dim_avg_n_Wrap(var3_data(:,ii*5:ii*5+4,:,:),0),0)
         plot_sh(ii) = gsn_csm_contour_map(wks,var1_data_clim_pt,res) ; create a default plot
         plot_V(ii) = gsn_csm_vector(wks,var2_data_clim_pt,var3_data_clim_pt,vcres) 
         overlay(plot_sh(ii),plot_V(ii))

@@ -36,11 +36,11 @@ begin
     
     ; U200 P20-28
     g_day_strt2=95
-    g_day_lst2=139
+    g_day_lst2=144
     
     ; Pr P21-29
-    g_day_strt1=g_day_strt2+5
-    g_day_lst1=g_day_lst2+5
+    g_day_strt1=g_day_strt2
+    g_day_lst1=g_day_lst2
 
 
     g_p_strt1=g_day_strt1/5 ;(Index)
