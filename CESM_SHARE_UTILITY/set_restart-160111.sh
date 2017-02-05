@@ -20,15 +20,15 @@
 #*************************************************************
 
 # Restart Case Name
-CASENAME=B2000_f09_CAM5PM_spin-up
+CASENAME=B2000_f19g16_CP_CTRL
 
 # Rpointer files PATH (must be a separate dir)
-RP_DIR=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5PM_SCS_ANNCYC/run
+RP_DIR=/users/yangsong3/L_Zealot/B/B20f19-spun-up/exe
 # Restart files PATH
-RS_DIR=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5PM_spin-up/run
+RS_DIR=/users/yangsong3/L_Zealot/B/B20f19-spun-up
 
 # Restart point (in yyyy-mm-dd format)
-RPOINT=0261-01-01
+RPOINT=0250-01-01
 
 
 #*************Below to execute the changes*********************
