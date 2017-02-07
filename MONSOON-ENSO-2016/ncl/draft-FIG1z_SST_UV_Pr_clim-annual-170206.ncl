@@ -44,7 +44,7 @@ begin
     g_latS=-20.
     g_latN=20.
     g_lonW=100.
-    g_lonE=200.
+    g_lonE=290.
     
     ; create an array of desired pressure levels:
 
@@ -53,7 +53,7 @@ begin
 
     g_strt_mon = 197901 
     g_lst_mon = 201512
-    g_fig_name    =   "../fig/draft/FIG1a_"+g_strt_mon+"-"+g_lst_mon+"_SST_UV10_Pr_clim-cmp"    
+    g_fig_name    =   "../fig/draft/FIG1a_"+g_strt_mon+"-"+g_lst_mon+"_SST_UV10_Pr_clim-ann"    
     g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     g_fig_title     = "Clim SST, UV10, & Pr"
@@ -159,8 +159,8 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  26         ; set min contour level
-    res@cnMaxLevelValF        =  31          ; set max contour level
+    res@cnMinLevelValF        =  -3.0         ; set min contour level
+    res@cnMaxLevelValF        =  3.0          ; set max contour level
     res@cnLevelSpacingF       =  0.5          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -229,7 +229,7 @@ begin
     res3@gsnFrame         = False
     res3@gsnDraw  = False
     res3@cnLineLabelsOn   = False      ; turn off contour line labels
-    res3@cnLineThicknessF = 3.0 
+    res3@cnLineThicknessF = 2 
     res3@cnInfoLabelOn = False
 
 
@@ -292,13 +292,13 @@ begin
 
     vcres@vcRefAnnoOn      = True
     vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
-    vcres@vcRefMagnitudeF         = 8.0             ; define vector ref mag
+    vcres@vcRefMagnitudeF         = 4.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-    vcres@vcMinDistanceF          = 0.032
-    vcres@vcRefAnnoString1  = "8 m/s"
+    vcres@vcMinDistanceF          = 0.03
+    vcres@vcRefAnnoString1  = "4 m/s"
     vcres@vcRefAnnoString2  = ""
-    vcres@vcRefAnnoFontHeightF = 0.012
+    vcres@vcRefAnnoFontHeightF = 0.01
     vcres@vcLineArrowThicknessF     = 2    ;thickness of vector
 
     vcres@vcLineArrowHeadMinSizeF   = 0.01
@@ -308,10 +308,19 @@ do i = 0,2
     res@gsnCenterString = g_fig_title
     res@gsnRightString = ""
 
-    cmpvrsmoth=smth9_Wrap(clim_var3(i+2,:,:),0.5,0.25, True)
+    
+    clim_ann_var3=dim_avg_n_Wrap(clim_var3,0)
+    clim_ann_var3=clim_var3(3,:,:)-clim_ann_var3
+    cmpvrsmoth=smth9_Wrap(clim_ann_var3,0.5,0.25, True)
     plot(i) = gsn_csm_contour_map_ce(wks,cmpvrsmoth,res)
 
-    plot_V(i) = gsn_csm_vector(wks,clim_var1(i+2,:,:), clim_var2(i+2,:,:),vcres)
+    clim_ann_var1=dim_avg_n_Wrap(clim_var1,0)
+    clim_ann_var2=dim_avg_n_Wrap(clim_var2,0)
+ 
+    clim_ann_var1=clim_var1(3,:,:)-clim_ann_var1
+    clim_ann_var2=clim_var2(3,:,:)-clim_ann_var2
+
+    plot_V(i) = gsn_csm_vector(wks,clim_ann_var1, clim_ann_var2,vcres)
     overlay(plot(i),plot_V(i))
     overlay(plot(i),plot_cn_pos(i))
 end do
