@@ -40,7 +40,7 @@ begin
     g_yr_len = g_lst_yr-g_strt_yr+1
     
     ; U200 P20-28
-    g_day_strt2=95
+    g_day_strt2=90
     g_day_lst2=154
     
 
@@ -56,22 +56,21 @@ begin
     
         
     g_latS=-10
-    g_latN=45
-    g_lonW=75
+    g_latN=50
+    g_lonW=65
     g_lonE=85
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/U-sec-pbp-170206-"+g_lonW+"-"+g_lonE
+    g_fig_name = "../fig/obv/U-sec-65-85-pbp-change-170206"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
-    g_fig_title = ispan(g_p_strt2+1,g_p_lst2+1,1)+" Pentad "+g_lonW+"-"+g_lonE
+    g_fig_title = ispan(g_p_strt2+2,g_p_lst2+1,1)+" Pentad Change"
 
 ;Prepare the variables
 
     ctrl_in1 = addfile(g_data1_path, "r")
     var1  = short2flt(ctrl_in1->hgt(0,{g_latS:g_latN},{g_lonW:g_lonE}))
     var1 = 1013.25*(1-var1*0.0065/288.15)^5.25145
-    var1_line=dim_min_n_Wrap(var1,1)
-    var1_line=dim_median_n(var1,1)
+    var1_line=dim_max_n_Wrap(var1,1)
     
     
     ctrl_in2_files = systemfunc("ls "+g_data2_path)
@@ -120,9 +119,7 @@ begin
 
   plot = new((/g_p_len/),graphic)
   plot_cn_max = new((/g_p_len/),graphic)
-  plot_cn_max_pre = new((/g_p_len/),graphic)
   plot_cn_zero = new((/g_p_len/),graphic)
-  plot_cn_zero_pre = new((/g_p_len/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
@@ -147,9 +144,9 @@ begin
 
   res@tmYRMode = "Automatic"
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -30         ; set min contour level
- res@cnMaxLevelValF        = 30         ; set max contour level
- res@cnLevelSpacingF       = 4        ; set contour interval
+ res@cnMinLevelValF        = -4.5         ; set min contour level
+ res@cnMaxLevelValF        = 4.5         ; set max contour level
+ res@cnLevelSpacingF       = 0.5        ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
  res@vpHeightF = 0.4
@@ -196,48 +193,28 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLineColor      = "white"
+  res3@cnLineColor      = "black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
 
-
-
-  ; present zero u line
   res4=res3
   res4@cnLineColor = "black"
   res4@cnLineThicknessF = 3
   res4@cnLevels=(/0./)
-
-  ; previous jet core
-  res5=res3
-  res5@cnLineColor="black"
-
-  ; present zero u line
-  res6=res4
-  res6@cnLineColor = "grey"
-
-do ii=0,g_p_len-1
+  do ii=0,g_p_len-2
     res@gsnRightString=""
     res@gsnLeftString=g_fig_rank(ii)
     res@gsnCenterString=g_fig_title(ii)
 
     var2_core=max(var2_pt_clim_data(ii,:,:))
-
+    var2_change = var2_pt_clim_data(ii,:,:)
+    var2_change = var2_pt_clim_data(ii+1,:,:)-var2_change 
     res3@cnLevels = (/var2_core-0.01/)
-    plot(ii) = gsn_csm_pres_hgt(wks, var2_pt_clim_data(ii,:,:), res ) 
+    plot(ii) = gsn_csm_pres_hgt(wks, var2_change, res ) 
     plot_cn_max(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii,:,:),res3)
-
     plot_cn_zero(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii,:,:),res4)
-    if ii .gt.0 then
-        plot_cn_max_pre(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii-1,:,:),res5)
-        plot_cn_zero_pre(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii-1,:,:),res6)
-        overlay(plot(ii),plot_cn_max_pre(ii))
-        overlay(plot(ii),plot_cn_zero_pre(ii))
-    end if
- 
     overlay(plot(ii),plot_cn_max(ii))
     overlay(plot(ii),plot_cn_zero(ii))
-   res5@cnLevels = res3@cnLevels 
   end do
   gsn_panel(wks,plot,(/4,3/),False)
 
