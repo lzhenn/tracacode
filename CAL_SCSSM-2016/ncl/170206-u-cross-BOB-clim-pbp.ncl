@@ -57,8 +57,8 @@ begin
         
     g_latS=-10
     g_latN=45
-    g_lonW=75
-    g_lonE=85
+    g_lonW=105
+    g_lonE=120
     ; create an array of desired pressure levels:
     g_fig_name = "../fig/obv/U-sec-pbp-170206-"+g_lonW+"-"+g_lonE
         
@@ -196,7 +196,7 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLineColor      = "white"
+  res3@cnLineColor      = "black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
 
@@ -210,9 +210,9 @@ begin
 
   ; previous jet core
   res5=res3
-  res5@cnLineColor="black"
+  res5@cnLineColor="grey"
 
-  ; present zero u line
+  ; previous zero u line
   res6=res4
   res6@cnLineColor = "grey"
 

@@ -50,17 +50,20 @@ begin
     g_p_len=g_p_lst2-g_p_strt2+1
 
     g_var_name1 = "r"
-    g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
+    g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*.nc"
     g_data1_path ="/Users/zhenningli/data/obv/NCEP-DOE/hgt.sfc.nc"
     g_font = 0.035
     
-        
+    ;g_comp_years=(/1984, 1990, 1991, 1994, 1996, 1999, 2000, 2001, 2002, 2006, 2008, 2009, 2011/)
+    ;g_comp_years=(/1984, 1990, 1991, 1999, 2000, 2006, 2009/)
+    g_comp_years=(/1980, 1981, 1982, 1983, 1985, 1990, 1992, 1993, 1997, 1998, 2010/)
+    g_comp_years=g_comp_years-1979
     g_latS=-10
     g_latN=45
     g_lonW=75
-    g_lonE=85
+    g_lonE=100
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/U-sec-pbp-170206-"+g_lonW+"-"+g_lonE
+    g_fig_name = "../fig/obv/U-sec-pbp-170208-comp-rmmean-late-"+g_lonW+"-"+g_lonE
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
     g_fig_title = ispan(g_p_strt2+1,g_p_lst2+1,1)+" Pentad "+g_lonW+"-"+g_lonE
@@ -109,7 +112,17 @@ begin
     topo2d = conform(var2_pt_data,var1_line,3)
     high2d = conform(var2_pt_data,var2_pt_data&level,2)
     var2_pt_data = (/mask(var2_pt_data,high2d .gt. topo2d,False)/)
+    
+    n_cases=dimsizes(g_comp_years)
+    var2_comp_data=var2_pt_data(0:n_cases-1,:,:,:)
+    do ii=0,n_cases-1
+        var2_comp_data(ii,:,:,:)=var2_pt_data(g_comp_years(ii),:,:,:)
+    end do
+    printVarSummary(var2_comp_data)
+    var2_comp_clim = dim_avg_n_Wrap(var2_comp_data,0)
     var2_pt_clim_data = dim_avg_n_Wrap(var2_pt_data,0)
+    var2_comp_clim_ano = var2_comp_clim
+    var2_comp_clim_ano = var2_comp_clim - var2_pt_clim_data 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -120,9 +133,9 @@ begin
 
   plot = new((/g_p_len/),graphic)
   plot_cn_max = new((/g_p_len/),graphic)
-  plot_cn_max_pre = new((/g_p_len/),graphic)
+  plot_cn_max_comp = new((/g_p_len/),graphic)
   plot_cn_zero = new((/g_p_len/),graphic)
-  plot_cn_zero_pre = new((/g_p_len/),graphic)
+  plot_cn_zero_comp = new((/g_p_len/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
@@ -147,9 +160,9 @@ begin
 
   res@tmYRMode = "Automatic"
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -30         ; set min contour level
- res@cnMaxLevelValF        = 30         ; set max contour level
- res@cnLevelSpacingF       = 4        ; set contour interval
+ res@cnMinLevelValF        = -10         ; set min contour level
+ res@cnMaxLevelValF        = 10         ; set max contour level
+ res@cnLevelSpacingF       = 1        ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
  res@vpHeightF = 0.4
@@ -196,7 +209,7 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLineColor      = "white"
+  res3@cnLineColor      = "black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
 
@@ -210,9 +223,9 @@ begin
 
   ; previous jet core
   res5=res3
-  res5@cnLineColor="black"
+  res5@cnLineColor="grey"
 
-  ; present zero u line
+  ; previous zero u line
   res6=res4
   res6@cnLineColor = "grey"
 
@@ -224,16 +237,16 @@ do ii=0,g_p_len-1
     var2_core=max(var2_pt_clim_data(ii,:,:))
 
     res3@cnLevels = (/var2_core-0.01/)
-    plot(ii) = gsn_csm_pres_hgt(wks, var2_pt_clim_data(ii,:,:), res ) 
+    plot(ii) = gsn_csm_pres_hgt(wks, var2_comp_clim_ano(ii,:,:), res ) 
     plot_cn_max(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii,:,:),res3)
-
     plot_cn_zero(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii,:,:),res4)
-    if ii .gt.0 then
-        plot_cn_max_pre(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii-1,:,:),res5)
-        plot_cn_zero_pre(ii) = gsn_csm_contour(wks,var2_pt_clim_data(ii-1,:,:),res6)
-        overlay(plot(ii),plot_cn_max_pre(ii))
-        overlay(plot(ii),plot_cn_zero_pre(ii))
-    end if
+
+    var2_core=max(var2_comp_clim(ii,:,:))
+    res5@cnLevels=(/var2_core-0.01/)
+    plot_cn_max_comp(ii) = gsn_csm_contour(wks,var2_comp_clim(ii,:,:),res5)
+    plot_cn_zero_comp(ii) = gsn_csm_contour(wks,var2_comp_clim(ii,:,:),res6)
+    overlay(plot(ii),plot_cn_max_comp(ii))
+    overlay(plot(ii),plot_cn_zero_comp(ii))
  
     overlay(plot(ii),plot_cn_max(ii))
     overlay(plot(ii),plot_cn_zero(ii))
