@@ -35,8 +35,8 @@ begin
     g_yr_len = g_lst_yr-g_strt_yr+1
     
     ; U200 P20-28
-    g_day_strt2=90
-    g_day_lst2=139
+    g_day_strt2=120
+    g_day_lst2=149
     g_day_len= g_day_lst2-g_day_strt2+1
     ; Pr P21-29
     g_day_strt1=g_day_strt2+5
@@ -51,6 +51,7 @@ begin
     g_p_lst2=(g_day_lst2+1)/5-1 ;
 
     g_var_name1 = "r"
+    g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/vwnd*"
     g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
     g_data1_path ="../data/obv/NOAA-OLR/olr.day.mean.f25.nc"
     g_plvl =200
@@ -59,13 +60,13 @@ begin
     
     g_latS1=-10.
     g_latN1=45.
-    g_lonW1=75.
-    g_lonE1=90.
+    g_lonW1=105.
+    g_lonE1=120.
     
     g_latS2=5
     g_latN2=22
-    g_lonW2=87.5
-    g_lonE2=100.
+    g_lonW2=105
+    g_lonE2=120.
     ; create an array of desired pressure levels:
     g_fig_name = "../fig/obv/lag_olr_u_corr"
         
@@ -126,58 +127,52 @@ begin
         end if
     end do
 
+    
+    ctrl_in3_files = systemfunc("ls "+g_data3_path)
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in3     = addfiles (ctrl_in3_files, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in3, "join")
+    var3  =short2flt(ctrl_in3[:]->vwnd(:,:,{150:300},{g_latS1:g_latN1},{g_lonW1:g_lonE1}))
+    var3_366  =short2flt(ctrl_in3[1::4]->vwnd(:,:,{150:300},{g_latS1:g_latN1},{g_lonW1:g_lonE1}))
+    var3_dim = dimsizes(var3_366)
+    var3_data = new((/g_yr_len,var3_dim(1),var3_dim(2),var3_dim(3),var3_dim(4)/),"float")
+    copy_VarMeta(var3_366,var3_data)
+    
+    ; Merge normal and leap years 
+    sp = 0
+    do ii=0,g_yr_len-1
+        if (mod((ii-1),4) .eq. 0) then
+            var3_data(ii,:,:,:,:) = var3_366((ii-1)/4,:,:,:,:)
+            sp=sp+1
+        else
+            var3_data(ii,0:364,:,:,:) = var3(ii-sp,:,:,:,:)
+        end if
+    end do
 
     ;Calculate
     var1_rmean=var1_slice
     var2_rmean=var2_data
+    var3_rmean=var3_data
     var1_rmean= runave_n_Wrap(var1_slice, 3, 0, 1)
     var2_rmean= runave_n_Wrap(var2_data, 3, 0, 1)
+    var3_rmean= runave_n_Wrap(var3_data, 3, 0, 1)
     
         
     var1_slice:=var1_rmean(:,g_day_strt2:g_day_lst2,:,:)
     var2_slice=var2_rmean(:,g_day_strt2:g_day_lst2,:,:,:)
+    var3_slice=var3_rmean(:,g_day_strt2:g_day_lst2,:,:,:)
     
     var1_idx=wgt_areaave_Wrap(var1_slice, 1.0, 1.0, 0)
     
-    var2_sec=dim_avg_n_Wrap(var2_slice, 4)
-    var2_line1=dim_avg_n_Wrap(var2_sec(:,:,:,{25:35}),3)
-    var2_box1=dim_avg_n_Wrap(var2_line1,2)
-    
-    var2_line2=dim_avg_n_Wrap(var2_sec(:,:,:,{10:20}),3)
-    var2_box2=dim_avg_n_Wrap(var2_line2,2)
-    
-    var2_idx=var2_box1
-    var2_idx=var2_box1-var2_box2
     var1_clim=dim_avg_n_Wrap(var1_idx,0)
-    var2_clim=dim_avg_n_Wrap(var2_idx,0)
     var1_idx=var1_idx-conform(var1_idx, var1_clim, (/1/))   
-    var2_idx=var2_idx-conform(var2_idx, var2_clim, (/1/))   
-    print(var2_idx(1,:))
-    print("Day"+(g_day_strt2+1)+"-"+(g_day_lst2+1)+" U"+g_lonW1+"-"+g_lonE1+" OLR"+g_lonW2+"-"+g_lonE2)
-    print("wind lead")
-    do ii=0,14
-        jj=14-ii
-        var2_idx1d:=ndtooned(var2_idx(:,:g_day_len-jj-1))
-        var1_idx1d:=ndtooned(var1_idx(:,jj:))
-        var1_idx1d=dim_standardize_Wrap(var1_idx1d,1)
-        var2_idx1d=dim_standardize_Wrap(var2_idx1d,1)
-        if (jj .eq. 6) then
-            print("U+O+:"+num(var1_idx1d .gt.0 .and. var2_idx1d .gt.0))
-            print("U+O-:"+num(var1_idx1d .lt.0 .and. var2_idx1d .gt.0))
-            print("U-O+:"+num(var1_idx1d .gt.0 .and. var2_idx1d .lt.0))
-            print("U-O-:"+num(var1_idx1d .lt.0 .and. var2_idx1d .lt.0))
-        end if
-        print(("-"+jj)+": "+escorc(var1_idx1d,var2_idx1d))
-    end do
-    print("rainfall lead")
-    do ii=0,14
-        var2_idx1d:=ndtooned(var2_idx(:,ii:))
-        var1_idx1d:=ndtooned(var1_idx(:,:g_day_len-ii-1))
-        print(("+"+ii)+": "+escorc(var1_idx1d,var2_idx1d))
-    end do
 
-    exit
+    var2_shift=var2_slice(:,0:g_day_len-1-5,:,:,:)
+    var3_shift=var3_slice(:,0:g_day_len-1-5,:,:,:)
 
+    var1_idx1d:=ndtooned(var1_idx(:,5:))
+
+    exit    
 ; ==============================================================
 ; Mission 3. post process the data
 ; ==============================================================
