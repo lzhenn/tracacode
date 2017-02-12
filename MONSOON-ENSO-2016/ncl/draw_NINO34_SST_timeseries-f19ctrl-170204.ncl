@@ -23,12 +23,12 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name1="/home/yangsong3/data/model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/pro/B2000_f19g16_CP_CTRL.cam.h0.TS.200-349.nc"
+    data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/spun-up-pro/B20f19-spun-up.cam.h0.TS.250-299.nc"
     fig_title="NINO3.4 INDEX Timeseries"
     
     ;one month rightward shift
-    yrstrt1  = 20002
-    yrlast1  = 35001
+    yrstrt1  = 25002
+    yrlast1  = 30001
 
     ;NINO3.4 region
     g_lonW = 190
