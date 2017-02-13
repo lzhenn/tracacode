@@ -33,22 +33,22 @@ source ~/.bashrc_cesm
 alias task="/opt/gridview/pbs/dispatcher/bin/qstat -u yangsong3"
 
 # Workspace Path
-WPATH=/users/yangsong3/L_Zealot/F/CLIM-Trans-2015
+WPATH=/users/yangsong3/L_Zealot/B/B20f19-spun-up
 
 # Case Name
 CASENAME=`basename $WPATH`
 
 # Storage Path
-SPATH=/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015
+SPATH=/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up
 
 # Storage Dir Prefix 
-SDPRE=ESMc_
+SDPRE=ESMs_
 
 # Init Dir PATH (must be a separate dir)
-INIT_DIR=$WPATH/init-pmctrl
+INIT_DIR=$WPATH/init
 
 # Init File Name (same as ncdata in user_nl_cam)
-INIT_NAME=CLIM-Trans-2015.cam.i.0006-01-01-00000.nc
+INIT_NAME=B20f19-spun-up.cam.i.0252-01-01-00000.nc
 
 #*************Below to execute the changes*********************
 # WARNING:
@@ -145,6 +145,8 @@ do
                 fi
                 mkdir $SPATH/${SDPRE}${II}
                 mv $WPATH/exe/*cam.h1* $SPATH/${SDPRE}${II}
+                mv $WPATH/exe/*cam.h0* $SPATH/${SDPRE}${II}
+                mv $WPATH/exe/*pop.h* $SPATH/${SDPRE}${II}
                 mv $WPATH/run.log $SPATH/${SDPRE}${II}
                 break
 

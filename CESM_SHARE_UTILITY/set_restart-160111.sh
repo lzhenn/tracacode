@@ -20,15 +20,15 @@
 #*************************************************************
 
 # Restart Case Name
-CASENAME=B2000_f19g16_CP_CTRL
+CASENAME=B20f19-spun-up
 
 # Rpointer files PATH (must be a separate dir)
 RP_DIR=/users/yangsong3/L_Zealot/B/B20f19-spun-up/exe
 # Restart files PATH
-RS_DIR=/users/yangsong3/L_Zealot/B/B20f19-spun-up
+RS_DIR=/users/yangsong3/L_Zealot/B/B20f19-spun-up/exe
 
 # Restart point (in yyyy-mm-dd format)
-RPOINT=0250-01-01
+RPOINT=0252-01-01
 
 
 #*************Below to execute the changes*********************
