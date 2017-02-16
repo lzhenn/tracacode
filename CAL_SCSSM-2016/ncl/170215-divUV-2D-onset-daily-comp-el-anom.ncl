@@ -48,8 +48,16 @@ begin
     g_day_strt2=70
     g_day_lst2=150
     g_day_comp_len=16
-    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1-g_day_strt2
+    ;BOB Early
+    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
+    ;g_day_rank=(/108, 105, 93, 100, 107, 99/)
     
+    ;BOB Late
+    g_special_year=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)
+    g_day_rank=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)
+
+    g_day_rank= g_day_rank-g_day_strt2-1
+
     g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/vwnd*"
     g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
     g_data1_path ="/Users/zhenningli/data/obv/NCEP-DOE/hgt.sfc.nc"
@@ -66,8 +74,8 @@ begin
     g_lonWmp=70
     g_lonEmp=120
 
-    g_plevel=500
-    g_fig_name = "../fig/obv/divUV-2D-dbd-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
+    g_plevel=850
+    g_fig_name = "../fig/obv/divUV-2D-dbd-late-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -75,6 +83,7 @@ begin
     day_rank=day_rank(::-1)
     g_fig_title = "-"+day_rank+" Days "+g_lonWmp+"-"+g_lonEmp
 
+    g_special_cases=dimsizes(g_special_year) 
 ;Prepare the variables
 
     ctrl_in1 = addfile(g_data1_path, "r")
@@ -139,16 +148,27 @@ begin
     var_div=uv2dvF_Wrap(var2_rmean(:,:,{g_plevel},:,:),var3_rmean(:,:,{g_plevel},:,:))
     var_div_clim=dim_avg_n_Wrap(var_div,0)
 
-    var2_cmp = var2_rmean(:,0:g_day_comp_len-1,:,:,:)
-    var3_cmp = var3_rmean(:,0:g_day_comp_len-1,:,:,:)
-    var_div_cmp_mx = var_div(:,0:g_day_comp_len-1,:,:)
+    var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    var3_cmp = var3_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    var_div_cmp_mx = var_div(0:g_special_cases-1,0:g_day_comp_len-1,:,:)
+    jj=0
     do ii=0,g_yr_len-1
-        var2_cmp(ii,:,:,:,:)=var2_rmean(ii,g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-        ;var2_cmp(ii,:,:,:,:)=var2_cmp(ii,:,:,:,:)-var2_clim(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-        var3_cmp(ii,:,:,:,:)=var3_rmean(ii,g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-        ;var3_cmp(ii,:,:,:,:)=var3_cmp(ii,:,:,:,:)-var3_clim(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-        var_div_cmp_mx(ii,:,:,:)=var_div(ii,g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)
-        ;var_div_cmp_mx(ii,:,:,:)=var_div_cmp_mx(ii,:,:,:)-var_div_clim(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)
+        if (ii+1979) .eq. g_special_year(jj) then
+            print("Year: "+g_special_year(jj))
+            printVarSummary(var2_cmp)
+            printVarSummary(var2_rmean)
+            var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
+           ; var2_cmp(jj,:,:,:,:)=var2_cmp(jj,:,:,:,:)-var2_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
+            var3_cmp(jj,:,:,:,:)=var3_rmean(ii,g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
+           ; var3_cmp(jj,:,:,:,:)=var3_cmp(jj,:,:,:,:)-var3_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
+            var_div_cmp_mx(jj,:,:,:)=var_div(ii,g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:)
+           ; var_div_cmp_mx(jj,:,:,:)=var_div_cmp_mx(jj,:,:,:)-var_div(ii,g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:)
+            
+            jj=jj+1
+            if jj .eq. g_special_cases
+                break
+            end if
+        end if
     end do
     var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
     var3_cmp:=dim_avg_n_Wrap(var3_cmp,0)
