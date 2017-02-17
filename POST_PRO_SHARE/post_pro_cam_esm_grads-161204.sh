@@ -10,23 +10,23 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/DATA_B2000_f09_CAM5PM_SCS_ANNCYC/esmrun/
+PRE_DIR=/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up/
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/DATA_B2000_f09_CAM5PM_SCS_ANNCYC/esmrun/esmpost/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up/pro/\"
 
 # Case name
-CASENAME=\"B2000_f09_CAM5PM_SCS_ANNCYC\"
+CASENAME=\"B20f19-spun-up\"
 
 # ESM folder prefix
-ESM_NAME=ESMt261_
+ESM_NAME=ESMs_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=11
+ESM_LAST=10
 
 # Names of 2D fields
 #FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use
@@ -42,7 +42,7 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"Z3\"/)" #often use
 
 # Layers of 3D fields
 # CAM4 = 26; CAM5 = 30
-LAYERS=30
+LAYERS=26
 
 # Output specific pressure layers
 # CAUTION: Do not leave species between element!
@@ -50,10 +50,10 @@ PLEV="(/1000,925,850,700,600,500,400,300,200,100/)"
 #PLEV="(/500,300,200/)"
 
 # First year of the subset
-FRSTYEAR=261
+FRSTYEAR=252
 
 # Last year of the subset
-LSTYEAR=262
+LSTYEAR=253
 
 # Process fig flag
 FLAG2D=1
