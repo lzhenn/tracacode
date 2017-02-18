@@ -23,16 +23,16 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name1="/home/yangsong3/data-model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/B2000_f09_CAM5PM_spin-up.cam.h0.TS.1-300.nc"
+    data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/spun-up-pro/B20f19-spun-up.cam.h0.TS.250-299.nc"
     data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/"
     fig_name="../fig/nino34-esm-ctrl"
     fig_title="NINO3.4 INDEX Timeseries"
     
     ;one month rightward shift
-    yrstrt1  = 20102
-    yrlast1  = 30101
-    yrstrt2  = 26102
-    yrlast2  = 26301 
+    yrstrt1  = 25102
+    yrlast1  = 30001
+    yrstrt2  = 25202
+    yrlast2  = 25401 
 
     ;NINO3.4 region
     g_lonW = 190
@@ -50,7 +50,7 @@ begin
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc*TS*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMs*TS*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
