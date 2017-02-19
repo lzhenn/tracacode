@@ -52,7 +52,7 @@ BRCH_DIR=$WPATH/brch
 BRCH_NAME=B20f19-spun-up.cam.r.0252-01-01-00000.nc
 
 # Ensemble Members
-N_ESM=5
+N_ESM=4
 
 # Standard Divation of Normal Distributed Perturbation in T Field (Kelvin)
 T_PURB=0.02
@@ -107,11 +107,12 @@ for II in `seq 1 $N_ESM`
 do
     echo "ESM${II}/${N_ESM}, with restart condition: ${BRCH_NAME}, is processing!"
  
-    # Perturb initial filed
+    # Perturb branch filed
     ncl -nQ pre_dir=$NCL_BRCH_PATH  \
         t_purb=$T_PURB              \
         ../ncl/perturb_brch_T-170217.ncl
 
+    cp $BRCH_DIR/${BRCH_NAME} $WPATH/exe/
     # Submit task
     $WPATH/$CASENAME.run 
     echo "ESM${II}/${N_ESM}, with perturbated restart condition: ${BRCH_NAME}, has been submitted!"

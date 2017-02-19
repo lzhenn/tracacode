@@ -67,6 +67,7 @@ begin
 
     g_day_rank= g_day_rank-g_day_strt2-1
 
+    g_data4_path ="../data/obv/NCEP-DOE/daily/air1979-2013/air*"
     g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/vwnd*"
     g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
     g_data1_path ="/Users/zhenningli/data/obv/NCEP-DOE/hgt.sfc.nc"
@@ -78,13 +79,15 @@ begin
     g_lonW=45
     g_lonE=140
     
-    g_latSmp=-5
-    g_latNmp=35
-    g_lonWmp=70
+    g_latSmp=0
+    g_latNmp=25
+    g_lonWmp=80
     g_lonEmp=120
 
     g_plevel=200
-    g_fig_name = "../fig/obv/divUV-2D-dbd-before-after-zero-density-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
+    g_plevel1=200
+    g_plevel2=850
+    g_fig_name = "../fig/obv/divUV-2D-dbd-shaer-before-after-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -144,21 +147,45 @@ begin
         end if
     end do
 
+    ctrl_in4_files = systemfunc("ls "+g_data4_path)
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in4     = addfiles (ctrl_in4_files, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in4, "join")
+    var4  =short2flt(ctrl_in4[:]->air(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
+    var4_366  =short2flt(ctrl_in4[1::4]->air(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
+    var4_dim = dimsizes(var4)
+    var4_data = new((/g_yr_len,var4_dim(1),var4_dim(2),var4_dim(3),var4_dim(4)/),"float")
+    copy_VarMeta(var4,var4_data)
+   
+    ; Merge normal and leap years 
+    sp = 0
+    do ii=0,g_yr_len-1
+        if (mod((ii-1),4) .eq. 0) then
+            var4_data(ii,:,:,:,:) = var4_366((ii-1)/4,:,:,:,:)
+            sp=sp+1
+        else
+            var4_data(ii,:,:,:,:) = var4(ii-sp,:,:,:,:)
+        end if
+    end do
+    var4_data=var4_data-273.15
 
-    var2_rmean= runave_n_Wrap(var2_data, 3, 0, 1)
-    var3_rmean= runave_n_Wrap(var3_data, 3, 0, 1)
+    ;var2_rmean= runave_n_Wrap(var2_data, 3, 0, 1)
+    ;var3_rmean= runave_n_Wrap(var3_data, 3, 0, 1)
 
-    ;var2_rmean= var2_data
-    ;var3_rmean= var3_data
-    delete([/var2_data, var3_data/])
+    var2_rmean= var2_data
+    var3_rmean= var3_data
+    var4_rmean= var4_data
+    delete([/var2, var3, var4, var2_data, var3_data, var4_data/])
     var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
     var3_clim=dim_avg_n_Wrap(var3_rmean, 0)
+    var4_clim=dim_avg_n_Wrap(var4_rmean, 0)
     
     var_div=uv2dvF_Wrap(var2_rmean(:,:,{g_plevel},:,:),var3_rmean(:,:,{g_plevel},:,:))
     var_div_clim=dim_avg_n_Wrap(var_div,0)
 
     var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     var3_cmp = var3_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    var4_cmp = var4_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     var_div_cmp_mx = var_div(0:g_special_cases-1,0:g_day_comp_len-1,:,:)
     jj=0
     do ii=0,g_yr_len-1
@@ -167,6 +194,7 @@ begin
             var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
            ; var2_cmp(jj,:,:,:,:)=var2_cmp(jj,:,:,:,:)-var2_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
             var3_cmp(jj,:,:,:,:)=var3_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
+            var4_cmp(jj,:,:,:,:)=var4_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
            ; var3_cmp(jj,:,:,:,:)=var3_cmp(jj,:,:,:,:)-var3_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
             var_div_cmp_mx(jj,:,:,:)=var_div(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:)
            ; var_div_cmp_mx(jj,:,:,:)=var_div_cmp_mx(jj,:,:,:)-var_div(ii,g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:)
@@ -177,30 +205,10 @@ begin
             end if
         end if
     end do
-    
-    
-    var2_cmp0=var2_cmp
-    
-    ;Take out Zero line density
-    var2_cmp=where(var2_cmp .lt. 0, var2_cmp, var2_cmp@_FillValue)
-    var2_cmp_ext=dim_max_n_Wrap(var2_cmp,3)
-    var2_cmp_ext_cfm=conform(var2_cmp, var2_cmp_ext, (/0,1,2,4/))
-    var2_cmp=where(var2_cmp .lt.var2_cmp_ext_cfm, var2_cmp@_FillValue, var2_cmp)
-    
-    var2_cmp0=where(var2_cmp0 .gt. 0, var2_cmp0, var2_cmp0@_FillValue)
-    var2_cmp_ext=dim_min_n_Wrap(var2_cmp0,3)
-    var2_cmp_ext_cfm=conform(var2_cmp0, var2_cmp_ext, (/0,1,2,4/))
-    var2_cmp0=where(var2_cmp0 .gt.var2_cmp_ext_cfm, var2_cmp0@_FillValue, var2_cmp0)
-
-    var2_cmp=abs(var2_cmp)
-    print(max(var2_cmp0))
-    var2_cmp0=where(ismissing(var2_cmp0), var2_cmp,var2_cmp0)
-    var2_cmp_ext=dim_min_n_Wrap(var2_cmp0,3)
-    var2_cmp_ext_cfm=conform(var2_cmp0, var2_cmp_ext, (/0,1,2,4/))
-    var2_cmp0=where(var2_cmp0 .gt.var2_cmp_ext_cfm, var2_cmp0@_FillValue, 1)
-    var2_cmp0:=dim_sum_n_Wrap(var2_cmp0,0)
-    var2_cmp0=where(var2_cmp0 .lt. 2 , var2_cmp0@_FillValue, var2_cmp0)
-
+    var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
+    var3_cmp:=dim_avg_n_Wrap(var3_cmp,0)
+    var4_cmp:=dim_avg_n_Wrap(var4_cmp,0)
+    var_div_cmp_mx:=dim_avg_n_Wrap(var_div_cmp_mx,0)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -214,7 +222,12 @@ begin
   plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
+  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+ 
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+ ;gsn_define_colormap(wks,"MPL_bwr")
 
+;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
@@ -243,19 +256,19 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 0         ; set min contour level
- res@cnMaxLevelValF        = 4          ; set max contour level
- res@cnLevelSpacingF       = 1          ; set contour interval
+ res@cnMinLevelValF        = -10        ; set min contour level
+ res@cnMaxLevelValF        = 10          ; set max contour level
+ res@cnLevelSpacingF       = 1         ; set contour interval
 
-;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
+;  res@cnFillColors =(/2,4,7,2,8,9,11,13/)
 
 
   res@gsnFrame         = False
   res@gsnDraw  = False
   
-;  res@gsnSpreadColors      = True               ; use full color map
-;  res@gsnSpreadColorStart  = 2               ; start at color 17
-;  res@gsnSpreadColorEnd    = 14                ; end at color 200
+  res@gsnSpreadColors      = True               ; use full color map
+  res@gsnSpreadColorStart  = 10               ; start at color 17
+  res@gsnSpreadColorEnd    = 90                ; end at color 200
 
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
@@ -276,7 +289,6 @@ begin
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
-  res@cnFillMode           = "CellFill" ; Raster Mode
   res@mpMaxLatF  = g_latNmp
   res@mpMinLatF  = g_latSmp
   res@mpMaxLonF  = g_lonEmp
@@ -344,7 +356,7 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/0./)
+  res3@cnLevels = (/-5, 5./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
@@ -361,26 +373,25 @@ begin
                                                  ; use this for NCL V6.3.0 and earlier
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
- 
-  gsn_define_colormap(wks,"gsltod") ; choose a colormap 
- ;gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   do ii=0,g_day_comp_len-1
     if mod(ii,3) .eq. 0
         jj=ii/3
         res@gsnRightString=""
         res@gsnLeftString=g_fig_rank(jj)
         res@gsnCenterString=g_fig_title(jj)
-        plot_sh(jj) = gsn_csm_contour_map(wks,var2_cmp0(ii,{g_plevel},:,:),res) ; create a default plot
-       ; plot_cn_max(jj) = gsn_csm_contour(wks,var2_cmp(ii,{g_plevel},:,:),res3)
+        var2_cmp(ii,{g_plevel},:,:)=var2_cmp(ii,{g_plevel1},:,:)-var2_cmp(ii,{g_plevel2},:,:)
+        var3_cmp(ii,{g_plevel},:,:)=var3_cmp(ii,{g_plevel1},:,:)-var2_cmp(ii,{g_plevel2},:,:)
+        var4_cmp(ii,{g_plevel},:,:)=wind_speed(var2_cmp(ii,{g_plevel},:,:),var3_cmp(ii,{g_plevel},:,:))
+        plot_sh(jj) = gsn_csm_contour_map(wks,var4_cmp(ii,{g_plevel},:,:),res) ; create a default plot
+        plot_cn_max(jj) = gsn_csm_contour(wks,var4_cmp(ii,{g_plevel},:,:),res3)
 
-       ; plot_V(jj) = gsn_csm_vector(wks,var2_cmp(ii,{g_plevel},:,:),var3_cmp(ii,{g_plevel},:,:),vcres) 
-       ; overlay(plot_sh(jj),plot_V(jj))
-       ; if jj .gt. 0 then
-       ;     plot_cn_max_pre(jj) = gsn_csm_contour(wks,var2_cmp(ii-3,{g_plevel},:,:),res4)
-       ;     overlay(plot_sh(jj),plot_cn_max_pre(jj))
-       ; end if
-       ; overlay(plot_sh(jj),plot_cn_max(jj))
+        plot_V(jj) = gsn_csm_vector(wks,var2_cmp(ii,{g_plevel},:,:),var3_cmp(ii,{g_plevel},:,:),vcres) 
+        overlay(plot_sh(jj),plot_V(jj))
+        if jj .gt. 0 then
+            plot_cn_max_pre(jj) = gsn_csm_contour(wks,var4_cmp(ii-3,{g_plevel},:,:),res4)
+            overlay(plot_sh(jj),plot_cn_max_pre(jj))
+        end if
+        overlay(plot_sh(jj),plot_cn_max(jj))
     end if
   end do
   gsn_panel(wks,plot_sh,(/2,4/),resP)

@@ -26,7 +26,7 @@ ESM_NAME=ESMs_
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=10
+ESM_LAST=5
 
 # Names of 2D fields
 #FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use
