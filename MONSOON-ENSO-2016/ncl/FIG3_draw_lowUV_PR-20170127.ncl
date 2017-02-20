@@ -23,17 +23,17 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name1="/home/yangsong3/data-model/CESM_CTRL/B2000_F09G16_CAM5PM_CTRL/pro/"
+    data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/spun-up-pro/"
     data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/"
     g_fig_name="../fig/FIG3_model"
     g_fig_title="ESM-CTRL Pr, UV10m & Vorticity"
     g_font =0.025
     g_fig_rank=(/"(a)"/)
     ;one month rightward shift
-    yrstrt1  = 26102
-    yrlast1  = 36301
-    yrstrt2  = 26102
-    yrlast2  = 26301 
+    yrstrt1  = 25202
+    yrlast1  = 25401
+    yrstrt2  = 25202
+    yrlast2  = 25401 
 
     ;Smaller Region
     g_latS=-20.
@@ -41,35 +41,35 @@ begin
     g_lonW=100.
     g_lonE=200.
 ;---------------Read data-------------------
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.U.261-262.nc","r")
-    ctrl_var1 = ctrl_in1->U(2:4,0,:,:)
+    ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.U.250-299.nc","r")
+    ctrl_var1 = ctrl_in1->U(26:28,{1000},:,:)
     
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.V.261-262.nc","r")
-    ctrl_var2 = ctrl_in1->V(2:4,0,:,:)    
+    ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.V.250-299.nc","r")
+    ctrl_var2 = ctrl_in1->V(26:28,{1000},:,:)    
     
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.PRECC.261-262.nc","r")
-    ctrl_var3 = ctrl_in1->PRECC(2:4,:,:)    
+    ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.PRECC.250-299.nc","r")
+    ctrl_var3 = ctrl_in1->PRECC(26:28,:,:)    
     
-    ctrl_in1 = addfile(data_file_name1+"B2000_f09_CAM5PM_spin-up.cam.h0.PRECL.261-262.nc","r")
-    ctrl_var4 = ctrl_in1->PRECL(2:4,:,:)
+    ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.PRECL.250-299.nc","r")
+    ctrl_var4 = ctrl_in1->PRECL(26:28,:,:)
     ctrl_var3 = (ctrl_var3+ctrl_var4)*86400*1000
 
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.U.*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.U.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->U(:,2:4,{1000},:,:)
 
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.V.*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.V.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var2 = exp_in[:]->V(:,2:4,{1000},:,:)
 
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.PRECC.*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.PRECC.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var3 = exp_in[:]->PRECC(:,2:4,:,:)
 
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc261_[1-9].cam.h0.PRECL.*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.PRECL.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var4 = exp_in[:]->PRECL(:,2:4,:,:)
@@ -159,9 +159,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -5e-6          ; set min contour level
-    res@cnMaxLevelValF        =  5e-6          ; set max contour level
-    res@cnLevelSpacingF       =  5e-7          ; set contour interval
+    ;res@cnMinLevelValF        =  -5e-6          ; set min contour level
+   ; res@cnMaxLevelValF        =  5e-6          ; set max contour level
+   ; res@cnLevelSpacingF       =  5e-7          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
