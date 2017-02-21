@@ -147,8 +147,8 @@ begin
     tao_x_su=cmp_sp_var1_avg 
     tao_y_su=cmp_sp_var1_avg 
 
-    tao_x_sp=Rcd*cmp_sp_var1_avg
-    tao_y_sp=Rcd*cmp_sp_var2_avg
+    tao_x_sp=Rcd*abs(cmp_sp_var1_avg)*cmp_sp_var1_avg
+    tao_y_sp=Rcd*abs(cmp_sp_var2_avg)*cmp_sp_var2_avg
 
     tao_x_su=Rcd*cmp_su_var1_avg
     tao_y_su=Rcd*cmp_su_var2_avg

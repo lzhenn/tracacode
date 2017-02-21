@@ -36,43 +36,43 @@ begin
     yrlast2  = 25401 
 
     ;Smaller Region
-    g_latS=-20.
-    g_latN=20.
+    g_latS=-30.
+    g_latN=30.
     g_lonW=100.
-    g_lonE=200.
+    g_lonE=290.
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.U.250-299.nc","r")
-    ctrl_var1 = ctrl_in1->U(26:28,{1000},:,:)
+    ctrl_var1 = ctrl_in1->U(29:31,{1000},:,:)
     
     ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.V.250-299.nc","r")
-    ctrl_var2 = ctrl_in1->V(26:28,{1000},:,:)    
+    ctrl_var2 = ctrl_in1->V(29:31,{1000},:,:)    
     
     ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.PRECC.250-299.nc","r")
-    ctrl_var3 = ctrl_in1->PRECC(26:28,:,:)    
+    ctrl_var3 = ctrl_in1->PRECC(29:31,:,:)    
     
     ctrl_in1 = addfile(data_file_name1+"B20f19-spun-up.cam.h0.PRECL.250-299.nc","r")
-    ctrl_var4 = ctrl_in1->PRECL(26:28,:,:)
+    ctrl_var4 = ctrl_in1->PRECL(29:31,:,:)
     ctrl_var3 = (ctrl_var3+ctrl_var4)*86400*1000
 
     all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.U.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var1 = exp_in[:]->U(:,2:4,{1000},:,:)
+    exp_var1 = exp_in[:]->U(:,5:7,{1000},:,:)
 
     all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.V.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var2 = exp_in[:]->V(:,2:4,{1000},:,:)
+    exp_var2 = exp_in[:]->V(:,5:7,{1000},:,:)
 
     all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.PRECC.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var3 = exp_in[:]->PRECC(:,2:4,:,:)
+    exp_var3 = exp_in[:]->PRECC(:,5:7,:,:)
 
     all_file=systemfunc("ls "+data_file_name2+"*ESMs_[1-5].cam.h0.PRECL.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var4 = exp_in[:]->PRECL(:,2:4,:,:)
+    exp_var4 = exp_in[:]->PRECL(:,5:7,:,:)
     exp_var3 = (exp_var3+exp_var4)*86400*1000
 
 ;--------------Proprocessing-----------

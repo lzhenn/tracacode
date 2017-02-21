@@ -20,6 +20,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCL_SELFLIB/file_io.ncl"
 
 begin
 
@@ -67,9 +68,18 @@ begin
 
     g_day_rank= g_day_rank-g_day_strt2-1
 
-    g_data4_path ="../data/obv/NCEP-DOE/daily/air1979-2013/air*"
+    g_data4_path ="/Users/zhenningli/project/CAL_SCSSM-2016/data/obv/NCEP-DOE/daily/air.2m1979-2014/*"
     g_data2_path ="../data/obv/NCEP-DOE/daily/rh1979-2013/rhum*"
     g_data1_path ="/Users/zhenningli/data/obv/NCEP-DOE/hgt.sfc.nc"
+
+
+    var=read_doe_daily_2Din3D("air",2,g_data4_path)
+    printVarSummary(var)
+
+
+
+
+exit
     g_font = 0.035
     
         
