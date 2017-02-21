@@ -68,12 +68,12 @@ begin
 
     g_day_rank= g_day_rank-g_day_strt2-1
 
-    g_data4_path ="/Users/zhenningli/project/CAL_SCSSM-2016/data/obv/NCEP-DOE/daily/air.2m1979-2014/*"
+    g_data4_path ="/Users/zhenningli/project/CAL_SCSSM-2016/data/obv/ERA-daily/u/*"
     g_data2_path ="../data/obv/NCEP-DOE/daily/rh1979-2013/rhum*"
     g_data1_path ="/Users/zhenningli/data/obv/NCEP-DOE/hgt.sfc.nc"
 
 
-    var=read_doe_daily_2Din3D("air",2,g_data4_path)
+    var=read_era_daily_3D("uwnd", 200, 1000, 0, 5, 110, 120, g_data4_path)
     printVarSummary(var)
 
 
