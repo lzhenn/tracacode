@@ -69,6 +69,7 @@ begin
     g_day_rank= g_day_rank-g_day_strt2-1
 
     g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/ERA-interim/pressure/shum/*"
+    g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
 
 
 
@@ -98,6 +99,7 @@ begin
     ;Prepare the variables
 
     var=read_era_daily_3D("shum", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data_path)
+    var2=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
     
     var_rmean= runave_n_Wrap(var, 3, 0, 1)
     ;var_rmean= var_data
@@ -127,6 +129,37 @@ begin
     var_cmp:=var_cmp(level|:,time|:)
     var_cmp&time=ispan(-9,9,1)
     printVarSummary(var_cmp)
+
+    var2_rmean= runave_n_Wrap(var2, 3, 0, 1)
+    ;var2_rmean= var2_data
+    var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
+   
+    var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    
+    ;Composite
+    jj=0
+    do ii=0,g_yr_len-1
+        if (ii+1979) .eq. g_special_year(jj) then
+            print("Year: "+g_special_year(jj))
+            var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
+            jj=jj+1
+            if jj .eq. g_special_cases
+                break
+            end if
+        end if
+    end do
+    var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
+    
+    var2_cmp:=wgt_areaave_Wrap(var2_cmp(:,:,{10:15},{87.5:100}),1.0,1.0,0)
+   ; Anomaly percentage
+   ; var2_cmp_mean=dim_avg_n_Wrap(var2_cmp,0)
+   ; var2_cmp=100*dim_rmvmean_n_Wrap(var2_cmp,0)/conform(var2_cmp,var2_cmp_mean,1)
+   ; var2_cmp=dim_standardize_n_Wrap(var2_cmp,1,0)
+    ;var2_cmp:=var2_cmp(level|:,time|:)
+    var2_cmp&time=ispan(-9,9,1)
+    var3_cmp=var2_cmp
+    var3_cmp=0
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -220,11 +253,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 8.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "8 m/s"
+  vcres@vcRefAnnoString1  = "5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -257,7 +290,9 @@ begin
 ; create panel
 ;************************************************
  plot_sh = gsn_csm_pres_hgt(wks, var_cmp, res )  
- draw(plot_sh)
+ plot_V = gsn_vector(wks, var2_cmp, var3_cmp, vcres ) 
+ overlay(plot_sh, plot_V)
+ draw(plot_V)
  frame(wks)
 end
 
