@@ -20,6 +20,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCL_SELFLIB/file_io.ncl"
 
 begin
 
@@ -34,17 +35,17 @@ begin
 
     ;for directory 
     g_strt_yr=1979
-    g_lst_yr=2013
+    g_lst_yr=2010
     g_strt_mon=197901
-    g_lst_mon=201312
+    g_lst_mon=201012
     g_yr_len = g_lst_yr-g_strt_yr+1
     g_day_strt=99
     g_day_lst=144
     g_var_name1 = "r"
-    g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/"
-    g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/"
-    g_data1_path ="../data/obv/PRECT/precip.pentad.mean.nc"
-    g_plvl =200
+    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
+    g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
+    g_data1_path ="$DATAOBV/PRECPT/cmap.precip.pentad.mean.nc"
+    g_plvl =850
     g_font = 0.035
     
     g_latS=0.
@@ -65,33 +66,11 @@ begin
     time_hist    = ctrl_in1->time
     yyyymm  = cd_calendar(time_hist,-1)
     var1  = ctrl_in1->precip(:g_yr_len*73-1,{g_latS:g_latN},{g_lonW:g_lonE})
-    ctrl_in2_files = systemfunc("ls "+g_data2_path)
-    ctrl_in3_files = systemfunc("ls "+g_data3_path)
-    setfileoption("nc","SuppressClose",False) ; close too many files
-    ctrl_in2     = addfiles (g_data2_path+ctrl_in2_files, "r")   ; note the "s" of addfile
-    ctrl_in3     = addfiles (g_data3_path+ctrl_in3_files, "r")   ; note the "s" of addfile
-    ListSetType (ctrl_in2, "join")
-    ListSetType (ctrl_in3, "join")
-    var2  =short2flt(ctrl_in2[:]->uwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var3  =short2flt(ctrl_in3[:]->vwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var2_366  =short2flt(ctrl_in2[1::4]->uwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var3_366  =short2flt(ctrl_in3[1::4]->vwnd(:,g_day_strt:g_day_lst,{g_plvl},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var2_dim = dimsizes(var2)
-    var2_data = new((/g_yr_len,var2_dim(1),var2_dim(2),var2_dim(3)/),"float")
-    var3_data = new((/g_yr_len,var2_dim(1),var2_dim(2),var2_dim(3)/),"float")
-    copy_VarMeta(var2,var2_data)
-    copy_VarMeta(var3,var3_data)
-    sp = 0
-    do ii=0,g_yr_len-1
-        if (mod((ii-1),4) .eq. 0) then
-            var2_data(ii,:,:,:) = var2_366((ii-1)/4,:,:,:)
-            var3_data(ii,:,:,:) = var3_366((ii-1)/4,:,:,:)
-            sp=sp+1
-        else
-            var2_data(ii,:,:,:) = var2(ii-sp,:,:,:)
-            var3_data(ii,:,:,:) = var3(ii-sp,:,:,:)
-        end if
-    end do
+    var2_data=read_era_daily_2Din3D("uwnd", g_plvl, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
+    var3_data=read_era_daily_2Din3D("vwnd", g_plvl, g_latS, g_latN, g_lonW, g_lonE, g_data3_path)
+    var2_data:=var2_data(:,g_day_strt:g_day_lst,:,:) 
+    var3_data:=var3_data(:,g_day_strt:g_day_lst,:,:) 
+    
     var2_data_clim=dim_avg_n_Wrap(var2_data,0)
     var3_data_clim=dim_avg_n_Wrap(var3_data,0)
 ; ==============================================================
@@ -211,11 +190,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 15.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "15 m/s"
+  vcres@vcRefAnnoString1  = "5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -233,8 +212,8 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
   
-  do jj=0,34
-      g_fig_name   = "../fig/obv/every-year/"+g_plvl+"UVrmmean_Pr_21-29p-"+(jj+1979)
+  do jj=0,g_yr_len-1
+      g_fig_name   = "../fig/obv/every-year/era"+g_plvl+"UVrmmean_Pr_21-29p-"+(jj+1979)
       wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
       gsn_define_colormap(wks,"precip2_17lev")
       do ii=0,8

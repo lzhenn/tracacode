@@ -20,6 +20,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCL_SELFLIB/file_io.ncl"
 
 begin
 
@@ -40,7 +41,7 @@ begin
     ;BOB
     
     g_strt_yr=1979
-    g_lst_yr=2013
+    g_lst_yr=2010
     g_yr_len = g_lst_yr-g_strt_yr+1
  
 
@@ -67,25 +68,23 @@ begin
 
     g_day_rank= g_day_rank-g_day_strt2-1
 
-    g_data4_path ="../data/obv/NCEP-DOE/daily/air1979-2013/air*"
-    g_data3_path ="../data/obv/NCEP-DOE/daily/vwnd1979-2013/vwnd*"
-    g_data2_path ="../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
-    g_data1_path ="/Users/zhenningli/data/obv/NCEP-DOE/hgt.sfc.nc"
+    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
+    g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
     g_font = 0.035
     
         
-    g_latS=-10
-    g_latN=50
-    g_lonW=45
-    g_lonE=140
+    g_latS=0
+    g_latN=30
+    g_lonW=70
+    g_lonE=120
     
-    g_latSmp=-5
-    g_latNmp=35
+    g_latSmp=0
+    g_latNmp=30
     g_lonWmp=70
     g_lonEmp=120
 
-    g_plevel=700
-    g_fig_name = "../fig/obv/divUV-2D-dbd-before-after-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
+    g_plevel=200
+    g_fig_name = "../fig/obv/ERA-UV-2D-dbd-before-after-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -94,97 +93,21 @@ begin
     g_fig_title = (/"-9","-6","-3","0","+3","+6","+9"/)+" Day "+g_lonWmp+"-"+g_lonEmp
 
     g_special_cases=dimsizes(g_special_year) 
+
+    var2_data=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path) 
+    var3_data=read_era_daily_3D("vwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path) 
+    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
+    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
+
+
 ;Prepare the variables
-
-    ctrl_in1 = addfile(g_data1_path, "r")
-    var1  = short2flt(ctrl_in1->hgt(0,{g_latS:g_latN},{g_lonW:g_lonE}))
-    var1 = 1013.25*(1-var1*0.0065/288.15)^5.25145
-    var1_line=dim_min_n_Wrap(var1,1)
-    var1_line=dim_median_n(var1,1)
-    
-    
-    ctrl_in2_files = systemfunc("ls "+g_data2_path)
-    setfileoption("nc","SuppressClose",False) ; close too many files
-    ctrl_in2     = addfiles (ctrl_in2_files, "r")   ; note the "s" of addfile
-    ListSetType (ctrl_in2, "join")
-    var2  =short2flt(ctrl_in2[:]->uwnd(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var2_366  =short2flt(ctrl_in2[1::4]->uwnd(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var2_dim = dimsizes(var2)
-    var2_data = new((/g_yr_len,var2_dim(1),var2_dim(2),var2_dim(3),var2_dim(4)/),"float")
-    copy_VarMeta(var2,var2_data)
-   
-    ; Merge normal and leap years 
-    sp = 0
-    do ii=0,g_yr_len-1
-        if (mod((ii-1),4) .eq. 0) then
-            var2_data(ii,:,:,:,:) = var2_366((ii-1)/4,:,:,:,:)
-            sp=sp+1
-        else
-            var2_data(ii,:,:,:,:) = var2(ii-sp,:,:,:,:)
-        end if
-    end do
-    
-    ctrl_in3_files = systemfunc("ls "+g_data3_path)
-    setfileoption("nc","SuppressClose",False) ; close too many files
-    ctrl_in3     = addfiles (ctrl_in3_files, "r")   ; note the "s" of addfile
-    ListSetType (ctrl_in3, "join")
-    var3  =short2flt(ctrl_in3[:]->vwnd(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var3_366  =short2flt(ctrl_in3[1::4]->vwnd(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var3_dim = dimsizes(var3)
-    var3_data = new((/g_yr_len,var3_dim(1),var3_dim(2),var3_dim(3),var3_dim(4)/),"float")
-    copy_VarMeta(var3,var3_data)
-   
-    ; Merge normal and leap years 
-    sp = 0
-    do ii=0,g_yr_len-1
-        if (mod((ii-1),4) .eq. 0) then
-            var3_data(ii,:,:,:,:) = var3_366((ii-1)/4,:,:,:,:)
-            sp=sp+1
-        else
-            var3_data(ii,:,:,:,:) = var3(ii-sp,:,:,:,:)
-        end if
-    end do
-
-    ctrl_in4_files = systemfunc("ls "+g_data4_path)
-    setfileoption("nc","SuppressClose",False) ; close too many files
-    ctrl_in4     = addfiles (ctrl_in4_files, "r")   ; note the "s" of addfile
-    ListSetType (ctrl_in4, "join")
-    var4  =short2flt(ctrl_in4[:]->air(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var4_366  =short2flt(ctrl_in4[1::4]->air(:,g_day_strt2:g_day_lst2,{:100},{g_latS:g_latN},{g_lonW:g_lonE}))
-    var4_dim = dimsizes(var4)
-    var4_data = new((/g_yr_len,var4_dim(1),var4_dim(2),var4_dim(3),var4_dim(4)/),"float")
-    copy_VarMeta(var4,var4_data)
-   
-    ; Merge normal and leap years 
-    sp = 0
-    do ii=0,g_yr_len-1
-        if (mod((ii-1),4) .eq. 0) then
-            var4_data(ii,:,:,:,:) = var4_366((ii-1)/4,:,:,:,:)
-            sp=sp+1
-        else
-            var4_data(ii,:,:,:,:) = var4(ii-sp,:,:,:,:)
-        end if
-    end do
-    var4_data=var4_data-273.15
-
-    ;var2_rmean= runave_n_Wrap(var2_data, 3, 0, 1)
-    ;var3_rmean= runave_n_Wrap(var3_data, 3, 0, 1)
-
     var2_rmean= var2_data
     var3_rmean= var3_data
-    var4_rmean= var4_data
-    delete([/var2, var3, var4, var2_data, var3_data, var4_data/])
     var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
     var3_clim=dim_avg_n_Wrap(var3_rmean, 0)
-    var4_clim=dim_avg_n_Wrap(var4_rmean, 0)
     
-    var_div=uv2dvF_Wrap(var2_rmean(:,:,{g_plevel},:,:),var3_rmean(:,:,{g_plevel},:,:))
-    var_div_clim=dim_avg_n_Wrap(var_div,0)
-
     var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     var3_cmp = var3_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
-    var4_cmp = var4_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
-    var_div_cmp_mx = var_div(0:g_special_cases-1,0:g_day_comp_len-1,:,:)
     jj=0
     do ii=0,g_yr_len-1
         if (ii+1979) .eq. g_special_year(jj) then
@@ -192,11 +115,8 @@ begin
             var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
            ; var2_cmp(jj,:,:,:,:)=var2_cmp(jj,:,:,:,:)-var2_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
             var3_cmp(jj,:,:,:,:)=var3_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
-            var4_cmp(jj,:,:,:,:)=var4_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
            ; var3_cmp(jj,:,:,:,:)=var3_cmp(jj,:,:,:,:)-var3_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
-            var_div_cmp_mx(jj,:,:,:)=var_div(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:)
-           ; var_div_cmp_mx(jj,:,:,:)=var_div_cmp_mx(jj,:,:,:)-var_div(ii,g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:)
-            
+           
             jj=jj+1
             if jj .eq. g_special_cases
                 break
@@ -205,8 +125,6 @@ begin
     end do
     var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
     var3_cmp:=dim_avg_n_Wrap(var3_cmp,0)
-    var4_cmp:=dim_avg_n_Wrap(var4_cmp,0)
-    var_div_cmp_mx:=dim_avg_n_Wrap(var_div_cmp_mx,0)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -376,10 +294,10 @@ begin
         res@gsnRightString=""
         res@gsnLeftString=g_fig_rank(jj)
         res@gsnCenterString=g_fig_title(jj)
-        plot_sh(jj) = gsn_csm_contour_map(wks,var4_cmp(ii,{g_plevel},:,:),res) ; create a default plot
         plot_cn_max(jj) = gsn_csm_contour(wks,var2_cmp(ii,{g_plevel},:,:),res3)
 
         plot_V(jj) = gsn_csm_vector(wks,var2_cmp(ii,{g_plevel},:,:),var3_cmp(ii,{g_plevel},:,:),vcres) 
+        plot_sh(jj) = gsn_csm_contour_map(wks,var2_cmp(ii,{g_plevel},:,:), res) 
         overlay(plot_sh(jj),plot_V(jj))
         if jj .gt. 0 then
             plot_cn_max_pre(jj) = gsn_csm_contour(wks,var2_cmp(ii-3,{g_plevel},:,:),res4)

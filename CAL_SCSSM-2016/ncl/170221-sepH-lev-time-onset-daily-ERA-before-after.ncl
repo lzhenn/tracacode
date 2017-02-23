@@ -51,20 +51,20 @@ begin
     g_day_comp_len=19
     
     ;BOB All
-   ; g_comp="all"
-   ; g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-   ; g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
+    ;g_comp="all"
+    ;g_special_year=ispan(g_strt_yr,g_lst_yr,1)
+    ;g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
 
     
     ;BOB Early
-    ;g_comp="early"
-    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
-    ;g_day_rank=(/108, 105, 93, 100, 107, 99/)
+    g_comp="early"
+    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
+    g_day_rank=(/108, 105, 93, 100, 107, 99/)
     
     ;BOB Late
-    g_comp="late"
-    g_special_year=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)
-    g_day_rank=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)
+    ;g_comp="late"
+    ;g_special_year=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)
+    ;g_day_rank=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)
 
     g_day_rank= g_day_rank-g_day_strt2-1
 
@@ -79,13 +79,13 @@ begin
     g_font = 0.035
     
         
-    g_latS=10
-    g_latN=15
+    g_latS=9
+    g_latN=13
     g_lonW=87.5
     g_lonE=100
     
-    g_latSmp=10
-    g_latNmp=15
+    g_latSmp=9
+    g_latNmp=13
     g_lonWmp=87.5
     g_lonEmp=100
 
@@ -99,8 +99,9 @@ begin
     ;Prepare the variables
 
     var=read_era_daily_3D("shum", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data_path)
-    var2=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
-    
+    ;var2=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
+    var:=var(:,g_day_strt2:g_day_lst2,:,:,:)
+
     var_rmean= runave_n_Wrap(var, 3, 0, 1)
     ;var_rmean= var_data
     var_clim=dim_avg_n_Wrap(var_rmean, 0)
@@ -121,44 +122,44 @@ begin
     end do
     var_cmp:=dim_avg_n_Wrap(var_cmp,0)
     
-    var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{10:15},{87.5:100}),1.0,1.0,0)
+    var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
    ; Anomaly percentage
-    var_cmp_mean=dim_avg_n_Wrap(var_cmp,0)
-    var_cmp=100*dim_rmvmean_n_Wrap(var_cmp,0)/conform(var_cmp,var_cmp_mean,1)
+   ; var_cmp_mean=dim_avg_n_Wrap(var_cmp,0)
+   ; var_cmp=100*dim_rmvmean_n_Wrap(var_cmp,0)/conform(var_cmp,var_cmp_mean,1)
    ; var_cmp=dim_standardize_n_Wrap(var_cmp,1,0)
     var_cmp:=var_cmp(level|:,time|:)
     var_cmp&time=ispan(-9,9,1)
     printVarSummary(var_cmp)
 
-    var2_rmean= runave_n_Wrap(var2, 3, 0, 1)
+    ;var2_rmean= runave_n_Wrap(var2, 3, 0, 1)
     ;var2_rmean= var2_data
-    var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
+    ;var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
    
-    var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+   ; var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     
     ;Composite
     jj=0
     do ii=0,g_yr_len-1
         if (ii+1979) .eq. g_special_year(jj) then
             print("Year: "+g_special_year(jj))
-            var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
+           ; var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
             jj=jj+1
             if jj .eq. g_special_cases
                 break
             end if
         end if
     end do
-    var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
+   ; var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
     
-    var2_cmp:=wgt_areaave_Wrap(var2_cmp(:,:,{10:15},{87.5:100}),1.0,1.0,0)
+   ; var2_cmp:=wgt_areaave_Wrap(var2_cmp(:,:,{10:15},{87.5:100}),1.0,1.0,0)
    ; Anomaly percentage
    ; var2_cmp_mean=dim_avg_n_Wrap(var2_cmp,0)
    ; var2_cmp=100*dim_rmvmean_n_Wrap(var2_cmp,0)/conform(var2_cmp,var2_cmp_mean,1)
    ; var2_cmp=dim_standardize_n_Wrap(var2_cmp,1,0)
     ;var2_cmp:=var2_cmp(level|:,time|:)
-    var2_cmp&time=ispan(-9,9,1)
-    var3_cmp=var2_cmp
-    var3_cmp=0
+   ; var2_cmp&time=ispan(-9,9,1)
+   ; var3_cmp=var2_cmp
+   ; var3_cmp=0
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -198,10 +199,10 @@ begin
 
 
   res@tmYRMode = "Automatic"
-  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -20        ; set min contour level
-  res@cnMaxLevelValF        = 20         ; set max contour level
-  res@cnLevelSpacingF       = 2         ; set contour interval
+ ; res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+ ; res@cnMinLevelValF        = -20        ; set min contour level
+ ; res@cnMaxLevelValF        = 20         ; set max contour level
+ ; res@cnLevelSpacingF       = 2         ; set contour interval
  ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  ;res@vpWidthF = 0.7
  ;res@vpHeightF = 0.4
@@ -290,9 +291,9 @@ begin
 ; create panel
 ;************************************************
  plot_sh = gsn_csm_pres_hgt(wks, var_cmp, res )  
- plot_V = gsn_vector(wks, var2_cmp, var3_cmp, vcres ) 
- overlay(plot_sh, plot_V)
- draw(plot_V)
+; plot_V = gsn_vector(wks, var2_cmp, var3_cmp, vcres ) 
+; overlay(plot_sh, plot_V)
+ draw(plot_sh)
  frame(wks)
 end
 
