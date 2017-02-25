@@ -51,9 +51,9 @@ begin
     g_day_comp_len=19
     
     ;BOB All
-    g_comp="all"
-    g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
+   g_comp="all"
+   g_special_year=ispan(g_strt_yr,g_lst_yr,1)
+   g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
 
     
     ;BOB Early
@@ -68,55 +68,79 @@ begin
 
     g_day_rank= g_day_rank-g_day_strt2-1
 
-    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
+    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/ERA-interim/pressure/shum/*"
+    g_data2_path ="$DATAOBV/ERA-interim/pressure/air/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
-    g_font = 0.035
+
+
+
+
+
+
+    g_font = 0.025
     
         
-    g_latS=0
-    g_latN=30
-    g_lonW=70
-    g_lonE=120
+    g_latS=9
+    g_latN=15
+    g_lonW=87.5
+    g_lonE=100
     
-    g_latSmp=0
-    g_latNmp=30
-    g_lonWmp=70
-    g_lonEmp=120
-
-    g_plevel=850
-    g_fig_name = "../fig/obv/ERA-UV-2D-dbd-before-after-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
+    g_fig_name = "../fig/obv/RH-vert-dbd-hov-pbl-before-after-"+g_comp+"-"+g_lonW+"-"+g_lonE
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
-    ;day_rank=ispan(0,g_day_comp_len-1,1)
-    ;day_rank=day_rank(::-1)
-    g_fig_title = (/"-9","-6","-3","0","+3","+6","+9"/)+" Day "+g_lonWmp+"-"+g_lonEmp
-
+    g_fig_title = "Level-Time RH Distribution" 
     g_special_cases=dimsizes(g_special_year) 
 
-    var2_data=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path) 
-    var3_data=read_era_daily_3D("vwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path) 
-    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
-    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
+    ;Prepare the variables
 
+    var=read_era_daily_3D("shum", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data_path)
+    var2=read_era_daily_3D("air", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
+    var3=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
+    var:=var(:,g_day_strt2:g_day_lst2,:,:,:)
+    var2:=var2(:,g_day_strt2:g_day_lst2,:,:,:)
 
-;Prepare the variables
-    var2_rmean= var2_data
-    var3_rmean= var3_data
-    var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
-    var3_clim=dim_avg_n_Wrap(var3_rmean, 0)
+    var_rmean= runave_n_Wrap(var, 3, 0, 1)
+    ;var_rmean= var_data
+    var_clim=dim_avg_n_Wrap(var_rmean, 0)
+   
+    var_cmp = var_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     
+    ;Composite
+    jj=0
+    do ii=0,g_yr_len-1
+        if (ii+1979) .eq. g_special_year(jj) then
+            print("Year: "+g_special_year(jj))
+            var_cmp(jj,:,:,:,:)=var_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
+            jj=jj+1
+            if jj .eq. g_special_cases
+                break
+            end if
+        end if
+    end do
+    var_cmp:=dim_avg_n_Wrap(var_cmp,0)
+    
+    var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+   ; Anomaly percentage
+   ; var_cmp_mean=dim_avg_n_Wrap(var_cmp,0)
+   ; var_cmp=100*dim_rmvmean_n_Wrap(var_cmp,0)/conform(var_cmp,var_cmp_mean,1)
+   ; var_cmp=dim_standardize_n_Wrap(var_cmp,1,0)
+    var_cmp:=var_cmp(level|:,time|:)
+    var_cmp&time=ispan(-9,9,1)
+    printVarSummary(var_cmp)
+
+    ;var2_rmean= runave_n_Wrap(var2, 3, 0, 1)
+    var2_rmean= var2
+    var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
+   
     var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
-    var3_cmp = var3_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    
+    ;Composite
     jj=0
     do ii=0,g_yr_len-1
         if (ii+1979) .eq. g_special_year(jj) then
             print("Year: "+g_special_year(jj))
             var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
-           ; var2_cmp(jj,:,:,:,:)=var2_cmp(jj,:,:,:,:)-var2_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
-            var3_cmp(jj,:,:,:,:)=var3_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
-           ; var3_cmp(jj,:,:,:,:)=var3_cmp(jj,:,:,:,:)-var3_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
-           
             jj=jj+1
             if jj .eq. g_special_cases
                 break
@@ -124,7 +148,20 @@ begin
         end if
     end do
     var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
-    var3_cmp:=dim_avg_n_Wrap(var3_cmp,0)
+    
+    var2_cmp:=wgt_areaave_Wrap(var2_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+   ; Anomaly percentage
+   ; var2_cmp_mean=dim_avg_n_Wrap(var2_cmp,0)
+   ; var2_cmp=100*dim_rmvmean_n_Wrap(var2_cmp,0)/conform(var2_cmp,var2_cmp_mean,1)
+   ; var2_cmp=dim_standardize_n_Wrap(var2_cmp,1,0)
+    var2_cmp:=var2_cmp(level|:,time|:)
+    var2_cmp&time=ispan(-9,9,1)
+
+    level=conform(var2_cmp, var2_cmp&level, 0)
+    var_cmp=relhum(var2_cmp, var_cmp, level*100)
+   ; var3_cmp=var2_cmp
+   ; var3_cmp=0
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -132,106 +169,78 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  plot_sh = new((/g_day_comp_len/),graphic)
-  plot_V = new((/g_day_comp_len/),graphic)
-  plot_cn_max = new((/g_day_comp_len/),graphic)
-  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
+  plot_sh = new((/1/),graphic)
+  plot_V = new((/1/),graphic)
+  plot_cn_pos = new((/1/),graphic)
+  plot_cn_neg = new((/1/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
  
  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"MPL_greens")
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
-;  gsn_define_colormap(wks,"precip_diff_12lev")
+  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 
 
 ;-----------------------------------------------------------------------------
   res                  = True       ; use plot options
-
+  res@gsnFrame         = False
+  res@gsnDraw  = False
+ 
   res@cnFillOn             = True               ; turn on color for contours
   res@cnLinesOn            = False              ; turn off contour lines
   res@cnLineLabelsOn       = False              ; turn off contour line labels
 
 
-
-;  res@mpLandFillColor       = "gray"            ; set land to be gray
-
-;  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-;  res@cnLevels = (/-5,-4.5,-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5/)
-;   res@cnLevels = ispan(0,60,10)
-;  res@cnFillColors =(/-1,20,47,57,94,127,152/)
-;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
-;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
-
- res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -20         ; set min contour level
- res@cnMaxLevelValF        = 20          ; set max contour level
- res@cnLevelSpacingF       = 1          ; set contour interval
-
-;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
+  res@tmYRMode = "Automatic"
+;  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+;  res@cnMinLevelValF        = 0.006        ; set min contour level
+;  res@cnMaxLevelValF        = 0.016         ; set max contour level
+;  res@cnLevelSpacingF       = 0.0005        ; set contour interval
+ ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
+ res@vpWidthF = 0.5
+ res@vpHeightF = 0.4
 
 
-  res@gsnFrame         = False
-  res@gsnDraw  = False
-  
-;  res@gsnSpreadColors      = True               ; use full color map
+
+ 
+  res@gsnSpreadColors      = True               ; use full color map
 ;  res@gsnSpreadColorStart  = 2               ; start at color 17
 ;  res@gsnSpreadColorEnd    = 14                ; end at color 200
 
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
 
-  ;res@gsnMaximize      = True       ; fill up the page
-  res@gsnAddCyclic   = False
-  res@gsnPaperOrientation = "portrait"
-  ;res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
+;  res@gsnMaximize      = True       ; fill up the page
+;  res@gsnAddCyclic   = True;False
+;  res@gsnPaperOrientation = "portrait"
+;  res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
+  res@cnFillMode           = "CellFill"
 
-
-  res@lbLabelBarOn = False   ; turn off the label bar
-  res@lbOrientation          = "vertical"
-  res@lbLabelFontHeightF  = g_font              ; make labels smaller
-  res@lbLabelStride = 2 
-
-
-  res@mpFillOn   = False     ; turn off gray continents
-  res@mpGeophysicalLineThicknessF = 2
-  res@mpGeophysicalLineColor      = "black";"white" 
-  res@mpFillDrawOrder="PostDraw"
-  res@mpMaxLatF  = g_latNmp
-  res@mpMinLatF  = g_latSmp
-  res@mpMaxLonF  = g_lonEmp
-  res@mpMinLonF  = g_lonWmp
-
-;  res@mpShapeMode = "FreeAspect" 
-
-;  res@vpWidthF = 0.8
-;  res@vpHeightF = 0.6
-
-;  res@tmXBMajorOutwardLengthF = -0.
-;  res@tmYLMajorOutwardLengthF = -0.
-;  res@tmYRMajorOutwardLengthF = -0.
-  
-;  res@tmXBMinorOutwardLengthF = -0.
-;  res@tmYLMinorOutwardLengthF = -0.
-;  res@tmYRMinorOutwardLengthF = -0.
-    
-     ; now change the size of the tickmark labels
-  res@tmXBTickSpacingF = 30
-  res@tmYLTickSpacingF = 15
+  res@lbLabelBarOn = True   ; turn off the label bar
+ ; res@lbOrientation          = "Vertical"
+  res@lbLabelFontHeightF  = 0.02             ; make labels smaller
+  res@tmXBValues = ispan(-9,9,1) ;interval
+  res@tmXBLabels = ispan(-9,9,1)+" Day"         ;tick label
+;res@lbLabelStride = 1
+;  res@tmXBTickSpacingF = 15
+;  res@tmYLTickSpacingF = 15
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
-  res@tmXBLabelFontThicknessF = 2.0
+  res@tmXBLabelFontThicknessF = g_font
   res@tmYLLabelFontHeightF = g_font
 ; res@tmYLLabelFontAspectF = 1.3
-  res@tmYLLabelFontThicknessF = 2.0
+  res@tmYLLabelFontThicknessF = g_font
 ; res@tmYLLabelFontQuality =
+
+
 ;-----------------------------------------------------------------------------
      
   res@gsnLeftString = ""
@@ -246,11 +255,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 8.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "8 m/s"
+  vcres@vcRefAnnoString1  = "5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -265,48 +274,32 @@ begin
 ;for tp masking
   res3@gsnFrame         = False
   res3@gsnDraw  = False
-  res3@cnLineLabelsOn   = False      ; turn off contour line labels
-  res3@cnLineThicknessF = 4 
+  res3@cnLineLabelsOn   = True      ; turn off contour line labels
+  res3@cnLineThicknessF = 4
   res3@cnInfoLabelOn = False
  
+  res3@tmYRMode = "Automatic"
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/0./)
+  res3@cnLevels = (/1, 2, 3, 4, 5/)
   res3@cnLineColor      = "Black"
-  res3@gsnLeftString      = " "
+  res3@gsnLeftString      = "RH"
   res3@gsnRightString      = " "
 
   res4=res3
-  res4@cnLineColor="Grey"
+
+  res4@cnLevels = -res3@cnLevels
+  res4@cnLineColor="grey"
 
 ;************************************************
 ; create panel
 ;************************************************
-  resP                     = True                ; modify the panel plot
-                                                 ; new resource added in NCL V6.4.0
-; resP@gsnPanelMainString = "A plot with a common label bar"
-                                                 ; use this for NCL V6.3.0 and earlier
-  resP@gsnPanelLabelBar    = True                ; add common colorbar
-  resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
-  do ii=0,g_day_comp_len-1
-    if mod(ii,3) .eq. 0
-        jj=ii/3
-        res@gsnRightString=""
-        res@gsnLeftString=g_fig_rank(jj)
-        res@gsnCenterString=g_fig_title(jj)
-        plot_cn_max(jj) = gsn_csm_contour(wks,var2_cmp(ii,{g_plevel},:,:),res3)
-
-        plot_V(jj) = gsn_csm_vector(wks,var2_cmp(ii,{g_plevel},:,:),var3_cmp(ii,{g_plevel},:,:),vcres) 
-        plot_sh(jj) = gsn_csm_contour_map(wks,var2_cmp(ii,{g_plevel},:,:), res) 
-        overlay(plot_sh(jj),plot_V(jj))
-        if jj .gt. 0 then
-            plot_cn_max_pre(jj) = gsn_csm_contour(wks,var2_cmp(ii-3,{g_plevel},:,:),res4)
-            overlay(plot_sh(jj),plot_cn_max_pre(jj))
-        end if
-        overlay(plot_sh(jj),plot_cn_max(jj))
-    end if
-  end do
-  gsn_panel(wks,plot_sh,(/2,4/),resP)
-
+ plot_sh = gsn_csm_pres_hgt(wks, var_cmp, res )  
+ plot_cn_pos = gsn_csm_pres_hgt(wks, var2_cmp, res3 )  
+ plot_cn_neg = gsn_csm_pres_hgt(wks, var2_cmp, res4 )  
+ overlay(plot_sh, plot_cn_pos)
+ overlay(plot_sh, plot_cn_neg)
+ draw(plot_sh)
+ frame(wks)
 end
 

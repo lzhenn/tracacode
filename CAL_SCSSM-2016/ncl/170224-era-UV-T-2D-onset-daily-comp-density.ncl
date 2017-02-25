@@ -70,6 +70,7 @@ begin
 
     g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
+    g_data1_path ="$DATAOBV/ERA-interim/pressure/air/*"
     g_font = 0.035
     
         
@@ -83,7 +84,7 @@ begin
     g_lonWmp=70
     g_lonEmp=120
 
-    g_plevel=850
+    g_plevel=700
     g_fig_name = "../fig/obv/ERA-UV-2D-dbd-before-after-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
@@ -94,24 +95,30 @@ begin
 
     g_special_cases=dimsizes(g_special_year) 
 
+    var1_data=read_era_daily_3D("air", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path) 
     var2_data=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path) 
     var3_data=read_era_daily_3D("vwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path) 
+    var1_data:=var1_data(:,g_day_strt2:g_day_lst2,:,:,:)
     var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
     var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
 
 
 ;Prepare the variables
+    var1_rmean= var1_data
     var2_rmean= var2_data
     var3_rmean= var3_data
+    var1_clim=dim_avg_n_Wrap(var1_rmean, 0)
     var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
     var3_clim=dim_avg_n_Wrap(var3_rmean, 0)
     
+    var1_cmp = var1_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     var2_cmp = var2_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     var3_cmp = var3_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     jj=0
     do ii=0,g_yr_len-1
         if (ii+1979) .eq. g_special_year(jj) then
             print("Year: "+g_special_year(jj))
+            var1_cmp(jj,:,:,:,:)=var1_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
             var2_cmp(jj,:,:,:,:)=var2_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
            ; var2_cmp(jj,:,:,:,:)=var2_cmp(jj,:,:,:,:)-var2_clim(g_day_rank(jj)-g_day_comp_len+1:g_day_rank(jj),:,:,:)
             var3_cmp(jj,:,:,:,:)=var3_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
@@ -123,6 +130,8 @@ begin
             end if
         end if
     end do
+    var1_cmp:=dim_avg_n_Wrap(var1_cmp,0)
+    var1_cmp=var1_cmp-273.15
     var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
     var3_cmp:=dim_avg_n_Wrap(var3_cmp,0)
 ; ==============================================================
@@ -170,10 +179,10 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
- res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -20         ; set min contour level
- res@cnMaxLevelValF        = 20          ; set max contour level
- res@cnLevelSpacingF       = 1          ; set contour interval
+; res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+; res@cnMinLevelValF        = -20         ; set min contour level
+; res@cnMaxLevelValF        = 20          ; set max contour level
+; res@cnLevelSpacingF       = 1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -297,7 +306,7 @@ begin
         plot_cn_max(jj) = gsn_csm_contour(wks,var2_cmp(ii,{g_plevel},:,:),res3)
 
         plot_V(jj) = gsn_csm_vector(wks,var2_cmp(ii,{g_plevel},:,:),var3_cmp(ii,{g_plevel},:,:),vcres) 
-        plot_sh(jj) = gsn_csm_contour_map(wks,var2_cmp(ii,{g_plevel},:,:), res) 
+        plot_sh(jj) = gsn_csm_contour_map(wks,var1_cmp(ii,{g_plevel},:,:), res) 
         overlay(plot_sh(jj),plot_V(jj))
         if jj .gt. 0 then
             plot_cn_max_pre(jj) = gsn_csm_contour(wks,var2_cmp(ii-3,{g_plevel},:,:),res4)
