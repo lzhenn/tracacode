@@ -4,7 +4,7 @@ from shapely.geometry import Polygon, Point, MultiPolygon
 
 polygon = shapefile.Reader('../../UTILITY-2016/shp/PRD/PRD.shp') 
 polygon = polygon.shapes()  
-point = Point(119.0,23.0)
+point = Point(114.0,23.0)
 shpfilePoints = []
 for shape in polygon:
     shpfilePoints = shape.points 

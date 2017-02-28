@@ -84,8 +84,8 @@ begin
     g_lonWmp=70
     g_lonEmp=120
 
-    g_plevel=700
-    g_fig_name = "../fig/obv/ERA-UV-2D-dbd-before-after-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
+    g_plevel=1000
+    g_fig_name = "../fig/obv/ERA-UVT-2D-dbd-before-after-"+g_comp+"-"+g_plevel+"-"+g_lonWmp+"-"+g_lonEmp
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -179,10 +179,10 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
-; res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-; res@cnMinLevelValF        = -20         ; set min contour level
-; res@cnMaxLevelValF        = 20          ; set max contour level
-; res@cnLevelSpacingF       = 1          ; set contour interval
+ res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+ res@cnMinLevelValF        = 25         ; set min contour level
+ res@cnMaxLevelValF        = 33          ; set max contour level
+ res@cnLevelSpacingF       = 0.5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
