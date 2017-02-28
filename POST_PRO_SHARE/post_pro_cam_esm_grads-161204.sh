@@ -20,7 +20,7 @@ PRO_DIR=\"/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up/pro/\"
 CASENAME=\"B20f19-spun-up\"
 
 # ESM folder prefix
-ESM_NAME=ESMs_
+ESM_NAME=ESMc2_
 
 # ESM folder memebers
 ESM_STRT=1

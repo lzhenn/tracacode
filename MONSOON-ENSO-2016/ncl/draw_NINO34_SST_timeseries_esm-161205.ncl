@@ -50,7 +50,7 @@ begin
     ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*ESMs*TS*")
+    all_file=systemfunc("ls "+data_file_name2+"*ESMc*TS*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
@@ -88,7 +88,7 @@ begin
 	;************************************************ 
 	; plotting parameters
 	;************************************************
-	wks   = gsn_open_wks ("eps",fig_name)                 ; open workstation
+	wks   = gsn_open_wks ("png",fig_name)                 ; open workstation
 
 	res               = True                    ; plot mods desired
 

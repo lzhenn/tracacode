@@ -42,7 +42,7 @@ CASENAME=`basename $WPATH`
 SPATH=/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up
 
 # Storage Dir Prefix 
-SDPRE=ESMs_
+SDPRE=ESMc0_
 
 # Init Dir PATH (must be a separate dir)
 INIT_DIR=$WPATH/init
