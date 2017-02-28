@@ -164,7 +164,9 @@ plot = new((/1/),graphic)
   ;res@gsnAddCyclic   = True;False
   ;res@gsnPaperOrientation = "portrait"
   res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
-  
+  res@tmXBTickSpacingF = 1
+  res@tmYLTickSpacingF = 1
+
 
 
   res@lbLabelBarOn = True   ; turn off the label bar

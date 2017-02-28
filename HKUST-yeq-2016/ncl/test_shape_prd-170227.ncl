@@ -17,14 +17,14 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 ;
 ; This file still has to be loaded manually
-load "./shapefile_utils.ncl"
+load "$NCL_SELFLIB/shapefile_utils.ncl"
 
 begin
 ;---Generate some dummy data over map
-  minlat      =   20
-  maxlat      =   60
-  minlon      = -125
-  maxlon      =  -60
+  minlat      =   21
+  maxlat      =   26
+  minlon      =  110 
+  maxlon      =  116
 
   nlat            = 32
   nlon            = 64
@@ -43,12 +43,12 @@ begin
 
 
 ;---Open shapefile and read lat/lon values.
-  dir          = ncargpath("data") + "/shp/"
-  shp_filename = dir + "mrb.shp"
+  dir          = "$NCL_SELFLIB/../shp/PRD/"
+  shp_filename = dir + "PRD.shp"
   data_mask    = shapefile_mask_data(data,shp_filename,True)
 
 ;---Start the graphics
-  wks  = gsn_open_wks("png","shapefiles")  ; send graphics to PNG file
+  wks  = gsn_open_wks("png","../fig/shapefiles")  ; send graphics to PNG file
 
   res                     = True
 
@@ -95,6 +95,8 @@ begin
 ;   Only draw the map this time (no contours).
 
   delete(res@gsnAddCyclic)
+ res@tmXBTickSpacingF = 1
+ res@tmYLTickSpacingF = 1
 
   res@tiMainString = "Area where lat/lon values were masked"
   map = gsn_csm_map(wks,res)
