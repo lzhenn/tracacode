@@ -51,20 +51,20 @@ begin
     g_day_comp_len=19
     
     ;BOB All
-   ; g_comp="all"
-  ; g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-  ; g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
+    g_comp="all"
+   g_special_year=ispan(g_strt_yr,g_lst_yr,1)
+   g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
 
     
     ;BOB Early
-    g_comp="early"
-    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
-    g_day_rank=(/108, 105, 93, 100, 107, 99/)
+   ; g_comp="early"
+   ; g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
+   ; g_day_rank=(/108, 105, 93, 100, 107, 99/)
     
     ;BOB Late
-    ;g_comp="late"
-    ;g_special_year=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)
-    ;g_day_rank=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)
+   ; g_comp="late"
+   ; g_special_year=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)
+   ; g_day_rank=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)
 
     g_day_rank= g_day_rank-g_day_strt2-1
 
@@ -85,7 +85,7 @@ begin
     g_lonW=87.5
     g_lonE=100
     
-    g_fig_name = "../fig/obv/RH-vert-dbd-hov-pbl-before-after-"+g_comp+"-"+g_lonW+"-"+g_lonE
+    g_fig_name = "../fig/obv/thetae-original-vert-dbd-hov-pbl-before-after-"+g_comp+"-"+g_lonW+"-"+g_lonE
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -125,10 +125,6 @@ begin
    ; var_cmp_mean=dim_avg_n_Wrap(var_cmp,0)
    ; var_cmp=100*dim_rmvmean_n_Wrap(var_cmp,0)/conform(var_cmp,var_cmp_mean,1)
    ; var_cmp=dim_standardize_n_Wrap(var_cmp,1,0)
-    var_cmp:=var_cmp(level|:,time|:)
-    var_cmp&time=ispan(-9,9,1)
-    printVarSummary(var_cmp)
-
     ;var2_rmean= runave_n_Wrap(var2, 3, 0, 1)
     var2_rmean= var2
     var2_clim=dim_avg_n_Wrap(var2_rmean, 0)
@@ -154,13 +150,23 @@ begin
    ; var2_cmp_mean=dim_avg_n_Wrap(var2_cmp,0)
    ; var2_cmp=100*dim_rmvmean_n_Wrap(var2_cmp,0)/conform(var2_cmp,var2_cmp_mean,1)
    ; var2_cmp=dim_standardize_n_Wrap(var2_cmp,1,0)
+    
+    
+    var_cmp:=var_cmp(level|:,time|:)
+    var_cmp&time=ispan(-9,9,1)
+ 
+    
     var2_cmp:=var2_cmp(level|:,time|:)
     var2_cmp&time=ispan(-9,9,1)
 
     level=conform(var2_cmp, var2_cmp&level, 0)
+    var3_cmp=pot_temp_equiv(level, var2_cmp, var_cmp, -1, "q")
     var_cmp=relhum(var2_cmp, var_cmp, level*100)
+   ; var3_cmp=dim_rmvmean_n_Wrap(var3_cmp,0)
    ; var3_cmp=var2_cmp
    ; var3_cmp=0
+      ;printVarSummary(var_cmp)
+
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -281,24 +287,24 @@ begin
   res3@tmYRMode = "Automatic"
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/1, 2, 3, 4, 5/)
+ ; res3@cnLevels = (/1., 2., 3., 4., 5./)
   res3@cnLineColor      = "Black"
-  res3@gsnLeftString      = "RH"
+  res3@gsnLeftString      = "RH & Theta-E Anomaly"
   res3@gsnRightString      = " "
 
   res4=res3
 
-  res4@cnLevels = -res3@cnLevels
+  ;res4@cnLevels = (/-0.5, -1, -1.5, -2, -2.5/)
   res4@cnLineColor="grey"
 
 ;************************************************
 ; create panel
 ;************************************************
  plot_sh = gsn_csm_pres_hgt(wks, var_cmp, res )  
- plot_cn_pos = gsn_csm_pres_hgt(wks, var2_cmp, res3 )  
- plot_cn_neg = gsn_csm_pres_hgt(wks, var2_cmp, res4 )  
+ plot_cn_pos = gsn_csm_pres_hgt(wks, var3_cmp, res3 )  
+; plot_cn_neg = gsn_csm_pres_hgt(wks, var3_cmp, res4 )  
  overlay(plot_sh, plot_cn_pos)
- overlay(plot_sh, plot_cn_neg)
+; overlay(plot_sh, plot_cn_neg)
  draw(plot_sh)
  frame(wks)
 end
