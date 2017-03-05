@@ -1,7 +1,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl" 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl" 
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
-load "$NCARG_ROOT/lib/ncarg/nclscripts/cnmap/shp_Function.ncl"
+load "$NCL_SELFLIB/../shp/cnmap/shp_Function.ncl"
 ;***********************************************************************;
 ;  Function : add_china_map                                             ;
 ;   This function attaches the China map(eg. map of China, Yangtze      ;
@@ -24,7 +24,7 @@ function add_china_map(wks,plot,CNres)
 
 begin 
 
-ShpDir = "$NCARG_ROOT/lib/ncarg/nclscripts/cnmap/"
+ShpDir = "$NCL_SELFLIB/../shp/cnmap/"
 
 if (CNres@china) then
  cnres      = True      
