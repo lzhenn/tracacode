@@ -22,10 +22,13 @@ begin
 
 ;Backtrac time file
 n_pts=144
-data_file_name1="/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/1979050500-1979050500_925hPa.txt"
+int_step=1  ;hr
+total_int_hrs=96
+rec_len=total_int_hrs/int_step
+data_file_name1="/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/clim/Day5.0_96hr_925hPa.txt"
 fig_dir="../fig/"
 
-pt_record  =   asciiread(data_file_name1,(/n_pts*24,5/),"float") ; get the first file's lat lon and value
+pt_record  =   asciiread(data_file_name1,(/n_pts*rec_len,5/),"float") ; get the first file's lat lon and value
 
 ;pt_record [0]--pt idx [1]--timestamp [2]--lat [3]--lon [4]--plevel
 
@@ -43,10 +46,10 @@ pt_record  =   asciiread(data_file_name1,(/n_pts*24,5/),"float") ; get the first
    res@pmTickMarkDisplayMode = "Always"
 
    res@mpLimitMode = "LatLon"        ; select subregion
-   res@mpMinLatF   = 0 
-   res@mpMaxLatF   = 20                
-   res@mpMinLonF   = 80 
-   res@mpMaxLonF   = 120
+   res@mpMinLatF   = -10
+   res@mpMaxLatF   = 30                
+   res@mpMinLonF   = 50 
+   res@mpMaxLonF   = 110
 
    res@tmYROn      = False     ; turn off right and top tickmarks
    res@tmXTOn      = False
@@ -58,17 +61,17 @@ pt_record  =   asciiread(data_file_name1,(/n_pts*24,5/),"float") ; get the first
 
 ; Add trajectory lines.
    pres                  = True               ; polyline resources
-   pres@gsLineThicknessF = 3.0                ; line thickness
+   pres@gsLineThicknessF = 1.0                ; line thickness
    pres@gsLineColor      = "black"
 
 ; Add markers to the trajectories.
    mres                = True         ; marker resources for best track
    mres@gsMarkerIndex  = 16           ; marker style (filled circle)
-   mres@gsMarkerSizeF  = 6.0          ; marker size
-   mres@gsMarkerColor  = "red"      ; maker color
+   mres@gsMarkerSizeF  = 4.0          ; marker size
+   mres@gsMarkerColor  = "blue"      ; maker color
    do ii = 0, n_pts-1
         gsn_polyline(wks,map,pt_record(ii::n_pts,3),pt_record(ii::n_pts,2),pres)      ; draw the traj
-        gsn_polymarker(wks,map,pt_record(23*n_pts+ii,3),pt_record(23*n_pts+ii,2),mres)
+        gsn_polymarker(wks,map,pt_record(ii,3),pt_record(ii,2),mres)
    end do
    draw(map)                                           
    frame(wks)                                         

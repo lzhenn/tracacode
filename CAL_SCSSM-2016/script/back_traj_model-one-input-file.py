@@ -80,19 +80,15 @@ def cal_nextstep(pr_array_istep,lat_array,lon_array,lev_array,var1_nx,var2_nx,va
     
     return pt_next_array
 
-def get_next_files(currtime):
-    pfname = "/Users/zhenningli/data/obv/ERA-daily/uvw/ei.oper.an.pl.regn128uv.%04d%02d%02d%02d.nc" % (currtime.year, currtime.month, currtime.day, currtime.hour)
-    pfname2 = "/Users/zhenningli/data/obv/ERA-daily/uvw/ei.oper.an.pl.regn128sc.%04d%02d%02d%02d.nc" % (currtime.year, currtime.month, currtime.day, currtime.hour)
-    var1b = read_era_field(pfname, "U_GDS4_ISBL")
-    var2b = read_era_field(pfname, "V_GDS4_ISBL")
-    var3b = read_era_field(pfname2, "W_GDS4_ISBL")
-    return var1b, var2b, var3b
 #----------------------------------------------------
 # User Defined Part
 #----------------------------------------------------
 
+# Process cases
+casename='early'
+
 # Output Dir
-out_dir='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/'
+out_dir='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/'+casename+'/'
 
 
 # Integration timestep (hr)
@@ -103,9 +99,6 @@ g_itvl=24
 
 # Individual integration period (hr)
 g_int=96
-
-# Level
-g_start_level=925
 
 # Points bound
 g_latS=9
@@ -139,47 +132,46 @@ CONST={'a':R_EARTH,'dis2lat':DIS2LAT}
 
 print ('Initializing...') 
 
-pfname = '/Users/zhenningli/data/CAL_SCSSM-2016/onset_comp_uvw/cmp_uvw.nc'
+pfname = '/Users/zhenningli/data/CAL_SCSSM-2016/onset_comp_uvw/'+casename+'/cmp_uvw.nc'
 # Initialization
 fsteps, lat_array, lon_array, lev_array, var1 = read_era_all(pfname, varnames[0], cornames)
 g_fstep=fsteps[1]-fsteps[0]         # Timestep between input field 
-insteps=g_int/(g_step*3600)         # Individual integration timesteps
+insteps=g_int/g_step         # Individual integration timesteps
 n_initials=(fsteps[-1]-g_int)/g_itvl-1  # Total initial times
 
 
 var2 = read_era_field(pfname, varnames[1])
 var3 = read_era_field(pfname, varnames[2])
 
-pr_array=create_partical_array(lat_array, lon_array, g_latS, g_latN, g_lonW, g_lonE, g_step, insteps, g_start_level)
 
 
 # Main Loop: Integration
-for idx_ini in range(n_initials):
-    ini_day=idx_ini*g_itvl/24.0+1
-    stop_day=ini_day+g_int/24.0
-    print 'Integrate Day%5.1f <-- Day%5.1f' % (ini_day, stop_day) 
+for g_start_level in [1000,925,850,700,600,500,200]:
+    pr_array=create_partical_array(lat_array, lon_array, g_latS, g_latN, g_lonW, g_lonE, g_step, insteps, g_start_level)
+    for idx_ini in range(n_initials):
+        ini_day=idx_ini*g_itvl/24.0+1
+        stop_day=ini_day+g_int/24.0
+        print 'Integrate Day%5.1f <-- Day%5.1f, %4dhPa' % (ini_day, stop_day, g_start_level) 
 
-    fpos=((idx_ini*g_itvl)+g_int)/g_fstep     # Reset pointer to the initial point in the file stream
-    print '-%3dhr-->-%3dhr' %(fpos*g_fstep, (fpos-1)*g_fstep)
-    for istep in range(int(insteps)):
-        step_class=((istep+1)*g_step)%g_fstep   # for weighting the velocity
-        fwgt_ratio=1-step_class/float(g_fstep)  # istep
+        fpos=((idx_ini*g_itvl)+g_int)/g_fstep     # Reset pointer to the initial point in the file stream
+        for istep in range(int(insteps)):
+            step_class=((istep+1)*g_step)%g_fstep   # for weighting the velocity
+            fwgt_ratio=1-step_class/float(g_fstep)  # istep
 
-        
-        var1_nx, var2_nx, var3_nx=cal_field_next(var1[fpos,:,:,:],var2[fpos,:,:,:],var3[fpos,:,:,:],var1[fpos-1,:,:,:],var2[fpos-1,:,:,:],var3[fpos-1,:,:,:],fwgt_ratio)
-        pr_array[:,istep+1,:]=cal_nextstep(pr_array[:,istep,:],lat_array,lon_array,lev_array,var1_nx,var2_nx,var3_nx,g_step,CONST,g_start_level)
-       
-        if step_class ==0 and istep != int(insteps)-1:
-            fpos=fpos-1
-            print '-%3dhr-->-%3dhr' %(fpos*g_fstep, (fpos-1)*g_fstep)
-    # Output
-    out_fn=out_dir+'Day'+str(ini_day)+'_'+str(g_int)+'hr_'+str(g_start_level)+'hPa.txt'
-    fr2=open(out_dir,'w')
-    for ii in range(int(insteps)+1):
-        for pt in range(len(pr_array[:,0,0])):
-            lat=pr_array[pt,ii,0]
-            lon=pr_array[pt,ii,1]
-            lev=pr_array[pt,ii,2]
-            fr2.write('%4d %8.3f %8.3f %8.3f %8.3f\n' % (pt, ii*g_step, lat, lon, lev))
-    fr2.close()
-    break
+            
+            var1_nx, var2_nx, var3_nx=cal_field_next(var1[fpos,:,:,:],var2[fpos,:,:,:],var3[fpos,:,:,:],var1[fpos-1,:,:,:],var2[fpos-1,:,:,:],var3[fpos-1,:,:,:],fwgt_ratio)
+            pr_array[:,istep+1,:]=cal_nextstep(pr_array[:,istep,:],lat_array,lon_array,lev_array,var1_nx,var2_nx,var3_nx,g_step,CONST,g_start_level)
+           
+            if step_class ==0 and istep != int(insteps)-1:
+                fpos=fpos-1
+        # Output
+        print('Output...')
+        out_fn=out_dir+'Day'+str(ini_day)+'_'+str(g_int)+'hr_'+str(g_start_level)+'hPa.txt'
+        fr2=open(out_fn,'w')
+        for ii in range(int(insteps)+1):
+            for pt in range(len(pr_array[:,0,0])):
+                lat=pr_array[pt,ii,0]
+                lon=pr_array[pt,ii,1]
+                lev=pr_array[pt,ii,2]
+                fr2.write('%4d %8.3f %8.3f %8.3f %8.3f\n' % (pt, ii*g_step, lat, lon, lev))
+        fr2.close()
