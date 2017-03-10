@@ -85,7 +85,7 @@ def cal_nextstep(pr_array_istep,lat_array,lon_array,lev_array,var1_nx,var2_nx,va
 #----------------------------------------------------
 
 # Process cases
-casename='early'
+casename='clim'
 
 # Output Dir
 out_dir='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/'+casename+'/'
@@ -100,6 +100,8 @@ g_itvl=24
 # Individual integration period (hr)
 g_int=96
 
+#g_lvls=[1000,925,850,700,600,500,200
+g_lvls=[600]
 # Points bound
 g_latS=9
 g_latN=15
@@ -146,7 +148,7 @@ var3 = read_era_field(pfname, varnames[2])
 
 
 # Main Loop: Integration
-for g_start_level in [1000,925,850,700,600,500,200]:
+for g_start_level in g_lvls:
     pr_array=create_partical_array(lat_array, lon_array, g_latS, g_latN, g_lonW, g_lonE, g_step, insteps, g_start_level)
     for idx_ini in range(n_initials):
         ini_day=idx_ini*g_itvl/24.0+1

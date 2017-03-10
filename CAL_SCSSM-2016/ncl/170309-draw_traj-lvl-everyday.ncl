@@ -39,7 +39,7 @@ latS=-10
 latN=30
 lonW=70
 lonE=120
-g_case="clim"
+g_case="late"
 fig_dir="../fig/obv/traj/"
 
 do jj=0,dimsizes(plvl_list)-1
@@ -76,16 +76,23 @@ do jj=0,dimsizes(plvl_list)-1
     ; Add trajectory lines.
        pres                  = True               ; polyline resources
        pres@gsLineThicknessF = 1.0                ; line thickness
-       pres@gsLineColor      = "black"
 
     ; Add markers to the trajectories.
        mres                = True         ; marker resources for best track
        mres@gsMarkerIndex  = 16           ; marker style (filled circle)
        mres@gsMarkerSizeF  = 4.0          ; marker size
-       mres@gsMarkerColor  = "blue"      ; maker color
+       mres@gsMarkerColor  = "darkgreen"      ; maker color
 
     ;********************************************
        do ii = 0, n_pts-1
+            if avg(pt_record(ii::n_pts,4)) .lt. plvl-20 then
+                pres@gsLineColor      = "red"
+            else if avg(pt_record(ii::n_pts,4)) .gt. plvl+20 then
+                pres@gsLineColor      = "blue"
+            else
+                pres@gsLineColor      = "black"
+            end if
+            end if
             gsn_polyline(wks,map,pt_record(ii::n_pts,3),pt_record(ii::n_pts,2),pres)      ; draw the traj
             gsn_polymarker(wks,map,pt_record(ii,3),pt_record(ii,2),mres)
        end do

@@ -51,15 +51,15 @@ begin
     g_day_comp_len=19
     
     ;BOB All
-   ; g_comp="all"
-  ; g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-  ; g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
+    g_comp="all"
+    g_special_year=ispan(g_strt_yr,g_lst_yr,1)
+    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
 
     
     ;BOB Early
-    g_comp="early"
-    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
-    g_day_rank=(/108, 105, 93, 100, 107, 99/)
+    ;g_comp="early"
+    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
+    ;g_day_rank=(/108, 105, 93, 100, 107, 99/)
     
     ;BOB Late
     ;g_comp="late"
@@ -70,7 +70,7 @@ begin
 
     g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/ERA-interim/pressure/shum/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/air/*"
-    g_data3_path ="$DATAOBV/ERA-interim/pressure/u/*"
+    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
 
 
 
@@ -85,7 +85,7 @@ begin
     g_lonW=87.5
     g_lonE=100
     
-    g_fig_name = "../fig/obv/RH-vert-dbd-hov-pbl-before-after-"+g_comp+"-"+g_lonW+"-"+g_lonE
+    g_fig_name = "../fig/obv/RH-V-vert-dbd-hov-pbl-before-after-"+g_comp+"-"+g_lonW+"-"+g_lonE
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -96,9 +96,10 @@ begin
 
     var=read_era_daily_3D("shum", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data_path)
     var2=read_era_daily_3D("air", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
-    var3=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path)
+    var3=read_era_daily_3D("vwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path)
     var:=var(:,g_day_strt2:g_day_lst2,:,:,:)
     var2:=var2(:,g_day_strt2:g_day_lst2,:,:,:)
+    var3:=var3(:,g_day_strt2:g_day_lst2,:,:,:)
 
     var_rmean= runave_n_Wrap(var, 3, 0, 1)
     ;var_rmean= var_data
@@ -159,8 +160,35 @@ begin
 
     level=conform(var2_cmp, var2_cmp&level, 0)
     var_cmp=relhum(var2_cmp, var_cmp, level*100)
-   ; var3_cmp=var2_cmp
-   ; var3_cmp=0
+    
+    
+    var3_rmean= var3
+    var3_clim=dim_avg_n_Wrap(var3_rmean, 0)
+   
+    var3_cmp = var3_rmean(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    
+    ;Composite
+    jj=0
+    do ii=0,g_yr_len-1
+        if (ii+1979) .eq. g_special_year(jj) then
+            print("Year: "+g_special_year(jj))
+            var3_cmp(jj,:,:,:,:)=var3_rmean(ii,g_day_rank(jj)-(g_day_comp_len-1)/2:g_day_rank(jj)+(g_day_comp_len-1)/2,:,:,:)
+            jj=jj+1
+            if jj .eq. g_special_cases
+                break
+            end if
+        end if
+    end do
+    var3_cmp:=dim_avg_n_Wrap(var3_cmp,0)
+    
+    var3_cmp:=wgt_areaave_Wrap(var3_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+   ; Anomaly percentage
+   ; var3_cmp_mean=dim_avg_n_Wrap(var3_cmp,0)
+   ; var3_cmp=100*dim_rmvmean_n_Wrap(var3_cmp,0)/conform(var3_cmp,var3_cmp_mean,1)
+   ; var3_cmp=dim_standardize_n_Wrap(var3_cmp,1,0)
+    var3_cmp:=var3_cmp(level|:,time|:)
+    var3_cmp&time=ispan(-9,9,1)
+
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -287,16 +315,17 @@ begin
   res3@gsnRightString      = " "
 
   res4=res3
-
-  res4@cnLevels = -res3@cnLevels
+    delete(res4@cnLevels)
+  res4@cnLevels = (/0./) 
   res4@cnLineColor="grey"
+  res4@cnLineThicknessF = 6
 
 ;************************************************
 ; create panel
 ;************************************************
  plot_sh = gsn_csm_pres_hgt(wks, var_cmp, res )  
- plot_cn_pos = gsn_csm_pres_hgt(wks, var2_cmp, res3 )  
- plot_cn_neg = gsn_csm_pres_hgt(wks, var2_cmp, res4 )  
+ plot_cn_pos = gsn_csm_pres_hgt(wks, var3_cmp, res3 )  
+ plot_cn_neg = gsn_csm_pres_hgt(wks, var3_cmp, res4 )  
  overlay(plot_sh, plot_cn_pos)
  overlay(plot_sh, plot_cn_neg)
  draw(plot_sh)
