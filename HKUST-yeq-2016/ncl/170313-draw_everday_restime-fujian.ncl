@@ -25,7 +25,7 @@ load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 begin
     
     ;grid file
-    grid_fn="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_9km"
+    grid_fn="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/wrf/wrf-9km.nc"
     
     ;Traj Scenary
     tra_scen="traj_100m"
@@ -49,8 +49,8 @@ begin
     var1    = ctrl_in->res_time
     
     latlon_in   =  addfile(grid_fn,"r")
-    lat2d = latlon_in->LAT(0,0,:,:)
-    lon2d = latlon_in->LON(0,0,:,:)
+    lat2d = latlon_in->XLAT(0,:,:)
+    lon2d = latlon_in->XLONG(0,:,:)
     
     var1@lat2d=lat2d
     var1@lon2d=lon2d
@@ -77,7 +77,7 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 10          ; set min contour level
+ res@cnMinLevelValF        = 0          ; set min contour level
  res@cnMaxLevelValF        = 70          ; set max contour level
  res@cnLevelSpacingF       = 2          ; set contour interval
 
@@ -112,11 +112,15 @@ begin
   ;res@mpMaxLonF            = 113
 
 
-  res@mpMinLatF            = min(var1@lat2d)        ; zoom in on map
-  res@mpMaxLatF            = max(var1@lat2d)
-  res@mpMinLonF            = min(var1@lon2d)
-  res@mpMaxLonF            = max(var1@lon2d)
+;  res@mpMinLatF            = min(var1@lat2d)        ; zoom in on map
+;  res@mpMaxLatF            = max(var1@lat2d)
+;  res@mpMinLonF            = min(var1@lon2d)
+;  res@mpMaxLonF            = max(var1@lon2d)
 
+  res@mpMinLatF            = 22        ; zoom in on map
+  res@mpMaxLatF            = 29
+  res@mpMinLonF            = 115
+  res@mpMaxLonF            = 121
 
   res@mpGeophysicalLineThicknessF = 2.0 ;costal line thick
   res@tmXBTickSpacingF = 2
