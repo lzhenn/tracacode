@@ -28,13 +28,13 @@ pt_dic={}
 fr = open(inv_path+'points-fujian-9km', 'r')
 point_list=fr.readlines()
 
+inner=0
 for idx, point in enumerate(point_list):
     content=point.split()       # [4]--lat [5]--lon [6]--height
     pt_id =idx+1
     lat=float(content[4])
     lon=float(content[5])
     point = Point(lon,lat)
-    print('%6d:%8.3f, %8.3f' % (pt_id, lat, lon))
     for shape in polygon:
         shpfilePoints = shape.points 
         poly = Polygon(shpfilePoints)
@@ -42,8 +42,9 @@ for idx, point in enumerate(point_list):
         if poly.contains(point):
             pt_dic[str(pt_id)]=[lat, lon]
             print(pt_dic[str(pt_id)])
+            inner=inner+1
             break
-
+print ('Total inner: %6d' % (inner))
 jsObj = json.dumps(pt_dic)  
 
 fileObject = open(inv_path+'inner_point.json', 'w')  
