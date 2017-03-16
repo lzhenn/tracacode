@@ -55,7 +55,7 @@ begin
     g_lst_mon = 201512
     g_nyears = g_lst_mon/100-g_strt_mon/100+1
     ; long events larger than 10 months, develop
-    g_sp_events = (/198201,198601,199101,199701,201501/)
+    g_sp_event = (/198201,198601,199101,199701,201501/)
     ;g_sp_events = (/201501/)
     ; short events with 10 months, develop
     g_su_events = (/199401,200201,200401,200601,200901/)
