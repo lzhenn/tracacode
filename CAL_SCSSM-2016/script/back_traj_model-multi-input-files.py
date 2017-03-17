@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 #   Backward trajectory model
+#   Using ERA-Interim 6hr input
 #               L_Zealot
 #               Mar 6, 2017
 #               Albany, CA
@@ -91,7 +92,7 @@ def get_next_files(currtime):
 #----------------------------------------------------
 
 # Output Dir
-out_dir='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/'
+out_dir='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/every-year/'
 
 # File timestep
 g_fstep=6
@@ -99,12 +100,9 @@ g_fstep=6
 # Integration timestep
 g_step=1
 
-# Level
-g_start_level=925
-
 # Points bound
-g_latS=9
-g_latN=15
+g_latS=5
+g_latN=22.5
 g_lonW=87.5
 g_lonE=100
 
@@ -114,8 +112,10 @@ lines=fr.readlines()
 fr.close()
 g_init_time=str(lines[0])
 g_back_time=str(lines[1])
+g_lvls=lines[2]
 g_init_time=g_init_time.strip('\n')
 g_back_time=g_back_time.strip('\n')
+#g_lvls=g_lvls.strip(' ')
 
 # CONSTANT
 R_EARTH=6371000
@@ -144,38 +144,42 @@ pfname2 = "/Users/zhenningli/data/obv/ERA-daily/uvw/ei.oper.an.pl.regn128sc.%04d
 lat_array, lon_array, lev_array, var1f = read_era_all(pfname, "U_GDS4_ISBL")
 var2f = read_era_field(pfname, "V_GDS4_ISBL")
 var3f = read_era_field(pfname2, "W_GDS4_ISBL")
-pr_array=create_partical_array(lat_array, lon_array, g_latS, g_latN, g_lonW, g_lonE, g_step, nsteps, g_start_level)
 
-curr_filetime+=file_time_delta
-var1b,var2b,var3b=get_next_files(curr_filetime)
+
 
 # Main Loop: Integration
-print curr_filetime.strftime("Calculating %Y%m%d%HZ...") 
-for istep in range(int(nsteps)):
-    step_class=((istep+1)*g_step)%g_fstep
-    fwgt_ratio=1-step_class/float(g_fstep)
+for level in g_lvls.split():
+    g_start_level=int(level.strip())
+    pr_array=create_partical_array(lat_array, lon_array, g_latS, g_latN, g_lonW, g_lonE, g_step, nsteps, g_start_level)
 
-    var1_nx, var2_nx, var3_nx=cal_field_next(var1f,var2f,var3f,var1b,var2b,var3b,fwgt_ratio)
-    pr_array[:,istep+1,:]=cal_nextstep(pr_array[:,istep,:],lat_array,lon_array,lev_array,var1_nx,var2_nx,var3_nx,g_step,CONST,g_start_level)
-   
-    if step_class ==0 and istep != int(nsteps)-1:
-        var1f=var1b
-        var2f=var2b
-        var3f=var3b
-        curr_filetime+=file_time_delta
-        var1b,var2b,var3b=get_next_files(curr_filetime)
+    curr_filetime+=file_time_delta
+    var1b,var2b,var3b=get_next_files(curr_filetime)
 
-        print curr_filetime.strftime("Calculating %Y%m%d%HZ...") 
+    print ('Calculating %s @ %5dhPa...' %(curr_filetime.strftime('%Y%m%d%HZ'), g_start_level))
+    for istep in range(int(nsteps)):
+        step_class=((istep+1)*g_step)%g_fstep
+        fwgt_ratio=1-step_class/float(g_fstep)
 
-# Output
-print curr_filetime.strftime("Output...") 
+        var1_nx, var2_nx, var3_nx=cal_field_next(var1f,var2f,var3f,var1b,var2b,var3b,fwgt_ratio)
+        pr_array[:,istep+1,:]=cal_nextstep(pr_array[:,istep,:],lat_array,lon_array,lev_array,var1_nx,var2_nx,var3_nx,g_step,CONST,g_start_level)
+       
+        if step_class ==0 and istep != int(nsteps)-1:
+            var1f=var1b
+            var2f=var2b
+            var3f=var3b
+            curr_filetime+=file_time_delta
+            var1b,var2b,var3b=get_next_files(curr_filetime)
+            print ('Calculating %s @ %5dhPa...' %(curr_filetime.strftime('%Y%m%d%HZ'), g_start_level))
 
-fr2=open(out_dir+int_time_obj.strftime('%Y%m%d%H')+'-'+int_time_obj.strftime('%Y%m%d%H')+'_'+str(g_start_level)+'hPa.txt','w')
-for ii in range(int(nsteps)+1):
-    for pt in range(len(pr_array[:,0,0])):
-        lat=pr_array[pt,ii,0]
-        lon=pr_array[pt,ii,1]
-        lev=pr_array[pt,ii,2]
-        fr2.write('%4d %8.3f %8.3f %8.3f %8.3f\n' % (pt, ii*g_step, lat, lon, lev))
-fr2.close()
+    # Output
+    print("Output...") 
+    fr2=open(out_dir+int_time_obj.strftime('%Y%m%d%H')+'-'+str(g_start_level)+'hPa.txt','w')
+    for ii in range(int(nsteps)+1):
+        for pt in range(len(pr_array[:,0,0])):
+            lat=pr_array[pt,ii,0]
+            lon=pr_array[pt,ii,1]
+            lev=pr_array[pt,ii,2]
+            fr2.write('%4d %8.3f %8.3f %8.3f %8.3f\n' % (pt, ii*g_step, lat, lon, lev))
+    fr2.close()
 
+    curr_filetime=int_time_obj

@@ -112,15 +112,6 @@ g_lonE=100
 varnames=['uwnd','vwnd','vv']
 cornames=['time','lev','lat','lon']
 
-# Integration timebound
-fr = open('CONTROL', 'r')
-lines=fr.readlines()
-fr.close()
-g_init_time=str(lines[0])
-g_back_time=str(lines[1])
-g_init_time=g_init_time.strip('\n')
-g_back_time=g_back_time.strip('\n')
-
 # CONSTANT
 R_EARTH=6371000
 DIS2LAT=180/(math.pi*R_EARTH)        #Distance to Latitude
