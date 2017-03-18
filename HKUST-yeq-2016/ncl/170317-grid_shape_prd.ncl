@@ -17,14 +17,22 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 ;
 ; This file still has to be loaded manually
+load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 load "$NCL_SELFLIB/shapefile_utils.ncl"
+
+grid_fn="/Users/zhenningli/data/HKUST-yeq-2016/gridsys/GRIDCRO2D_3km"
+
+latlon_in   =  addfile(grid_fn,"r")
+lat2d0 = latlon_in->LAT(0,0,:,:)
+lon2d0 = latlon_in->LON(0,0,:,:)
+    
 
 begin
 ;---Generate some dummy data over map
-  minlat      =   21
-  maxlat      =   26
-  minlon      =  110 
-  maxlon      =  116
+  minlat      =   min(lat2d0)
+  maxlat      =   max(lat2d0)
+  minlon      =   min(lon2d0)
+  maxlon      =   max(lon2d0)
 
   nlat            = 32
   nlon            = 64
@@ -99,7 +107,16 @@ begin
  res@tmYLTickSpacingF = 1
 
   res@tiMainString = "Area where lat/lon values were masked"
-  map = gsn_csm_map(wks,res)
+    res@mpDataBaseVersion       = "MediumRes"
+    res@mpDataSetName           = "Earth..4"
+    res@mpAreaMaskingOn         = True
+    res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
+    res@mpLandFillColor         = "white"
+    res@mpInlandWaterFillColor  = "white"
+
+
+
+ map = gsn_csm_map(wks,res)
 
 ;---Generate the lat/lon values over the masked area.
 
@@ -117,7 +134,19 @@ begin
 
   markers = gsn_add_polymarker(wks,map,lon_markers,lat_markers,mkres)
   line    = gsn_add_shapefile_polylines(wks, map, shp_filename, lnres)
+  
+  ;>============================================================<
+  ;                      add China map
+  ;>------------------------------------------------------------<
+  cnres           = True
+  cnres@china     = False       ;draw china map or not
+  cnres@river     = False       ;draw changjiang&huanghe or not
+  cnres@province  = True       ;draw province boundary or notcnres@nanhai    = False       ;draw nanhai or not 
+  cnres@nanhai    = False       ;draw nanhai or not 
+  cnres@diqu      = True       ; draw diqujie or not
 
+  ;chinamap = add_china_map(wks,map,cnres)
+  
   draw(map)
   frame(wks)
 end
