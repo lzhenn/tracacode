@@ -25,7 +25,7 @@ load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 begin
     
     ;grid file
-    grid_fn="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_3km"
+    grid_fn="/Users/zhenningli/data/HKUST-yeq-2016/gridsys/GRIDCRO2D_3km"
     
     ;Traj Scenary
     tra_scen="traj_100m"
@@ -35,7 +35,7 @@ begin
    
 
     ;Fig name
-    g_fig_name="../fig/life_time"
+    g_fig_name="../fig/res_time"
     
     ;Fig title
     fig_title="Resident Time"
@@ -47,7 +47,6 @@ begin
     pdata_fn     = "/Users/zhenningli/data/HKUST-yeq-2016/fwd_traj/res_time_Dec.nc"  ; open output netCDF file
     ctrl_in = addfile(pdata_fn ,"r")  ; open output netCDF file
     var1    = ctrl_in->res_time
-    var2    = ctrl_in->lif_time
     
     latlon_in   =  addfile(grid_fn,"r")
     lat2d = latlon_in->LAT(0,0,:,:)
@@ -56,10 +55,7 @@ begin
     var1@lat2d=lat2d
     var1@lon2d=lon2d
 
-    var2@lat2d=lat2d
-    var2@lon2d=lon2d
-
-
+   
 
   res                  = True       ; use plot options
 
@@ -82,8 +78,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 10          ; set min contour level
- res@cnMaxLevelValF        = 70          ; set max contour level
+ res@cnMinLevelValF        = 5          ; set min contour level
+ res@cnMaxLevelValF        = 45          ; set max contour level
  res@cnLevelSpacingF       = 2          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -166,6 +162,7 @@ res@mpInlandWaterFillColor  = "white"
 
 
 dims=dimsizes(var1)
+var1&time=var1&time+24*(yyyymmdd_to_yyyyddd(20151201)-yyyymmdd_to_yyyyddd(20150101))
 yyyymmddhh=cd_calendar(var1&time, -3)
 do ii=0, dims(0)-1
     print(yyyymmddhh(ii)+" processing")
@@ -173,7 +170,7 @@ do ii=0, dims(0)-1
     gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
     res@gsnLeftString=yyyymmddhh(ii)
 ;    gsn_reverse_colormap(wks)
-    plot = gsn_csm_contour_map(wks,var2(ii,:,:),res) ; dim1 = 0 for lvl = 0
+    plot = gsn_csm_contour_map(wks,var1(ii,:,:),res) ; dim1 = 0 for lvl = 0
     chinamap = add_china_map(wks,plot,cnres)
     draw(plot)
     frame(wks)
