@@ -26,6 +26,19 @@ begin
 
     g_strt_mon = 198001 
     g_lst_mon = 201512
+    
+     g_nyears = g_lst_mon/100-g_strt_mon/100+1
+    ; long events larger than 10 months, develop
+    g_sp_events = (/198201,198601,199101,199701,201501/)
+    n_sp_events=dimsizes(g_sp_events)
+    ;g_sp_events = (/201501/)
+    ; short events with 10 months, develop
+    g_su_events = (/199401,200201,200401,200601,200901/)
+    ;g_su_events = (/201401/)
+    n_su_events=dimsizes(g_su_events)
+
+
+    
     ctrl_file1   = g_data_path1
 	
     ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
@@ -39,21 +52,21 @@ begin
     var1:=var1(:,{g_latS:g_latN},{g_lonW:g_lonE})
 
     var1=month_to_season12(var1)
-    var1:=clmMonTLL(var1)
-    clim_lonmean_var1=dim_avg_n_Wrap(var1,2)
-    clim_lonmean_var1=-clim_lonmean_var1
+    clim_var1:=clmMonTLL(var1)
+    clim_lonmean_var1=dim_avg_n_Wrap(clim_var1,2)
+    ;clim_lonmean_var1=-clim_lonmean_var1
     ctrl_file4   = g_data_path2
 	ctrl_in4     = addfile (ctrl_file4, "r")   ; note the "s" of addfile
 	time_hist1    := ctrl_in4->time
     yyyymm1  := cd_calendar(time_hist1,-1)
-    istrt   = ind(yyyymm1 .eq. g_strt_mon)
-    ilast   = ind(yyyymm1 .eq. g_lst_mon)
+    istrt1   = ind(yyyymm1 .eq. g_strt_mon)
+    ilast1   = ind(yyyymm1 .eq. g_lst_mon)
 	var4  =ctrl_in4->precip(istrt:ilast,:,:)		; p for unify the var name
     var4:=var4(:,{g_latS:g_latN},{g_lonW:g_lonE})
     var4=month_to_season12(var4)
-    var4:=clmMonTLL(var4)
-    clim_lonmean_var4=dim_avg_n_Wrap(var4,2)
-    all_files = systemfunc ("ls "+g_file_name+"*"); ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
+    clim_var4:=clmMonTLL(var4)
+    clim_lonmean_var4=dim_avg_n_Wrap(clim_var4,2)
+    all_files = systemfunc ("ls "+g_file_name+"1982*"); ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     
     ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
@@ -69,6 +82,48 @@ begin
     season_mlt=month_to_season12(mlt)
     clim_mlt=clmMonTLL(season_mlt)
     clim_lonmean_mlt=dim_avg_n_Wrap(clim_mlt,2)
+
+
+
+
+    smp_sp_var1 = var1(0:12*n_sp_events-1,:,:)
+; var1---U var4---Pr
+    do ii=0,n_sp_events-1
+        i_evstrt= ind(yyyymm .eq. g_sp_events(ii)) - istrt
+        smp_sp_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_sp_var1_avg = clmMonTLL(smp_sp_var1)
+    sp_lonmean_var1=dim_avg_n_Wrap(cmp_sp_var1_avg,2)
+    sp_lonmean_var1=-(sp_lonmean_var1-clim_lonmean_var1)
+    
+    smp_su_var1 = var1(0:12*n_su_events-1,:,:)
+    do ii=0,n_su_events-1
+        i_evstrt= ind(yyyymm .eq. g_su_events(ii)) - istrt
+        smp_su_var1(ii*12:ii*12+11,:,:) = var1(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_su_var1_avg = clmMonTLL(smp_su_var1)
+    su_lonmean_var1=dim_avg_n_Wrap(cmp_su_var1_avg,2)
+    su_lonmean_var1=-(su_lonmean_var1-clim_lonmean_var1)
+ 
+    smp_sp_var4 = var4(0:12*n_sp_events-1,:,:)
+    do ii=0,n_sp_events-1
+        i_evstrt= ind(yyyymm1 .eq. g_sp_events(ii)) - istrt1
+        smp_sp_var4(ii*12:ii*12+11,:,:) = var4(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_sp_var4_avg = clmMonTLL(smp_sp_var4)
+    sp_lonmean_var4=dim_avg_n_Wrap(cmp_sp_var4_avg,2)
+    sp_lonmean_var4=sp_lonmean_var4-clim_lonmean_var4
+    
+    smp_su_var4 = var4(0:12*n_su_events-1,:,:)
+    do ii=0,n_su_events-1
+        i_evstrt= ind(yyyymm1 .eq. g_su_events(ii)) - istrt1
+        smp_su_var4(ii*12:ii*12+11,:,:) = var4(i_evstrt:i_evstrt+11,:,:)
+    end do
+    cmp_su_var4_avg = clmMonTLL(smp_su_var4)
+    su_lonmean_var4=dim_avg_n_Wrap(cmp_su_var4_avg,2)
+    su_lonmean_var4=su_lonmean_var4-clim_lonmean_var4
+
+
 
     printVarSummary(clim_lonmean_mlt)
     xx=clim_lonmean_mlt&latitude
@@ -86,7 +141,7 @@ begin
 ;************************************************
 ; plotting parameters
 ;************************************************
-    wks   = gsn_open_wks ("eps","../fig/paper/FIG1_c_temp_depth_pr_u")        ; open workstation
+    wks   = gsn_open_wks ("eps","../fig/paper/FIG2_c_temp_depth_pr_u")        ; open workstation
     ;gsn_define_colormap(wks,"amwg")               ; choose colormap
     gsn_define_colormap(wks,"BlAqGrYeOrReVi200")               ; choose colormap
     ;gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")               ; choose colormap
@@ -124,7 +179,7 @@ begin
     res@trYReverse       = True     
     res@vpHeightF= 0.45
     res@gsnLeftString="(d)"
-    res@gsnCenterString=" MAM Clim Potential Temp & Meridional Current"
+    res@gsnCenterString=" MAM LE-SE Potential Temp & Meridional Current"
     res@gsnRightString=""
     ;res@gsnYAxisIrregular2Linear = True
     res@tmYLMode="Explicit"
@@ -187,39 +242,75 @@ plot_V = gsn_csm_vector(wks, clim_lonmean_v(3,:,:), clim_lonmean_w(3,:,:), vcres
     xyres@gsnCenterString=""
     xyres@trXMinF         = min(clim_lonmean_var1&lat)
     xyres@trXMaxF         = max(clim_lonmean_var1&lat)
-    xyres@trYMinF         = 0 
-    xyres@trYMaxF         = 10
+    xyres@trYMinF         = -2 
+    xyres@trYMaxF         = 4
     xyres@gsnAttachPlotsXAxis = True
     xyres@xyLineThicknesses    = 3.0      ; line thicknesses
    
     xyres@tmXBTickSpacingF = 5
-    
+    xyres@tmXBMinorOn=False
     xyres@tmYROn              = True 
-    xyres@tmYRMode="Explicit"
+    xyres@tiYAxisString="Pr Rate (mm/day)"
+    xyres@tmYROn              = True 
+    ;xyres@tmYRMode="Explicit"
     xyres@tmYRLabelsOn=True
-    xyres@tmYRValues=ispan(0,10,2)
-    xyres@tmYRLabels=ispan(0,10,2)
+    ;xyres@tmYRValues=ispan(0,10,4)
+    ;xyres@tmYRLabels=ispan(0,10,4)
     xyres@tiYAxisString="Pr Rate (mm/day)"
 
+ 
     xy2res=xyres
    ; xyres@tiYAxisString       = "Easterly Speed (m/s)"
     xy2res@tiYAxisSide="Right"
     xy2res@xyLineThicknesses    = 1.0      ; line thicknesses
     xy2res@gsnYRefLine=0.0
     xy2res@gsnXYBarChart=True
-    xy2res@gsnXYBarChartBarWidth = 1.75                 ; change bar widths
-    xy2res@gsnAboveYRefLineColor = "skyblue2"             ; below ref line fill blue
+    xy2res@gsnXYBarChartBarWidth = 1                 ; change bar widths
+    xy2res@gsnXYBarChartColors = (/"skyblue2"/)             ; below ref line fill blue
+
+    plotxy_sp = gsn_csm_xy(wks,sp_lonmean_var1&lat,sp_lonmean_var1(3,:),xyres)
+    xyres@xyDashPattern=1 
+    plotxy_su = gsn_csm_xy(wks,su_lonmean_var1&lat,su_lonmean_var1(3,:),xyres)
+    plotxy2_sp = gsn_csm_xy(wks,sp_lonmean_var4&lat-0.5,sp_lonmean_var4(3,:),xy2res)
     
-    plotxy = gsn_csm_xy(wks,clim_lonmean_var1&lat,clim_lonmean_var1(3,:),xyres)
-    plotxy2 = gsn_csm_xy(wks,clim_lonmean_var4&lat,clim_lonmean_var4(3,:),xy2res)
-    overlay(plotxy,plotxy2)
+    xy2res@gsnXYBarChartColors = (/"orangered"/)    
+    plotxy2_su = gsn_csm_xy(wks,su_lonmean_var4&lat+0.5,su_lonmean_var4(3,:),xy2res)
+
+    overlay(plotxy_sp,plotxy_su)
+    overlay(plotxy_sp,plotxy2_sp)
+    overlay(plotxy_sp,plotxy2_su)
     
     pres                  = True               ; polyline resources
     pres@gsLineThicknessF = 3.0                ; line thickness
     pres@gsLineColor      = "gray"
     dum=gsn_add_polyline(wks,plot,xx,yy,pres) 
-    newplot = gsn_attach_plots(plot,(/plotxy/),res,xy2res)
-    
+    newplot = gsn_attach_plots(plot,(/plotxy_sp/),res,xy2res)
+
+    ; add labelbar to second plot
+    ;**********************************************************
+  labels=(/"Long Events ___","Short Events ----"/) 
+  getvalues plotxy_sp                ; get plot size for use in creating labelbar
+  "vpXF"      : vpx
+  "vpYF"      : vpy
+  "vpHeightF" : vph
+  "vpWidthF"  : vpw
+  end getvalues
+
+  lbw    = 0.4 * vpw           ; Make labelbar size a fraction of the plot.
+  lbh    = 0.5 * vph
+  nboxes = 2
+   
+  lbres                    = True          ; labelbar only resources
+  lbres@vpWidthF           = 0.18 * vpw     ; labelbar width
+  lbres@vpHeightF          = 0.23 * vph     ; labelbar height
+  lbres@lbBoxMajorExtentF  = 0.75          ; puts space between color boxes
+  lbres@lbFillColors       = (/"skyblue2","orangered"/); labelbar colors
+  lbres@lbMonoFillPattern  = True          ; Solid fill pattern
+  lbres@lbLabelFontHeightF = 0.012         ; font height. default is small
+  lbres@lbLabelJust        = "CenterLeft"  ; left justify labels
+   
+  gsn_labelbar_ndc(wks,nboxes,labels,0.2,0.33,lbres)
+
     draw(plot)
     frame(wks)
 end

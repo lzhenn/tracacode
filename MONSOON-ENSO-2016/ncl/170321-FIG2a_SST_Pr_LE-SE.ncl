@@ -35,10 +35,6 @@ begin
     g_data_path2 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
     g_data_path3 = "/Users/zhenningli/data/obv/SST/HadISST_sst.nc"
     g_data_path4 = "/Users/zhenningli/data/obv/PRECT/gpcp.precip.mon.nc"
-    g_latS=-45.
-    g_latN=45.
-    g_lonW=30.
-    g_lonE=220.
     
     ;Smaller Region
     g_latS=-20.
@@ -55,23 +51,22 @@ begin
     g_lst_mon = 201512
     g_nyears = g_lst_mon/100-g_strt_mon/100+1
     ; long events larger than 10 months, develop
-    ;g_sp_event = (/198201,198601,199101,199701,201501/)
+    g_sp_events = (/198201,198601,199101,199701,201501/)
     ;g_sp_events = (/201501/)
     ; short events with 10 months, develop
-    ;g_su_events = (/199401,200201,200401,200601,200901/)
+    g_su_events = (/197901,199401,200201,200401,200601,200901/)
     ;g_su_events = (/201401/)
 
     ; long events larger than 10 months, decay
-    g_sp_events = (/198301,198701,199201,199801/)
+    ;g_sp_events = (/198301,198701,199201,199801/)
     ; short events with 10 months, decay
-    g_su_events = (/198001,199501,200301,200501,200701,201001/)
+    ;g_su_events = (/198001,199501,200301,200501,200701,201001/)
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
-    g_fig_name    =   "../fig/paper/FIG1_a"+g_strt_mon+"-"+g_lst_mon+"_SST_UV10_Pr_Clim"    
-    g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_name    =   "../fig/paper/FIG2a_"+g_strt_mon+"-"+g_lst_mon+"_SST_Pr-LE-SE-cmp"    
+    g_fig_rank    =   (/"(a)","(c)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    ;g_fig_title     = (/"LE", "SE"/)+"-Clim SST, UV10, & Pr"
-    g_fig_title     ="MAM Clim SST & Pr"
+    g_fig_title     = "MAM LE-SE SST & Pr"
 
 ;*************************For F_Compset Ctrl***********************************
 
@@ -226,15 +221,16 @@ begin
     cmp_var4_sp = cmp_sp_var4_avg
     cmp_var4_sp = cmp_sp_var4_avg - clim_var4
 
-    cmp_var1_su = cmp_su_var1_avg
-    cmp_var1_su = cmp_su_var1_avg - clim_var1
-    cmp_var2_su = cmp_su_var2_avg
-    cmp_var2_su = cmp_su_var2_avg - clim_var2 
-    cmp_var3_su = cmp_su_var3_avg
-    cmp_var3_su = cmp_su_var3_avg - clim_var3
-    cmp_var4_su = cmp_su_var4_avg
-    cmp_var4_su = cmp_su_var4_avg - clim_var4
-    
+    cmp_var1_all = cmp_sp_var1_avg
+    cmp_var1_all = cmp_sp_var1_avg - cmp_su_var1_avg
+    cmp_var2_all = cmp_sp_var2_avg
+    cmp_var2_all = cmp_sp_var2_avg - cmp_su_var2_avg
+    cmp_var3_all = cmp_sp_var3_avg
+    cmp_var3_all = cmp_sp_var3_avg - cmp_su_var3_avg
+    cmp_var4_all = cmp_sp_var4_avg
+    cmp_var4_all = cmp_sp_var4_avg - cmp_su_var4_avg
+
+
     ;--------------------------------
     ;--------Sig Test----------------
     ;--------------------------------
@@ -256,18 +252,20 @@ begin
         diff_var1_sp_sig(ii,:,:)= (/mask(cmp_var1_sp(ii,:,:),(prob1 .lt. siglvl) .or. (prob2 .lt. siglvl),True)/)    
     end do
 
-    diff_var1_su_sig = cmp_var1_su
-    diff_var2_su_sig = cmp_var2_su
-    diff_var3_su_sig = cmp_var3_su
-    diff_var4_su_sig = cmp_var4_su
+    siglvl=0.12
+    ;su means LE-SE
+    diff_var1_all_sig = cmp_var1_all
+    diff_var2_all_sig = cmp_var2_all
+    diff_var3_all_sig = cmp_var3_all
+    diff_var4_all_sig = cmp_var4_all
     do ii = 0,11
-        prob1 = ttest(cmp_su_var1_avg(ii,:,:),cmp_su_var1_var(ii,:,:),n_su_events, clim_var1(ii,:,:), clim_var1_var(ii,:,:), g_nyears, iflag, False) 
-        prob2 = ttest(cmp_su_var2_avg(ii,:,:),cmp_su_var2_var(ii,:,:),n_su_events, clim_var2(ii,:,:), clim_var2_var(ii,:,:), g_nyears, iflag, False) 
-        prob3 = ttest(cmp_su_var3_avg(ii,:,:),cmp_su_var3_var(ii,:,:),n_su_events, clim_var3(ii,:,:), clim_var3_var(ii,:,:), g_nyears, iflag, False) 
-        prob4 = ttest(cmp_su_var4_avg(ii,:,:),cmp_su_var4_var(ii,:,:),n_su_events, clim_var4(ii,:,:), clim_var4_var(ii,:,:), g_nyears, iflag, False) 
-        diff_var3_su_sig(ii,:,:) = mask(cmp_var3_su(ii,:,:), prob3 .lt. siglvl,True)
-        diff_var4_su_sig(ii,:,:) = mask(cmp_var4_su(ii,:,:), prob4 .lt. siglvl,True)
-        diff_var1_su_sig(ii,:,:)= (/mask(cmp_var1_su(ii,:,:),(prob1 .lt. siglvl) .or. (prob2 .lt. siglvl),True)/)    
+        prob1 = ttest(cmp_sp_var1_avg(ii,:,:),cmp_sp_var1_var(ii,:,:),n_sp_events,cmp_su_var1_avg(ii,:,:),cmp_su_var1_var(ii,:,:), n_su_events, iflag, False) 
+        prob2 = ttest(cmp_sp_var2_avg(ii,:,:),cmp_sp_var2_var(ii,:,:),n_sp_events,cmp_su_var2_avg(ii,:,:),cmp_su_var2_var(ii,:,:), n_su_events, iflag, False) 
+        prob3 = ttest(cmp_sp_var3_avg(ii,:,:),cmp_sp_var3_var(ii,:,:),n_sp_events,cmp_su_var3_avg(ii,:,:),cmp_su_var3_var(ii,:,:), n_su_events, iflag, False) 
+        prob4 = ttest(cmp_sp_var4_avg(ii,:,:),cmp_sp_var4_var(ii,:,:),n_sp_events,cmp_su_var4_avg(ii,:,:),cmp_su_var4_var(ii,:,:), n_su_events, iflag, False) 
+        diff_var3_all_sig(ii,:,:) = mask(cmp_var3_all(ii,:,:), prob3 .lt. siglvl,True)
+        diff_var4_all_sig(ii,:,:) = mask(cmp_var4_all(ii,:,:), prob4 .lt. siglvl,True)
+        diff_var1_all_sig(ii,:,:)= (/mask(cmp_var1_all(ii,:,:),(prob1 .lt. siglvl) .or. (prob2 .lt. siglvl),True)/)    
     end do
 
 
@@ -283,6 +281,7 @@ begin
   plot_cn_pos = new((/2/),graphic)
   plot_cn_neg = new((/2/),graphic)
   plot_sig = new((/2/),graphic)
+  plot_sig2 = new((/2/),graphic)
   plot_V = new((/2/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -291,8 +290,8 @@ begin
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
- gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 ; gsn_define_colormap(wks,"BlueRed")
 ;-----------------------------------------------------------------------------
   res                  = True       ; use plot options
@@ -315,9 +314,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  25          ; set min contour level
-    res@cnMaxLevelValF        =  30          ; set max contour level
-    res@cnLevelSpacingF       =  0.5          ; set contour interval
+    res@cnMinLevelValF        =  -0.6          ; set min contour level
+    res@cnMaxLevelValF        =  0.6          ; set max contour level
+    res@cnLevelSpacingF       =  0.1          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -325,11 +324,11 @@ begin
   res@gsnDraw  = False
   
   res@gsnSpreadColors      = True               ; use full color map
-  ;res@gsnSpreadColorStart  = 2               ; start at color 17
-  ;res@gsnSpreadColorEnd    = 14                ; end at color 200
+  res@gsnSpreadColorStart  = 15               ; start at color 17
+  res@gsnSpreadColorEnd    = 101-10                ; end at color 200
 
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
-  res@gsnStringFontHeightF = g_font
+  res@gsnStringFontHeightF = g_font 
 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnAddCyclic   = True;False
@@ -343,7 +342,7 @@ begin
   ;res@lbLabelStride = 1
 
   res@mpFillOn   = True     ; turn off gray continents
-  res@mpGeophysicalLineThicknessF = 2
+  res@mpGeophysicalLineThicknessF = 2 
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
   res@mpCenterLonF = 180.
@@ -368,10 +367,10 @@ begin
      ; now change the size of the tickmark labels
   res@tmXBTickSpacingF = 30
   res@tmYLTickSpacingF = 10
-  res@tmXBLabelFontHeightF = g_font
+  res@tmXBLabelFontHeightF = 0.02 
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
-  res@tmYLLabelFontHeightF = g_font
+  res@tmYLLabelFontHeightF = 0.02
 ; res@tmYLLabelFontAspectF = 1.3
   res@tmYLLabelFontThicknessF = 2.0
 ; res@tmYLLabelFontQuality =
@@ -385,30 +384,37 @@ begin
     res3@gsnFrame         = False
     res3@gsnDraw  = False
     res3@cnLineLabelsOn   = False      ; turn off contour line labels
-    res3@cnLineThicknessF = 2 
+    res3@cnLineThicknessF = 1.5 
     res3@cnInfoLabelOn = False
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    ;res3@cnLevels = (/1.0, 1.5, 2.0, 2.5/)
-    res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
+    res3@cnLevels = (/1.0, 1.5, 2.0, 2.5/)
     res3@cnLineColor      = "Blue"
     res3@gsnLeftString      = " "
     res3@gsnRightString      = " "
 
-    ;cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
-    plot_cn_pos(0) = gsn_csm_contour(wks,clim_var4(3,:,:),res3) ; create a default plot
-    ;plot_cn_pos(1) = gsn_csm_contour(wks,cmp_var4_su(2,:,:),res3) ; create a default plot
+    cmp_var4_sp=smth9_Wrap(cmp_var4_sp,0.5,0.25, True)
+    ;plot_cn_pos(0) = gsn_csm_contour(wks,cmp_var4_sp(3,:,:),res3) ; create a default plot
+    cmp_var4_all=smth9_Wrap(cmp_var4_all,0.5,0.25, True)
+    plot_cn_pos(1) = gsn_csm_contour(wks,cmp_var4_all(3,:,:),res3) ; create a default plot
     
-    ;res3@cnLevels = -res3@cnLevels
-    res3@cnLevels:=(/28.0/)
-    res3@cnLineColor      = "Black"
-    res3@cnLineThicknessF = 2
+    res3@cnLevels = -res3@cnLevels
+    res3@cnLineColor      = "Red"
     res3@cnLineDashPattern      = 1
-    ;cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
-    plot_cn_neg(0) = gsn_csm_contour(wks, clim_var3(3,:,:),res3) ; create a default plot
-    ;plot_cn_neg(1) = gsn_csm_contour(wks,cmp_var4_su(2,:,:),res3) ; create a default plot
- 
+    ;plot_cn_neg(0) = gsn_csm_contour(wks,cmp_var4_sp(3,:,:),res3) ; create a default plot
+    plot_cn_neg(1) = gsn_csm_contour(wks,cmp_var4_all(3,:,:),res3) ; create a default plot
+
+    res5=res3
+    res5@cnLevels:=(/28.0/)
+    res5@cnLineColor      = "Black"
+    res5@cnLineDashPattern      = 0
+    res5@cnLineThicknessF = 2
+    plot_sst_cmp = gsn_csm_contour(wks,cmp_sp_var3_avg(3,:,:),res5) ; create a default plot
+
+    res5@cnLineColor      = "Gray35"
+    res5@cnLineDashPattern      = 1
+    plot_sst_clim = gsn_csm_contour(wks,clim_var3(3,:,:),res5) ; create a default plot
 
 ;-------------------------------------------------
 ;-----------------------------------------------------
@@ -419,10 +425,10 @@ begin
   res4@gsnDraw  = False
   res4@cnLineLabelsOn   = False      ; turn off contour line labels
   res4@cnLineThicknessF = 2
-  res4@cnLineColor      = "black"
+  res4@cnLineColor      = "red"
   res4@cnInfoLabelOn = False
   res4@cnMonoFillPattern    = True;False
-  res4@cnFillPattern = 3 
+  res4@cnFillPattern = 3
   res4@cnMonoFillScale = True
   res4@cnFillScaleF = 0.6 
   res4@cnMonoFillColor = True
@@ -448,42 +454,50 @@ begin
 
     vcres@vcRefAnnoOn      = True
     vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
-    vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+    vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-    vcres@vcMinDistanceF          = 0.03
-    vcres@vcRefAnnoString1  = "2 m/s"
+    vcres@vcMinDistanceF          = 0.032
+    vcres@vcRefAnnoString1  = "3 m/s"
     vcres@vcRefAnnoString2  = ""
-    vcres@vcRefAnnoFontHeightF = 0.015
+    vcres@vcRefAnnoFontHeightF = 0.012
     vcres@vcLineArrowThicknessF     = 2    ;thickness of vector
 
-    vcres@vcLineArrowHeadMinSizeF   = 0.015
-    vcres@vcLineArrowHeadMaxSizeF   = 0.015       
+    vcres@vcLineArrowHeadMinSizeF   = 0.01
+    vcres@vcLineArrowHeadMaxSizeF   = 0.01       
     
     
     res@gsnLeftString = g_fig_rank(0)
     res@gsnCenterString = g_fig_title(0)
     res@gsnRightString = ""
 
-    plot(0) = gsn_csm_contour_map_ce(wks,clim_var3(3,:,:),res)
+    ;plot(0) = gsn_csm_contour_map_ce(wks,cmp_var3_sp(3,:,:),res)
     
     res@gsnLeftString = g_fig_rank(0)
     res@gsnCenterString = g_fig_title(0)
     res@gsnRightString = ""
-    ;plot(1) = gsn_csm_contour_map_ce(wks,cmp_var3_su(2,:,:),res)
+    plot(1) = gsn_csm_contour_map_ce(wks,diff_var3_all_sig(3,:,:),res)
 
-    ;plot_sig(0) = gsn_csm_contour(wks,diff_var4_sp_sig(2,:,:),res4)  ; Create shaded contours
-    ;plot_sig(1) = gsn_csm_contour(wks,diff_var4_su_sig(2,:,:),res4)  ; Create shaded contours
-    ;plot_V(0) = gsn_csm_vector(wks,diff_var1_sp_sig(2,:,:),diff_var2_sp_sig(2,:,:),vcres)
-    ;plot_V(1) = gsn_csm_vector(wks,diff_var1_su_sig(2,:,:),diff_var2_su_sig(2,:,:),vcres)
+    ;plot_sig(0) = gsn_csm_contour(wks,diff_var3_sp_sig(3,:,:),res4)  ; Create shaded contours
+   ; plot_sig(1) = gsn_csm_contour(wks,diff_var3_all_sig(3,:,:),res4)  ; Create shaded contours
     
-    do i=0, 0
+    res4@cnFillPattern=7
+    res4@cnFillColor="black"
+    ;plot_sig2(0) = gsn_csm_contour(wks,diff_var4_sp_sig(3,:,:),res4)  ; Create shaded contours
+    plot_sig2(1) = gsn_csm_contour(wks,diff_var4_all_sig(3,:,:),res4)  ; Create shaded contours
+    
+    ;plot_V(0) = gsn_csm_vector(wks,diff_var1_sp_sig(3,:,:),diff_var2_sp_sig(3,:,:),vcres)
+    ;plot_V(1) = gsn_csm_vector(wks,diff_var1_all_sig(3,:,:),diff_var2_all_sig(3,:,:),vcres)
+    
+    do i=1, 1
         ;overlay(plot(i),plot_V(i))
-        overlay(plot(i),plot_cn_pos(i))
+        ;overlay(plot(i),plot_sig(i))
+        overlay(plot(i),plot_sig2(i))
+        overlay(plot(i),plot_sst_cmp)
+        overlay(plot(i),plot_sst_clim)
         overlay(plot(i),plot_cn_neg(i))
-        ;overlay(plot(i),plot_cn_neg(i))
-        ;overlay(plot(i),plot_cn_pos(i))
+        overlay(plot(i),plot_cn_pos(i))
     end do
-    gsn_panel(wks,plot(0),(/1,1/),False) 
+    gsn_panel(wks,plot(1),(/1,1/),False) 
   
   end 

@@ -49,7 +49,7 @@ begin
     ; create an array of desired pressure levels:
 
         
-    g_font = 0.025
+    g_font = 0.02
 
     g_strt_mon = 197901 
     g_lst_mon = 201512
@@ -67,7 +67,7 @@ begin
     g_su_events = (/198001,199501,200301,200501,200701,201001/)
     n_sp_events= dimsizes(g_sp_events)
     n_su_events= dimsizes(g_su_events)
-    g_fig_name    =   "../fig/paper/FIG1_b"+g_strt_mon+"-"+g_lst_mon+"_UV10_Curl_Clim"    
+    g_fig_name    =   "../fig/paper/FIG1_b_r_"+g_strt_mon+"-"+g_lst_mon+"_UV10_Curl_Clim"    
     ;g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     g_fig_rank    =   (/"(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
@@ -253,7 +253,7 @@ begin
     tao_y=clim_var2
     
 
-    tao_x=ruo*Cd*clim_var1*clim_var2
+    tao_x=ruo*Cd*clim_var1*clim_var1
     tao_y=ruo*Cd*clim_var2*clim_var2
 
     curl=uv2vrF_Wrap(tao_x,tao_y)
@@ -339,9 +339,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -6e-8          ; set min contour level
-    res@cnMaxLevelValF        =  6e-8          ; set max contour level
-    res@cnLevelSpacingF       =  1e-8          ; set contour interval
+    res@cnMinLevelValF        =  -1e-7          ; set min contour level
+    res@cnMaxLevelValF        =  1e-7          ; set max contour level
+    res@cnLevelSpacingF       =  2e-8          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
