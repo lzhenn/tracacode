@@ -40,7 +40,7 @@ begin
     
     ;BOB
     
-    g_strt_yr=1982
+    g_strt_yr=1979
     g_lst_yr=2010
     g_yr_len = g_lst_yr-g_strt_yr+1
  
@@ -69,14 +69,14 @@ begin
     g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
     g_data1_path ="$DATAOBV/ERA-interim/pressure/hgt/*"
-    g_font = 0.035
+    g_font = 0.02
     
         
     g_latS=0
     g_latN=60
     g_lonW=30
-    g_lonE=120
-    g_plevel=700
+    g_lonE=140
+    g_plevel=200
     
     g_fig_name = "../fig/obv/ERA-UV-HGT-early-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
         
@@ -177,8 +177,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -200         ; set min contour level
- res@cnMaxLevelValF        = 200          ; set max contour level
+ res@cnMinLevelValF        = -250         ; set min contour level
+ res@cnMaxLevelValF        = 250          ; set max contour level
  res@cnLevelSpacingF       = 25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -207,7 +207,7 @@ begin
 
 
   res@mpFillOn   = False     ; turn off gray continents
-  res@mpGeophysicalLineThicknessF = 2
+  res@mpGeophysicalLineThicknessF = 3
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
   res@mpMaxLatF  = g_latN
@@ -252,15 +252,15 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "3 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
-  vcres@vcLineArrowThicknessF     = 1.0    ;thickness of vector
+  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
   vcres@vcLineArrowHeadMinSizeF   = 0.01
   vcres@vcLineArrowHeadMaxSizeF   = 0.01
  

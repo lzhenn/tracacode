@@ -40,15 +40,15 @@ begin
     
     ;BOB
     
-    g_strt_yr=1982
+    g_strt_yr=1979
     g_lst_yr=2010
     g_yr_len = g_lst_yr-g_strt_yr+1
  
 
     ; U200 P20-28
-    g_day_strt2=110
-    g_day_lst2=130
-    g_day_comp_len=19
+    g_day_strt2=65
+    g_day_lst2=142
+    g_day_comp_len=14
     
     ;BOB All
     ;g_comp="all"
@@ -59,26 +59,27 @@ begin
     ;BOB Early
     g_comp="early"
     g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
-    g_day_rank=(/108, 105, 93, 100, 107, 99/)-1
+    g_day_rank=(/108, 105, 93, 100, 107, 99/)-1-g_day_strt2
     
     ;BOB Late
+    g_comp2="late"
     g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1
+    g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day-strt2
 
 
     g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
     g_data1_path ="$DATAOBV/ERA-interim/pressure/hgt/*"
-    g_font = 0.035
+    g_font = 0.02
     
         
     g_latS=0
     g_latN=60
     g_lonW=30
-    g_lonE=120
+    g_lonE=140
     g_plevel=500
     
-    g_fig_name = "../fig/obv/ERA-UV-HGT-early-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
+    g_fig_name = "../fig/obv/ERA-UV-HGT-before-early-clim-"+g_lonW+"-"+g_lonE+"-"+g_plevel
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -95,42 +96,29 @@ begin
     var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
     var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
 ;Prepare the variables
-    var1_rmean= dim_avg_n_Wrap(var1_data,1)
-    var2_rmean= dim_avg_n_Wrap(var2_data,1)
-    var3_rmean= dim_avg_n_Wrap(var3_data,1)
+    var1_clim= dim_avg_n_Wrap(var1_data,0)
+    var2_clim= dim_avg_n_Wrap(var2_data,0)
+    var3_clim= dim_avg_n_Wrap(var3_data,0)
     
-    var1_cmp1 = var1_rmean(0:g_special_cases-1,:,:,:)
-    var2_cmp1 = var2_rmean(0:g_special_cases-1,:,:,:)
-    var3_cmp1 = var3_rmean(0:g_special_cases-1,:,:,:)
+    var1_cmp1 = var1_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    var2_cmp1 = var2_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
+    var3_cmp1 = var3_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
     
     do ii=0, g_special_cases-1
-        var1_cmp1(ii,:,:,:)=var1_rmean(g_special_year(ii),:,:,:)
-        var2_cmp1(ii,:,:,:)=var2_rmean(g_special_year(ii),:,:,:)
-        var3_cmp1(ii,:,:,:)=var3_rmean(g_special_year(ii),:,:,:)
+        var1_cmp1(ii,:,:,:,:)=var1_date(g_special_year(ii),g_day_rank(ii)-g_day_comp_len-1:g_day_rank(ii),:,:,:)-var1_clim(g_day_rank(ii)-g_day_comp_len-1:g_day_rank(ii),:,:,:)
+        var2_cmp1(ii,:,:,:,:)=var2_date(g_special_year(ii),g_day_rank(ii)-g_day_comp_len-1:g_day_rank(ii),:,:,:)-var2_clim(g_day_rank(ii)-g_day_comp_len-1:g_day_rank(ii),:,:,:)
+        var3_cmp1(ii,:,:,:,:)=var3_date(g_special_year(ii),g_day_rank(ii)-g_day_comp_len-1:g_day_rank(ii),:,:,:)-var3_clim(g_day_rank(ii)-g_day_comp_len-1:g_day_rank(ii),:,:,:)
     end do
     printVarSummary(var2_cmp1)
-    var1_cmp2 = var1_rmean(0:g_special_cases2-1,:,:,:)
-    var2_cmp2 = var2_rmean(0:g_special_cases2-1,:,:,:)
-    var3_cmp2 = var3_rmean(0:g_special_cases2-1,:,:,:)
-
-    do ii=0, g_special_cases2-1
-        var1_cmp2(ii,:,:,:)=var1_rmean(g_special_year2(ii),:,:,:)
-        var2_cmp2(ii,:,:,:)=var2_rmean(g_special_year2(ii),:,:,:)
-        var3_cmp2(ii,:,:,:)=var3_rmean(g_special_year2(ii),:,:,:)
-    end do
-    
+   
+    var1_cmp1:=dim_avg_n_Wrap(var1_cmp1,1)
+    var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,1)
+    var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,1)
     
     var1_cmp1:=dim_avg_n_Wrap(var1_cmp1,0)
     var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
     var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,0)
     
-    var1_cmp2:=dim_avg_n_Wrap(var1_cmp2,0)
-    var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,0)
-    var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,0)
-
-    var1_cmp1=var1_cmp1-var1_cmp2
-    var2_cmp1=var2_cmp1-var2_cmp2
-    var3_cmp1=var3_cmp1-var3_cmp2
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
