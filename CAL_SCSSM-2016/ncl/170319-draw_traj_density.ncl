@@ -153,7 +153,7 @@ do lvlind=0, dimsizes(g_lvl)-1
 
 
 
-    do i_day=-9,6
+    do i_day=-10,-10
         do curr_year= g_strt_year, 2012
            do hr = 0, 95     
                 do pos=200,300

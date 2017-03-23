@@ -383,7 +383,7 @@ begin
 
 
   res@lbLabelBarOn = True   ; turn off the label bar
-  res@lbOrientation          = "vertical"
+;  res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   ;res@lbLabelStride = 1
 

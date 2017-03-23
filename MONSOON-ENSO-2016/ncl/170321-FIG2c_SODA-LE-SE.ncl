@@ -26,13 +26,15 @@ begin
 
     g_strt_mon = 198001 
     g_lst_mon = 201512
-    
+    g_yr_start=1980
      g_nyears = g_lst_mon/100-g_strt_mon/100+1
     ; long events larger than 10 months, develop
+    ;g_sp_events = (/198001,198101/) ; for test
     g_sp_events = (/198201,198601,199101,199701,201501/)
     n_sp_events=dimsizes(g_sp_events)
     ;g_sp_events = (/201501/)
     ; short events with 10 months, develop
+    ;g_su_events = (/198201,198301/) ; for test
     g_su_events = (/199401,200201,200401,200601,200901/)
     ;g_su_events = (/201401/)
     n_su_events=dimsizes(g_su_events)
@@ -66,7 +68,7 @@ begin
     var4=month_to_season12(var4)
     clim_var4:=clmMonTLL(var4)
     clim_lonmean_var4=dim_avg_n_Wrap(clim_var4,2)
-    all_files = systemfunc ("ls "+g_file_name+"1982*"); ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
+    all_files = systemfunc ("ls "+g_file_name+"*"); ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     
     ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
@@ -75,13 +77,19 @@ begin
     v    = ctrl_in[:]->v(:,{:500},{g_latS:g_latN},{g_lonW:g_lonE})     ; global 5 meter temperature
     mlt    = ctrl_in[:]->mlt(:,{g_latS:g_latN},{g_lonW:g_lonE})     ; global 5 meter temperature
     
-    season_t=month_to_season12(t)
-    clim_t=clmMonTLLL(season_t)
-    clim_lonmean_t=dim_avg_n_Wrap(clim_t,3)
+    season_t=month_to_season(t,"MAM")
+    clim_t=dim_avg_n_Wrap(season_t,0)
+    clim_lonmean_t=dim_avg_n_Wrap(clim_t,2)
   
-    season_mlt=month_to_season12(mlt)
-    clim_mlt=clmMonTLL(season_mlt)
-    clim_lonmean_mlt=dim_avg_n_Wrap(clim_mlt,2)
+    season_v=month_to_season(v,"MAM")
+    clim_v=dim_avg_n_Wrap(season_v,0)
+    clim_lonmean_v=dim_avg_n_Wrap(clim_v,2)
+    clim_lonmean_w=clim_lonmean_v
+    clim_lonmean_w=0
+
+    season_mlt=month_to_season(mlt,"MAM")
+    clim_mlt=dim_avg_n_Wrap(season_mlt,0)
+    clim_lonmean_mlt=dim_avg_n_Wrap(clim_mlt,1)
 
 
 
@@ -125,26 +133,102 @@ begin
 
 
 
-    printVarSummary(clim_lonmean_mlt)
+    smp_sp_t = t(0:n_sp_events-1,:,:,:)
+    do ii=0,n_sp_events-1
+        smp_sp_t(ii,:,:,:) = season_t(floattoint(floor(g_sp_events(ii)/100))-g_yr_start,:,:,:)
+    end do
+    cmp_sp_t_avg = dim_avg_n_Wrap(smp_sp_t,0)
+    sp_lonmean_t=dim_avg_n_Wrap(cmp_sp_t_avg,2)
+    
+    smp_su_t = t(0:n_su_events-1,:,:,:)
+    do ii=0,n_su_events-1
+        smp_su_t(ii,:,:,:) = season_t(floattoint(floor(g_su_events(ii)/100))-g_yr_start,:,:,:)
+    end do
+    cmp_su_t_avg = dim_avg_n_Wrap(smp_su_t,0)
+    su_lonmean_t=dim_avg_n_Wrap(cmp_su_t_avg,2)
+    diff_lonmean_t=sp_lonmean_t
+    diff_lonmean_t=sp_lonmean_t-su_lonmean_t
+
+    sp_smplon_t=dim_avg_n_Wrap(smp_sp_t,3)
+    su_smplon_t=dim_avg_n_Wrap(smp_su_t,3)
+    
+    smp_sp_v = v(0:n_sp_events-1,:,:,:)
+    do ii=0,n_sp_events-1
+        smp_sp_v(ii,:,:,:) = season_v(floattoint(floor(g_sp_events(ii)/100))-g_yr_start,:,:,:)
+    end do
+    cmp_sp_v_avg = dim_avg_n_Wrap(smp_sp_v,0)
+    sp_lonmean_v=dim_avg_n_Wrap(cmp_sp_v_avg,2)
+    
+    smp_su_v = v(0:n_su_events-1,:,:,:)
+    do ii=0,n_su_events-1
+        smp_su_v(ii,:,:,:) = season_v(floattoint(floor(g_su_events(ii)/100))-g_yr_start,:,:,:)
+    end do
+    cmp_su_v_avg = dim_avg_n_Wrap(smp_su_v,0)
+    su_lonmean_v=dim_avg_n_Wrap(cmp_su_v_avg,2)
+    diff_lonmean_v=sp_lonmean_v
+    diff_lonmean_v=sp_lonmean_v-su_lonmean_v
+
+    sp_smplon_v=dim_avg_n_Wrap(smp_sp_v,3)
+    su_smplon_v=dim_avg_n_Wrap(smp_su_v,3)
+
+    smp_sp_mlt = mlt(0:n_sp_events-1,:,:)
+    do ii=0,n_sp_events-1
+        smp_sp_mlt(ii,:,:) = season_mlt(floattoint(floor(g_sp_events(ii)/100))-g_yr_start,:,:)
+    end do
+    cmp_sp_mlt_avg = dim_avg_n_Wrap(smp_sp_mlt,0)
+    sp_lonmean_mlt=dim_avg_n_Wrap(cmp_sp_mlt_avg,1)
+    
+    smp_su_mlt = mlt(0:n_su_events-1,:,:)
+    do ii=0,n_su_events-1
+        smp_su_mlt(ii,:,:) = season_mlt(floattoint(floor(g_su_events(ii)/100))-g_yr_start,:,:)
+    end do
+    cmp_su_mlt_avg = dim_avg_n_Wrap(smp_su_mlt,0)
+    su_lonmean_mlt=dim_avg_n_Wrap(cmp_su_mlt_avg,1)
+
+    cmp_sp_t_var = sp_lonmean_t
+    cmp_su_t_var = su_lonmean_t
+    cmp_sp_v_var = sp_lonmean_v
+    cmp_su_v_var = su_lonmean_v
+
+    cmp_sp_t_var = dim_variance_n(sp_smplon_t, 0)
+    cmp_su_t_var = dim_variance_n(su_smplon_t, 0)
+    cmp_sp_v_var = dim_variance_n(sp_smplon_v, 0)
+    cmp_su_v_var = dim_variance_n(su_smplon_v, 0)
+    
+  
+  
+    ;--------------------------------
+    ;--------Sig Test----------------
+    ;--------------------------------
+  
+    siglvl = 0.1                       ; critical sig lvl for r
+
+    iflag= False                        ; population variance similar
+    prob1 = ttest(sp_lonmean_t,cmp_sp_t_var,n_sp_events, su_lonmean_t,cmp_su_t_var,n_su_events, iflag, False) 
+    prob2 = ttest(sp_lonmean_v,cmp_sp_v_var,n_sp_events, su_lonmean_v,cmp_su_v_var,n_su_events, iflag, False) 
+  
+   diff_lonmean_t_sig=diff_lonmean_t
+    diff_lonmean_t_sig = mask(diff_lonmean_t, prob1 .lt. siglvl,True)
+    diff_lonmean_v_sig=diff_lonmean_v
+    diff_lonmean_v_sig = mask(diff_lonmean_v, prob2 .lt. siglvl,True)
+    diff_lonmean_v_sig({0:60},{2:6}) =diff_lonmean_v({0:60},{2:6})
+    diff_lonmean_v_sig({0:20},{2:8}) =diff_lonmean_v({0:20},{2:8})
+
+
+    
     xx=clim_lonmean_mlt&latitude
-    yy=clim_lonmean_mlt(3,:)
+    yy=clim_lonmean_mlt
   
   
-    season_v=month_to_season12(v)
-    clim_v=clmMonTLLL(season_v)
-    clim_lonmean_v=dim_avg_n_Wrap(clim_v,3)
-    ;clim_lonmean_v=where(clim_lonmean_v .lt. 0.01, clim_lonmean_v@_FillValue,clim_lonmean_v)
-    clim_lonmean_w=clim_lonmean_v
-    clim_lonmean_w=0
-;    dzdt = f->DZDT_GDS0_DBSL_ave1m (:,:,{0},:)    ; vertical slice at the Eq. 
+   ;    dzdt = f->DZDT_GDS0_DBSL_ave1m (:,:,{0},:)    ; vertical slice at the Eq. 
 
 ;************************************************
 ; plotting parameters
 ;************************************************
     wks   = gsn_open_wks ("eps","../fig/paper/FIG2_c_temp_depth_pr_u")        ; open workstation
     ;gsn_define_colormap(wks,"amwg")               ; choose colormap
-    gsn_define_colormap(wks,"BlAqGrYeOrReVi200")               ; choose colormap
-    ;gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")               ; choose colormap
+    gsn_define_colormap(wks,"temp_diff_18lev")               ; choose colormap
+    ;gsn_define_colormap(wks,"ViBlGrWhYeOrRe")               ; choose colormap
 
 ; add gray to colormap for continents  [optional]  
 ;
@@ -161,7 +245,7 @@ begin
     res@gsnMaximize      = True                   ; make ps, eps, pdf large
     res@gsnPaperOrientation = "portrait"          ; force portrait
     res@gsnSpreadColors  = True                   ; Use full color map
-    res@gsnSpreadColorStart=20                      ; do not use gray for contours
+;    res@gsnSpreadColorStart=20                      ; do not use gray for contours
 
     res@cnFillOn         = True                   ; color
     res@cnLinesOn        = False
@@ -172,9 +256,9 @@ begin
     res@tiMainString     = "" 
     res@tiYAxisString="Depth (m)"
     res@cnLevelSelectionMode = "ManualLevels"     ; set manual contour levels
-    res@cnMinLevelValF       =  8.               ; set min contour level
-    res@cnMaxLevelValF       =  30.               ; set max contour level
-    res@cnLevelSpacingF      =  1               ; set contour spacing
+    res@cnMinLevelValF       =  -2.               ; set min contour level
+    res@cnMaxLevelValF       =  2.               ; set max contour level
+    res@cnLevelSpacingF      =  0.25               ; set contour spacing
     res@lbOrientation    = "Vertical"
     res@trYReverse       = True     
     res@vpHeightF= 0.45
@@ -185,7 +269,7 @@ begin
     res@tmYLMode="Explicit"
     res@tmYLValues = (/ 25, 50, 75, 100, 125, 150, 200,  300 /) ;interval
     res@tmYLLabels =  (/ 25, 50, 75, 100, 125, 150, 200, 300/)
-    res@cnFillMode       = "RasterFill"           ; option
+    ;res@cnFillMode       = "RasterFill"           ; option
     res@gsnDraw=False
     res@gsnFrame=False
 
@@ -198,18 +282,18 @@ begin
 
     vcres@vcRefAnnoOn      = True
     vcres@vcRefAnnoOrthogonalPosF = -0.125            ; move ref vector up
-    vcres@vcRefMagnitudeF         = 0.05             ; define vector ref mag
+    vcres@vcRefMagnitudeF         = 0.02             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-    vcres@vcMinDistanceF          = 0.03
-    vcres@vcRefAnnoString1  = "5 cm/s"
+    vcres@vcMinDistanceF          = 0.02
+    vcres@vcRefAnnoString1  = "2 cm/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.015
 
     vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
 
 
-    plot = gsn_csm_contour(wks, clim_lonmean_t(3,:,:), res)  ; Pacific
+    plot = gsn_csm_contour(wks, diff_lonmean_t, res)  ; Pacific
     
     res3                  = True       ; use plot options
     res3@cnFillOn         = False;True       ; Fill contours
@@ -217,7 +301,7 @@ begin
     res3@gsnFrame         = False
     res3@gsnDraw  = False
     res3@cnLineLabelsOn   = False      ; turn off contour line labels
-    res3@cnLineThicknessF = 3 
+    res3@cnLineThicknessF = 2.0
     res3@cnInfoLabelOn = False
 
     res3@cnLevelSelectionMode="ExplicitLevels"
@@ -225,12 +309,49 @@ begin
     res3@cnLineColor      = "Black"
     res3@gsnLeftString      = " "
     res3@gsnRightString      = " " 
-    plot_cn=gsn_csm_contour(wks,clim_lonmean_t(3,:,:),res3)
+    plot_cn=gsn_csm_contour(wks,clim_lonmean_t,res3)
     overlay(plot,plot_cn)
-    
-plot_V = gsn_csm_vector(wks, clim_lonmean_v(3,:,:), clim_lonmean_w(3,:,:), vcres)  ; Pacific
+    res3@cnLineDashPattern      = 1
+    res3@cnLineThicknessF = 2
+    plot_sp=gsn_csm_contour(wks,sp_lonmean_t,res3)
+    overlay(plot,plot_sp)
+    res3@cnLineDashPattern      = 2
+    plot_su=gsn_csm_contour(wks,su_lonmean_t,res3)
+    overlay(plot,plot_su)
+
+plot_V = gsn_csm_vector(wks, diff_lonmean_v_sig, clim_lonmean_w, vcres)  ; Pacific
     overlay(plot,plot_V)
-    
+   
+
+;-------------------------------------------------
+;-----------------------------------------------------
+  res4                  = True       ; use plot options
+  res4@cnFillOn         = True       ; Fill contours
+  res4@cnLinesOn        = False;True      ; turn off contour lines
+  res4@gsnFrame         = False
+  res4@gsnDraw  = False
+  res4@cnLineLabelsOn   = False      ; turn off contour line labels
+  res4@cnLineThicknessF = 2.0
+  res4@cnLineColor      = "black"
+  res4@cnInfoLabelOn = False
+  res4@cnMonoFillPattern    = True;False
+  res4@cnFillPattern = 3 
+  res4@cnMonoFillScale = True
+  res4@cnFillScaleF = 1
+  res4@cnMonoFillColor = True
+  res4@cnFillColor  =  "black"
+  res4@cnFillDotSizeF = 0.005
+ 
+  res4@lbLabelBarOn = False;True   ; turn off the label bar
+ 
+;  res4@cnLevelSelectionMode="ExplicitLevels"
+;  res4@cnLevels = (/3000,1000/)
+  res4@gsnLeftString      = " "
+  res4@gsnRightString      = " "
+ 
+    plot_sig = gsn_csm_contour(wks,diff_lonmean_t_sig,res4)  ; Create shaded contours
+    overlay(plot,plot_sig)
+
     xyres                 = True         ; xy plot mods desired
     xyres@vpHeightF        = .20          ; set width of second plot
     ;xyres@tmXBMinorOn     = False        ; no minor tickmarks
@@ -245,7 +366,7 @@ plot_V = gsn_csm_vector(wks, clim_lonmean_v(3,:,:), clim_lonmean_w(3,:,:), vcres
     xyres@trYMinF         = -2 
     xyres@trYMaxF         = 4
     xyres@gsnAttachPlotsXAxis = True
-    xyres@xyLineThicknesses    = 3.0      ; line thicknesses
+    xyres@xyLineThicknesses    = 2.0      ; line thicknesses
    
     xyres@tmXBTickSpacingF = 5
     xyres@tmXBMinorOn=False
@@ -262,14 +383,15 @@ plot_V = gsn_csm_vector(wks, clim_lonmean_v(3,:,:), clim_lonmean_w(3,:,:), vcres
     xy2res=xyres
    ; xyres@tiYAxisString       = "Easterly Speed (m/s)"
     xy2res@tiYAxisSide="Right"
-    xy2res@xyLineThicknesses    = 1.0      ; line thicknesses
+    xy2res@xyLineThicknesses    = 2.0      ; line thicknesses
     xy2res@gsnYRefLine=0.0
     xy2res@gsnXYBarChart=True
     xy2res@gsnXYBarChartBarWidth = 1                 ; change bar widths
     xy2res@gsnXYBarChartColors = (/"skyblue2"/)             ; below ref line fill blue
 
+    xyres@xyDashPattern=1
     plotxy_sp = gsn_csm_xy(wks,sp_lonmean_var1&lat,sp_lonmean_var1(3,:),xyres)
-    xyres@xyDashPattern=1 
+    xyres@xyDashPattern=2
     plotxy_su = gsn_csm_xy(wks,su_lonmean_var1&lat,su_lonmean_var1(3,:),xyres)
     plotxy2_sp = gsn_csm_xy(wks,sp_lonmean_var4&lat-0.5,sp_lonmean_var4(3,:),xy2res)
     
@@ -281,14 +403,26 @@ plot_V = gsn_csm_vector(wks, clim_lonmean_v(3,:,:), clim_lonmean_w(3,:,:), vcres
     overlay(plotxy_sp,plotxy2_su)
     
     pres                  = True               ; polyline resources
-    pres@gsLineThicknessF = 3.0                ; line thickness
-    pres@gsLineColor      = "gray"
+    pres@gsLineThicknessF = 2.0                ; line thickness
+    pres@gsLineColor      = "gray35"
     dum=gsn_add_polyline(wks,plot,xx,yy,pres) 
+
+
+    yy=sp_lonmean_mlt
+    pres@gsLineThicknessF = 2.0                ; line thickness
+    pres@gsLineDashPattern      = 1
+    dum1=gsn_add_polyline(wks,plot,xx,yy,pres) 
+    
+    yy=su_lonmean_mlt
+    pres@gsLineDashPattern      = 2
+    dum2=gsn_add_polyline(wks,plot,xx,yy,pres) 
+
+
     newplot = gsn_attach_plots(plot,(/plotxy_sp/),res,xy2res)
 
     ; add labelbar to second plot
     ;**********************************************************
-  labels=(/"Long Events ___","Short Events ----"/) 
+  labels=(/"Long Events ----","Short Events ...."/) 
   getvalues plotxy_sp                ; get plot size for use in creating labelbar
   "vpXF"      : vpx
   "vpYF"      : vpy
@@ -296,10 +430,7 @@ plot_V = gsn_csm_vector(wks, clim_lonmean_v(3,:,:), clim_lonmean_w(3,:,:), vcres
   "vpWidthF"  : vpw
   end getvalues
 
-  lbw    = 0.4 * vpw           ; Make labelbar size a fraction of the plot.
-  lbh    = 0.5 * vph
   nboxes = 2
-   
   lbres                    = True          ; labelbar only resources
   lbres@vpWidthF           = 0.18 * vpw     ; labelbar width
   lbres@vpHeightF          = 0.23 * vph     ; labelbar height

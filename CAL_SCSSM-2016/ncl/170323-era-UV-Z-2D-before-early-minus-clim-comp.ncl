@@ -76,7 +76,7 @@ begin
     g_latN=60
     g_lonW=30
     g_lonE=120
-    g_plevel=700
+    g_plevel=500
     
     g_fig_name = "../fig/obv/ERA-UV-HGT-early-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
         
