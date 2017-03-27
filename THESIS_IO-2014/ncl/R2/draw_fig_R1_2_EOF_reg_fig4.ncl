@@ -48,9 +48,9 @@ begin
     time@units  =   "months since 1979-01-01"
 
     date = cd_calendar(time,-1)
-    lonL        =   20
-    lonR        =   180
-    latS        =   -30
+    lonL        =   0
+    lonR        =   360
+    latS        =   -60
     latN        =   60
 
     global_font = 0.03
