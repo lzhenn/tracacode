@@ -37,9 +37,8 @@ begin
 
     exp_code    =   (/"BIO","NIO","SIO","TIO"/)
     fig_num     =   (/"(a)","(b)","(c)","(d)"/)
-    data_path   =   "../../../data/sst/monthly/"
-    fig_name1   =   "../../../fig/IO_paper/fig2_1_sst_EOF_pattern_2"
-    fig_name2   =   "../../../fig/IO_paper/fig2_2_sst_EOF_timeseries"
+    data_path   =   "/home/yangsong3/L_Zealot/data-mirror/obv/SST/CAM_FORCE/sst_HadOIBl_bc_1.9x2.5_1850_2013_c140701.nc"
+    fig_name1   =   "../../fig/R2_1_sst_EOF_pattern_global"
     fig_title   =   "SST annual cycle (30~S~o~N~S-30~S~o~N~N, 50~S~o~N~E-110~S~o~N~E )"
     
     season      =   "MAM"
@@ -66,14 +65,14 @@ begin
 ; ==============================================================
 
 ;CAMSST
-    ctrl_file1   = data_path+"sst_HadOIBl_bc_0.9x1.25_1850_2012_c130411.nc"
+    ctrl_file1   = data_path
 	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
     
     TIME   = ctrl_in1->time
     YYYY   = cd_calendar(TIME,-1)/100                 ; entire file
 	
-    var1_org  = ctrl_in1->SST_cpl(var1_start:var1_end,:,:)			; p for unify the var name
-    var1_0    = f2fsh_Wrap(var1_org,(/180,360/)) 
+    var1_org = ctrl_in1->SST_cpl(var1_start:var1_end,:,:)			; p for unify the var name
+    var1_0   := f2fsh_Wrap(var1_org,(/180,360/)) 
 ; for land sea mask
 
     a    = addfile("$NCARG_ROOT/lib/ncarg/data/cdf/landsea.nc","r")
@@ -81,7 +80,6 @@ begin
     lsm  = landsea_mask(lsdata,var1_0&lat,var1_0&lon)
     var1 = var1_0
     var1 = mask(var1_0,lsm.eq.1,False)
-
 ; ==============================================================
 ; Mission 2. process the ssts, generate seasons mean and EOF 
 ; ==============================================================
@@ -164,9 +162,10 @@ begin
     res@mpFillDrawOrder="PostDraw"
 
     res@mpCenterLonF = 180.
-    res@mpMaxLonF  = lonR
-    res@mpMinLonF  = lonL
-
+    res@mpMaxLonF  = 360 
+    res@mpMinLonF  = 0
+    res@mpMaxLatF  = 60
+    res@mpMinLatF  = -60
     ;  res@mpShapeMode = "FreeAspect" 
 
     ;  res@vpWidthF = 0.8
@@ -181,8 +180,8 @@ begin
     ;  res@tmYRMinorOutwardLengthF = -0.
 
      ; now change the size of the tickmark labels
-    res@tmXBTickSpacingF = 20
-    res@tmYLTickSpacingF = 10
+    res@tmXBTickSpacingF = 60
+    res@tmYLTickSpacingF = 30
     ; res@tmXBLabelFontAspectF = 1.6
     res@tmXBLabelFontThicknessF = 2.0
     ; res@tmYLLabelFontAspectF = 1.3
@@ -212,8 +211,8 @@ begin
     pres@lbLabelAutoStride    = False
 	pres@lbLabelStride       = 4 
 	pres@lbTitleString       = "SST (K)"
-	pres@lbLabelFontHeightF = 0.035 
-	pres@lbTitleFontHeightF = 0.035
+	pres@lbLabelFontHeightF = 0.015 
+	pres@lbTitleFontHeightF = 0.015
 	pres@pmLabelBarOrthogonalPosF = -0.03           ; move label bar down
 
 
@@ -225,20 +224,18 @@ begin
         res@tmXBLabelFontHeightF = global_font
         res@tmYLLabelFontHeightF = global_font
         res@gsnStringFontHeightF = global_font
-        res@mpMaxLatF  = latN(n_smp)
-        res@mpMinLatF  = latS(n_smp)
         res@gsnLeftString = fig_num(n_smp)
         res@gsnCenterString = exp_code(n_smp)
-        var1_anom_rg      = var1_all_anom(:,{latS(n_smp):latN(n_smp)},{lonL:lonR})
+        var1_anom_rg      = var1_all_anom;(:,{latS(n_smp):latN(n_smp)},{lonL:lonR})
         var1_season_rg    = var1_season({lat|latS(n_smp):latN(n_smp)},{lon|lonL:lonR},time|:)
         eof    = eofunc_Wrap(var1_season_rg, neof, optEOF)      
         eof_ts = eofunc_ts_Wrap (var1_season_rg, eof, optETS)
         eof_ts = dtrend(eof_ts,False)
         eof_ts = dim_standardize_n(eof_ts, 0, 1)      ; normalize
         ; regress the field
-        eof_regres = eof                               ; create an array w meta data
+        eof_regres = var1_anom_rg                               ; create an array w meta data
 
-        res@gsnRightString = sprintf("%5.1f", eof@pcvar) +"%"
+       ; res@gsnRightString = sprintf("%5.1f", eof@pcvar) +"%"
         do ne=0,neof-1
             eof_regres(ne,:,:) = (/ regCoef(eof_ts(ne,:), var1_anom_rg(lat|:,lon|:,time|:)) /)
         end do
@@ -254,8 +251,6 @@ begin
         delete(eof_ts)
         delete(eof_regres)
     end do
-    gsn_panel(wks,plot(0),(/1,1/),pres)
+    gsn_panel(wks,plot,(/2,2/),pres)
 
-    draw(plot)
-    frame(wks)
 end
