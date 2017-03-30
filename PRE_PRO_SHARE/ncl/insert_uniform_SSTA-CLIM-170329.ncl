@@ -41,97 +41,71 @@ begin
     lonL    =   50.
     lonR    =   100.
 
-    g_type  = "MAM" ; "annual cycle", "MAM", "JJA", "Jan"....
     
-    n_mon_force = dimsizes(mon_idx)
-    fig_num     =   (/"(a)","(b)","(c)","(d)"/)
-    data_path   =   "../data/SST-FORCE/CAM_FORCE/"
-    data_path_out   =   "../data/SST-FORCE/"
-    fig_name   =   "../fig/CLIM_plus_TREND"
-    fig_title   =   "MON:"+mon_idx+" SST Diff ("+latS+"~S~o~N~S-"+latN+"~S~o~N~N, "+lonL+"~S~o~N~E-"+lonR+"~S~o~N~E )"
+    fig_num     =   (/"(a)","(b)","(c)"/)
     
-	ncdf_name    =   "sst_HadOIBl_bc_1.9x2.5_Trend-"+g_type+"-1979_2013_clim.nc"
+    data_file_in   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim.nc"
+    data_file_out   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim_as_bob_pos_JJA.nc"
+    
+    ssta=0.3
+    strt_mon=5 ; 0---Jan
+    lst_mon=7 ; 0---Jan
+    g_season="JJA"
+    
+    fig_name   =   "../fig/insert_ssta"
+    fig_title   =  (/ "Clim", "Clim+SSTA", " SST Diff ("+latS+"~S~o~N~S-"+latN+"~S~o~N~N, "+lonL+"~S~o~N~E-"+lonR+"~S~o~N~E )"/)
 
     global_font = 0.025
     
-    ymstrt  =   197901
-    ymlast  =   201312
 
-; ==============================================================
-; Mission 1. Read index data from ascii file, read sst data
-; ==============================================================
-   
 
 ;------------------Read clim sst-------------------------------
-    ctrl_file1   = data_path+"sst_HadOIBl_bc_1.9x2.5_1979_2013_clim_c150401.nc"
-	ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-    
+    ctrl_file1   = data_file_in
+    ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
     clim_var1  = ctrl_in1->SST_cpl			; p for unify the var name
-
-;    print(clim_var1&lon)
-;    exit
-;------------------Read long-term monthly sst-------------------------------
-    ctrl_file2   = data_path+"sst_HadOIBl_bc_1.9x2.5_1850_2013_c140701.nc"
-	ctrl_in2     = addfile (ctrl_file2, "r")   ; note the "s" of addfile
-   ; time processing
-    time    = ctrl_in2->time
-    yyyymm  = cd_calendar(time,-1)
-    istrt   = ind(yyyymm .eq. ymstrt)
-    ilast   = ind(yyyymm .eq. ymlast)
-    
-    var1    = ctrl_in2->SST_cpl(istrt:ilast,:,:)			; p for unify the var name
-
-
-; ==============================================================
-; Mission 2. process the ssts 
-; ==============================================================
         
-;------------dtrend & regression--------------------
-    reg_var1          = var1(0:11,:,:)
-    ;anom_var1         = calcMonAnomTLL(var1,clmMonTLL(var1))
-    ;no_nino3_anom_var1=anom_var1
-    do i = 0,11
-        var1_mon = var1(i::12,:,:)
-        dimz = dimsizes(var1_mon)
-        yr_length = dimz(0)
-        reg_var1(i,:,:) = (/regCoef(ispan(0,yr_length-1,1), var1_mon(lat|:,lon|:,time|:))/)
-    end do
-    reg_var1 = reg_var1*yr_length
+;------------Operation--------------------
+    out_var1 = clim_var1
     
-    printVarSummary(reg_var1)
+    out_var1(strt_mon:lst_mon,{latS:latN},{lonL:lonR}) = out_var1(strt_mon:lst_mon,{latS:latN},{lonL:lonR})+ssta
+    
+    diff_var1 = out_var1
+    diff_var1 = out_var1-clim_var1
 
-
+    out_var1_ssn=month_to_season(out_var1, g_season)
+    clim_var1_ssn=month_to_season(clim_var1, g_season)
+    diff_var1_ssn=month_to_season(diff_var1, g_season)
 ; ==============================================================
 ; Mission 3. Set the figure parameters
 ; ==============================================================
 
     ;-----------------------------------------------------------------------------
-    wks = gsn_open_wks("eps",fig_name)  ; open a ps file
+    wks = gsn_open_wks("png",fig_name)  ; open a ps file
     ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
     ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-    plot = new((/n_mon_force/),graphic)
+    plot = new((/3/),graphic)
 
-    gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
+    ;gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
     ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
     ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
     ;  gsn_define_colormap(wks1,"precip4_diff_19lev")
     ;  gsn_define_colormap(wks,"precip_diff_12lev")
     ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
-    gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+    ;gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 
     ;-----------------------------------------------------------------------------
     res                  = True       ; use plot options
-
+    res@cnFillPalette        = "BlAqGrYeOrReVi200"
     res@cnFillOn             = True               ; turn on color for contours
     res@cnLinesOn            = False              ; turn off contour lines
     res@cnLineLabelsOn       = False              ; turn off contour line labels
 
 
 
-    i = NhlNewColor(wks,0.341,0.,0.533)              ; add gray to colormap
-    j = NhlNewColor(wks,1,0.,0.)
+;    i = NhlNewColor(wks,0.341,0.,0.533)              ; add gray to colormap
+;    j = NhlNewColor(wks,1,0.,0.)
     ;  res@mpLandFillColor       = "gray"            ; set land to be gray
 
     ;  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
@@ -140,9 +114,9 @@ begin
     ;  res@cnFillColors =(/-1,20,47,57,94,127,152/)
 
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        = -1.0          ; set min contour level
-    res@cnMaxLevelValF        =  1.0          ; set max contour level
-    res@cnLevelSpacingF       =  0.1          ; set contour interval
+    res@cnMinLevelValF        = 25.          ; set min contour level
+    res@cnMaxLevelValF        = 31.          ; set max contour level
+    res@cnLevelSpacingF       = 0.25          ; set contour interval
 
     ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -150,7 +124,7 @@ begin
     res@gsnFrame         = False
     res@gsnDraw  = False
 
-    res@gsnSpreadColors      = True               ; use full color map
+ ;   res@gsnSpreadColors      = True               ; use full color map
     ;res@gsnSpreadColorStart  = 2                ; start at color 17
     ;res@gsnSpreadColorEnd    = 14                ; end at color 200
 
@@ -218,17 +192,6 @@ begin
     
 ;Set resource for the whole page    
     
-    pres                 = True 
-	pres@gsnPanelLabelBar   = True		;Universial colorbar
-	;pres@pmLabelBarWidthF   = 0.5	
-	;pres@gsnPanelRowSpec = True                   ; tell panel what order to plt
-    pres@lbLabelAutoStride    = False
-	pres@lbLabelStride       = 4 
-	pres@lbTitleString       = "SST (K)"
-	pres@lbLabelFontHeightF = 0.02 
-	pres@lbTitleFontHeightF = 0.02
-	pres@pmLabelBarOrthogonalPosF = -0.03           ; move label bar down
-
     res@tmXBLabelFontHeightF = global_font
     res@tmYLLabelFontHeightF = global_font
     res@gsnStringFontHeightF = global_font
@@ -241,40 +204,46 @@ begin
 
 
 
-    do i = 0, n_mon_force-1
+    do i = 0, 1
 
         res@gsnLeftString = fig_num(i)
         res@gsnCenterString = fig_title(i)
 
-        plot(i) = gsn_csm_contour_map_ce(wks,reg_var1(mon_idx(i),:,:),res) ; create a default plot
-
+        if i .eq. 0 then
+            plot(i) = gsn_csm_contour_map_ce(wks,clim_var1_ssn(0,:,:),res) ; create a default plot
+        else
+            plot(i) = gsn_csm_contour_map_ce(wks,out_var1_ssn(0,:,:),res) ; create a default plot
+        end if
     end do
 
-    gsn_panel(wks,plot,(/n_mon_force,1/),False)
 
-    draw(plot)
-    frame(wks)
+    res@cnFillPalette        = "ViBlGrWhYeOrRe"
+    res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+    res@cnMinLevelValF        = -0.5          ; set min contour level
+    res@cnMaxLevelValF        = 0.5         ; set max contour level
+    res@cnLevelSpacingF       = 0.1          ; set contour interval
+    res@gsnLeftString = fig_num(2)
+    res@gsnCenterString = fig_title(2)
+
+
+    plot(2) = gsn_csm_contour_map_ce(wks,diff_var1_ssn(0,:,:),res) ; create a default plot
+
+    gsn_panel(wks,plot,(/3,1/),False)
 
 ; ==============================================================
 ; Mission 4. Output sst forcing file
 ; ==============================================================
     
-    cmp_var1_clim = clim_var1
-
-    print(cmp_var1_clim(mon_idx(0),{latS:latN},{lonL:lonR}))
-	
-    cmp_var1_clim(mon_idx(0):mon_idx(n_mon_force-1),{latS:latN},{lonL:lonR}) = cmp_var1_clim(mon_idx(0):mon_idx(n_mon_force-1),{latS:latN},{lonL:lonR}) + reg_var1(mon_idx(0):mon_idx(n_mon_force-1),{latS:latN},{lonL:lonR})
     
     print("*************")
     print("*************")
     print("*************")
     print("*************")
     print("*************")
-    print(cmp_var1_clim(mon_idx(0),{latS:latN},{lonL:lonR}))
 
 
-	system("rm "+data_path_out+ncdf_name)
-	ncdf     = addfile(data_path_out+ncdf_name ,"c")  ; open output netCDF file
+	system("rm "+data_file_out)
+	ncdf     = addfile(data_file_out ,"c")  ; open output netCDF file
 
 	; make time and UNLIMITED dimension      ; recommended  for most applications
 	filedimdef(ncdf,"time",-1,True) 
@@ -285,13 +254,9 @@ begin
 	t=ctrl_in1->time
 
 
-    printVarSummary(cmp_var1_clim)
-    printVarSummary(SST2)
-    printVarSummary(ice)
-    printVarSummary(ice2)
 	; output variables directly
-	ncdf->SST_cpl=cmp_var1_clim
-	ncdf->SST_cpl_prediddle=SST2
+	ncdf->SST_cpl=out_var1
+    ncdf->SST_cpl_prediddle=SST2
 	ncdf->ice_cov=ice
 	ncdf->ice_cov_prediddle=ice2
 	ncdf->time=t
