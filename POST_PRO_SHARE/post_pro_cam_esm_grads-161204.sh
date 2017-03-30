@@ -20,13 +20,13 @@ PRO_DIR=\"/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up/pro/\"
 CASENAME=\"B20f19-spun-up\"
 
 # ESM folder prefix
-ESM_NAME=ESMc2_
+ESM_NAME=ESMc0_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=4
+ESM_LAST=30
 
 # Names of 2D fields
 #FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use

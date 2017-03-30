@@ -24,8 +24,9 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
     data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/spun-up-pro/B20f19-spun-up.cam.h0.TS.250-299.nc"
-    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/"
-    fig_name="../fig/nino34-esm-ctrl"
+    data_file_ctrl="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
+    data_file_sen="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/sen/"
+    fig_name="../fig/nino34-esm-all"
     fig_title="NINO3.4 INDEX Timeseries"
     
     ;one month rightward shift
@@ -47,21 +48,30 @@ begin
     ;yyyymm = array_append_record (101., yyyymm0, 0)
     istrt = ind(yyyymm .eq. yrstrt1)
     ilast = ind(yyyymm .eq. yrlast1)
-    ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
+    ctrl0_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*ESMc2_*TS* ")
-;    all_file=systemfunc("ls "+data_file_name2+"*ESMc0_1.*TS* "+data_file_name2+ "*ESMc0_1[1-2].*TS* "+data_file_name2+"*ESMc0_22.*TS*")
-    exp_in = addfiles(all_file,"r")
+    ctrl_file=systemfunc("ls "+data_file_ctrl+"*TS*")
+    ctrl_in = addfiles(ctrl_file,"r")
+    ListSetType (ctrl_in, "join")
+    ctrl_var1 = ctrl_in[:]->TS   
+
+    delete([/time/])
+    sen_file=systemfunc("ls "+data_file_sen+"*TS*")
+    exp_in = addfiles(sen_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
 ;--------------Proprocessing-----------
-    ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
-    ctrl_rmean_nino34 = runave_Wrap(ctrl_nino34,3,0)
-    ctrl_nino34_idx = rmAnnCycle1D(ctrl_rmean_nino34)
-    print(yyyymm(istrt:ilast)+": "+ctrl_nino34_idx(:))
+    ctrl0_nino34 = wgt_areaave_Wrap(ctrl0_var1(:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
+    ctrl0_rmean_nino34 = runave_Wrap(ctrl0_nino34,3,0)
+    ctrl0_nino34_idx = rmAnnCycle1D(ctrl0_rmean_nino34)
+    
+    ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
+    ctrl_nino34_idx = runave_Wrap(ctrl_nino34,3,1)
+    ctrl_nino34_idx = ctrl_nino34
+    
     exp_nino34 = wgt_areaave_Wrap(exp_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
-    ;exp_nino34_idx = runave_Wrap(exp_nino34,3,1)
+    exp_nino34_idx = runave_Wrap(exp_nino34,3,1)
     exp_nino34_idx = exp_nino34
     
     time = ctrl_nino34_idx&time
@@ -70,11 +80,11 @@ begin
     istrt = ind(yyyymm1 .eq. yrstrt2)
     ilast = ind(yyyymm1 .eq. yrlast2)
 
-
     do ii=0,11
-        exp_nino34_idx(:,ii::12) = exp_nino34_idx(:,ii::12)-avg(ctrl_rmean_nino34(ii::12))
+        exp_nino34_idx(:,ii::12) = exp_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
+        ctrl_nino34_idx(:,ii::12) = ctrl_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
     end do   
-
+    exit
     
     data=new((/2,dimsizes(ctrl_nino34_idx(istrt:ilast))/),float)
    data(0,:)=ctrl_nino34_idx(istrt:ilast)

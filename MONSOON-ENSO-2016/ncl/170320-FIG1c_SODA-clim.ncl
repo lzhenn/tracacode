@@ -18,7 +18,7 @@ begin
     g_latS=-20
     g_latN=20
     g_lonW=150
-    g_lonE=210
+    g_lonE=180
     g_file_name="/Users/zhenningli/data/obv/SODA/soda3.3.1_mn_ocean_reg_"
     g_data_path1 = "/Users/zhenningli/data/obv/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
     g_data_path2 = "/Users/zhenningli/data/obv/PRECT/gpcp.precip.mon.nc"
