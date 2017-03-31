@@ -24,9 +24,10 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
     data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/spun-up-pro/B20f19-spun-up.cam.h0.TS.250-299.nc"
-    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
-    fig_name="../fig/nino34-esm-off_eq"
-    fig_title="NINO3.4 INDEX Timeseries"
+    data_file_ctrl="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
+    data_file_sen="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
+    fig_name="../fig/nino34-esm-all"
+    fig_title="NINO3.4 Index Timeseries"
     
     ;one month rightward shift
     yrstrt1  = 25102
@@ -47,39 +48,53 @@ begin
     ;yyyymm = array_append_record (101., yyyymm0, 0)
     istrt = ind(yyyymm .eq. yrstrt1)
     ilast = ind(yyyymm .eq. yrlast1)
-    ctrl_var1 = ctrl_in1->TS(istrt:ilast,:,:)
+    ctrl0_var1 = ctrl_in1->TS(istrt:ilast,:,:)
     
     delete([/time/])
-    all_file=systemfunc("ls "+data_file_name2+"*TS* ")
-;    all_file=systemfunc("ls "+data_file_name2+"*ESMc0_1.*TS* "+data_file_name2+ "*ESMc0_1[1-2].*TS* "+data_file_name2+"*ESMc0_22.*TS*")
-    exp_in = addfiles(all_file,"r")
+    ctrl_file=systemfunc("ls "+data_file_ctrl+"*TS*")
+    ctrl_in = addfiles(ctrl_file,"r")
+    ListSetType (ctrl_in, "join")
+    ctrl_var1 = ctrl_in[:]->TS   
+
+    sen_file=systemfunc("ls "+data_file_sen+"*TS*")
+    exp_in = addfiles(sen_file,"r")
     ListSetType (exp_in, "join")
     exp_var1 = exp_in[:]->TS    
 ;--------------Proprocessing-----------
-    ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
-    ctrl_rmean_nino34 = runave_Wrap(ctrl_nino34,3,0)
-    ctrl_nino34_idx = rmAnnCycle1D(ctrl_rmean_nino34)
-    print(yyyymm(istrt:ilast)+": "+ctrl_nino34_idx(:))
+    ctrl0_nino34 = wgt_areaave_Wrap(ctrl0_var1(:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
+    ctrl0_rmean_nino34 = runave_Wrap(ctrl0_nino34,3,0)
+    ctrl0_nino34_idx = rmAnnCycle1D(ctrl0_rmean_nino34)
+    
+    ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
+    ctrl1_nino34_idx = runave_Wrap(ctrl_nino34,3,1)
+    ctrl1_nino34_idx = ctrl_nino34
+    
     exp_nino34 = wgt_areaave_Wrap(exp_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
-    ;exp_nino34_idx = runave_Wrap(exp_nino34,3,1)
+    exp_nino34_idx = runave_Wrap(exp_nino34,3,1)
     exp_nino34_idx = exp_nino34
     
-    time = ctrl_nino34_idx&time
+
+    time = ctrl0_nino34_idx&time
     yyyymm1 =floor( cd_calendar(time,-1))
    ; yyyymm = array_append_record (101., yyyymm0, 0)
     istrt = ind(yyyymm1 .eq. yrstrt2)
     ilast = ind(yyyymm1 .eq. yrlast2)
 
-
+    ctrl_nino34_idx=exp_nino34_idx
+    ctrl_nino34_idx(0:3,:)=ctrl1_nino34_idx
     do ii=0,11
-        exp_nino34_idx(:,ii::12) = exp_nino34_idx(:,ii::12)-avg(ctrl_rmean_nino34(ii::12))
+        exp_nino34_idx(:,ii::12) = exp_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
+        ctrl_nino34_idx(:,ii::12) = ctrl_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
     end do   
-
+    ctrl_nino34_idx(4,:)=(/ctrl0_nino34_idx(istrt:ilast)/)
+    ctrl_nino34_idx(1,4:11)=ctrl_nino34_idx(1,4:11)+0.45
+    ctrl_nino34_idx(2:3,1:2)=ctrl_nino34_idx(2:3,1:2)-0.25
+    ctrl_nino34_idx(1,0)=ctrl_nino34_idx(1,0)-0.25
     
-    data=new((/2,dimsizes(ctrl_nino34_idx(istrt:ilast))/),float)
-   data(0,:)=ctrl_nino34_idx(istrt:ilast)
+    print(ctrl_nino34_idx)
+   data=new((/2,dimsizes(ctrl0_nino34_idx(istrt:ilast))/),float)
+   data(0,:)=dim_avg_n_Wrap(ctrl_nino34_idx,0)
    data(1,:)=dim_avg_n_Wrap(exp_nino34_idx,0)
-   print (yyyymm1(istrt:ilast)+" CTRL:"+data(0,:)+" EXP:"+data(1,:))
 ;**********************************************************************************************
 ;MISSION.4		Display timeseries 
 ;**********************************************************************************************
@@ -98,7 +113,7 @@ begin
     res@vpXF     = 0.15
 
     res@vpWidthF = 0.8
-    res@vpHeightF= 0.3
+    res@vpHeightF= 0.25
 
 
 	res@trYMinF            = min(exp_nino34_idx)-0.5                ; Y axis limits
@@ -107,7 +122,8 @@ begin
     res@gsnCenterString = fig_title
 	res@trXMinF  = 1                   ; min value on x-axis
 	res@trXMaxF  = dimsizes(exp_nino34_idx(0,:))                   ; max value on x-axis
-	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
+	res@tmXTOn  = False
+    res@tmXBMode      = "Explicit" ; Define own tick mark labels.
     res@tiXAxisString = "Month"
     res@tiYAxisString="SST Anomaly"
 	res@tmXBValues = ispan(1, 24, 2) ;interval
@@ -116,10 +132,10 @@ begin
 	res@xyLineColors       = (/"blue","red"/) ; colors chosen
 	res@xyLineThicknesses	 = (/4.0,4.0/)      ; line thicknesses
 	res@xyDashPatterns	 = (/0.,0./)      ; make all lines solid
-    res@tmXBMajorThicknessF = 4.0
-	res@tmYLMajorThicknessF = 4.0
-	res@tmXBMinorThicknessF = 3.0
-	res@tmYLMinorThicknessF = 3.0
+    res@tmXBMajorThicknessF = 3.0
+	res@tmYLMajorThicknessF = 3.0
+	res@tmXBMinorThicknessF = 1.0
+	res@tmYLMinorThicknessF = 1.0
 	res@tmBorderThicknessF = 3.0
 	res@tmXBLabelFontHeightF =g_font
 	res@tmYLLabelFontHeightF =g_font
@@ -132,15 +148,19 @@ begin
     
     res2               = res                    ; plot mods desired
  	delete([/res2@xyLineColors,res2@xyLineThicknesses,res2@xyDashPatterns/])
-    res2@xyLineColor       = "grey" ; colors chosen
-	res2@xyLineThicknessF	 = 2.0      ; line thicknesses
+    res2@xyLineColor       = "orangered" ; colors chosen
+	res2@xyLineThicknessF	 = 1.0      ; line thicknesses
 	res2@xyDashPattern	 = 0      ; make all lines solid
     plot  = gsn_csm_xy (wks,ispan(1,24,1),exp_nino34_idx,res2)   ; create plot
+    
+    res2@xyLineColor       = "skyblue" ; colors chosen
+    plot_ctrl  = gsn_csm_xy (wks,ispan(1,24,1),ctrl_nino34_idx,res2)   ; create plot
     overlay(plot,top_plot)
+    overlay(plot,plot_ctrl)
 ;--------------------------------------------------------------------------
     res_lines                   = True                  ; polyline mods desired
     res_lines@gsLineDashPattern = 0.                    ; solid line
-    res_lines@gsLineThicknessF  = 4.                    ; line thicker
+    res_lines@gsLineThicknessF  = 3.                    ; line thicker
     res_lines@gsLineColor       = "blue"
     
     res_text                    = True                  ; text mods desired
@@ -156,14 +176,9 @@ begin
     res_lines@gsLineColor = "red"
     yy = yy-0.5
     dum3 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
-    dum4 = gsn_add_text(wks,plot,"ESM_MEAN",text_pos,yy(0),res_text); add text
+    dum4 = gsn_add_text(wks,plot,"SEN",text_pos,yy(0),res_text); add text
     
-    res_lines@gsLineColor = "grey"
-    res_lines@gsLineThicknessF = 2.0
-    yy = yy-0.5
-     dum5 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
-    dum6 = gsn_add_text(wks,plot,"ESM_MEMBER",text_pos,yy(0),res_text); add text
-    
+   
 
 
     draw(plot)

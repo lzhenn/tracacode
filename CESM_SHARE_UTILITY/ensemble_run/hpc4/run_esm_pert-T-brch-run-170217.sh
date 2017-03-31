@@ -43,7 +43,7 @@ CASENAME=`basename $WPATH`
 SPATH=/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up
 
 # Storage Dir Prefix 
-SDPRE=ESMc2_
+SDPRE=ESM_off_eq_
 
 # Init Dir PATH (must be a separate dir)
 BRCH_DIR=$WPATH/brch
@@ -55,7 +55,7 @@ BRCH_NAME=B20f19-spun-up.cam.r.0252-01-01-00000.nc
 N_ESM=6
 
 # Standard Divation of Normal Distributed Perturbation in T Field (Kelvin)
-T_PURB=0.02
+T_PURB=0.005
 
 
 #*************Below to execute the changes*********************

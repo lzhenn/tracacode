@@ -14,19 +14,19 @@ PRE_DIR=/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up/
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up/pro/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up/pro/hybrid/\"
 
 # Case name
 CASENAME=\"B20f19-spun-up\"
 
 # ESM folder prefix
-ESM_NAME=ESMc0_
+ESM_NAME=ESM_off_eq_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=30
+ESM_LAST=2
 
 # Names of 2D fields
 #FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use
@@ -38,7 +38,7 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
 # Names of 3D HY fields
-#FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"U\",\"V\"/)" # hybrid coordinate
 
 # Layers of 3D fields
 # CAM4 = 26; CAM5 = 30
@@ -58,7 +58,7 @@ LSTYEAR=253
 # Process fig flag
 FLAG2D=1
 FLAG3D=1
-FLAG3DHY=0
+FLAG3DHY=1
 
 #-----------------------------------------------------------
 for II in `seq $ESM_STRT $ESM_LAST`
@@ -99,6 +99,7 @@ do
         frstyear=$FRSTYEAR          \
         lstyear=$LSTYEAR            \
         case_name=$CASENAME         \
-        ./ncl/take_3D_hybrid_from_raw_data-150921.ncl
+        out_name=$OUT_NAME         \
+        ./ncl/take_3D_hybrid_esm_from_raw_data-170330.ncl
     fi
 done

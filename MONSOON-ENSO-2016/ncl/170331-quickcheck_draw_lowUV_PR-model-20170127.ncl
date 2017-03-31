@@ -23,9 +23,11 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
+    data_file_name11="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/hybrid/ctrl/"
+    data_file_name22="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/hybrid/sen/"
     data_file_name1="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
     data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/sen/"
-    g_fig_name="../fig/FIG3_model"
+    g_fig_name="../fig/FIG3_model-quickplot"
     g_fig_title="ESM-CTRL Pr, UV10m & Vorticity"
     g_font =0.025
     g_fig_rank=(/"(a)"/)
@@ -41,15 +43,15 @@ begin
     g_lonW=100.
     g_lonE=210.
 ;---------------Read data-------------------
-    all_file=systemfunc("ls "+data_file_name1+"*.cam.h0.U.*")
+    all_file=systemfunc("ls "+data_file_name11+"*.cam.h0.U.*")
     ctrl_in1 = addfiles(all_file,"r")
     ListSetType (ctrl_in1, "join")
-    ctrl_var1 = ctrl_in1[:]->U(:,2:4,{1000},:,:)
+    ctrl_var1 = ctrl_in1[:]->U(:,2:4,25,:,:)
     
-    all_file=systemfunc("ls "+data_file_name1+"*.cam.h0.V.*")
+    all_file=systemfunc("ls "+data_file_name11+"*.cam.h0.V.*")
     ctrl_in1 = addfiles(all_file,"r")
     ListSetType (ctrl_in1, "join")
-    ctrl_var2 = ctrl_in1[:]->V(:,2:4,{1000},:,:)    
+    ctrl_var2 = ctrl_in1[:]->V(:,2:4,25,:,:)    
     
     all_file=systemfunc("ls "+data_file_name1+"*.cam.h0.PRECC.*")
     ctrl_in1 = addfiles(all_file,"r")
@@ -63,16 +65,17 @@ begin
     ctrl_var3 = (ctrl_var3+ctrl_var4)*86400*1000
 
     delete([/all_file/])
-    all_file=systemfunc("ls "+data_file_name2+"*.cam.h0.U.*")
+    all_file=systemfunc("ls "+data_file_name22+"*.cam.h0.U.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var1 = exp_in[:]->U(:,2:4,{1000},:,:)
+    exp_var1 = exp_in[:]->U(:,2:4,25,:,:)
 
-    all_file=systemfunc("ls "+data_file_name2+"*.cam.h0.V.*")
+    all_file=systemfunc("ls "+data_file_name22+"*.cam.h0.V.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var2 = exp_in[:]->V(:,2:4,{1000},:,:)
+    exp_var2 = exp_in[:]->V(:,2:4,25,:,:)
 
+    delete([/all_file/])
     all_file=systemfunc("ls "+data_file_name2+"*.cam.h0.PRECC.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
@@ -113,15 +116,59 @@ begin
     diff_var1 = exp_var1_ssnmean - ctrl_var1_ssn
     diff_var2 = exp_var2_ssnmean - ctrl_var2_ssn
     diff_var3 = exp_var3_ssnmean - ctrl_var3_ssn
-    cmp_vr =diff_var1
-    cmp_vr    = uv2vr_cfd(ctrl_var1_ssn, ctrl_var2_ssn, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
+    
+    
+     
+  
+    ; Calculate the Sverdrup Transport
+    ; Vs=(1/beta)*curl(tao)
+    ;   tao=ruo*Cd*U*U
+    ;   ruo*Cd=2kg/m3
+    ;   beta=partial(f)/(a*partial(fai))
+    ;   f=2*om*sin(fai)
+
+    ruo=1.22 ;kg/m3
+    Cd=0.0013  
+    a=6378388 ; R of the earth
+    om=7.29e-5
+    d2r=0.0174533 ; convert to radians
+
+    tao_x_exp=exp_var1_ssnmean
+    tao_y_exp=exp_var2_ssnmean
+
+    tao_x_ctrl=ctrl_var1_ssn
+    tao_y_ctrl=ctrl_var2_ssn
+   
+    tao_x_exp=ruo*Cd*exp_var1_ssnmean*exp_var1_ssnmean
+    tao_y_exp=ruo*Cd*exp_var2_ssnmean*exp_var2_ssnmean
+
+    tao_x_ctrl=ruo*Cd*ctrl_var1_ssn*ctrl_var1_ssn
+    tao_y_ctrl=ruo*Cd*ctrl_var2_ssn*ctrl_var2_ssn
+    
+    tao_x_diff=diff_var1
+    tao_y_diff=diff_var2
+    
+    tao_x_diff=ruo*Cd*diff_var1*diff_var1
+    tao_y_diff=ruo*Cd*diff_var2*diff_var2
+
+  
+
+    curl_exp=tao_x_ctrl
+    curl_ctrl=tao_x_ctrl
+    curl_diff0=tao_x_diff
+    curl_diff0    = uv2vr_cfd(tao_x_diff, tao_y_diff, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
+    curl_exp    = uv2vr_cfd(tao_x_exp, tao_y_exp, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
+    curl_ctrl    = uv2vr_cfd(tao_x_ctrl, tao_y_ctrl, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
+    curl_diff=curl_exp
+    curl_diff=curl_exp-curl_ctrl
+
     ;--------------------------------
     ;--------Sig Test----------------
     ;--------------------------------
     diff_speed = diff_var1
     diff_speed = sqrt(diff_var1*diff_var1 + diff_var2*diff_var2)
     diff_var1@_FillValue= -999
-    diff_var1 = where(diff_speed .gt. 1.5, diff_var1, diff_var1@_FillValue)
+    ;diff_var1 = where(diff_speed .gt. 1.5, diff_var1, diff_var1@_FillValue)
 
 
     siglvl = 0.1                       ; critical sig lvl for r
@@ -173,9 +220,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -5e-6          ; set min contour level
-    res@cnMaxLevelValF        =  5e-6          ; set max contour level
-    res@cnLevelSpacingF       =  5e-7          ; set contour interval
+    res@cnMinLevelValF        =  -5e-8          ; set min contour level
+    res@cnMaxLevelValF        =  5e-8          ; set max contour level
+    res@cnLevelSpacingF       =  5e-9          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -248,13 +295,14 @@ begin
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    res3@cnLevels = (/1.0,1.5,2.0,3.0/)
+    ;res3@cnLevels = (/1.0,1.5,2.0,3.0/)
+    res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
     res3@cnLineColor      = "Blue"
     res3@gsnLeftString      = " "
     res3@gsnRightString      = " "
 
     do i = 0,2
-        cmpvarsmoth=smth9_Wrap(diff_var3,0.5,0.25, True)
+        cmpvarsmoth=smth9_Wrap(ctrl_var3_ssn,0.5,0.25, True)
         plot_cn_pos(i) = gsn_csm_contour(wks,cmpvarsmoth,res3) ; create a default plot
     end do
     
@@ -321,7 +369,7 @@ do i = 0,0
     res@gsnCenterString = g_fig_title
     res@gsnRightString = ""
 
-    cmpvrsmoth=smth9_Wrap(cmp_vr,0.5,0.25, True)
+    cmpvrsmoth=smth9_Wrap(curl_diff0,0.5,0.25, True)
     plot(i) = gsn_csm_contour_map_ce(wks,cmpvrsmoth,res)
 
     plot_V(i) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
