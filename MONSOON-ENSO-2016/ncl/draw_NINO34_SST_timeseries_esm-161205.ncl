@@ -135,6 +135,7 @@ begin
     res2@xyLineColor       = "grey" ; colors chosen
 	res2@xyLineThicknessF	 = 2.0      ; line thicknesses
 	res2@xyDashPattern	 = 0      ; make all lines solid
+    printVarSummary(exp_nino34_idx)
     plot  = gsn_csm_xy (wks,ispan(1,24,1),exp_nino34_idx,res2)   ; create plot
     overlay(plot,top_plot)
 ;--------------------------------------------------------------------------

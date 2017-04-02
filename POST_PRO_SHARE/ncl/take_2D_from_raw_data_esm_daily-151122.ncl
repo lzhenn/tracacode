@@ -19,7 +19,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
     if (.not. isvar("pre_dir") .or. .not. isvar("pro_dir") .or.\
-        .not. isvar("fdname2d") .or. .not. isvar("n_esm") .or. .not. isvar("case_name")) then 
+        .not. isvar("fdname2d") .or. .not. isvar("n_esm") .or. .not. isvar("case_name") .or. .not. isvar("esm_name")) then 
         print("2D EXTRACT: At least one argument has not been assigned, cannot continue!");
         exit
     end if
@@ -31,11 +31,11 @@ begin
     do jj = 0,n_esm-1
         print("                                                    ")
         print("********ESM:"+(jj+1)+" 2D EXTRACT: Preparing********")
-        pre_dir0 = pre_dir + "esm_"+(jj+1)
+        pre_dir0 = pre_dir + esm_name+(jj+1)
 
         setfileoption("nc","SuppressClose",False) ; don't close too many files
         
-        all_files = systemfunc("ls "+pre_dir0+"/")  
+        all_files = systemfunc("ls "+pre_dir0+"/*.nc")  
         
         split_start=str_split(all_files(0),".") ;e.g. xxxx.cam.h1.0006-06-21-00000.nc
         start_day = str_sub_str(str_get_cols(split_start(3),5,9),"-","")
@@ -43,7 +43,7 @@ begin
         split_end=str_split(all_files(dimsizes(all_files)-1),".") ;e.g. xxxx.cam.h1.0006-06-21-00000.nc
         end_day = str_sub_str(str_get_cols(split_end(3),5,9),"-","")
         
-        ctrl_in      = addfiles (pre_dir0+"/"+all_files, "r")   ; note the "s" of addfile
+        ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
         
        
         do i = 0,dimsizes(fdname2d)-1
@@ -51,7 +51,7 @@ begin
             ctrl_var1 = ctrl_in[:]->$fdname2d(i)$
 
             print("  2D EXTRACT: "+fdname2d(i)+" Writing...")
-            pdata_fn = pro_dir+case_name+".cam.h1.ESM"+(jj+1)+"."+fdname2d(i)+"."+start_day+"-"+end_day+".nc"
+            pdata_fn = pro_dir+case_name+".cam.h1."+esm_name+(jj+1)+"."+fdname2d(i)+"."+start_day+"-"+end_day+".nc"
         ;Get dimsize
             dims=dimsizes(ctrl_var1)
             nlat=dims(1)

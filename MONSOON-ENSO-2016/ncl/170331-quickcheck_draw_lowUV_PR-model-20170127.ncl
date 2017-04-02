@@ -24,9 +24,9 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
     data_file_name11="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/hybrid/ctrl/"
-    data_file_name22="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/hybrid/sen/"
+    data_file_name22="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
     data_file_name1="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
-    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/sen/"
+    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
     g_fig_name="../fig/FIG3_model-quickplot"
     g_fig_title="ESM-CTRL Pr, UV10m & Vorticity"
     g_font =0.025
