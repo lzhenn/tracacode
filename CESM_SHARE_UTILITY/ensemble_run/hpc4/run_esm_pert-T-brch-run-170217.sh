@@ -52,7 +52,8 @@ BRCH_DIR=$WPATH/brch
 BRCH_NAME=B20f19-spun-up.cam.r.0252-01-01-00000.nc
 
 # Ensemble Members
-N_ESM=6
+STRT_ESM=2
+END_ESM=6
 
 # Standard Divation of Normal Distributed Perturbation in T Field (Kelvin)
 T_PURB=0.005
@@ -103,9 +104,9 @@ fi
 
 NCL_BRCH_PATH=\"${BRCH_DIR}/${BRCH_NAME}/\"
 # Main Loop
-for II in `seq 1 $N_ESM`
+for II in `seq $STRT_ESM $END_ESM`
 do
-    echo "ESM${II}/${N_ESM}, with restart condition: ${BRCH_NAME}, is processing!"
+    echo "ESM${II}/${END_ESM}, with restart condition: ${BRCH_NAME}, is processing!"
  
     # Perturb branch filed
     ncl -nQ pre_dir=$NCL_BRCH_PATH  \
@@ -115,7 +116,7 @@ do
     cp $BRCH_DIR/${BRCH_NAME} $WPATH/exe/
     # Submit task
     $WPATH/$CASENAME.run 
-    echo "ESM${II}/${N_ESM}, with perturbated restart condition: ${BRCH_NAME}, has been submitted!"
+    echo "ESM${II}/${END_ESM}, with perturbated restart condition: ${BRCH_NAME}, has been submitted!"
     
     #Check status
     while [ ! -f "$WPATH/run.log" ]
@@ -148,7 +149,7 @@ do
             if [ -n "$TASK" ]; then
                 echo "Still found running task, wait next test or interupt.."
             else
-                FINISH=$(date)" ESM${II}/${N_ESM} finished!!! "
+                FINISH=$(date)" ESM${II}/${END_ESM} finished!!! "
                 echo "                                  "
                 echo "**********************************"
                 echo $FINISH
@@ -170,11 +171,11 @@ do
             fi
         else
             if [ "$LOG_SIZE0" -eq "$LOG_SIZE1" ]; then
-                echo "Log file size increment stopped, please check if ESM${II}/${N_ESM} failed."
+                echo "Log file size increment stopped, please check if ESM${II}/${END_ESM} failed."
                 exit
             else
                 DIFF_LOG_SIZ=`expr $LOG_SIZE1 - $LOG_SIZE0`
-                TIMER=$(date)" ${CASENAME} ESM${II}/${N_ESM} with size increment $DIFF_LOG_SIZ is still running..."
+                TIMER=$(date)" ${CASENAME} ESM${II}/${END_ESM} with size increment $DIFF_LOG_SIZ is still running..."
                 echo $TIMER
             fi
         fi
@@ -186,7 +187,7 @@ do
     # Move back the rpointers
     cp  $RP_DIR/* ${WPATH}/exe/
     
-    if [ $II == $N_ESM ]; then
+    if [ $II == $END_ESM ]; then
         echo "                                                              "
         echo "*******************CESM ENSEMBLE RUN SCRIPT*******************"
         echo "                                                              "
