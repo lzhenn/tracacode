@@ -49,16 +49,13 @@ FLSTYEAR=2005
 
 #**************************FIGURE SETTINGS**************************
 # Path of outfig
-FIG_PATH=\"/home/yangsong3/L_Zealot/project/SPCAM-TEST-2016/fig/\"
+FIG_PATH=\"/home/yangsong3/L_Zealot/project/POST_PRO_SHARE/scrach_fig/\"
 
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
 R_FLAG=1
 
 # Draw flags
-ANN_TS_FLAG=0
-SNN_TS_FLAG=0
-
 ANN_PR_FLAG=1
 SNN_PR_FLAG=1
 
@@ -66,7 +63,7 @@ SNN_PR_FLAG=1
 #**************************PROCESS SETTINGS**************************
 
 if  [ $R_FLAG == 1 ] ; then
-#EA
+#Asia
     LATS=-30.
     LATN=45.
     LONW=60.
@@ -96,103 +93,25 @@ fi
 #********************************************************************
 #--------------------------ACTION NOW!-------------------------------
 #********************************************************************
-
-
-#       ----    ann ts, with sig    (1)
-if [ $ANN_TS_FLAG == 1 ] ; then
-    echo "-----ann ts, with sig    (1)-----"
-    ncl -nQ \
-        pro_ctrl_dir=$PRO_CTRL_DIR              \
-        ctrl_casename=$CTRL_CASENAME            \
-        ctrl_pfile=$CTRL_PFILE                  \
-        pro_sen_dir=$PRO_SEN_DIR                \
-        sen_casename=$SEN_CASENAME              \
-        ffrstyear=$FFRSTYEAR                    \
-        flstyear=$FLSTYEAR                    \
-        sen_frstyear=$SEN_FRSTYEAR              \
-        sen_lstyear=$SEN_LSTYEAR               \
-        lats=$LATS                              \
-        latn=$LATN                              \
-        lonw=$LONW                              \
-        lone=$LONE                              \
-        fig_path=$FIG_PATH                      \
-        ./ncl/quickplot_diff-annual-TS_SEN-CTRL-20160113.ncl
-fi
-
-#       ----    ann uv850 + pr, with sig    (1)
-if [ $SNN_TS_FLAG == 1 ] ; then
-    echo "-----season ts, with sig    (4)-----"
-    ncl -nQ \
-        pro_ctrl_dir=$PRO_CTRL_DIR              \
-        ctrl_casename=$CTRL_CASENAME            \
-        ctrl_pfile=$CTRL_PFILE                  \
-        pro_sen_dir=$PRO_SEN_DIR                \
-        sen_casename=$SEN_CASENAME              \
-        ffrstyear=$FFRSTYEAR                    \
-        flstyear=$FLSTYEAR                    \
-        sen_frstyear=$SEN_FRSTYEAR              \
-        sen_lstyear=$SEN_LSTYEAR               \
-        lats=$LATS                              \
-        latn=$LATN                              \
-        lonw=$LONW                              \
-        lone=$LONE                              \
-        fig_path=$FIG_PATH                      \
-        ./ncl/quickplot_diff-season-TS_SEN-CTRL-20160113.ncl
-fi
-
-#       ----    ann pr, with sig    (1)
-if [ $ANN_PR_FLAG == 1 ] ; then
-    echo "-----annual pr, with sig    (1)-----"
-    ncl -nQ \
-        pro_ctrl_dir=$PRO_CTRL_DIR              \
-        ctrl_casename=$CTRL_CASENAME            \
-        ctrl_pfile=$CTRL_PFILE                  \
-        ffrstyear=$FFRSTYEAR                    \
-        flstyear=$FLSTYEAR                    \
-        lats=$LATS                              \
-        latn=$LATN                              \
-        lonw=$LONW                              \
-        lone=$LONE                              \
-        fig_path=$FIG_PATH                      \
-        ./ncl/draw_clim-obv-model-annual-Pr-20160401.ncl
-fi
-
 #       ----    ann uv850 + pr, with sig    (1)
 if [ $SNN_PR_FLAG == 1 ] ; then
-    echo "-----season pr, with sig    (4)-----"
+    echo "-----SSN UV850 + Pr    (4)-----"
     ncl -nQ \
         pro_ctrl_dir=$PRO_CTRL_DIR              \
         ctrl_casename=$CTRL_CASENAME            \
-        ctrl_pfile=$CTRL_PFILE                  \
+        pro_sen_dir=$PRO_SEN_DIR                \
+        sen_casename=$SEN_CASENAME              \
         ffrstyear=$FFRSTYEAR                    \
-        flstyear=$FLSTYEAR                    \
+        flstyear=$FLSTYEAR                      \
+        sub_frstyear=$SUB_FRSTYEAR              \
+        sub_lstyear=$SUB_LSTYEAR                \
         lats=$LATS                              \
         latn=$LATN                              \
         lonw=$LONW                              \
         lone=$LONE                              \
         fig_path=$FIG_PATH                      \
-        ./ncl/draw_clim-obv-model-season-Pr-20160401.ncl
+        ./ncl/draw_diff-season-850UV_Pr_SEN-CTRL-20151127.ncl
+
 fi
 
 
-
-exit 0
-#       ----    SSN UV850 + Pr, with sig    (4)
-echo "-----SSN UV850 + Pr, with sig    (4)-----"
-ncl -nQ \
-    pro_ctrl_dir=$PRO_CTRL_DIR              \
-    ctrl_casename=$CTRL_CASENAME            \
-    pro_sen_dir=$PRO_SEN_DIR                \
-    sen_casename=$SEN_CASENAME              \
-    ffrstyear=$FFRSTYEAR                    \
-    flstyear=$FLSTYEAR                      \
-    sub_frstyear=$SUB_FRSTYEAR              \
-    sub_lstyear=$SUB_LSTYEAR                \
-    lats=$LATS                              \
-    latn=$LATN                              \
-    lonw=$LONW                              \
-    lone=$LONE                              \
-    fig_path=$FIG_PATH                      \
-    ./ncl/draw_diff-season-850UV_Pr_SEN-CTRL-20151127.ncl
-
-echo "**************Post-post Processing Done!!!****************"

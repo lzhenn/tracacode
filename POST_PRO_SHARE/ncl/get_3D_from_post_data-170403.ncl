@@ -18,9 +18,9 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 begin
     if (.not. isvar("pre_dir") .or. .not. isvar("pro_dir") .or.\
-        .not. isvar("fdname3d") .or. .not. isvar("layers") .or.\
+        .not. isvar("fdname3d") .or.\
         .not. isvar("frstyear") .or. .not. isvar("lstyear") .or.\
-        .not. isvar("case_name") .or. .not. isvar("plev").or. .not. isvar("spinyear")) then 
+        .not. isvar("case_name") .or.  .not. isvar("spinyear")) then 
         print("At least one argument has not been assigned, cannot continue!");
         exit
     end if

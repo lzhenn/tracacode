@@ -39,10 +39,11 @@ begin
         ctrl_var1 = ctrl_in1->$fdname2d(i)$
 
         clim_ctrl_var1 = clmMonTLL(ctrl_var1(spinyear*12:,:,:))
+        clim_ctrl_var1!0="time"
         print("2D EXTRACT: "+fdname2d(i)+" Writing...")
         pdata_fn = pro_dir+case_name+".cam.h0."+fdname2d(i)+".clim."+(frstyear+spinyear)+"-"+lstyear+".nc"
     ;Get dimsize
-        dims=dimsizes(clim_clim_ctrl_var1)
+        dims=dimsizes(clim_ctrl_var1)
         nlat=dims(1)
         nlon=dims(2)
         
@@ -69,7 +70,7 @@ begin
         filevardef(fout,fdname2d(i),typeof(clim_ctrl_var1),getvardims(clim_ctrl_var1))
 
     ;Define Attribute
-        filevarattdef(fout,"time",clim_ctrl_var1&time)
+        ;filevarattdef(fout,"time",clim_ctrl_var1&time)
         filevarattdef(fout,"lat",clim_ctrl_var1&lat)
         filevarattdef(fout,"lon",clim_ctrl_var1&lon)
         filevarattdef(fout,fdname2d(i),clim_ctrl_var1)
@@ -81,6 +82,7 @@ begin
         fout->$fdname2d(i)$=(/clim_ctrl_var1/)
         delete([/clim_ctrl_var1,  fout/])
         print("2D EXTRACT: "+fdname2d(i)+" Done!")
+        print("-----------------------------------------------")
 
     end do
 end

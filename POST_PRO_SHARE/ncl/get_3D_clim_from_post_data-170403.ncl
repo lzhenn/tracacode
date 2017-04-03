@@ -36,9 +36,9 @@ begin
         ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
 
         print("3D EXTRACT: "+fdname3d(i)+" Reading...")
-        ctrl_var1 = ctrl_in[:]->$fdname3d(i)$
-        ctrl_ctrl_var1p = clmMonTLLL(ctrl_var1(spinyear*12,:,:,:))
-        print("3D EXTRACT: "+fdname3d(i)+" interpolating...")
+        ctrl_var1 = ctrl_in1->$fdname3d(i)$
+        clim_ctrl_var1p = clmMonTLLL(ctrl_var1(spinyear*12:,:,:,:))
+        clim_ctrl_var1p!0="time"
 
     ;************************************************
     ; Write the file
@@ -76,11 +76,11 @@ begin
         filevardef(fout,fdname3d(i),typeof(clim_ctrl_var1p),getvardims(clim_ctrl_var1p))
 
     ;Define Attribute
-        filevarattdef(fout,"time",clim_ctrl_var1p&time)
+    ;    filevarattdef(fout,"time",clim_ctrl_var1p&time)
         filevarattdef(fout,"level",clim_ctrl_var1p&level)
         filevarattdef(fout,"lat",clim_ctrl_var1p&lat)
         filevarattdef(fout,"lon",clim_ctrl_var1p&lon)
-        filevarattdef(fout,fdname3d(i),clim_ctrl_var1)
+        filevarattdef(fout,fdname3d(i),clim_ctrl_var1p)
 
         
         fout->time=(/clim_ctrl_var1p&time/)
@@ -88,8 +88,9 @@ begin
         fout->lat=(/clim_ctrl_var1p&lat/)
         fout->lon=(/clim_ctrl_var1p&lon/)
         fout->$fdname3d(i)$=(/clim_ctrl_var1p/)
-        delete([/clim_ctrl_var1, clim_ctrl_var1p, fout/])
+        delete([/ctrl_var1, clim_ctrl_var1p, fout/])
         print("3D EXTRACT: "+fdname3d(i)+" Done!")
+        print("------------------------------------------")
 
     end do
 end

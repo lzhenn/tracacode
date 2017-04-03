@@ -57,17 +57,18 @@ ncl -nQ pre_dir=$PRE_DIR            \
     spinyear=$SPIN_YEAR         \
     lstyear=$LSTYEAR            \
     case_name=$CASENAME         \
-    ./ncl/get_2D_from_post_data-170403.ncll
+    ./ncl/get_2D_clim_from_post_data-170403.ncl
 fi
 #Output post processed 3D fields
 if  [ $FLAG3D == 1 ] ; then
-ncl pre_dir=$PRE_DIR            \
+ncl -nQ pre_dir=$PRE_DIR            \
     pro_dir=$PRO_DIR            \
     fdname3d=$FDNAME3D          \
     frstyear=$FRSTYEAR          \
+    spinyear=$SPIN_YEAR         \
     lstyear=$LSTYEAR            \
     case_name=$CASENAME         \
-    ./ncl/get_3D_from_post_data-170403.ncll
+    ./ncl/get_3D_clim_from_post_data-170403.ncl
 fi
 
 ##Output post processed 3D fields
