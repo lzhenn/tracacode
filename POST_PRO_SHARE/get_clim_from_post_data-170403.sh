@@ -11,13 +11,13 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/users/yangsong3/L_Zealot/B/B20f19-spun-up/exe/\"
+PRE_DIR=\"/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/F2000_F19_CAM4_CTRL/pro/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/B/data/model_post/\"
+PRO_DIR=\"/home/yangsong3/L_Zealot/project/POST_PRO_SHARE/clim_mon_data/F2000_F19_CAM4_CTRL/\"
 
 # Case name
-CASENAME=\"B20f19-spun-up\"
+CASENAME=\"CTRL\"
 
 
 # Names of 2D fields
