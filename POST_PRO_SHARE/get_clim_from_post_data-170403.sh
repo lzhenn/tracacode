@@ -32,10 +32,6 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
 # Names of 3D HY fields
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
-# Layers of 3D fields
-# CAM4 = 26; CAM5 = 30
-LAYERS=26
-
 # First year of the subset
 FRSTYEAR=1
 
@@ -68,12 +64,10 @@ if  [ $FLAG3D == 1 ] ; then
 ncl pre_dir=$PRE_DIR            \
     pro_dir=$PRO_DIR            \
     fdname3d=$FDNAME3D          \
-    layers=$LAYERS              \
-    plev=$PLEV                  \
     frstyear=$FRSTYEAR          \
     lstyear=$LSTYEAR            \
     case_name=$CASENAME         \
-    ./ncl/take_3D_from_raw_data-grads-151114.ncl
+    ./ncl/get_3D_from_post_data-170403.ncll
 fi
 
 ##Output post processed 3D fields
