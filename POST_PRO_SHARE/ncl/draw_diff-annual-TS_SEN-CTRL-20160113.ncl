@@ -120,7 +120,7 @@ begin
 
 ;-----------------------------------------------------------------------------
  print(">>>> Processing figures")
- wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+ wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 

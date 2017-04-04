@@ -10,14 +10,14 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/users/yangsong3/L_Zealot/B/B20f19-spun-up/exe/\"
+PRE_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/exe/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/B/data/model_post/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/pro-data/ctrl/\"
 
 # Case name
-CASENAME=\"B20f19-spun-up\"
+CASENAME=\"as-bob-test\"
 
 
 # Names of 2D fields
@@ -42,10 +42,10 @@ PLEV="(/1000,925,850,700,600,500,400,300,200,100/)"
 #PLEV="(/500,300,200/)"
 
 # First year of the subset
-FRSTYEAR=250
+FRSTYEAR=1
 
 # Last year of the subset
-LSTYEAR=299
+LSTYEAR=15
 
 # Process fig flag
 FLAG2D=1

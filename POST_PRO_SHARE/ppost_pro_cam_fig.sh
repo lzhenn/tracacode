@@ -27,71 +27,71 @@ echo "  "
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRO_CTRL_DIR=\"/home/yangsong3/data/model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/pro/\"
+PRO_CTRL_DIR=\"/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/\"
 
 # CTRL Case name
-CTRL_CASENAME=\"B2000_f19g16_CP_CTRL\"
+CTRL_CASENAME=\"as-bob-test\"
 
 
 # Path of the post processed data
-PRO_SEN_DIR=\"/home/yangsong3/L_Zealot/data-mirror/model/MONSOON-ENSO-2016/B_ALBD_STR_MONSOON-2015/pro/\"
+PRO_SEN_DIR=\"/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/sen/\"
 
 # SEN case name
-SEN_CASENAME=\"B_ALBD_STR_MONSOON-2015\"
+SEN_CASENAME=\"as-bob-test\"
 
 # Path of outfig
-FIG_PATH=\"/home/yangsong3/L_Zealot/project/MONSOON-ENSO-2016/fig/auto-fig\"
+FIG_PATH=\"/home/yangsong3/L_Zealot/project/POST_PRO_SHARE/scrach_fig/\"
 
 
 
 # CTRL TIME BOUND
 # History file first year
-FFRSTYEAR=250
+FFRSTYEAR=1
 
 # History file last year
-FLSTYEAR=349
+FLSTYEAR=15
 
 # Subset first year
-SUB_FRSTYEAR=250
+SUB_FRSTYEAR=6
 
 # Subset last year
-SUB_LSTYEAR=319
+SUB_LSTYEAR=15
 
 
 # SEN TIME BOUND
 # History file first year
-SEN_FFRSTYEAR=250
+SEN_FFRSTYEAR=1
 
 # History file last year
-SEN_FLSTYEAR=319
+SEN_FLSTYEAR=15
 
 # Subset first year
-SEN_SUB_FRSTYEAR=250
+SEN_SUB_FRSTYEAR=6
 
 # Subset last year
-SEN_SUB_LSTYEAR=319
+SEN_SUB_LSTYEAR=15
 
 
 
 # Draw flags
-ANN_TS_FLAG=1
-SNN_TS_FLAG=0
+ANN_TS_FLAG=0
+SNN_TS_FLAG=1
 
 ANN_PR_U850_FLAG=0
-SNN_PR_U850_FLAG=0
+SNN_PR_U850_FLAG=1
 
 
 
 # Range of the map, R_FLAG: regional flag, 1 for regional
-R_FLAG=0
+R_FLAG=1
 
 #-----------------------------------------------------------
 
 if  [ $R_FLAG == 1 ] ; then
 #EA
-    LATS=-5.
+    LATS=-25.
     LATN=45.
-    LONW=90.
+    LONW=60.
     LONE=160.
 #EQ BAND
 #    LATS=-30.
@@ -130,6 +130,29 @@ if [ $ANN_TS_FLAG == 1 ] ; then
         ./ncl/draw_diff-annual-TS_SEN-CTRL-20160113.ncl
 fi
 
+#       ----    ann ts, with sig    (4)
+if [ $SNN_TS_FLAG == 1 ] ; then
+    echo "-----ann ts, with sig    (4)-----"
+    ncl -nQ \
+        pro_ctrl_dir=$PRO_CTRL_DIR              \
+        ctrl_casename=$CTRL_CASENAME            \
+        pro_sen_dir=$PRO_SEN_DIR                \
+        sen_casename=$SEN_CASENAME              \
+        ffrstyear=$FFRSTYEAR                    \
+        flstyear=$FLSTYEAR                      \
+        sub_frstyear=$SUB_FRSTYEAR              \
+        sub_lstyear=$SUB_LSTYEAR                \
+        sen_ffrstyear=$SEN_FFRSTYEAR            \
+        sen_flstyear=$SEN_FLSTYEAR              \
+        sen_sub_frstyear=$SEN_SUB_FRSTYEAR      \
+        sen_sub_lstyear=$SEN_SUB_LSTYEAR        \
+        lats=$LATS                              \
+        latn=$LATN                              \
+        lonw=$LONW                              \
+        lone=$LONE                              \
+        fig_path=$FIG_PATH                      \
+        ./ncl/draw_diff-season-TS_SEN-CTRL-20170403.ncl
+fi
 #       ----    ann uv850 + pr, with sig    (1)
 if [ $ANN_PR_U850_FLAG == 1 ] ; then
     echo "-----ann uv850 + pr, with sig    (1)-----"
@@ -142,6 +165,10 @@ if [ $ANN_PR_U850_FLAG == 1 ] ; then
         flstyear=$FLSTYEAR                    \
         sub_frstyear=$SUB_FRSTYEAR \
         sub_lstyear=$SUB_LSTYEAR             \
+        sen_ffrstyear=$SEN_FFRSTYEAR            \
+        sen_flstyear=$SEN_FLSTYEAR              \
+        sen_sub_frstyear=$SEN_SUB_FRSTYEAR      \
+        sen_sub_lstyear=$SEN_SUB_LSTYEAR        \
         lats=$LATS                              \
         latn=$LATN                              \
         lonw=$LONW                              \
@@ -163,6 +190,10 @@ if [ $SNN_PR_U850_FLAG == 1 ] ; then
         flstyear=$FLSTYEAR                      \
         sub_frstyear=$SUB_FRSTYEAR              \
         sub_lstyear=$SUB_LSTYEAR                \
+        sen_ffrstyear=$SEN_FFRSTYEAR            \
+        sen_flstyear=$SEN_FLSTYEAR              \
+        sen_sub_frstyear=$SEN_SUB_FRSTYEAR      \
+        sen_sub_lstyear=$SEN_SUB_LSTYEAR        \
         lats=$LATS                              \
         latn=$LATN                              \
         lonw=$LONW                              \
