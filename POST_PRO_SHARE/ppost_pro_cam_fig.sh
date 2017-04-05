@@ -89,10 +89,10 @@ R_FLAG=1
 
 if  [ $R_FLAG == 1 ] ; then
 #EA
-    LATS=-25.
+    LATS=-0.
     LATN=45.
-    LONW=60.
-    LONE=160.
+    LONW=30.
+    LONE=100.
 #EQ BAND
 #    LATS=-30.
 #    LATN=30.

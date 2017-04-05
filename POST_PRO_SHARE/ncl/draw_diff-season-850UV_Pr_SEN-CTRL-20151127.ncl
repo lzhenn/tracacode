@@ -184,7 +184,7 @@ begin
         prob2 = ttest(ctrl_var2_season_clim(ii,:,:),ctrl_var2_var(ii,:,:),g_nsmp, exp_var2_season_clim(ii,:,:),exp_var2_var(ii,:,:),g_nsmp_sen, iflag, False)
         prob3 = ttest(ctrl_var3_season_clim(ii,:,:),ctrl_var3_var(ii,:,:),g_nsmp, exp_var3_season_clim(ii,:,:),exp_var3_var(ii,:,:),g_nsmp_sen, iflag, False)
     
-        diff_var1(ii,:,:)=mask(diff_var1(ii,:,:), (prob1 .lt. sigr) .or. (prob2 .lt. sigr), True)
+;        diff_var1(ii,:,:)=mask(diff_var1(ii,:,:), (prob1 .lt. sigr) .or. (prob2 .lt. sigr), True)
         diff_var3_sig(ii,:,:)=mask(diff_var3(ii,:,:), prob3 .lt. sigr, True)
     end do
 ;-----------------------------------------------------------------------------
@@ -331,11 +331,11 @@ wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 
     vcres@vcRefAnnoOn      = True
     vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
-    vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+    vcres@vcRefMagnitudeF         = 1.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
     vcres@vcMinDistanceF          = 0.03
-    vcres@vcRefAnnoString1  = "2 m/s"
+    vcres@vcRefAnnoString1  = "1 m/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.018
     vcres@vcLineArrowThicknessF     = 1.5    ;thickness of vector
