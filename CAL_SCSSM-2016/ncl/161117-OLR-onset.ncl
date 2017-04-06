@@ -36,7 +36,7 @@ begin
     g_day_shift=5
 
     g_var_name3 = "r"
-    g_data3_path ="../data/NOAA-OLR/daily/olr.day.mean.f10.nc"
+    g_data3_path ="/Users/zhenningli/data/obv/NOAA-OLR/olr.day.mean.f10.nc"
 
     g_font = 0.025
     

@@ -20,6 +20,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCL_SELFLIB/file_io.ncl"
 
 begin
 
@@ -46,7 +47,7 @@ begin
     g_fig_name = "../fig/obv/model-esm-olr"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)"/)
-    g_fig_title   = "ESM OLR timeseries"
+    g_fig_title   = "Obv: 1979-2012 vs Sim: 20 esm members"
 
     npos_year = 0
     nneg_year = 0
@@ -57,15 +58,26 @@ begin
     ctrl_in     = addfiles (ctrl_in_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in, "join")
     var  =ctrl_in[:]->$g_var_name$
-    var_areamean=wgt_areaave_Wrap(var(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-    var_areamean=runave_n_Wrap(var_areamean,5,0,0)  
+    var_areamean=wgt_areaave_Wrap(var(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
     
+    ;Read NOAA OLR
+    var_obv=read_noaa_olr_daily_2D(0,180,g_latS,g_latN,g_lonW,g_lonE,"/Users/zhenningli/data/obv/NOAA-OLR/olr.day.mean.f10.nc")
+    var_obv_areamean=wgt_areaave_Wrap(var_obv(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+
+    var_mean=dim_avg_n_Wrap(var_areamean,0)  
+    var_obv_mean=dim_avg_n_Wrap(var_obv_areamean,0)  
+ 
+
+    var_areamean=runave_n_Wrap(var_areamean,5,0,0)  
+    var_obv_areamean=runave_n_Wrap(var_obv_areamean,5,0,0)  
+ 
     ;************************************************
     ; plotting parameters
     ;************************************************
     
     wks = gsn_open_wks ("png",g_fig_name) ; open workstation
     plot = new((/2/),graphic)
+    plot_obv = new((/2/),graphic)
     
     res               = True                    ; plot mods desired
     res@gsnDraw                = False
@@ -98,20 +110,36 @@ begin
     res@xyLineColor       = "lightpink" ; colors chosen
     res@xyLineThicknesses    = 1.0      ; line thicknesses
     res@xyDashPattern=0.
-;    res@tmXBValues = ispan(0,181,1) ;interval
-;    res@tmXBLabels = ispan(0,181,30) ;tick label
+;    res@tmXBValues = ispan(0,180,1) ;interval
+;    res@tmXBLabels = ispan(0,180,30) ;tick label
         
 ;    res@trXMinF            = 1           ; X axis limits
-    res@trXMaxF            = 181           ; X axis limits
+    res@trXMaxF            = 180           ; X axis limits
 
-    plot(0) = gsn_csm_xy (wks,ispan(0,181,1),var_areamean,res) ; create plot
+    plot(0) = gsn_csm_xy (wks,ispan(0,180,1),var_areamean,res) ; create plot
+    res@xyLineColor       = "lightskyblue" ; colors chosen
+    plot_obv(0)=gsn_csm_xy (wks,ispan(0,180,1),var_obv_areamean,res) ; create plot
 
-    res@xyLineColors       = "red" ; colors chosen
+    res@xyLineColor       = "red" ; colors chosen
     res@xyLineThicknesses    = 4.0      ; line thicknesses
 
-    var_mean=dim_avg_n_Wrap(var_areamean,0)  
-    plot(1) = gsn_csm_xy (wks,ispan(0,181,1),var_mean,res) ; create plot
+  
+    plot(1) = gsn_csm_xy (wks,ispan(0,180,1),var_mean,res) ; create plot
+    res@xyLineColor       = "blue" ; colors chosen
+    plot_obv(1) = gsn_csm_xy (wks,ispan(0,180,1),var_obv_mean,res) ; create plot
+  
+      res_lines=True
+      res_lines@gsLineColor       = "black"
+      res_lines@gsLineDashPattern = 2.
+      xx = (/0,180/)
+      yy = (/235.,235./)
+      dum7 = gsn_add_polyline(wks,plot(1),xx,yy,res_lines)              ; add polyline
+
+     
+    overlay(plot(0),plot_obv(0))
+    overlay(plot(0),plot_obv(1))
     overlay(plot(0),plot(1))
+    
     draw(plot(0))
     frame(wks)
 end

@@ -19,6 +19,9 @@
 ; -------------- added Feb 22 2017
 ; read_era_daily_2Din3D(varname, lev, latS, latN, lonW, lonE, filedir)
 
+; -------------- added Apr 05 2017
+; read_noaa_olr_daily_2D(strtday, endday, latS, latN, lonW, lonE, filedir)
+
 
 ; ------------------------------    read_doe_daily_2Din3D   ------------------------------------
 ; *****************************************************************
@@ -56,7 +59,6 @@ begin
     return(var_data)
 end
 ; ------------------------------    read_doe_daily_2Din3D   ------------------------------------
-
 
 
 
@@ -167,3 +169,41 @@ begin
     return(var_data)
 end
 ; ------------------------------    read_ERA_daily_3D   ---------------------------------------
+
+
+; ------------------------------    read_noaa_olr_daily_2D   ---------------------------------------
+function read_noaa_olr_daily_2D(strtday, endday, latS, latN, lonW, lonE, filedir:string)
+begin
+    g_strt_yr=1979
+    g_lst_yr=2012
+    in_file = addfile(filedir, "r")
+    var1  = short2flt(in_file->olr(:,{latS:latN},{lonW:lonE}))
+    var1_slice = var1(0:endday-strtday,:,:)
+    time_hist    = in_file->time
+    yyyymmdd  = cd_calendar(time_hist,-2)
+    dim_time=dimsizes(yyyymmdd)
+    yr_diff = g_lst_yr-g_strt_yr 
+    
+    slice_dim = dimsizes(var1_slice)
+    var1_slice := conform_dims((/yr_diff+1,slice_dim(0),slice_dim(1),slice_dim(2)/),var1_slice,(/1,2,3/))
+    copy_VarAtts(var1,var1_slice)
+    var1_slice!0="year"
+    var1_slice!1="time"
+    var1_slice!2=var1!1
+    var1_slice!3=var1!2
+    var1_slice&lon=var1&lon
+    var1_slice&lat=var1&lat
+    var1_slice&time=ispan(strtday,endday,1)
+    
+    do ii=g_strt_yr,g_strt_yr+yr_diff
+        g_strt_yyyyddd=1000*ii+strtday+1
+        g_lst_yyyyddd=1000*ii+endday+1
+        g_strt_yyyymmdd=yyyyddd_to_yyyymmdd(g_strt_yyyyddd)
+        g_lst_yyyymmdd=yyyyddd_to_yyyymmdd(g_lst_yyyyddd)
+        istrt   = ind(yyyymmdd .eq. g_strt_yyyymmdd)
+        ilast   = ind(yyyymmdd .eq. g_lst_yyyymmdd)
+        var1_slice(ii-g_strt_yr,:,:,:)=(/var1(istrt:ilast,:,:)/)
+    end do 
+    return(var1_slice)
+end 
+; ------------------------------    read_noaa_olr_daily_2D   ---------------------------------------
