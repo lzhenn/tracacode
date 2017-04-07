@@ -53,7 +53,7 @@ begin
     ;BOB All
     g_comp="all"
     g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
-    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1-g_day_strt2
+    g_day_rank=(/139,117,128,100,110,122,134,129,122,139,136,95,137,124,126,97,88,135,130,160/)-1-g_day_strt2
 
     
     ;BOB Early
@@ -74,9 +74,9 @@ begin
     
         
     g_latS=0
-    g_latN=90
-    g_lonW=0
-    g_lonE=360
+    g_latN=60
+    g_lonW=30
+    g_lonE=140
     g_plevel=700
     
     g_fig_name = "../fig/obv/ERA-UV-HGT-early-normal-minus-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel

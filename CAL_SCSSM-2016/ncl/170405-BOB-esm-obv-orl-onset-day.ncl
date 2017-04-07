@@ -61,7 +61,7 @@ begin
     var_areamean=wgt_areaave_Wrap(var(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
     
     ;Read NOAA OLR
-    var_obv=read_noaa_olr_daily_2D(0,180,g_latS,g_latN,g_lonW,g_lonE,"/Users/zhenningli/data/obv/NOAA-OLR/olr.day.mean.f10.nc")
+    var_obv=read_noaa_olr_daily_2D(0,180,g_latS,g_latN,g_lonW,g_lonE,"/Users/zhenningli/data/obv/NOAA-OLR/olr.day.mean.f25.nc")
     var_obv_areamean=wgt_areaave_Wrap(var_obv(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
 
     var_mean=dim_avg_n_Wrap(var_areamean,0)  
@@ -70,12 +70,14 @@ begin
     var_onset=var_areamean
     var_obv_onset=var_obv_areamean
 
-    print(var_onset(11,:))
-    var_onset=where(var_onset .lt. 235, 1, 0)
-    var_obv_onset=where(var_obv_onset .lt. 235, 1, 0)
-    exit
-    var_onset=dim_acumrun_n(var_onset,6,1,1)
-    var_obv_onset=dim_acumrun_n(var_obv_onset,6,1,1)
+    day_strt=80
+    var_onset_M2J=var_onset(:,day_strt:)
+    var_obv_onset_M2J=var_obv_onset(:,day_strt:)
+
+    var_onset_M2J=where(var_onset_M2J .lt. 236, 1, 0)
+    var_obv_onset_M2J=where(var_obv_onset_M2J .lt. 236, 1, 0)
+    var_onset_M2J=dim_acumrun_n(var_onset_M2J,6,1,1)
+    var_obv_onset_M2J=dim_acumrun_n(var_obv_onset_M2J,6,1,1)
     
     dim_esm=dimsizes(var_onset)
     dim_esm:=dim_esm(0)
@@ -83,13 +85,13 @@ begin
     dim_obv=dimsizes(var_obv_onset)
     dim_obv:=dim_obv(0)
     do ii=0,dim_esm-1
-        idate= get1Dindex(var_onset(ii,:), 6)
-        print(ii+":"+idate)
+        idate= get1Dindex(var_onset_M2J(ii,:), 6)
+        print(ii+":"+(day_strt+idate-5+1))
     end do
 
     do jj=0, dim_obv-1
-        idate= get1Dindex(var_obv_onset(jj,:), 6)
-        print(jj+":"+idate)
+        idate= get1Dindex(var_obv_onset_M2J(jj,:), 6)
+        print(jj+":"+(day_strt+idate-5+1))
     end do
 exit
     var_areamean=runave_n_Wrap(var_areamean,5,0,0)  
