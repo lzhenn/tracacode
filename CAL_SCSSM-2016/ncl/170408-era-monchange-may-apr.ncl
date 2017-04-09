@@ -12,6 +12,7 @@
 ;   2015-03-03  Change to fit HEAT Experiment
 ;   2015-04-05  Change to fit Team Server
 ;   2015-04-08  Change to fit ECMWF MONLTM MEAN 
+;   2015-04-18  Change to caculate Q1
 ;   2015-04-18  Change to caculate daily Q1 in NCEP-DOE
 ;   2015-12-01  Change to fit T2M
 ;*************************************************************
@@ -34,120 +35,54 @@ begin
 
     ;for directory 
     
-    ;SCS onset 1951-2014
-    g_pt_rank=(/26,29,29,31,29,31,27,29,30,30,28,28,31,28,29,25,29,29,28,32,31,26,32,30,29,28,28,29,27,28,30,31,29,28,30,27,32,29,32,28,32,28,30,25,27,26,28,28,30,27,26,27,29,28,30,28,29,25,30,29,26,28,27,32/)
-    g_day_rank=(g_pt_rank-1)*5 ; exact number
+    ;SCS
+    ;g_day_rank=(/135,140,150,155,145,140,150,135,160,145,160,140,160,140,150,125,135,130,140,140,150,135,130,135,145,140,150,140,145,125,150,145,130,140/)
     
-    g_strt_yr=1951
-    g_lst_yr=2014
- 
-    g_data_strt_yr=1948
-    g_data_lst_yr=2015
- 
-    g_yr_strtidx=g_strt_yr-g_data_strt_yr
-    g_yr_lstidx=(g_data_lst_yr-g_data_strt_yr)-(g_data_lst_yr-g_lst_yr)
+    ;BOB
     
-    g_day_comp_len=20
-    
-    
+   
+    g_data3_path ="$DATAOBV/ERA-monthly/V-197901-201408.nc"
+    g_data2_path ="$DATAOBV/ERA-monthly/U-197901-201408.nc"
+    g_data1_path ="$DATAOBV/ERA-monthly/z-197901-201408.nc"
     g_font = 0.02
     
         
-    g_latS=-90
+    g_latS=0
     g_latN=90
     g_lonW=0
     g_lonE=360
-    g_var="uwnd"    
-    g_data1_path ="$DATAOBV/NCEP_NCAR/daily/"+g_var+"/*"
-
-    var1_data=read_ncep_ncar_daily_3D(g_var, 100, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path)
-    ctrl_var1=var1_data(g_yr_strtidx:g_yr_lstidx,0:g_day_comp_len*2,:,:,:)
-    do ii=0,g_yr_lstidx-g_yr_strtidx
-        ctrl_var1(ii,:,:,:,:)=var1_data(g_yr_strtidx+ii,g_day_rank(ii)-g_day_comp_len:g_day_rank(ii)+g_day_comp_len,:,:,:)
-    end do
-    ctrl_var1!0="year"
-    ctrl_var1&year=ispan(g_strt_yr,g_lst_yr,1)
-    ctrl_var1&year@units="years since 1951-01-01 00:00:0.0"
-    ctrl_var1!1="day"
-    ctrl_var1&day=ispan(-g_day_comp_len,g_day_comp_len,1)
-    ctrl_var1&day@long_name="day offset relative to the first day in onset pentad"
-
-
-    printVarSummary(ctrl_var1)
-    ndays=g_day_comp_len*2+1
-    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar."+g_var+".slice.41days.nc"
-    ;Get dimsize
-        dims=dimsizes(ctrl_var1)
-        nlvl=dims(2)
-        nlat=dims(3)
-        nlon=dims(4)
+    g_plevel=200
+    
+    g_fig_name = "../fig/obv/ERA-UV-HGT-May-Apr"
         
-    ;Set fileoption    
-        system("rm "+pdata_fn+" >& /dev/null")
-        fout = addfile(pdata_fn ,"c")  ; open output netCDF file
-        setfileoption(fout,"DefineMode",True)
+    g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
+    g_fig_title= "Clim May-Apr Hgt UV"
+    ;day_rank=ispan(0,g_day_comp_len-1,1)
+    ;day_rank=day_rank(::-1)
 
-    ;Set All field attribution
-        fileAtt     = True
-        fileAtt@creation_date=systemfunc("date")
-        fileattdef(fout,fileAtt)
-
-    ;Define Coordinate
-        dimNames    =(/"year","day","level","lat","lon"/)
-        dimSizes    =(/-1,ndays,nlvl,nlat,nlon/)
-        dimUnlim    =(/True,False,False,False,False/)
-        filedimdef(fout,dimNames,dimSizes,dimUnlim)
-
-    ;Define var, type and dim
-        filevardef(fout,"year",typeof(ctrl_var1&year),getvardims(ctrl_var1&year))
-        filevardef(fout,"day",typeof(ctrl_var1&day),getvardims(ctrl_var1&day))
-        filevardef(fout,"level",typeof(ctrl_var1&level),getvardims(ctrl_var1&level))
-        filevardef(fout,"lat",typeof(ctrl_var1&lat),getvardims(ctrl_var1&lat))
-        filevardef(fout,"lon",typeof(ctrl_var1&lon),getvardims(ctrl_var1&lon))
-        filevardef(fout,g_var,typeof(ctrl_var1),getvardims(ctrl_var1))
-
-    ;Define Attribute
-        filevarattdef(fout,"year",ctrl_var1&year)
-        filevarattdef(fout,"level",ctrl_var1&lat)
-        filevarattdef(fout,"lat",ctrl_var1&lat)
-        filevarattdef(fout,"lon",ctrl_var1&lon)
-        filevarattdef(fout,g_var,ctrl_var1)
-
-        
-        fout->year=(/ctrl_var1&year/)
-        fout->day=(/ctrl_var1&day/)
-        fout->level=(/ctrl_var1&level/)
-        fout->lat=(/ctrl_var1&lat/)
-        fout->lon=(/ctrl_var1&lon/)
-        fout->$g_var$=(/ctrl_var1/)
-    exit
-    var1_data:=var1_data(:,g_day_strt2:g_day_lst2,:,:,:)
-    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
-    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
-;Prepare the variables
-    var1_clim= dim_avg_n_Wrap(var1_data,0)
-    var2_clim= dim_avg_n_Wrap(var2_data,0)
-    var3_clim= dim_avg_n_Wrap(var3_data,0)
+    ctrl_in1     = addfile (g_data1_path, "r")   ; note the "s" of addfile
+    var1  =short2flt( ctrl_in1->z)
+    var1:=var1(0:30*12-1,:,:,:)    
+    ctrl_in2     = addfile (g_data2_path, "r")   ; note the "s" of addfile
+    var2  =short2flt( ctrl_in2->u)
+    var2:=var2(0:30*12-1,:,:,:)    
     
-    var1_cmp1 = var1_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
-    var2_cmp1 = var2_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
-    var3_cmp1 = var3_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:,:)
-    
-    do ii=0, g_special_cases-1
-        var1_cmp1(ii,:,:,:,:)=var1_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var1_clim(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-        var2_cmp1(ii,:,:,:,:)=var2_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var2_clim(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-        var3_cmp1(ii,:,:,:,:)=var3_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var3_clim(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-    end do
-    printVarSummary(var2_cmp1)
-   
-    var1_cmp1:=dim_avg_n_Wrap(var1_cmp1,1)
-    var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,1)
-    var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,1)
-    
-    var1_cmp1:=dim_avg_n_Wrap(var1_cmp1,0)
-    var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
-    var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,0)
-    
+    ctrl_in3     = addfile (g_data3_path, "r")   ; note the "s" of addfile
+    var3  =short2flt( ctrl_in1->v)
+    var3:=var3(0:30*12-1,:,:,:)    
+
+    var1_clim=clmMonTLLL(var1)
+    var2_clim=clmMonTLLL(var2)
+    var3_clim=clmMonTLLL(var3)
+
+    diff_var1=var1_clim(0,:,:,:)
+    diff_var2=var2_clim(0,:,:,:)
+    diff_var3=var3_clim(0,:,:,:)
+    diff_var1=var1_clim(4,:,:,:)-var1_clim(3,:,:,:)
+    diff_var2=var2_clim(4,:,:,:)-var2_clim(3,:,:,:)
+    diff_var3=var3_clim(4,:,:,:)-var3_clim(3,:,:,:)
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -313,8 +248,8 @@ begin
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
 
-        plot_V(0) = gsn_csm_vector(wks,var2_cmp1({g_plevel},:,:),var3_cmp1({g_plevel},:,:),vcres) 
-        plot_sh(0) = gsn_csm_contour_map(wks,var1_cmp1({g_plevel},:,:), res) 
+        plot_V(0) = gsn_csm_vector(wks,diff_var2({g_plevel},:,:),diff_var3({g_plevel},:,:),vcres) 
+        plot_sh(0) = gsn_csm_contour_map(wks,diff_var1({g_plevel},:,:), res) 
         overlay(plot_sh(0),plot_V(0))
 
     gsn_panel(wks,plot_sh,(/1,1/),resP)
