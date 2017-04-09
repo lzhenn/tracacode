@@ -41,9 +41,9 @@ begin
     ;BOB
     
    
-    g_data3_path ="$DATAOBV/ERA-monthly/V-197901-201408.nc"
-    g_data2_path ="$DATAOBV/ERA-monthly/U-197901-201408.nc"
-    g_data1_path ="$DATAOBV/ERA-monthly/z-197901-201408.nc"
+    g_data3_path ="$DATAOBV/ECMWF/F1.0/V-197901-201408.nc"
+    g_data2_path ="$DATAOBV/ECMWF/F1.0/U-197901-201408.nc"
+    g_data1_path ="$DATAOBV/ECMWF/F1.0/z-197901-201408.nc"
     g_font = 0.02
     
         
@@ -54,7 +54,7 @@ begin
     g_plevel=200
     
     g_fig_name = "../fig/obv/ERA-UV-HGT-May-Apr"
-        
+    g_day_comp_len=1      
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     g_fig_title= "Clim May-Apr Hgt UV"
     ;day_rank=ispan(0,g_day_comp_len-1,1)
@@ -68,12 +68,13 @@ begin
     var2:=var2(0:30*12-1,:,:,:)    
     
     ctrl_in3     = addfile (g_data3_path, "r")   ; note the "s" of addfile
-    var3  =short2flt( ctrl_in1->v)
+    var3  =short2flt( ctrl_in3->v)
     var3:=var3(0:30*12-1,:,:,:)    
 
     var1_clim=clmMonTLLL(var1)
     var2_clim=clmMonTLLL(var2)
     var3_clim=clmMonTLLL(var3)
+    printVarSummary(var1_clim)
 
     diff_var1=var1_clim(0,:,:,:)
     diff_var2=var2_clim(0,:,:,:)
@@ -81,7 +82,10 @@ begin
     diff_var1=var1_clim(4,:,:,:)-var1_clim(3,:,:,:)
     diff_var2=var2_clim(4,:,:,:)-var2_clim(3,:,:,:)
     diff_var3=var3_clim(4,:,:,:)-var3_clim(3,:,:,:)
-
+    
+    diff_var1=dim_rmvmean_n_Wrap(diff_var1,2)
+    diff_var2=dim_rmvmean_n_Wrap(diff_var2,2)
+    diff_var3=dim_rmvmean_n_Wrap(diff_var3,2)
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -129,9 +133,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -250         ; set min contour level
- res@cnMaxLevelValF        = 250          ; set max contour level
- res@cnLevelSpacingF       = 25          ; set contour interval
+ res@cnMinLevelValF        = -1000         ; set min contour level
+ res@cnMaxLevelValF        = 1000          ; set max contour level
+ res@cnLevelSpacingF       = 100          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -200,15 +204,15 @@ begin
   vcres@gsnFrame         = False           ; don't advance frame
   vcres@gsnRightString   = " "             ; turn off right string
   vcres@gsnLeftString    = " "             ; turn off left string
-  vcres@gsnCenterString    = " "
+  vcres@gsnCenterString    ="" 
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 10.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "10 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
