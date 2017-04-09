@@ -12,7 +12,6 @@
 ;   2015-03-03  Change to fit HEAT Experiment
 ;   2015-04-05  Change to fit Team Server
 ;   2015-04-08  Change to fit ECMWF MONLTM MEAN 
-;   2015-04-18  Change to caculate Q1
 ;   2015-04-18  Change to caculate daily Q1 in NCEP-DOE
 ;   2015-12-01  Change to fit T2M
 ;*************************************************************
@@ -37,61 +36,29 @@ begin
     
     ;SCS onset 1951-2014
     g_pt_rank=(/26,29,29,31,29,31,27,29,30,30,28,28,31,28,29,25,29,29,28,32,31,26,32,30,29,28,28,29,27,28,30,31,29,28,30,27,32,29,32,28,32,28,30,25,27,26,28,28,30,27,26,27,29,28,30,28,29,25,30,29,26,28,27,32/)
+    g_day_rank=(g_pt_rank-1)*5 ; exact number
     
-    ;BOB
-    
-    g_strt_yr=1979
-    g_lst_yr=2010
-    g_yr_len = g_lst_yr-g_strt_yr+1
+    g_strt_yr=1951
+    g_lst_yr=2014
+ 
+    g_data_strt_yr=1948
+    g_data_lst_yr=2015
  
 
-    ; U200 P20-28
-    g_day_strt2=65
-    g_day_lst2=142
-    g_day_comp_len=14
+    g_day_comp_len=20
     
-    ;BOB All
-    ;g_comp="all"
-    ;g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-    ;g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
-
     
-    ;BOB Early
-    g_comp="early"
-    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
-    g_day_rank=(/108, 105, 93, 100, 107, 99/)-1-g_day_strt2
-    
-    ;BOB Late
-    g_comp2="late"
-    g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
-
-
-    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
-    g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
-    g_data1_path ="$DATAOBV/ERA-interim/pressure/hgt/*"
+    g_data1_path ="$DATAOBV/NCEP_NCAR/omega/*"
     g_font = 0.02
     
         
-    g_latS=0
-    g_latN=60
-    g_lonW=30
-    g_lonE=140
-    g_plevel=500
+    g_latS=-90
+    g_latN=90
+    g_lonW=0
+    g_lonE=360
     
-    g_fig_name = "../fig/obv/ERA-UV-HGT-before-early-clim-"+g_lonW+"-"+g_lonE+"-"+g_plevel
-        
-    g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
-    
-    ;day_rank=ispan(0,g_day_comp_len-1,1)
-    ;day_rank=day_rank(::-1)
-
-    g_special_cases=dimsizes(g_special_year) 
-    g_special_cases2=dimsizes(g_special_year2) 
-
-    var1_data=read_era_daily_3D("hgt", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path) 
-    var2_data=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path) 
-    var3_data=read_era_daily_3D("vwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path) 
+    var1_data=read_ncep_ncar_daily_3D("omega", 100, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path)
+    exit
     var1_data:=var1_data(:,g_day_strt2:g_day_lst2,:,:,:)
     var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
     var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
