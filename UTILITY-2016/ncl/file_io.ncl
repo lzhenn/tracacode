@@ -25,6 +25,8 @@
 ; -------------- added Apr 08 2017
 ; read_ncep_ncar_daily_3D(varname, lev_top, lev_bot, latS, latN, lonW, lonE, filedir)
 
+; -------------- added Apr 10 2017
+; read_ncep_ncar_daily_3D_UV(varname, lev_top, lev_bot, latS, latN, lonW, lonE, filedir)
 
 
 ; ------------------------------    read_doe_daily_2Din3D   ------------------------------------
@@ -223,7 +225,7 @@ end
 function read_ncep_ncar_daily_3D(varname:string, lev_top, lev_bot, latS, latN, lonW, lonE, filedir:string)
 local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
 begin
-    in_files = systemfunc("ls "+filedir)
+    in_files = systemfunc("ls "+filedir+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
     ListSetType (inlist, "join")
@@ -248,5 +250,65 @@ begin
     return(var_data)
 end
 ; ------------------------------    read_NCEP_NCAR_daily_3D   ---------------------------------------
+
+
+
+; ------------------------------    read_NCEP_NCAR_daily_3D_UV   ---------------------------------------
+; *****************************************************************
+; L_Zealot
+; Read NCEP-NCAR daily 3D data, in YDLLL format, bottom and top
+; level should be assigned.
+; Must start from 1948
+;
+function read_ncep_ncar_daily_3D_uv(varname:string, lev_top, lev_bot, latS, latN, lonW, lonE, filedir:string)
+local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
+begin
+    in_files = filedir+varname+"."+ispan(1948,1978,1)+".nc"
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
+    ListSetType (inlist, "join")
+    var  =short2flt(inlist[:]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
+    var_366  =short2flt(inlist[0::4]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
+
+    in_files2 = filedir+varname+"."+ispan(1979,2015,1)+".nc"
+    inlist2     = addfiles (in_files2, "r")   ; note the "s" of addfile
+    ListSetType (inlist2, "join")
+    var_2  =short2flt(inlist2[:]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
+    var_366_2  =short2flt(inlist2[1::4]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
+
+
+
+    var_dim = dimsizes(var_366)
+    var_dim365 = dimsizes(var)
+    var_dim2 = dimsizes(var_366_2)
+    var_dim365_2 = dimsizes(var_2)
+    len_yr= var_dim(0)+var_dim365(0)
+    len_yr2=var_dim2(0)+var_dim365_2(0)
+    var_data = new((/len_yr+len_yr2, var_dim(1), var_dim(2), var_dim(3), var_dim(4)/),"float")
+    copy_VarMeta(var_366,var_data)
+    
+    ; Merge normal and leap years 
+    sp = 0
+    do ii=0,len_yr-1
+        if (mod(ii,4) .eq. 0) then
+            var_data(ii,:,:,:,:) = var_366(ii/4,:,:,:,:)
+            sp=sp+1
+        else
+            var_data(ii,0:364,:,:,:) = var(ii-sp,:,:,:,:)
+        end if
+    end do
+
+    sp = 0
+    do ii=0,len_yr2-1
+        if (mod((ii-1),4) .eq. 1) then
+            var_data(ii,:,:,:,:) = var_366_2((ii-1)/4,:,:,:,:)
+            sp=sp+1
+        else
+            var_data(ii,0:364,:,:,:) = var_2(ii-sp,:,:,:,:)
+        end if
+    end do
+    return(var_data)
+end
+; ------------------------------    read_NCEP_NCAR_daily_uv   ---------------------------------------
 
 
