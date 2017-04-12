@@ -25,7 +25,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 begin
     data_file_name1="$DATAOBV/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
     data_file_name2="$DATAOBV/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
-    data_file_name3="$DATAOBV/PRECT/cmap.precip.mon.nc"
+    data_file_name3="$DATAOBV/PRECT/gpcp.precip.mon.nc"
     
     g_fig_name="../fig/FIG4b_case"
     g_fig_title="2015-2014 Pr, Surface UV & Wind Stress Curl"
@@ -41,6 +41,7 @@ begin
     g_latN=20.
     g_lonW=100.
     g_lonE=200.
+    g_season="MAM"
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1,"r")
     time = ctrl_in1->time
@@ -64,16 +65,21 @@ begin
     istrt = ind(yyyymm .eq. yrstrt1)
     ilast = ind(yyyymm .eq. yrlast1)
     var3 = ctrl_in3->precip(istrt:ilast,:,:)
-
 ;--------------Proprocessing-----------
-    printVarSummary(exp_var1_ssnmean)
-    diff_var1 = var1
-    diff_var2 = var2
-    diff_var3 = var3
+    
+    var1_ssn=month_to_season(var1,g_season)
+    var2_ssn=month_to_season(var2,g_season)
+    var3_ssn=month_to_season(var3,g_season)
+    
+    diff_var1 = var1_ssn(0,:,:)
+    diff_var2 = var2_ssn(0,:,:)
+    diff_var3 = var3_ssn(0,:,:)
+    
 
-    diff_var1 = var1(14:16,:,:)-var1(2:4,:,:) 
-    diff_var2 = var2(14:16,:,:)-var2(2:4,:,:) 
-    diff_var3 = var3(14:16,:,:)-var3(2:4,:,:) 
+
+    diff_var1 =var1_ssn(1,:,:) -var1_ssn(0,:,:) 
+    diff_var2 =var2_ssn(1,:,:) -var2_ssn(0,:,:) 
+    diff_var3 =var3_ssn(1,:,:) -var3_ssn(0,:,:) 
     
     
   
@@ -90,18 +96,18 @@ begin
     om=7.29e-5
     d2r=0.0174533 ; convert to radians
 
-    tao_x_exp=exp_var1_ssnmean
-    tao_y_exp=exp_var2_ssnmean
+    tao_x_exp=var1_ssn(1,:,:)
+    tao_y_exp=var2_ssn(1,:,:)
 
-    tao_x_ctrl=ctrl_var1_ssn
-    tao_y_ctrl=ctrl_var2_ssn
+    tao_x_ctrl=var1_ssn(0,:,:)
+    tao_y_ctrl=var2_ssn(0,:,:)
    
-    tao_x_exp=ruo*Cd*exp_var1_ssnmean*exp_var1_ssnmean
-    tao_y_exp=ruo*Cd*exp_var2_ssnmean*exp_var2_ssnmean
+    tao_x_exp=ruo*Cd*tao_x_exp*tao_x_exp
+    tao_y_exp=ruo*Cd*tao_y_exp*tao_y_exp
 
-    tao_x_ctrl=ruo*Cd*ctrl_var1_ssn*ctrl_var1_ssn
-    tao_y_ctrl=ruo*Cd*ctrl_var2_ssn*ctrl_var2_ssn
-    
+    tao_x_ctrl=ruo*Cd*tao_x_ctrl*tao_x_ctrl
+    tao_y_ctrl=ruo*Cd*tao_y_ctrl*tao_y_ctrl    
+
     tao_x_diff=diff_var1
     tao_y_diff=diff_var2
     
@@ -112,33 +118,14 @@ begin
 
     curl_exp=tao_x_ctrl
     curl_ctrl=tao_x_ctrl
-    curl_diff0=tao_x_diff
-    curl_diff0    = uv2vr_cfd(tao_x_diff, tao_y_diff, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
     curl_exp    = uv2vr_cfd(tao_x_exp, tao_y_exp, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
     curl_ctrl    = uv2vr_cfd(tao_x_ctrl, tao_y_ctrl, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
     curl_diff=curl_exp
     curl_diff=curl_exp-curl_ctrl
 
-    ;--------------------------------
-    ;--------Sig Test----------------
-    ;--------------------------------
-    diff_speed = diff_var1
-    diff_speed = sqrt(diff_var1*diff_var1 + diff_var2*diff_var2)
-    diff_var1@_FillValue= -999
-    diff_var1_org=diff_var1
-    diff_var1 = where(diff_speed .gt. 1.5, diff_var1, diff_var1@_FillValue)
-    diff_var1(:,{:120})=diff_var1@_FillValue
+    wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 
-    siglvl = 0.1                       ; critical sig lvl for r
-
-    iflag= False                        ; population variance similar
-    diff_var1_sig = diff_var1
-    diff_var2_sig = diff_var2
-    diff_var3_sig = diff_var3
-
-wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
-
-plot = new((/2/),graphic)
+    plot = new((/2/),graphic)
   plot_sig = new((/2/),graphic)
   plot_V = new((/2/),graphic)
 
@@ -173,9 +160,9 @@ plot = new((/2/),graphic)
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -4e-8          ; set min contour level
-    res@cnMaxLevelValF        =  4e-8          ; set max contour level
-    res@cnLevelSpacingF       =  5e-9          ; set contour interval
+    res@cnMinLevelValF        =  -6e-8          ; set min contour level
+    res@cnMaxLevelValF        =  6e-8          ; set max contour level
+    res@cnLevelSpacingF       =  1e-8          ; set contour interval
     res@vpHeightF=0.2
     res@vpWidthF=0.6
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -250,7 +237,7 @@ plot = new((/2/),graphic)
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    res3@cnLevels = (/ 1.5, 2.0, 2.5/)
+    res3@cnLevels = (/2.0, 2.5, 3.0/)
     ;    res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
     res3@cnLineColor      = "Blue"
     res3@gsnLeftString      = " "
@@ -327,7 +314,7 @@ do i = 0,0
     res@gsnCenterString = g_fig_title
     res@gsnRightString = ""
 
-    cmpvrsmoth=smth9_Wrap(curl_diff0,0.5,0.25, True)
+    cmpvrsmoth=smth9_Wrap(curl_diff,0.5,0.25, True)
     plot(i) = gsn_csm_contour_map_ce(wks,cmpvrsmoth,res)
 
     plot_V(i) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
@@ -336,9 +323,10 @@ do i = 0,0
     overlay(plot(i),plot_cn_neg)
     ;overlay(plot(i),plot_cn_sen(i))
 end do
-    diff_var1_lat=dim_avg_n_Wrap(diff_var1_org({-20:20},{140:170}),1)
-    printVarSummary(diff_var1_lat)
+    diff_var1_lat=dim_avg_n_Wrap(diff_var1({-20:20},{140:170}),1)
     diff_var3_lat=dim_avg_n_Wrap(diff_var3({-20:20},{140:170}),1)
+    print(diff_var1_lat&lat)
+    print(diff_var3_lat&lat)
     xyres                 = True         ; xy plot mods desired
     xyres@vpHeightF        = .20          ; set width of second plot
     xyres@vpWidthF        = .15          ; set width of second plot
@@ -349,13 +337,13 @@ end do
 
     xyres@tmXBLabelFontHeightF=g_font2        ; change font height
     xyres@gsnCenterString=""
-    xyres@trYMinF         = min(diff_var1_lat&lat)
-    xyres@trYMaxF         = max(diff_var1_lat&lat)
-    xyres@trXMinF         = -2 
-    xyres@trXMaxF         = 4
+    xyres@trYMinF         = -20 
+    xyres@trYMaxF         = 20
+    xyres@trXMinF         = -2. 
+    xyres@trXMaxF         = 4.
     xyres@xyLineThicknesses    = 2.0      ; line thicknesses
    
-    xyres@tmYRTickSpacingF = 5
+    xyres@tmYRTickSpacingF = 5.
     xyres@tmYRMinorOn=False
     xyres@tmYROn              = True 
     xyres@tmXBMode="Explicit"
@@ -367,23 +355,22 @@ end do
     
 
     xy2res=xyres
-   ; xyres@tiYAxisString       = "Easterly Speed (m/s)"
+    xyres@tiYAxisString       = "Easterly Speed (m/s)"
     xy2res@tiXAxisSide="Bottom"
     xy2res@xyLineThicknesses    = 2.0      ; line thicknesses
     xy2res@gsnXRefLine=0.0
     xy2res@gsnXYBarChart=True
-    xy2res@gsnXYBarChartBarWidth = 1                 ; change bar widths
+    xy2res@gsnXYBarChartBarWidth = 1.                 ; change bar widths
     xy2res@gsnXYBarChartColors = (/"skyblue2"/)             ; below ref line fill blue
     xyres@xyDashPattern=1
     plotxy = gsn_csm_xy(wks,diff_var1_lat,diff_var1_lat&lat,xyres)
-    xyres@xyDashPattern=2
     plotxy2 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
     overlay(plotxy,plotxy2)
 
     diff_var3_lat=where(diff_var3_lat .lt. 0, diff_var3_lat,0)
     xy2res@gsnXYBarChartColors = (/"orangered"/)             ; below ref line fill blue
-    plotxy3 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
-    overlay(plotxy,plotxy3)
+    ;plotxy3 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
+    ;overlay(plotxy,plotxy3)
 
    
     newplot = gsn_attach_plots(plot(0),(/plotxy/),res,xy2res)
@@ -391,7 +378,7 @@ end do
 
 
     draw(plot(0))
-  frame(wks)
+    frame(wks)
 
 
 
