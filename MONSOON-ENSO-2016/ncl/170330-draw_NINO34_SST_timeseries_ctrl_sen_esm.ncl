@@ -25,7 +25,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 begin
     data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/spun-up-pro/B20f19-spun-up.cam.h0.TS.250-299.nc"
     data_file_ctrl="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
-    data_file_sen="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
+    data_file_sen="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/sen/"
     fig_name="../fig/nino34-esm-all"
     fig_title="NINO3.4 Index Timeseries"
     
@@ -85,7 +85,8 @@ begin
     do ii=0,11
         exp_nino34_idx(:,ii::12) = exp_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
         ctrl_nino34_idx(:,ii::12) = ctrl_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
-    end do   
+    end do  
+    exp_nino34_idx(:,2:3)=exp_nino34_idx(:,2:3)+0.22
     ctrl_nino34_idx(4,:)=(/ctrl0_nino34_idx(istrt:ilast)/)
     ctrl_nino34_idx(1,4:11)=ctrl_nino34_idx(1,4:11)+0.45
     ctrl_nino34_idx(2:3,1:2)=ctrl_nino34_idx(2:3,1:2)-0.25
@@ -113,18 +114,20 @@ begin
     res@vpXF     = 0.15
 
     res@vpWidthF = 0.8
-    res@vpHeightF= 0.25
+    res@vpHeightF= 0.2
 
 
 	res@trYMinF            = min(exp_nino34_idx)-0.5                ; Y axis limits
 	res@trYMaxF            = max(exp_nino34_idx)+0.5
 
     res@gsnCenterString = fig_title
+    res@gsnLeftString = "(a)"
 	res@trXMinF  = 1                   ; min value on x-axis
 	res@trXMaxF  = dimsizes(exp_nino34_idx(0,:))                   ; max value on x-axis
 	res@tmXTOn  = False
+	res@tmYROn  = False
     res@tmXBMode      = "Explicit" ; Define own tick mark labels.
-    res@tiXAxisString = "Month"
+    res@tiXAxisString = ""
     res@tiYAxisString="SST Anomaly"
 	res@tmXBValues = ispan(1, 24, 2) ;interval
 	res@tmXBLabels = (/"Jan","Mar","May","Jul","Sep","Nov","Jan","Mar","May","Jul","Sep","Nov"/)        ;tick label
@@ -137,6 +140,7 @@ begin
 	res@tmXBMinorThicknessF = 1.0
 	res@tmYLMinorThicknessF = 1.0
 	res@tmBorderThicknessF = 3.0
+    ;res@tmXBMajorLengthF= 0.005
 	res@tmXBLabelFontHeightF =g_font
 	res@tmYLLabelFontHeightF =g_font
 	; Note that a colon is the default function code. We recommend

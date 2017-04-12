@@ -41,7 +41,7 @@ begin
     g_latS=-20.
     g_latN=20.
     g_lonW=100.
-    g_lonE=210.
+    g_lonE=200.
 ;---------------Read data-------------------
     all_file=systemfunc("ls "+data_file_name11+"*.cam.h0.U.*")
     ctrl_in1 = addfiles(all_file,"r")
@@ -86,6 +86,11 @@ begin
     ListSetType (exp_in, "join")
     exp_var4 = exp_in[:]->PRECL(:,2:4,:,:)
     exp_var3 = (exp_var3+exp_var4)*86400*1000
+
+    ctrl_var1=ctrl_var1*1.5
+    ctrl_var2=ctrl_var2*1.5
+    exp_var1=exp_var1*1.5
+    exp_var2=exp_var2*1.5
 
 ;--------------Proprocessing-----------
     ctrl_var1_ssn=dim_avg_n_Wrap(ctrl_var1,1)
@@ -168,7 +173,7 @@ begin
     diff_speed = diff_var1
     diff_speed = sqrt(diff_var1*diff_var1 + diff_var2*diff_var2)
     diff_var1@_FillValue= -999
-    ;diff_var1 = where(diff_speed .gt. 1.5, diff_var1, diff_var1@_FillValue)
+    diff_var1 = where(diff_speed .gt. 1, diff_var1, diff_var1@_FillValue)
 
 
     siglvl = 0.1                       ; critical sig lvl for r
@@ -178,17 +183,13 @@ begin
     diff_var2_sig = diff_var2
     diff_var3_sig = diff_var3
 
-    wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 
-    
-;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
-;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
-
-  plot = new((/6/),graphic)
-  plot_cn_pos = new((/6/),graphic)
-  plot_cn_neg = new((/6/),graphic)
-  plot_sig = new((/6/),graphic)
-  plot_V = new((/6/),graphic)
+plot = new((/2/),graphic)
+  plot_cn_pos = new((/2/),graphic)
+  plot_cn_neg = new((/2/),graphic)
+  plot_sig = new((/2/),graphic)
+  plot_V = new((/2/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
@@ -198,7 +199,8 @@ begin
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
- gsn_define_colormap(wks,"MPL_bwr")
+; gsn_define_colormap(wks,"BlueRed")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 ;-----------------------------------------------------------------------------
   res                  = True       ; use plot options
 
@@ -220,9 +222,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -5e-8          ; set min contour level
-    res@cnMaxLevelValF        =  5e-8          ; set max contour level
-    res@cnLevelSpacingF       =  5e-9          ; set contour interval
+    res@cnMinLevelValF        =  -6e-8          ; set min contour level
+    res@cnMaxLevelValF        =  6e-8          ; set max contour level
+    res@cnLevelSpacingF       =  1e-8          ; set contour interval
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -230,9 +232,9 @@ begin
   res@gsnDraw  = False
   
   res@gsnSpreadColors      = True               ; use full color map
-  ;res@gsnSpreadColorStart  = 2               ; start at color 17
-  ;res@gsnSpreadColorEnd    = 14                ; end at color 200
 
+  res@gsnSpreadColorStart  = 15               ; start at color 17
+  res@gsnSpreadColorEnd    = 101-10                ; end at color 200
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
 
@@ -243,8 +245,8 @@ begin
 
 
   res@lbLabelBarOn = True   ; turn off the label bar
-  res@lbOrientation          = "vertical"
-  res@lbLabelFontHeightF  = g_font              ; make labels smaller
+;  res@lbOrientation          = "vertical"
+  res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   ;res@lbLabelStride = 1
 
   res@mpFillOn   = True     ; turn off gray continents
@@ -272,7 +274,7 @@ begin
     
      ; now change the size of the tickmark labels
   res@tmXBTickSpacingF = 30
-  res@tmYLTickSpacingF = 15
+  res@tmYLTickSpacingF = 10
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -295,25 +297,32 @@ begin
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    ;res3@cnLevels = (/1.0,1.5,2.0,3.0/)
+    ;res3@cnLevels = (/1.0, 1.5, 2.0, 2.5/)
     res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
-    res3@cnLineColor      = "Blue"
+    res3@cnLineColor      = "Gray35"
     res3@gsnLeftString      = " "
     res3@gsnRightString      = " "
-
-    do i = 0,2
-        cmpvarsmoth=smth9_Wrap(ctrl_var3_ssn,0.5,0.25, True)
-        plot_cn_pos(i) = gsn_csm_contour(wks,cmpvarsmoth,res3) ; create a default plot
-    end do
-    
-    res3@cnLevels = -res3@cnLevels
-    res3@cnLineColor      = "Red"
     res3@cnLineDashPattern      = 1
-    do i = 0,2
-        cmpvarsmoth=smth9_Wrap(diff_var3,0.5,0.25, True)
-        plot_cn_neg(i) = gsn_csm_contour(wks,cmpvarsmoth,res3) ; create a default plot
-    end do
-
+    ;cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
+    ;plot_cn_pos(0) = gsn_csm_contour(wks,clim_var4(3,:,:),res3) ; create a default plot
+    ;plot_cn_pos(1) = gsn_csm_contour(wks,cmp_var4_su(2,:,:),res3) ; create a default plot
+    
+    ;res3@cnLevels = -res3@cnLevels
+    res3@cnLevels:=(/0.0/)
+    res3@cnLineColor      = "Gray35"
+    res3@cnLineThicknessF = 2
+    res3@cnLineDashPattern      = 1
+    ;cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
+    curl(:,{5:},:)=1
+    curl_sp(:,{5:},:)=1
+    plot_cn_clim = gsn_csm_contour(wks, curl(3,:,:),res3) ; create a default plot
+    
+    res3@cnLineColor      = "Black"
+    res3@cnLineDashPattern      = 0
+    plot_cn_sp = gsn_csm_contour(wks, curl_sp(3,:,:),res3) ; create a default plot
+  
+  ;plot_cn_neg(1) = gsn_csm_contour(wks,cmp_var4_su(2,:,:),res3) ; create a default plot
+ 
 
 ;-------------------------------------------------
 ;-----------------------------------------------------
@@ -356,7 +365,7 @@ begin
     vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-    vcres@vcMinDistanceF          = 0.03
+    vcres@vcMinDistanceF          = 0.035
     vcres@vcRefAnnoString1  = "2 m/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.015
@@ -364,6 +373,11 @@ begin
 
     vcres@vcLineArrowHeadMinSizeF   = 0.015
     vcres@vcLineArrowHeadMaxSizeF   = 0.015       
+    
+
+
+
+
 do i = 0,0
     res@gsnLeftString = g_fig_rank(i)
     res@gsnCenterString = g_fig_title
