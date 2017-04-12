@@ -23,20 +23,18 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name11="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/hybrid/ctrl/"
-    data_file_name22="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
-    data_file_name1="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
-    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/sen/"
-    g_fig_name="../fig/FIG3_model-quickplot"
-    g_fig_title="MAM SEN-CTRL Pr, Bottom UV & Wind Stress Curl"
+    data_file_name1="$DATAOBV/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
+    data_file_name2="$DATAOBV/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
+    data_file_name3="$DATAOBV/PRECT/cmap.precip.mon.nc"
+    
+    g_fig_name="../fig/FIG4b_case"
+    g_fig_title="2015-2014 Pr, Surface UV & Wind Stress Curl"
     g_font =0.013
     g_font2=0.015
     g_fig_rank=(/"(b)(c)"/)
     ;one month rightward shift
-    yrstrt1  = 25202
-    yrlast1  = 25401
-    yrstrt2  = 25202
-    yrlast2  = 25401 
+    yrstrt1  = 201401
+    yrlast1  = 201512
 
     ;Smaller Region
     g_latS=-20.
@@ -44,89 +42,40 @@ begin
     g_lonW=100.
     g_lonE=200.
 ;---------------Read data-------------------
-    all_file=systemfunc("ls "+data_file_name11+"*.cam.h0.U.*")
-    ctrl_in1 = addfiles(all_file,"r")
-    ListSetType (ctrl_in1, "join")
-    ctrl_var1 = ctrl_in1[:]->U(:,2:4,25,:,:)
-    
-    all_file=systemfunc("ls "+data_file_name11+"*.cam.h0.V.*")
-    ctrl_in1 = addfiles(all_file,"r")
-    ListSetType (ctrl_in1, "join")
-    ctrl_var2 = ctrl_in1[:]->V(:,2:4,25,:,:)    
-    
-    all_file=systemfunc("ls "+data_file_name1+"*.cam.h0.PRECC.*")
-    ctrl_in1 = addfiles(all_file,"r")
-    ListSetType (ctrl_in1, "join")
-    ctrl_var3 = ctrl_in1[:]->PRECC(:,2:4,:,:)    
-    
-    all_file=systemfunc("ls "+data_file_name1+"*.cam.h0.PRECL.*")
-    ctrl_in1 = addfiles(all_file,"r")
-    ListSetType (ctrl_in1, "join")
-    ctrl_var4 = ctrl_in1[:]->PRECL(:,2:4,:,:)
-    ctrl_var3 = (ctrl_var3+ctrl_var4)*86400*1000
+    ctrl_in1 = addfile(data_file_name1,"r")
+    time = ctrl_in1->time
+    yyyymm =cd_calendar(time,-1)
+    istrt = ind(yyyymm .eq. yrstrt1)
+    ilast = ind(yyyymm .eq. yrlast1)
+    var1 = short2flt(ctrl_in1->uwnd(istrt:ilast,0,:,:))
 
-    delete([/all_file/])
-    all_file=systemfunc("ls "+data_file_name22+"*.cam.h0.U.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var1 = exp_in[:]->U(:,2:4,25,:,:)
 
-    all_file=systemfunc("ls "+data_file_name22+"*.cam.h0.V.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var2 = exp_in[:]->V(:,2:4,25,:,:)
+    ctrl_in2 = addfile(data_file_name2,"r")
+    time = ctrl_in2->time
+    yyyymm =cd_calendar(time,-1)
+    istrt = ind(yyyymm .eq. yrstrt1)
+    ilast = ind(yyyymm .eq. yrlast1)
+    var2 = short2flt(ctrl_in2->vwnd(istrt:ilast,0,:,:))
 
-    delete([/all_file/])
-    all_file=systemfunc("ls "+data_file_name2+"*.cam.h0.PRECC.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var3 = exp_in[:]->PRECC(:,2:4,:,:)
+    delete([/time, yyyymm/])
+    ctrl_in3 = addfile(data_file_name3,"r")
+    time = ctrl_in3->time
+    yyyymm =cd_calendar(time,-1)
+    istrt = ind(yyyymm .eq. yrstrt1)
+    ilast = ind(yyyymm .eq. yrlast1)
+    var3 = ctrl_in3->precip(istrt:ilast,:,:)
 
-    all_file=systemfunc("ls "+data_file_name2+"*.cam.h0.PRECL.*")
-    exp_in = addfiles(all_file,"r")
-    ListSetType (exp_in, "join")
-    exp_var4 = exp_in[:]->PRECL(:,2:4,:,:)
-    exp_var3 = (exp_var3+exp_var4)*86400*1000
-
-    ctrl_var1=ctrl_var1*1.25
-    ctrl_var2=ctrl_var2*1.25
-    exp_var1=exp_var1*1.25
-    exp_var2=exp_var2*1.25
-
-    ctrl_var3=ctrl_var3*0.75
-    exp_var3=exp_var3*0.75
 ;--------------Proprocessing-----------
-    ctrl_var1_ssn=dim_avg_n_Wrap(ctrl_var1,1)
-    ctrl_var2_ssn=dim_avg_n_Wrap(ctrl_var2,1)
-    ctrl_var3_ssn=dim_avg_n_Wrap(ctrl_var3,1)
-   
-    ctrl_var1_ssn:=dim_avg_n_Wrap(ctrl_var1_ssn,0)
-    ctrl_var2_ssn:=dim_avg_n_Wrap(ctrl_var2_ssn,0)
-    ctrl_var3_ssn:=dim_avg_n_Wrap(ctrl_var3_ssn,0)
-    
-    exp_var1_ssn=dim_avg_n_Wrap(exp_var1,1)
-    exp_var2_ssn=dim_avg_n_Wrap(exp_var2,1)
-    exp_var3_ssn=dim_avg_n_Wrap(exp_var3,1)
-
-    exp_var1_var=dim_variance_n_Wrap(exp_var1_ssn,0)
-    exp_var2_var=dim_variance_n_Wrap(exp_var2_ssn,0)
-    exp_var3_var=dim_variance_n_Wrap(exp_var3_ssn,0)
-
-    exp_var1_ssnmean=dim_avg_n_Wrap(exp_var1_ssn,0)
-    exp_var2_ssnmean=dim_avg_n_Wrap(exp_var2_ssn,0)
-    exp_var3_ssnmean=dim_avg_n_Wrap(exp_var3_ssn,0)
-
     printVarSummary(exp_var1_ssnmean)
-    diff_var1 = ctrl_var1_ssn
-    diff_var2 = ctrl_var2_ssn
-    diff_var3 = ctrl_var3_ssn
+    diff_var1 = var1
+    diff_var2 = var2
+    diff_var3 = var3
 
-    diff_var1 = exp_var1_ssnmean - ctrl_var1_ssn
-    diff_var2 = exp_var2_ssnmean - ctrl_var2_ssn
-    diff_var3 = exp_var3_ssnmean - ctrl_var3_ssn
+    diff_var1 = var1(14:16,:,:)-var1(2:4,:,:) 
+    diff_var2 = var2(14:16,:,:)-var2(2:4,:,:) 
+    diff_var3 = var3(14:16,:,:)-var3(2:4,:,:) 
     
     
-     
   
     ; Calculate the Sverdrup Transport
     ; Vs=(1/beta)*curl(tao)
