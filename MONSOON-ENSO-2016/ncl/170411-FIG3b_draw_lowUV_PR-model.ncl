@@ -26,11 +26,12 @@ begin
     data_file_name11="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/hybrid/ctrl/"
     data_file_name22="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
     data_file_name1="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
-    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/off_eq/"
+    data_file_name2="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/sen/"
     g_fig_name="../fig/FIG3_model-quickplot"
     g_fig_title="ESM-CTRL Pr, UV10m & Vorticity"
-    g_font =0.025
-    g_fig_rank=(/"(b)"/)
+    g_font =0.013
+    g_font2=0.015
+    g_fig_rank=(/"(b)(c)"/)
     ;one month rightward shift
     yrstrt1  = 25202
     yrlast1  = 25401
@@ -87,11 +88,13 @@ begin
     exp_var4 = exp_in[:]->PRECL(:,2:4,:,:)
     exp_var3 = (exp_var3+exp_var4)*86400*1000
 
-    ctrl_var1=ctrl_var1*1.5
-    ctrl_var2=ctrl_var2*1.5
-    exp_var1=exp_var1*1.5
-    exp_var2=exp_var2*1.5
+    ctrl_var1=ctrl_var1*1.25
+    ctrl_var2=ctrl_var2*1.25
+    exp_var1=exp_var1*1.25
+    exp_var2=exp_var2*1.25
 
+    ctrl_var3=ctrl_var3*0.75
+    exp_var3=exp_var3*0.75
 ;--------------Proprocessing-----------
     ctrl_var1_ssn=dim_avg_n_Wrap(ctrl_var1,1)
     ctrl_var2_ssn=dim_avg_n_Wrap(ctrl_var2,1)
@@ -173,8 +176,9 @@ begin
     diff_speed = diff_var1
     diff_speed = sqrt(diff_var1*diff_var1 + diff_var2*diff_var2)
     diff_var1@_FillValue= -999
-    diff_var1 = where(diff_speed .gt. 1, diff_var1, diff_var1@_FillValue)
-
+    diff_var1_org=diff_var1
+    diff_var1 = where(diff_speed .gt. 1.5, diff_var1, diff_var1@_FillValue)
+    diff_var1(:,{:120})=diff_var1@_FillValue
 
     siglvl = 0.1                       ; critical sig lvl for r
 
@@ -183,11 +187,9 @@ begin
     diff_var2_sig = diff_var2
     diff_var3_sig = diff_var3
 
-wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 
 plot = new((/2/),graphic)
-  plot_cn_pos = new((/2/),graphic)
-  plot_cn_neg = new((/2/),graphic)
   plot_sig = new((/2/),graphic)
   plot_V = new((/2/),graphic)
 
@@ -222,9 +224,11 @@ plot = new((/2/),graphic)
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -6e-8          ; set min contour level
-    res@cnMaxLevelValF        =  6e-8          ; set max contour level
-    res@cnLevelSpacingF       =  1e-8          ; set contour interval
+    res@cnMinLevelValF        =  -4e-8          ; set min contour level
+    res@cnMaxLevelValF        =  4e-8          ; set max contour level
+    res@cnLevelSpacingF       =  5e-9          ; set contour interval
+    res@vpHeightF=0.2
+    res@vpWidthF=0.6
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
@@ -234,7 +238,7 @@ plot = new((/2/),graphic)
   res@gsnSpreadColors      = True               ; use full color map
 
   res@gsnSpreadColorStart  = 15               ; start at color 17
-  res@gsnSpreadColorEnd    = 101-10                ; end at color 200
+  res@gsnSpreadColorEnd    = 101-13                ; end at color 200
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
 
@@ -246,7 +250,7 @@ plot = new((/2/),graphic)
 
   res@lbLabelBarOn = True   ; turn off the label bar
 ;  res@lbOrientation          = "vertical"
-  res@lbLabelFontHeightF  = 0.02              ; make labels smaller
+  res@lbLabelFontHeightF  = g_font              ; make labels smaller
   ;res@lbLabelStride = 1
 
   res@mpFillOn   = True     ; turn off gray continents
@@ -297,29 +301,20 @@ plot = new((/2/),graphic)
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    ;res3@cnLevels = (/1.0, 1.5, 2.0, 2.5/)
-    res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
-    res3@cnLineColor      = "Gray35"
+    res3@cnLevels = (/ 1.5, 2.0, 2.5/)
+    ;    res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
+    res3@cnLineColor      = "Blue"
     res3@gsnLeftString      = " "
     res3@gsnRightString      = " "
-    res3@cnLineDashPattern      = 1
-    ;cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
-    ;plot_cn_pos(0) = gsn_csm_contour(wks,clim_var4(3,:,:),res3) ; create a default plot
-    ;plot_cn_pos(1) = gsn_csm_contour(wks,cmp_var4_su(2,:,:),res3) ; create a default plot
-    
-    ;res3@cnLevels = -res3@cnLevels
-    res3@cnLevels:=(/0.0/)
-    res3@cnLineColor      = "Gray35"
-    res3@cnLineThicknessF = 2
-    res3@cnLineDashPattern      = 1
-    ;cmpvarsmoth=smth9_Wrap(cmp_var3(i+2,:,:),0.5,0.25, True)
-    curl(:,{5:},:)=1
-    curl_sp(:,{5:},:)=1
-    plot_cn_clim = gsn_csm_contour(wks, curl(3,:,:),res3) ; create a default plot
-    
-    res3@cnLineColor      = "Black"
     res3@cnLineDashPattern      = 0
-    plot_cn_sp = gsn_csm_contour(wks, curl_sp(3,:,:),res3) ; create a default plot
+    cmpvarsmoth=smth9_Wrap(diff_var3,0.5,0.25, True)
+    plot_cn_pos = gsn_csm_contour(wks, diff_var3, res3) ; create a default plot
+    
+    res3@cnLevels = -res3@cnLevels
+    res3@cnLineColor      = "red"
+    res3@cnLineDashPattern      = 1
+    
+    plot_cn_neg = gsn_csm_contour(wks, diff_var3,res3) ; create a default plot
   
   ;plot_cn_neg(1) = gsn_csm_contour(wks,cmp_var4_su(2,:,:),res3) ; create a default plot
  
@@ -361,7 +356,7 @@ plot = new((/2/),graphic)
     vcres@gsnCenterString    = " "
 
     vcres@vcRefAnnoOn      = True
-    vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
+    ;vcres@vcRefAnnoOrthogonalPosF = -1             ; move ref vector up
     vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
@@ -388,10 +383,65 @@ do i = 0,0
 
     plot_V(i) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
     overlay(plot(i),plot_V(i))
-    overlay(plot(i),plot_cn_neg(i))
-    overlay(plot(i),plot_cn_pos(i))
+    overlay(plot(i),plot_cn_pos)
+    overlay(plot(i),plot_cn_neg)
+    ;overlay(plot(i),plot_cn_sen(i))
 end do
-  draw(plot(0))
+    diff_var1_lat=dim_avg_n_Wrap(diff_var1_org({-20:20},{140:170}),1)
+    printVarSummary(diff_var1_lat)
+    diff_var3_lat=dim_avg_n_Wrap(diff_var3({-20:20},{140:170}),1)
+    xyres                 = True         ; xy plot mods desired
+    xyres@vpHeightF        = .20          ; set width of second plot
+    xyres@vpWidthF        = .15          ; set width of second plot
+    xyres@tmXBMinorOn     = False        ; no minor tickmarks
+
+    xyres@gsnDraw         = False        ; don't draw yet
+    xyres@gsnFrame        = False        ; don't advance frame yet
+
+    xyres@tmXBLabelFontHeightF=g_font2        ; change font height
+    xyres@gsnCenterString=""
+    xyres@trYMinF         = min(diff_var1_lat&lat)
+    xyres@trYMaxF         = max(diff_var1_lat&lat)
+    xyres@trXMinF         = -2 
+    xyres@trXMaxF         = 4
+    xyres@xyLineThicknesses    = 2.0      ; line thicknesses
+   
+    xyres@tmYRTickSpacingF = 5
+    xyres@tmYRMinorOn=False
+    xyres@tmYROn              = True 
+    xyres@tmXBMode="Explicit"
+    ;xyres@tmYRLabelsOn=True
+    xyres@tmXBValues=fspan(-2.0,4.0,4)
+    xyres@tmXBLabels=fspan(-2.0,4.0,4)
+    xyres@tiXAxisString="Wind Speed (m/s)"
+    xyres@tiXAxisFontHeightF=g_font2
+    
+
+    xy2res=xyres
+   ; xyres@tiYAxisString       = "Easterly Speed (m/s)"
+    xy2res@tiXAxisSide="Bottom"
+    xy2res@xyLineThicknesses    = 2.0      ; line thicknesses
+    xy2res@gsnXRefLine=0.0
+    xy2res@gsnXYBarChart=True
+    xy2res@gsnXYBarChartBarWidth = 1                 ; change bar widths
+    xy2res@gsnXYBarChartColors = (/"skyblue2"/)             ; below ref line fill blue
+    xyres@xyDashPattern=1
+    plotxy = gsn_csm_xy(wks,diff_var1_lat,diff_var1_lat&lat,xyres)
+    xyres@xyDashPattern=2
+    plotxy2 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
+    overlay(plotxy,plotxy2)
+
+    diff_var3_lat=where(diff_var3_lat .lt. 0, diff_var3_lat,0)
+    xy2res@gsnXYBarChartColors = (/"orangered"/)             ; below ref line fill blue
+    plotxy3 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
+    overlay(plotxy,plotxy3)
+
+   
+    newplot = gsn_attach_plots(plot(0),(/plotxy/),res,xy2res)
+
+
+
+    draw(plot(0))
   frame(wks)
 
 

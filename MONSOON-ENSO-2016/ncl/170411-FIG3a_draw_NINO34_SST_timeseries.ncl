@@ -40,7 +40,7 @@ begin
     g_lonE = 240
     g_latS = -5
     g_latN = 5
-    g_font = 0.02
+    g_font = 0.017
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file_name1,"r")
     time = ctrl_in1->time
@@ -133,7 +133,7 @@ begin
 	res@tmXBLabels = (/"Jan","Mar","May","Jul","Sep","Nov","Jan","Mar","May","Jul","Sep","Nov"/)        ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
 	res@xyLineColors       = (/"blue","red"/) ; colors chosen
-	res@xyLineThicknesses	 = (/3.0,3.0/)      ; line thicknesses
+	res@xyLineThicknesses	 = (/2.0,2.0/)      ; line thicknesses
 	res@xyDashPatterns	 = (/0.,0./)      ; make all lines solid
     res@tmXBMajorThicknessF = 2.0
 	res@tmYLMajorThicknessF = 2.0
