@@ -22,7 +22,8 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name3="$DATAOBV/PRECPT/GPCP_precip.mon.mean.nc"
+    data_file_name3="$DATAOBV/PRECT/gpcp.precip.mon.nc"
+    g_data_path3 = "$DATAOBV/SST/HadISST_sst.nc"
 
     g_el_year=(/1979, 1982, 1986, 1991, 1994, 1997, 2004, 2006, 2009, 2015/)
     g_el_mon=(/5, 14, 17, 13, 6, 12, 10, 5, 10, 21/)
@@ -36,6 +37,7 @@ begin
     yrstrt0  = 197901
     yrlast0  = 201512
     g_season="MAM"
+    g_season2="FMA"
 
 ;---------------Read data-------------------
     ctrl_in3 = addfile(data_file_name3,"r")
@@ -48,10 +50,21 @@ begin
    
     var3_idx=var3_ssn(:,0,0)
     var3_idx=(wgt_areaave_Wrap(var3_ssn(:,{5:15},{150:200}),1.0,1.0,0)+wgt_areaave_Wrap(var3_ssn(:,{-20:-5},{150:180}),1.0,1.0,0))/2-wgt_areaave_Wrap(var3_ssn(:,{-15:15},{120:150}),1.0,1.0,0)
-    yearlist=ispan(1979,2015,1)
-    print(yearlist+":"+var3_idx)
 
-exit
+    ctrl_file3   = g_data_path3
+	ctrl_in3     = addfile (ctrl_file3, "r")   ; note the "s" of addfile
+	time_hist1    = ctrl_in3->time
+    yyyymm1  = cd_calendar(time_hist1,-1)
+    istrt   = ind(yyyymm1 .eq. yrstrt0)
+    ilast   = ind(yyyymm1 .eq. yrlast0)
+	var2  =short2flt(ctrl_in3->sst(istrt:ilast,:,:))		; p for unify the var name
+    var2_ssn=month_to_season(var2,g_season2)    
+    ctrl_nino34 = wgt_areaave_Wrap(var2_ssn(:,{-5:5},{-170:-120}), 1.0, 1.0, 0)
+    ctrl_nino34 = dim_rmvmean(ctrl_nino34)
+    nidx=dimsizes(var3_idx)
+    print(escorc(ctrl_nino34(1:),var3_idx(0:nidx-2)))
+    
+    exit
 ;--------------Proprocessing-----------
     
     var1_ssn=month_to_season(var1,g_season)
