@@ -21,65 +21,55 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 ;================================================
 
 
-
 begin
-    data_file_name1="$DATAOBV/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
-    data_file_name2="$DATAOBV/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
-    data_file_name3="$DATAOBV/PRECT/gpcp.precip.mon.nc"
-    
+    data_file_name3="$DATAOBV/PRECPT/GPCP_precip.mon.mean.nc"
+
+    g_el_year=(/1979, 1982, 1986, 1991, 1994, 1997, 2004, 2006, 2009, 2015/)
+    g_el_mon=(/5, 14, 17, 13, 6, 12, 10, 5, 10, 21/)
+
     g_fig_name="../fig/FIG4b_case"
     g_fig_title="2015-2014 Pr, Surface UV & Wind Stress Curl"
     g_font =0.013
     g_font2=0.015
     g_fig_rank=(/"(b)(c)"/)
     ;one month rightward shift
-    yrstrt1  = 199601
-    yrlast1  = 199712
-
-    ;Smaller Region
-    g_latS=-20.
-    g_latN=20.
-    g_lonW=100.
-    g_lonE=200.
+    yrstrt0  = 197901
+    yrlast0  = 201512
     g_season="MAM"
+
 ;---------------Read data-------------------
-    ctrl_in1 = addfile(data_file_name1,"r")
-    time = ctrl_in1->time
-    yyyymm =cd_calendar(time,-1)
-    istrt = ind(yyyymm .eq. yrstrt1)
-    ilast = ind(yyyymm .eq. yrlast1)
-    var1 = short2flt(ctrl_in1->uwnd(istrt:ilast,0,:,:))
-
-
-    ctrl_in2 = addfile(data_file_name2,"r")
-    time = ctrl_in2->time
-    yyyymm =cd_calendar(time,-1)
-    istrt = ind(yyyymm .eq. yrstrt1)
-    ilast = ind(yyyymm .eq. yrlast1)
-    var2 = short2flt(ctrl_in2->vwnd(istrt:ilast,0,:,:))
-
-    delete([/time, yyyymm/])
     ctrl_in3 = addfile(data_file_name3,"r")
     time = ctrl_in3->time
     yyyymm =cd_calendar(time,-1)
-    istrt = ind(yyyymm .eq. yrstrt1)
-    ilast = ind(yyyymm .eq. yrlast1)
+    istrt = ind(yyyymm .eq. yrstrt0)
+    ilast = ind(yyyymm .eq. yrlast0)
     var3 = ctrl_in3->precip(istrt:ilast,:,:)
+    var3_ssn=month_to_season(var3,g_season)
+   
+    var3_idx=var3_ssn(:,0,0)
+    var3_idx=(wgt_areaave_Wrap(var3_ssn(:,{5:15},{150:200}),1.0,1.0,0)+wgt_areaave_Wrap(var3_ssn(:,{-20:-5},{150:180}),1.0,1.0,0))/2-wgt_areaave_Wrap(var3_ssn(:,{-15:15},{120:150}),1.0,1.0,0)
+    yearlist=ispan(1979,2015,1)
+    print(yearlist+":"+var3_idx)
+
+exit
 ;--------------Proprocessing-----------
     
     var1_ssn=month_to_season(var1,g_season)
     var2_ssn=month_to_season(var2,g_season)
-    var3_ssn=month_to_season(var3,g_season)
     
+    var1_clim=dim_avg_n_Wrap(var1_ssn,0)
+    var2_clim=dim_avg_n_Wrap(var2_ssn,0)
+    var3_clim=dim_avg_n_Wrap(var3_ssn,0)
+
     diff_var1 = var1_ssn(0,:,:)
     diff_var2 = var2_ssn(0,:,:)
     diff_var3 = var3_ssn(0,:,:)
     
 
 
-    diff_var1 =var1_ssn(1,:,:) -var1_ssn(0,:,:) 
-    diff_var2 =var2_ssn(1,:,:) -var2_ssn(0,:,:) 
-    diff_var3 =var3_ssn(1,:,:) -var3_ssn(0,:,:) 
+    diff_var1 =var1_ssn(34,:,:) -var1_clim
+    diff_var2 =var2_ssn(34,:,:) -var2_clim
+    diff_var3 =var3_ssn(34,:,:) -var3_clim
     
     
   
@@ -118,9 +108,10 @@ begin
 
     curl_exp=tao_x_ctrl
     curl_ctrl=tao_x_ctrl
-    curl_exp    = uv2vr_cfd(tao_x_exp, tao_y_exp, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
-    curl_ctrl    = uv2vr_cfd(tao_x_ctrl, tao_y_ctrl, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
-    curl_diff=curl_exp
+    curl_diff0=tao_x_ctrl
+    curl_ctrl=uv2vrF_Wrap(tao_x_ctrl,tao_y_ctrl)
+    curl_exp=uv2vrF_Wrap(tao_x_exp,tao_y_exp)
+    curl_diff0=uv2vrF_Wrap(tao_x_diff,tao_y_diff)
     curl_diff=curl_exp-curl_ctrl
 
     wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
@@ -160,9 +151,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -6e-8          ; set min contour level
-    res@cnMaxLevelValF        =  6e-8          ; set max contour level
-    res@cnLevelSpacingF       =  1e-8          ; set contour interval
+    res@cnMinLevelValF        =  -4e-8          ; set min contour level
+    res@cnMaxLevelValF        =  4e-8          ; set max contour level
+    res@cnLevelSpacingF       =  5e-9          ; set contour interval
     res@vpHeightF=0.2
     res@vpWidthF=0.6
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -237,7 +228,7 @@ begin
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    res3@cnLevels = (/2.0, 2.5, 3.0/)
+    res3@cnLevels = (/1.0, 2.0, 3.0/)
     ;    res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
     res3@cnLineColor      = "Blue"
     res3@gsnLeftString      = " "
@@ -339,8 +330,8 @@ end do
     xyres@gsnCenterString=""
     xyres@trYMinF         = -20 
     xyres@trYMaxF         = 20
-    xyres@trXMinF         = -2. 
-    xyres@trXMaxF         = 4.
+    xyres@trXMinF         = -3. 
+    xyres@trXMaxF         = 3.
     xyres@xyLineThicknesses    = 2.0      ; line thicknesses
    
     xyres@tmYRTickSpacingF = 5.
@@ -360,7 +351,7 @@ end do
     xy2res@xyLineThicknesses    = 2.0      ; line thicknesses
     xy2res@gsnXRefLine=0.0
     xy2res@gsnXYBarChart=True
-    xy2res@gsnXYBarChartBarWidth = 1.                 ; change bar widths
+    xy2res@gsnXYBarChartBarWidth = 1.5                 ; change bar widths
     xy2res@gsnXYBarChartColors = (/"skyblue2"/)             ; below ref line fill blue
     xyres@xyDashPattern=1
     plotxy = gsn_csm_xy(wks,diff_var1_lat,diff_var1_lat&lat,xyres)
@@ -369,8 +360,8 @@ end do
 
     diff_var3_lat=where(diff_var3_lat .lt. 0, diff_var3_lat,0)
     xy2res@gsnXYBarChartColors = (/"orangered"/)             ; below ref line fill blue
-    ;plotxy3 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
-    ;overlay(plotxy,plotxy3)
+    plotxy3 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
+    overlay(plotxy,plotxy3)
 
    
     newplot = gsn_attach_plots(plot(0),(/plotxy/),res,xy2res)

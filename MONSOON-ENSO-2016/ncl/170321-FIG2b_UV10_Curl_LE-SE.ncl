@@ -273,11 +273,18 @@ begin
     tao_x_su=ruo*Cd*cmp_su_var1_avg*cmp_su_var1_avg
     tao_y_su=ruo*Cd*cmp_su_var2_avg*cmp_su_var2_avg
 
+    tao_x_diff=tao_x_sp
+    tao_y_diff=tao_y_sp
+    tao_x_diff=ruo*Cd*cmp_var1_all*cmp_var1_all
+    tao_y_diff=ruo*Cd*cmp_var2_all*cmp_var2_all
+
     curl=uv2vrF_Wrap(tao_x,tao_y)
     curl_sp=uv2vrF_Wrap(tao_x_sp,tao_y_sp)
     curl_su=uv2vrF_Wrap(tao_x_su,tao_y_su)
     curl_diff=curl
-    curl_diff=curl_sp-curl_su  
+    curl_diff=curl_sp-curl_su
+    curl_diff0=curl
+    curl_diff0=uv2vrF_Wrap(tao_x_diff,tao_y_diff)
 
     ;--------------------------------
     ;--------Sig Test----------------
@@ -517,8 +524,8 @@ begin
     res@gsnCenterString = g_fig_title(0)
     res@gsnRightString = ""
 
-    curl_diff=smth9_Wrap(curl_diff,0.5,0.25, True)
-    plot(0) = gsn_csm_contour_map_ce(wks,curl_diff(3,:,:),res)
+    curl_diff0=smth9_Wrap(curl_diff0,0.5,0.25, True)
+    plot(0) = gsn_csm_contour_map_ce(wks,curl_diff0(3,:,:),res)
     
     res@gsnLeftString = g_fig_rank(0)
     res@gsnCenterString = g_fig_title(0)
