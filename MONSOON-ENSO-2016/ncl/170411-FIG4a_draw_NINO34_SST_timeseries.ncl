@@ -38,7 +38,7 @@ begin
     g_lonE = 240
     g_latS = -5
     g_latN = 5
-    g_font = 0.017
+    g_font = 0.012
 ;---------------Read data-------------------
     ctrl_in1 = addfile(data_file,"r")
     time = ctrl_in1->time

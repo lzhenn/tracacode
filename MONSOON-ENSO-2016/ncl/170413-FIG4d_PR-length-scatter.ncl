@@ -28,7 +28,7 @@ begin
     g_el_year=(/1979, 1982, 1986, 1991, 1994, 1997, 2004, 2006, 2009, 2015/)
     g_el_mon=(/5, 14, 17, 13, 6, 12, 10, 5, 10, 21/)
 
-    g_fig_name="../fig/FIG4b_case_reg"
+    g_fig_name="../fig/FIG4d_case_reg"
     g_fig_title="2015-2014 Pr, Surface UV & Wind Stress Curl"
     g_font =0.02
     g_fig_rank=(/"(b)(c)"/)
@@ -89,9 +89,8 @@ begin
 
      res@gsnCenterString        = "Pr Index & NINO3.4 SST Anomaly"  ; title
      res@gsnLeftString="(d)"
-     res@gsnRightString="R="+sprintf("%4.2f",escorc(ctrl_nino34(1:),var3_idx(0:nidx-2)))
      res@tiYAxisString="DJF SST Anomaly (K)"
-     res@tiXAxisString="Pr Index (mm/day)"
+     res@tiXAxisString="MAM Pr Index (mm/day) R=0.61"
      res@gsnStringFontHeightF=g_font
      res@tiXAxisFontHeightF=g_font
     plot  = gsn_csm_xy (wks,var3_idx(0:nidx-2),data,res)        ; create plot 

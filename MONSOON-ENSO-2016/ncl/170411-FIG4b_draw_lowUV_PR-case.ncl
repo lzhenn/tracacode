@@ -23,9 +23,9 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name1="$DATAOBV/NCEP_DOE/monthly/uwnd.10m.mon.mean.nc"
-    data_file_name2="$DATAOBV/NCEP_DOE/monthly/vwnd.10m.mon.mean.nc"
-    data_file_name3="$DATAOBV/PRECPT/GPCP_precip.mon.mean.nc"
+    data_file_name1="$DATAOBV/NCEP-DOE/monthly/uwnd.10m.mon.mean.nc"
+    data_file_name2="$DATAOBV/NCEP-DOE/monthly/vwnd.10m.mon.mean.nc"
+    data_file_name3="$DATAOBV/PRECT/gpcp.precip.mon.nc"
     
     g_fig_name="../fig/FIG4b_case"
     g_fig_title="2015-2014 Pr, Surface UV & Wind Stress Curl"
@@ -33,8 +33,8 @@ begin
     g_font2=0.016
     g_fig_rank=(/"(b)(c)"/)
     ;one month rightward shift
-    yrstrt1  = 201401
-    yrlast1  = 201512
+    yrstrt1  = 199601
+    yrlast1  = 199712
 
     ;Smaller Region
     g_latS=-20.
@@ -81,8 +81,6 @@ begin
     diff_var2 =var2_ssn(1,:,:) -var2_ssn(0,:,:) 
     diff_var3 =var3_ssn(1,:,:) -var3_ssn(0,:,:) 
     
-    diff_var1_sig=diff_var1
-    diff_var1_sig=where(wind_speed(diff_var1,diff_var2) .lt. 1.5, diff_var1@_FillValue, diff_var1)
     
   
     ; Calculate the Sverdrup Transport
@@ -120,13 +118,12 @@ begin
 
     curl_exp=tao_x_ctrl
     curl_ctrl=tao_x_ctrl
-    curl_diff0=tao_x_ctrl
-    curl_ctrl=uv2vrF_Wrap(tao_x_ctrl,tao_y_ctrl)
-    curl_exp=uv2vrF_Wrap(tao_x_exp,tao_y_exp)
-    curl_diff0=uv2vrF_Wrap(tao_x_diff,tao_y_diff)
+    curl_exp    = uv2vr_cfd(tao_x_exp, tao_y_exp, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
+    curl_ctrl    = uv2vr_cfd(tao_x_ctrl, tao_y_ctrl, diff_var1&lat,diff_var1&lon,3)         ; u,v ==> vorticity (rel)
+    curl_diff=curl_exp
     curl_diff=curl_exp-curl_ctrl
 
-    wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+    wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 
     plot = new((/2/),graphic)
   plot_sig = new((/2/),graphic)
@@ -163,9 +160,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -3e-8          ; set min contour level
-    res@cnMaxLevelValF        =  3e-8          ; set max contour level
-    res@cnLevelSpacingF       =  5e-9          ; set contour interval
+    res@cnMinLevelValF        =  -6e-8          ; set min contour level
+    res@cnMaxLevelValF        =  6e-8          ; set max contour level
+    res@cnLevelSpacingF       =  1e-8          ; set contour interval
     res@vpHeightF=0.2
     res@vpWidthF=0.6
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -184,7 +181,7 @@ begin
   res@gsnMaximize      = True       ; fill up the page
   res@gsnAddCyclic   = True;False
   res@gsnPaperOrientation = "portrait"
-  res@gsnContourZeroLineThicknessF = 1.  ;set thickness of zero
+  res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
 
   res@lbLabelBarOn = True   ; turn off the label bar
@@ -193,7 +190,7 @@ begin
   ;res@lbLabelStride = 1
 
   res@mpFillOn   = True     ; turn off gray continents
-  res@mpGeophysicalLineThicknessF = 1
+  res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
   res@mpCenterLonF = 180.
@@ -235,12 +232,12 @@ begin
     res3@gsnFrame         = False
     res3@gsnDraw  = False
     res3@cnLineLabelsOn   = False      ; turn off contour line labels
-    res3@cnLineThicknessF = 1
+    res3@cnLineThicknessF = 2 
     res3@cnInfoLabelOn = False
 
 
     res3@cnLevelSelectionMode="ExplicitLevels"
-    res3@cnLevels = (/1.5, 2.0, 3.0/)
+    res3@cnLevels = (/2.0, 2.5, 3.0/)
     ;    res3@cnLevels = (/4.0, 6.0, 8.0, 10.0/)
     res3@cnLineColor      = "Blue"
     res3@gsnLeftString      = " "
@@ -317,10 +314,10 @@ do i = 0,0
     res@gsnCenterString = g_fig_title
     res@gsnRightString = ""
 
-    cmpvrsmoth=smth9_Wrap(curl_diff0,0.5,0.25, True)
+    cmpvrsmoth=smth9_Wrap(curl_diff,0.5,0.25, True)
     plot(i) = gsn_csm_contour_map_ce(wks,cmpvrsmoth,res)
 
-    plot_V(i) = gsn_csm_vector(wks,diff_var1_sig,diff_var2,vcres)
+    plot_V(i) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres)
     overlay(plot(i),plot_V(i))
     overlay(plot(i),plot_cn_pos)
     overlay(plot(i),plot_cn_neg)
@@ -342,8 +339,8 @@ end do
     xyres@gsnCenterString=""
     xyres@trYMinF         = -20 
     xyres@trYMaxF         = 20
-    xyres@trXMinF         = -3. 
-    xyres@trXMaxF         = 3.
+    xyres@trXMinF         = -2. 
+    xyres@trXMaxF         = 4.
     xyres@xyLineThicknesses    = 2.0      ; line thicknesses
    
     xyres@tmYRTickSpacingF = 5.
@@ -363,7 +360,7 @@ end do
     xy2res@xyLineThicknesses    = 2.0      ; line thicknesses
     xy2res@gsnXRefLine=0.0
     xy2res@gsnXYBarChart=True
-    xy2res@gsnXYBarChartBarWidth = 1.5                 ; change bar widths
+    xy2res@gsnXYBarChartBarWidth = 1.                 ; change bar widths
     xy2res@gsnXYBarChartColors = (/"skyblue2"/)             ; below ref line fill blue
     xyres@xyDashPattern=1
     plotxy = gsn_csm_xy(wks,diff_var1_lat,diff_var1_lat&lat,xyres)
@@ -372,8 +369,8 @@ end do
 
     diff_var3_lat=where(diff_var3_lat .lt. 0, diff_var3_lat,0)
     xy2res@gsnXYBarChartColors = (/"orangered"/)             ; below ref line fill blue
-    plotxy3 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
-    overlay(plotxy,plotxy3)
+    ;plotxy3 = gsn_csm_xy(wks,diff_var3_lat,diff_var3_lat&lat,xy2res)
+    ;overlay(plotxy,plotxy3)
 
    
     newplot = gsn_attach_plots(plot(0),(/plotxy/),res,xy2res)
