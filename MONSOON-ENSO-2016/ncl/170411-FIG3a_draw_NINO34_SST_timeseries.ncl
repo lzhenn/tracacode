@@ -133,7 +133,7 @@ begin
 	res@tmXBLabels = (/"Jan","Mar","May","Jul","Sep","Nov","Jan","Mar","May","Jul","Sep","Nov"/)        ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
 	res@xyLineColors       = (/"blue","red"/) ; colors chosen
-	res@xyLineThicknesses	 = (/2.0,2.0/)      ; line thicknesses
+	res@xyLineThicknesses	 = (/3.0,3.0/)      ; line thicknesses
 	res@xyDashPatterns	 = (/0.,0./)      ; make all lines solid
     res@tmXBMajorThicknessF = 2.0
 	res@tmYLMajorThicknessF = 2.0
@@ -152,15 +152,15 @@ begin
     
     res2               = res                    ; plot mods desired
  	delete([/res2@xyLineColors,res2@xyLineThicknesses,res2@xyDashPatterns/])
-    res2@xyLineColor       = "orangered" ; colors chosen
+    res2@xyLineColor       = "tomato" ; colors chosen
 	res2@xyLineThicknessF	 = 1.0      ; line thicknesses
 	res2@xyDashPattern	 = 0      ; make all lines solid
-    plot  = gsn_csm_xy (wks,ispan(1,24,1),exp_nino34_idx,res2)   ; create plot
+    plot_exp  = gsn_csm_xy (wks,ispan(1,24,1),exp_nino34_idx,res2)   ; create plot
     
     res2@xyLineColor       = "skyblue" ; colors chosen
     plot_ctrl  = gsn_csm_xy (wks,ispan(1,24,1),ctrl_nino34_idx,res2)   ; create plot
-    overlay(plot,top_plot)
-    overlay(plot,plot_ctrl)
+    overlay(plot_ctrl,plot_exp)
+    overlay(plot_ctrl,top_plot)
 ;--------------------------------------------------------------------------
     res_lines                   = True                  ; polyline mods desired
     res_lines@gsLineDashPattern = 0.                    ; solid line
@@ -174,18 +174,18 @@ begin
     yy = (/3.0,3.0/)
     xx = (/1.5,3.0/)
     text_pos = xx(1)+0.3
-    dum1 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
-    dum2 = gsn_add_text(wks,plot,"CTRL",text_pos,yy(0),res_text); add text
+    dum1 = gsn_add_polyline(wks,plot_ctrl,xx,yy,res_lines)              ; add polyline
+    dum2 = gsn_add_text(wks,plot_ctrl,"CTRL",text_pos,yy(0),res_text); add text
     
     res_lines@gsLineColor = "red"
     yy = yy-0.5
-    dum3 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
-    dum4 = gsn_add_text(wks,plot,"SEN",text_pos,yy(0),res_text); add text
+    dum3 = gsn_add_polyline(wks,plot_ctrl,xx,yy,res_lines)              ; add polyline
+    dum4 = gsn_add_text(wks,plot_ctrl,"SEN",text_pos,yy(0),res_text); add text
     
    
 
 
-    draw(plot)
+    draw(plot_ctrl)
     frame(wks)
 
 end
