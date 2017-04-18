@@ -32,10 +32,10 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
 # Number of Ensemble members
-N_ESM=20
+N_ESM=28
 
 # ESM folder prefix
-ESM_NAME=\"ESMc_\"
+ESM_NAME=\"ESMc_add_\"
 
 
 # Layers of 3D fields
