@@ -35,7 +35,7 @@ begin
     g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test/Nudging.cam.h1.0006-02-01-00000.nc"
     output_fn ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test/Nudging_UV.nc"
     g_font = 0.025
-    g_lvl=200   
+    g_lvl=850   
     g_fig_name="../fig/nudging-original-field"+g_lvl
   
     g_latN=60
@@ -98,8 +98,8 @@ begin
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
  res@cnMinLevelValF        = 0         ; set min contour level
- res@cnMaxLevelValF        = 40          ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMaxLevelValF        = 20          ; set max contour level
+ res@cnLevelSpacingF       = 1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -172,11 +172,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 20.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 15.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "20 m/s"
+  vcres@vcRefAnnoString1  = "15 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
