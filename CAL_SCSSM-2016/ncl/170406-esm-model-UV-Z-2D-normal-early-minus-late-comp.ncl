@@ -65,7 +65,7 @@ begin
     var_mean=dim_avg_n_Wrap(var_areamean,0)  
     var_onset=var_areamean
 
-    g_day_comp_len=14
+    g_day_comp_len=7
     day_strt=80
     var_onset_M2J=var_onset(:,day_strt:)
 
