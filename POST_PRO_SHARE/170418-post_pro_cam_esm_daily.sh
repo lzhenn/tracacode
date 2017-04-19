@@ -20,13 +20,13 @@ PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro/\"
 CASENAME=\"CLIM-Trans-2015\"
 
 # ESM folder prefix
-ESM_NAME=ESMc_
+ESM_NAME=ESMc_add_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=22
+ESM_LAST=28
 
 
 

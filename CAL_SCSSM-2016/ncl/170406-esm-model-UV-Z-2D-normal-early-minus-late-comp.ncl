@@ -39,102 +39,93 @@ begin
     ;g_day_rank=(/135,140,150,155,145,140,150,135,160,145,160,140,160,140,150,125,135,130,140,140,150,135,130,135,145,140,150,140,145,125,150,145,130,140/)
     
     ;BOB
-    
-    g_strt_yr=1979
-    g_lst_yr=2010
-    g_yr_len = g_lst_yr-g_strt_yr+1
- 
 
-    ; U200 P20-28
-    g_day_strt2=65
-    g_day_lst2=142
+    ;for directory 
+    g_var_name = "FLUT"
+    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro"
+
+    g_font = 0.025
+    g_fig_name="../fig/esm_comp_early"
+    ;Andaman Sea convection
+    g_latS=5.
+    g_latN=20.
+    g_lonW=87.5
+    g_lonE=100.
+
+    npos_year = 0
+    nneg_year = 0
+
+;Prepare the variables
+    ctrl_in_files = systemfunc("ls "+g_data3_path+"/*"+g_var_name+"*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in     = addfiles (ctrl_in_files, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in, "join")
+    var  =ctrl_in[:]->$g_var_name$
+    var_areamean=wgt_areaave_Wrap(var(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    var_mean=dim_avg_n_Wrap(var_areamean,0)  
+    var_onset=var_areamean
+
     g_day_comp_len=14
-    
-    ;BOB All
-    g_comp="all"
-    g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
-    g_day_rank=(/139,117,128,100,110,122,134,129,122,139,136,95,137,124,126,97,88,135,130,160/)-1-g_day_strt2
+    day_strt=80
+    var_onset_M2J=var_onset(:,day_strt:)
 
+    var_onset_M2J=where(var_onset_M2J .lt. 236, 1, 0)
+    var_onset_M2J=dim_acumrun_n(var_onset_M2J,6,1,1)
     
-    ;BOB Early
-    ;g_comp="early"
-    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
-    ;g_day_rank=(/108, 105, 93, 100, 107, 99/)-1-g_day_strt2
-    
-    ;BOB Late
-    g_comp2="late"
-    g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
+    dim_esm=dimsizes(var_onset)
+    dim_esm:=dim_esm(0)
+    onset_ind=var_onset(:,0)
 
-
-    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
-    g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
-    g_data1_path ="$DATAOBV/ERA-interim/pressure/hgt/*"
-    g_font = 0.02
-    
+    do ii=0,dim_esm-1
+        idate= get1Dindex(var_onset_M2J(ii,:), 6)
+        onset_ind(ii)=day_strt+idate-5
+    end do
+    onset_ind:=floattointeger(onset_ind)
+    print(onset_ind)
         
     g_latS=0
     g_latN=60
     g_lonW=30
     g_lonE=140
-    g_plevel=700
-    
-    g_fig_name = "../fig/obv/ERA-UV-HGT-early-normal-minus-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
-        
-    g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
-    
-    ;day_rank=ispan(0,g_day_comp_len-1,1)
-    ;day_rank=day_rank(::-1)
+    g_plvl=200
 
-    g_special_cases=dimsizes(g_special_year) 
-    g_special_cases2=dimsizes(g_special_year2) 
 
-    var1_data=read_era_daily_3D("hgt", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path) 
-    var2_data=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path) 
-    var3_data=read_era_daily_3D("vwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path) 
-    var1_data:=var1_data(:,g_day_strt2:g_day_lst2,:,:,:)
-    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
-    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
-;Prepare the variables
+    g_var_name:=(/"U","V"/)
+    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(0)+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in1, "join")
+    var1  =ctrl_in1[:]->$g_var_name(0)$(:,:,{150:500},{g_latS:g_latN},{g_lonW:g_lonE})
+
+    ctrl_in_files2 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(1)+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in2     = addfiles (ctrl_in_files2, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in2, "join")
+    var2  =ctrl_in2[:]->$g_var_name(1)$(:,:,{150:500},{g_latS:g_latN},{g_lonW:g_lonE})
+
+  
+    var1_mean:=dim_avg_n_Wrap(var1,0)
+    var2_mean:=dim_avg_n_Wrap(var2,0)
    
-    var1_cmp1 = var1_data(0:g_special_cases2-1,:,:,:,:)
-    var2_cmp1 = var2_data(0:g_special_cases2-1,:,:,:,:)
-    var3_cmp1 = var3_data(0:g_special_cases2-1,:,:,:,:)
-    
-    do ii=0, g_special_cases2-1
-        var1_cmp1(ii,:,:,:,:)=var1_data(g_special_year2(ii),:,:,:,:)
-        var2_cmp1(ii,:,:,:,:)=var2_data(g_special_year2(ii),:,:,:,:)
-        var3_cmp1(ii,:,:,:,:)=var3_data(g_special_year2(ii),:,:,:,:)
-    end do
-   
-    var1_cmp1:=dim_avg_n_Wrap(var1_cmp1,0)
-    var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
-    var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,0)
-   
-    num_case=num((g_day_rank+1+g_day_strt2) .lt. 130)
+    num_case=num((onset_ind) .lt. 105)
     print(num_case)
-    var1_cmp2 = var1_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
-    var2_cmp2 = var2_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
-    var3_cmp2 = var3_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
+    var1_cmp = var1(0:num_case-1,0:g_day_comp_len-1,:,:,:)
+    var2_cmp = var2(0:num_case-1,0:g_day_comp_len-1,:,:,:)
     jj=0
-    do ii=0,g_special_cases-1
-        if g_day_rank(ii)+1+g_day_strt2 .lt. 130 then
-            var1_cmp2(jj,:,:,:,:) = var1_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var1_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-            var2_cmp2(jj,:,:,:,:) = var2_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var2_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-            var3_cmp2(jj,:,:,:,:) = var3_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var3_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
+    do ii=0,dim_esm-1
+        if onset_ind(ii).lt. 105 then
+            var1_cmp(jj,:,:,:,:) =var1(ii,onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:)-var1_mean(onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:) 
+            var2_cmp(jj,:,:,:,:) =var2(ii,onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:)-var2_mean(onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:) 
             jj=jj+1
         end if
     end do
    
+    var1_cmp:=dim_avg_n_Wrap(var1_cmp,1)
+    var2_cmp:=dim_avg_n_Wrap(var2_cmp,1)
 
-    var1_cmp2:=dim_avg_n_Wrap(var1_cmp2,1)
-    var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,1)
-    var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,1)
-
-    var1_cmp2:=dim_avg_n_Wrap(var1_cmp2,0)
-    var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,0)
-    var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,0)
-
+    var1_cmp:=dim_avg_n_Wrap(var1_cmp,0)
+    var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
+    printVarSummary(var1_cmp)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -142,10 +133,10 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  plot_sh = new((/g_day_comp_len/),graphic)
-  plot_V = new((/g_day_comp_len/),graphic)
-  plot_cn_max = new((/g_day_comp_len/),graphic)
-  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
+;  plot_sh = new((/g_day_comp_len/),graphic)
+;  plot_V = new((/g_day_comp_len/),graphic)
+;  plot_cn_max = new((/g_day_comp_len/),graphic)
+;  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
@@ -256,11 +247,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 10.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "10 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -300,11 +291,11 @@ begin
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
 
-        plot_V(0) = gsn_csm_vector(wks,var2_cmp2({g_plevel},:,:),var3_cmp2({g_plevel},:,:),vcres) 
-        plot_sh(0) = gsn_csm_contour_map(wks,var1_cmp2({g_plevel},:,:), res) 
-        overlay(plot_sh(0),plot_V(0))
+        plot_V = gsn_csm_vector(wks,var1_cmp({g_plvl},:,:),var2_cmp({g_plvl},:,:),vcres) 
+  ;      plot_sh(0) = gsn_csm_contour_map(wks,var1_cmp2({g_plevel},:,:), res) 
+   ;     overlay(plot_sh(0),plot_V(0))
 
-    gsn_panel(wks,plot_sh,(/1,1/),resP)
+    gsn_panel(wks,plot_V,(/1,1/),False)
 exit
 
 do ii=0,g_day_comp_len-1

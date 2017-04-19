@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=SCS-MAM-ATTRI-2017
+WORKNAME=EXTRA-2017
 
 # Now to create the workspace
 mkdir $WORKNAME
