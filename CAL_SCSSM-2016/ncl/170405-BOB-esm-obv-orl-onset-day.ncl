@@ -33,7 +33,7 @@ begin
 
     ;for directory 
     g_var_name = "FLUT"
-    g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble"
+    g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
 
     g_font = 0.025
     
@@ -47,7 +47,7 @@ begin
     g_fig_name = "../fig/obv/model-esm-olr"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)"/)
-    g_fig_title   = "Obv: 1979-2012 vs Sim: 20 esm members"
+    g_fig_title   = "Obv: 1979-2012 vs Sim: 50 esm members"
 
     npos_year = 0
     nneg_year = 0

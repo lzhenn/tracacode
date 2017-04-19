@@ -33,7 +33,7 @@ begin
 
     ;for directory 
     g_var_name = "FLUT"
-    g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble"
+    g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
 
     g_font = 0.025
     

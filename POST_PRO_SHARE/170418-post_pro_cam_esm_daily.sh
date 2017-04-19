@@ -36,13 +36,14 @@ FDNAME2D="(/\"PRECL\",\"PRECC\",\"FLUT\",\"PSL\",\"TS\",\"TMQ\"/)" #often use
 #FDNAME2D="(/\"PRECT\",\"PSL\",\"QBOT\",\"TSMN\",\"U200\",\"U850\",\"UBOT\",\"V200\",\"V850\",\"VBOT\",\"Z200\",\"Z500\"/)" #often use
 
 # Names of 3D fields
-FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
+FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"RELHUM\"/)" #often use
 #FDNAME3D_HY="(/\"RELHUM\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
 # Names of 3D HY fields
-FDNAME3D_HY="(/\"U\",\"V\"/)" # hybrid coordinate
+#FDNAME3D_HY="(/\"U\",\"V\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"Z3\"/)" # hybrid coordinate
 
 
 
@@ -57,9 +58,9 @@ PLEV="(/1000,925,850,700,500,200/)"
 
 
 # Process fig flag
-FLAG2D=1
+FLAG2D=0
 FLAG3D=0
-FLAG3DHY=0
+FLAG3DHY=1
 
 
 #-----------------------------------------------------------
@@ -81,24 +82,25 @@ do
     fi
     if  [ $FLAG3D == 1 ] ; then
     #Output post processed 3D fields
-    ncl pre_dir=$PRE_DIR           \
+    ncl -nQ pre_dir=$FULL_PRE_DIR           \
        pro_dir=$PRO_DIR            \
        fdname3d=$FDNAME3D          \
-       n_esm=$N_ESM                \
+       n_esm=$II                \
        layers=$LAYERS              \
        plev=$PLEV                  \
        case_name=$CASENAME         \
-       esm_name=$ESM_NAME          \
-       ./ncl/take_3D_from_raw_data_esm_daily-151123.ncl
+       esm_name=$ESM_NAME0          \
+       ./ncl/take_3D_from_raw_data_esm_daily-170418.ncl
     fi
 
     if  [ $FLAG3DHY == 1 ] ; then
     #Output post processed 3D fields
-    ncl pre_dir=$PRE_DIR            \
+    ncl -nQ pre_dir=$FULL_PRE_DIR            \
         pro_dir=$PRO_DIR            \
         fdname3d=$FDNAME3D_HY       \
-        n_esm=$N_ESM                \
+        n_esm=$II                \
         case_name=$CASENAME         \
-        ./ncl/take_3D_hybrid_from_raw_data_esm_daily-151123.ncl
+        esm_name=$ESM_NAME0        \
+        ./ncl/take_3D_hybrid_from_raw_data_esm_daily-170418.ncl
     fi
 done
