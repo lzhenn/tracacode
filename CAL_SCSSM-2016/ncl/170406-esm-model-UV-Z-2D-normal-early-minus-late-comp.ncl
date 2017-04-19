@@ -125,6 +125,8 @@ begin
 
     var1_cmp:=dim_avg_n_Wrap(var1_cmp,0)
     var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
+    
+    ws=wind_speed(var1_cmp,var2_cmp)
     printVarSummary(var1_cmp)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -172,9 +174,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -250         ; set min contour level
- res@cnMaxLevelValF        = 250          ; set max contour level
- res@cnLevelSpacingF       = 25          ; set contour interval
+ res@cnMinLevelValF        = -10         ; set min contour level
+ res@cnMaxLevelValF        = 10          ; set max contour level
+ res@cnLevelSpacingF       = 0.5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -247,11 +249,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 10.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "10 m/s"
+  vcres@vcRefAnnoString1  = "5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -292,10 +294,10 @@ begin
 
 
         plot_V = gsn_csm_vector(wks,var1_cmp({g_plvl},:,:),var2_cmp({g_plvl},:,:),vcres) 
-  ;      plot_sh(0) = gsn_csm_contour_map(wks,var1_cmp2({g_plevel},:,:), res) 
-   ;     overlay(plot_sh(0),plot_V(0))
+        plot_sh = gsn_csm_contour_map(wks,ws({g_plvl},:,:), res) 
+        overlay(plot_sh,plot_V)
 
-    gsn_panel(wks,plot_V,(/1,1/),False)
+    gsn_panel(wks,plot_sh,(/1,1/),False)
 exit
 
 do ii=0,g_day_comp_len-1
