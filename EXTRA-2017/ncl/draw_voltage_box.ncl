@@ -29,7 +29,7 @@ begin
 ;================================================
 
 ;global variables
-   g_fig_name    = "../fig/fig10_A1_JJA_WYI"
+   g_fig_name    = "../fig/voltage"
     g_font=0.02
 	box = new((/5,6/),"float")
     box=(/\
@@ -64,7 +64,7 @@ begin
 	; resources that control color and width of boxes
 	;**********************************************  
 	opti          = True			
-	opti@boxWidth = .5				; Width of box (x units)
+	opti@boxWidth = 2.				; Width of box (x units)
 	opti@boxColors = (/"black","blue","red","orange","purple","green"/)  	; Color of box(es)
 	;***********************************************
 	
@@ -90,7 +90,7 @@ begin
 	;siglnres@gsLineColor = "red"
 	
     x = (/5., 10., 15., 20., 30., 40./)	
-	res@tiMainString = "(a) JJA W-Y Index"
+	res@tiMainString = "Diameter & Voltage"
 	plot_box = boxplot(wks,x,box_trans,opti,res,llres)	; All 3 options used...
 	;dum1 = gsn_add_polyline(wks,plot_box,(/-3.,3./),(/0,0/),lnres)	
 ;    dum2 = gsn_add_polymarker(wks,plot_box,x,wyi_avg,mres) 

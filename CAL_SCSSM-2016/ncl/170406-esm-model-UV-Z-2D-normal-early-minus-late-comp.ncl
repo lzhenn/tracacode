@@ -65,7 +65,7 @@ begin
     var_mean=dim_avg_n_Wrap(var_areamean,0)  
     var_onset=var_areamean
 
-    g_day_comp_len=7
+    g_day_comp_len=5
     day_strt=80
     var_onset_M2J=var_onset(:,day_strt:)
 
@@ -90,7 +90,7 @@ begin
     g_plvl=200
 
 
-    g_var_name:=(/"U","V"/)
+    g_var_name:=(/"U","V","Z3"/)
     ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(0)+".*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
@@ -103,28 +103,42 @@ begin
     ListSetType (ctrl_in2, "join")
     var2  =ctrl_in2[:]->$g_var_name(1)$(:,:,{150:500},{g_latS:g_latN},{g_lonW:g_lonE})
 
+    ctrl_in_files3 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(2)+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in3     = addfiles (ctrl_in_files3, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in3, "join")
+    var3  =ctrl_in3[:]->$g_var_name(2)$(:,:,{150:500},{g_latS:g_latN},{g_lonW:g_lonE})
+
+
   
     var1_mean:=dim_avg_n_Wrap(var1,0)
     var2_mean:=dim_avg_n_Wrap(var2,0)
+    var3_mean:=dim_avg_n_Wrap(var3,0)
    
     num_case=num((onset_ind) .lt. 105)
     print(num_case)
-    var1_cmp = var1(0:num_case-1,0:g_day_comp_len-1,:,:,:)
-    var2_cmp = var2(0:num_case-1,0:g_day_comp_len-1,:,:,:)
+    var1_cmp = var1(0:num_case-1,0:2*g_day_comp_len-1,:,:,:)
+    var2_cmp = var2(0:num_case-1,0:2*g_day_comp_len-1,:,:,:)
+    var3_cmp = var3(0:num_case-1,0:2*g_day_comp_len-1,:,:,:)
     jj=0
     do ii=0,dim_esm-1
         if onset_ind(ii).lt. 105 then
-            var1_cmp(jj,:,:,:,:) =var1(ii,onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:)-var1_mean(onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:) 
-            var2_cmp(jj,:,:,:,:) =var2(ii,onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:)-var2_mean(onset_ind(ii)-g_day_comp_len+1:onset_ind(ii),:,:,:) 
+            ;var1_cmp(jj,:,:,:,:) =var1(ii,105-g_day_comp_len+1:105,:,:,:)-var1_mean(105-g_day_comp_len+1:105,:,:,:) 
+            var1_cmp(jj,:,:,:,:) =var1(ii,105-g_day_comp_len+1:105+g_day_comp_len,:,:,:)-var1_mean(105-g_day_comp_len+1:105+g_day_comp_len,:,:,:) 
+            ;var2_cmp(jj,:,:,:,:) =var2(ii,105-g_day_comp_len+1:105,:,:,:)-var2_mean(105-g_day_comp_len+1:105,:,:,:) 
+            var2_cmp(jj,:,:,:,:) =var2(ii,105-g_day_comp_len+1:105+g_day_comp_len,:,:,:)-var2_mean(105-g_day_comp_len+1:105+g_day_comp_len,:,:,:) 
+            var3_cmp(jj,:,:,:,:) =var3(ii,105-g_day_comp_len+1:105+g_day_comp_len,:,:,:)-var3_mean(105-g_day_comp_len+1:105+g_day_comp_len,:,:,:) 
             jj=jj+1
         end if
     end do
    
     var1_cmp:=dim_avg_n_Wrap(var1_cmp,1)
     var2_cmp:=dim_avg_n_Wrap(var2_cmp,1)
+    var3_cmp:=dim_avg_n_Wrap(var3_cmp,1)
 
     var1_cmp:=dim_avg_n_Wrap(var1_cmp,0)
     var2_cmp:=dim_avg_n_Wrap(var2_cmp,0)
+    var3_cmp:=dim_avg_n_Wrap(var3_cmp,0)
     
     ws=wind_speed(var1_cmp,var2_cmp)
     printVarSummary(var1_cmp)
@@ -174,9 +188,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -10         ; set min contour level
- res@cnMaxLevelValF        = 10          ; set max contour level
- res@cnLevelSpacingF       = 0.5          ; set contour interval
+ res@cnMinLevelValF        = -100         ; set min contour level
+ res@cnMaxLevelValF        = 100         ; set max contour level
+ res@cnLevelSpacingF       = 10          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -294,7 +308,7 @@ begin
 
 
         plot_V = gsn_csm_vector(wks,var1_cmp({g_plvl},:,:),var2_cmp({g_plvl},:,:),vcres) 
-        plot_sh = gsn_csm_contour_map(wks,ws({g_plvl},:,:), res) 
+        plot_sh = gsn_csm_contour_map(wks,var3_cmp({g_plvl},:,:), res) 
         overlay(plot_sh,plot_V)
 
     gsn_panel(wks,plot_sh,(/1,1/),False)

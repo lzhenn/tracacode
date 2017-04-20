@@ -47,7 +47,7 @@ begin
     g_fig_name = "../fig/obv/model-esm-olr"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)"/)
-    g_fig_title   = "Obv: 1979-2012 vs Sim: 20 esm members"
+    g_fig_title   = "Obv: 1979-2012 vs Sim: 50 esm members"
 
     npos_year = 0
     nneg_year = 0
@@ -116,22 +116,22 @@ begin
 ;    res@trXMinF            = 1           ; X axis limits
     res@trXMaxF            = 180           ; X axis limits
 
-    plot(0) = gsn_csm_xy (wks,ispan(0,180,1),var_areamean,res) ; create plot
+    plot(0) = gsn_csm_xy (wks,ispan(60,180,1),var_areamean(:,59:),res) ; create plot
     res@xyLineColor       = "lightskyblue" ; colors chosen
-    plot_obv(0)=gsn_csm_xy (wks,ispan(0,180,1),var_obv_areamean,res) ; create plot
+    plot_obv(0)=gsn_csm_xy (wks,ispan(60,180,1),var_obv_areamean(:,59:),res) ; create plot
 
     res@xyLineColor       = "red" ; colors chosen
     res@xyLineThicknesses    = 4.0      ; line thicknesses
 
   
-    plot(1) = gsn_csm_xy (wks,ispan(0,180,1),var_mean,res) ; create plot
+    plot(1) = gsn_csm_xy (wks,ispan(60,180,1),var_mean(59:),res) ; create plot
     res@xyLineColor       = "blue" ; colors chosen
-    plot_obv(1) = gsn_csm_xy (wks,ispan(0,180,1),var_obv_mean,res) ; create plot
+    plot_obv(1) = gsn_csm_xy (wks,ispan(60,180,1),var_obv_mean(59:),res) ; create plot
   
       res_lines=True
       res_lines@gsLineColor       = "black"
       res_lines@gsLineDashPattern = 2.
-      xx = (/0,180/)
+      xx = (/60,180/)
       yy = (/235.,235./)
       dum7 = gsn_add_polyline(wks,plot(1),xx,yy,res_lines)              ; add polyline
 

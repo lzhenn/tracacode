@@ -32,9 +32,11 @@ begin
 
     ;for directory 
     g_var_name = (/"U","V"/)
-    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/test_2mon/"
+    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/test_2mon_nudg_10day/"
+    g_data_org="/users/yangsong3/L_Zealot/F/DATA_Nudging/Nudging_UV.nc"
+    g_case="10day"
     g_font = 0.025
-    g_lvl=200   
+    g_lvl=850
   
     g_latN=60
     g_latS=-60
@@ -48,9 +50,15 @@ begin
 
     var1  =ctrl_in[:]->U
     var2  =ctrl_in[:]->V
-    printVarSummary(var1)
-    printVarSummary(var2)
-   
+  
+    ctrl_in1     = addfile (g_data_org, "r")
+    var1_org=ctrl_in1->U
+    var2_org=ctrl_in1->V
+    printVarSummary(var1_org)
+    var1_diff= var1_org
+    var2_diff= var2_org
+    ws_org=wind_speed(var1_org,var2_org)
+    ws_diff=ws_org
     ws=wind_speed(var1,var2)
     dimvar=dimsizes(var1)
     time0=dimvar(0)
@@ -93,9 +101,9 @@ begin
     ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        = 0         ; set min contour level
-    res@cnMaxLevelValF        = 40          ; set max contour level
-    res@cnLevelSpacingF       = 2          ; set contour interval
+    res@cnMinLevelValF        = -10         ; set min contour level
+    res@cnMaxLevelValF        = 10          ; set max contour level
+    res@cnLevelSpacingF       = 1          ; set contour interval
 
     ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -168,11 +176,11 @@ begin
 
     vcres@vcRefAnnoOn      = True
     vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-    vcres@vcRefMagnitudeF         = 20.0             ; define vector ref mag
+    vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
     vcres@vcRefLengthF            = 0.045            ; define length of vec ref
     vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
     vcres@vcMinDistanceF          = 0.03
-    vcres@vcRefAnnoString1  = "20 m/s"
+    vcres@vcRefAnnoString1  = "5 m/s"
     vcres@vcRefAnnoString2  = ""
     vcres@vcRefAnnoFontHeightF = 0.02
 
@@ -182,12 +190,17 @@ begin
 
 
     do ii =0,time0-1 
-        g_fig_name="../fig/nudging/org-"+g_lvl+"-"+sprinti("%0.3i", ii)
+        g_fig_name="../fig/nudging/diff-"+g_case+g_lvl+"-"+sprinti("%0.3i", ii)
         wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
-        gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+        gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
         res@gsnLeftString="UV "+g_lvl+"hPa Day"+ sprinti("%0.3i",ii)   
-        plot_sh= gsn_csm_contour_map(wks,ws(ii,{g_lvl},:,:),res) ; create a default plot
-        plot_V = gsn_csm_vector(wks,var1(ii,{g_lvl},:,:),var2(ii,{g_lvl},:,:),vcres) 
+
+        var1_diff=var1(ii,:,:,:)-var1_org(:,:,:)
+        var2_diff=var2(ii,:,:,:)-var2_org(:,:,:)
+        ws_diff=ws(ii,:,:,:)-ws_org(:,:,:)
+
+        plot_sh= gsn_csm_contour_map(wks,ws_diff({g_lvl},:,:),res) ; create a default plot
+        plot_V = gsn_csm_vector(wks,var1_diff({g_lvl},:,:),var2_diff({g_lvl},:,:),vcres) 
         overlay(plot_sh,plot_V)
         draw(plot_sh)
         frame(wks)
