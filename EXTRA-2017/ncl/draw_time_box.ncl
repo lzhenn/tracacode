@@ -29,15 +29,15 @@ begin
 ;================================================
 
 ;global variables
-   g_fig_name    = "../fig/voltage"
+   g_fig_name    = "../fig/time"
     g_font=0.02
 	box = new((/5,6/),"float")
     box=(/\
-        (/22.3,38.9,55.1,70.2,105.8,138.5/),\ ;top
-        (/1.1,2.2,3.0,3.1,3.3,3.3/),\ ;std+
-        (/18.0,34.2,50.6,66.7,100.1,132.3/),\ ;mean
-        (/1.1,2.2,3.0,3.1,3.3,3.3/),\ ;std-
-        (/16.1,29.4,45.2,61.7,92.9,124.7/)\ ;bottom
+        (/1.02,3.79,5.45,16.52,19.57,20.8/),\ ;top
+        (/0.02,0.04,0.05,0.12,0.13,0.15/),\ ;std+
+        (/0.95,3.71,5.24,16.10,19.11,20.24/),\ ;mean
+        (/0.02,0.04,0.05,0.12,0.13,0.15/),\ ;std-
+        (/0.91,3.66,5.15,15.69,18.86,20.03/)\ ;bottom
         /) 
     box(1,:)=box(2,:)+box(1,:)    
     box(3,:)=box(2,:)-box(3,:)    
@@ -47,20 +47,16 @@ begin
 
 
 
-    var1_sn_rm_sealine=regline((/5,10,15,20,30,40/), box_trans(:,2))
-    print(var1_sn_rm_sealine)    
-    yReg2 = fspan(0,45,46) 
-    yReg2 = var1_sn_rm_sealine*ispan(0,45,1) + var1_sn_rm_sealine@yintercept   ; NCL array notation 
-    
+   
     ;********************************************************
 	; create the plot
 	;********************************************************   
    wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
    ;plot_box = new((/4/),graphic)
 
-
+    labels=(/"1/6","","3","12","24","48"/)
 	res            = True                         ; plot mods desired
-;	res@tmXBLabels = labels ; labels for each box
+	res@tmXBLabels = labels ; labels for each box
    res@tmXBLabelFontHeightF = g_font
    res@tmYLLabelFontHeightF = g_font
    res@tiMainFontHeightF    = g_font
@@ -100,10 +96,10 @@ begin
 	;siglnres@gsLineDashPattern = 2
 	;siglnres@gsLineColor = "red"
 	
-    x = (/5., 10., 15., 20., 30., 40./)	
-	res@tiMainString = "Diameter & Voltage"
+    x = (/0.157, 0.5, 3., 12., 24., 48./)	
+	res@tiMainString = "Diameter & Time"
 	plot_box = boxplot(wks,x,box_trans,opti,res,llres)	; All 3 options used...
-	dum1 = gsn_add_polyline(wks,plot_box,ispan(0,45,1),yReg2,lnres)	
+	dum1 = gsn_add_polyline(wks,plot_box,x,box_trans(:,2),lnres)	
 
   	gsn_panel(wks,plot_box,(/1,1/),False)
 end
