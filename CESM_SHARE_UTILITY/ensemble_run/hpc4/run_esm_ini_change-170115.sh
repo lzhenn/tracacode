@@ -33,22 +33,22 @@ source ~/.bashrc_cesm
 alias task="/opt/gridview/pbs/dispatcher/bin/qstat -u yangsong3"
 
 # Workspace Path
-WPATH=/users/yangsong3/L_Zealot/B/B20f19-spun-up
+WPATH=/users/yangsong3/L_Zealot/F/Nudging
 
 # Case Name
 CASENAME=`basename $WPATH`
 
 # Storage Path
-SPATH=/users/yangsong3/L_Zealot/B/DATA_B20f19-spun-up
+SPATH=/users/yangsong3/L_Zealot/F/DATA_Nudging
 
 # Storage Dir Prefix 
-SDPRE=ESMc0_
+SDPRE=ESMn0_
 
 # Init Dir PATH (must be a separate dir)
-INIT_DIR=$WPATH/init
+INIT_DIR=$WPATH/init-pmctrl
 
 # Init File Name (same as ncdata in user_nl_cam)
-INIT_NAME=B20f19-spun-up.cam.i.0252-01-01-00000.nc
+INIT_NAME=CLIM-Trans-2015.cam.i.0006-01-01-00000.nc
 
 #*************Below to execute the changes*********************
 # WARNING:
@@ -90,7 +90,7 @@ fi
 II=1
 N_ESM=`ll $INIT_DIR | wc -l`
 N_ESM=$((N_ESM-1))
-for INI_FILE in $INIT_DIR/*
+for INI_FILE in $INIT_DIR/*.nc
 do
     echo "ESM${II}/${N_ESM}, with init condition: ${INI_FILE}, is processing!"
     
