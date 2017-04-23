@@ -38,7 +38,7 @@ begin
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in1, "join")
-    var1  =ctrl_in1[:]->$g_var_name(0)$(:,80:160,{150:500},:,:)
+    var1  =ctrl_in1[:]->$g_var_name(0)$(:,75:120,{150:500},:,:)
     delete(ctrl_in1)
     clim_var1=dim_avg_n_Wrap(var1, 0)
     delete(var1)
@@ -46,7 +46,7 @@ begin
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in2     = addfiles (ctrl_in_files2, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in2, "join")
-    var2  =ctrl_in2[:]->$g_var_name(1)$(:,80:160,{150:500},:,:)
+    var2  =ctrl_in2[:]->$g_var_name(1)$(:,75:120,{150:500},:,:)
     delete(ctrl_in2)
     clim_var2=dim_avg_n_Wrap(var2, 0)
     printVarSummary(clim_var1)
