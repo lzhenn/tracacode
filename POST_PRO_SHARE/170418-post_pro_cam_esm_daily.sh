@@ -11,27 +11,27 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/
+PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_Nudging/
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_Nudging/pro/\"
 
 # Case name
-CASENAME=\"CLIM-Trans-2015\"
+CASENAME=\"Nudging\"
 
 # ESM folder prefix
-ESM_NAME=ESMc_add_
+ESM_NAME=ESMn0_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=28
+ESM_LAST=5
 
 
 
 # Names of 2D fields
-FDNAME2D="(/\"PRECL\",\"PRECC\",\"FLUT\",\"PSL\",\"TS\",\"TMQ\"/)" #often use
+FDNAME2D="(/\"PRECL\",\"PRECC\",\"FLUT\",\"PSL\",\"PS\",\"TS\",\"TMQ\"/)" #often use
 #FDNAME2D="(/\"TS\",\"TSMX\"/)" #often use
 #FDNAME2D="(/\"PRECT\",\"PSL\",\"QBOT\",\"TSMN\",\"U200\",\"U850\",\"UBOT\",\"V200\",\"V850\",\"VBOT\",\"Z200\",\"Z500\"/)" #often use
 
@@ -58,7 +58,7 @@ PLEV="(/1000,925,850,700,500,200/)"
 
 
 # Process fig flag
-FLAG2D=0
+FLAG2D=1
 FLAG3D=0
 FLAG3DHY=1
 

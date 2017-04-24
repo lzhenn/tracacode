@@ -77,14 +77,15 @@ begin
     end do
     var1(:,:,{0:30},:)=where(var1(:,:,{0:30},:) .gt. 0, var1(:,:,{0:30},:)*0.9, var1(:,:,{0:30},:))
     diff_var1=var1-diff_var1
-    ws=wind_speed(diff_var1,var2)
 
 
     var1_smp(:,13:18,:,:)=(/var1/)
     var2_smp(:,13:18,:,:)=(/var2/)
     var1_smp&time=var1&time
     var2_smp&time=var2&time
+    ws=wind_speed(var1_smp,var2_smp)
 
+    print(var1_smp(:,{200},{30.0},{80.0}))
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -246,14 +247,14 @@ begin
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
    do ii =0,time0-1 
-       g_fig_name="../fig/nudging/esm-diff-200mean-Day"+sprinti("%0.3i", ii+75)
+       g_fig_name="../fig/nudging/esm-afterchange-200mean-Day"+sprinti("%0.3i", ii+75)
        wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
        gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
        res@gsnLeftString="UV "+g_level+"hPa Day"+ sprinti("%0.3i",ii+75)   
 
-       plot_sh= gsn_csm_contour_map(wks,diff_var1(ii,{g_level},:,:),res) ; create a default plot
-;       plot_V = gsn_csm_vector(wks,diff_var1(ii,{g_level},:,:),var2(ii,{g_level},:,:),vcres) 
-;       overlay(plot_sh,plot_V)
+       plot_sh= gsn_csm_contour_map(wks,ws(ii,{g_level},:,:),res) ; create a default plot
+       plot_V = gsn_csm_vector(wks,var1_smp(ii,{g_level},:,:),var2_smp(ii,{g_level},:,:),vcres) 
+       overlay(plot_sh,plot_V)
        draw(plot_sh)
        frame(wks)
    end do
