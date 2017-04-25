@@ -1,8 +1,8 @@
 # project
-All source code from working project, would be updated frequently
+All source code from working project, will  update by crontab task everyday once there is modification.
 
-We believe in Opensource, and also, the seperation of data and post processing. Feel free to use our scripts.
+We believe in Opensources, and also, the seperation of data and post processing. Feel free to use our scripts.
 
-Keep fighting,
+Seize the time,
 
-Zhenning
+L_Zealot
