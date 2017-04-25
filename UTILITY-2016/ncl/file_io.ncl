@@ -5,7 +5,7 @@
 ;                                               Feb 20 2017
 ; Format Instructions:
 ;       YDLLL   -- Year Day Lev Lat Lon format (3D Field)
-;       YDLL    -- year Day Lat Lon format (2D Field)
+;       YDLL    -- Year Day Lat Lon format (2D Field)
 ;
 ; -------------- added Feb 20 2017
 ; read_doe_daily_2Din3D(varname, level, filedir)
@@ -27,6 +27,10 @@
 
 ; -------------- added Apr 10 2017
 ; read_ncep_ncar_daily_3D_UV(varname, lev_top, lev_bot, latS, latN, lonW, lonE, filedir)
+
+; -------------- added Apr 25 2017
+; write_TLLL_to_nc(varname, var, filedir)
+
 
 
 ; ------------------------------    read_doe_daily_2Din3D   ------------------------------------
@@ -312,3 +316,47 @@ end
 ; ------------------------------    read_NCEP_NCAR_daily_uv   ---------------------------------------
 
 
+
+; ------------------------------    write_TLLL_to_nc   ---------------------------------------
+; *****************************************************************
+; L_Zealot
+; Write TLLL-formated var list to the prescribed nc file
+; Var coordiantes will be treated automatically.
+;
+procedure write_TLLL_to_nc(varname, var, filedir)
+local dims, ntime, p_lvl, nlat, nlon, fout, fileAtt, ii
+begin
+   
+;Set fileoption    
+    system("rm "+filedir)
+    fout = addfile(filedir,"c")  ; open output netCDF file
+    setfileoption(fout,"DefineMode",True)
+
+;Set All field attribution
+    fileAtt     = True
+    fileAtt@creation_date=systemfunc("date")
+    fileattdef(fout,fileAtt)
+
+;Define Coordinate
+    dimNames    =getvardims(var)
+    dimSizes    =dimsizes(var)
+    dimUnlim    =(/True,False,False,False/)
+    filedimdef(fout,dimNames,dimSizes,dimUnlim)
+
+;Define var, type and dim
+    do ii=0,3
+        filevardef(fout,dimNames(ii),typeof(var&$dimNames(ii)$),getvardims(var&$dimNames(ii)$))
+    end do    
+    filevardef(fout,varname,typeof(var),getvardims(var))
+
+;Define Attribute
+    do ii=0,3
+        filevarattdef(fout,dimNames(ii),var&$dimNames(ii)$)
+    end do    
+    filevarattdef(fout,varname,var)
+;Output var values
+    do ii=0,3    
+        fout->$dimNames(ii)$=(/var&$dimNames(ii)$/)
+    end do    
+    fout->$varname$=(/var/)
+end

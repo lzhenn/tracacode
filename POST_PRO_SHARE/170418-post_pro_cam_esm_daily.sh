@@ -42,8 +42,8 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
 # Names of 3D HY fields
-#FDNAME3D_HY="(/\"U\",\"V\"/)" # hybrid coordinate
-FDNAME3D_HY="(/\"Z3\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"U\",\"V\"/)" # hybrid coordinate
+#FDNAME3D_HY="(/\"Z3\"/)" # hybrid coordinate
 
 
 
@@ -58,7 +58,7 @@ PLEV="(/1000,925,850,700,500,200/)"
 
 
 # Process fig flag
-FLAG2D=1
+FLAG2D=0
 FLAG3D=0
 FLAG3DHY=1
 

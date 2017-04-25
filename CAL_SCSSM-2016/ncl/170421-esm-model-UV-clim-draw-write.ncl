@@ -25,7 +25,7 @@ load "$NCL_SELFLIB/file_io.ncl"
 begin
 
 
-    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro"
+    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/pro"
     g_font=0.02
     g_latS=-90.
     g_latN=90.
@@ -215,7 +215,7 @@ begin
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
    do ii =0,time0-1 
-       g_fig_name="../fig/nudging/esm-200mean-Day"+sprinti("%0.3i", ii+75)
+       g_fig_name="../fig/nudging/nudg-200mean-Day"+sprinti("%0.3i", ii+75)
        wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
        gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
        res@gsnLeftString="UV "+g_level+"hPa Day"+ sprinti("%0.3i",ii+75)   
@@ -226,13 +226,12 @@ begin
        draw(plot_sh)
        frame(wks)
    end do
-
 ;************************************************
 ; High Efficiency to Write the file
 ;************************************************
     print("Output...")
 
-    output_fn="../data/esm_clim_UV.nc"
+    output_fn="../data/nudg_clim_UV.nc"
 ;Get dimsize
     dims=dimsizes(clim_var1)
     ntime=dims(0)

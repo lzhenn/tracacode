@@ -128,8 +128,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -60         ; set min contour level
- res@cnMaxLevelValF        = 60         ; set max contour level
+ res@cnMinLevelValF        = -50         ; set min contour level
+ res@cnMaxLevelValF        = 50         ; set max contour level
  res@cnLevelSpacingF       = 5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -161,10 +161,10 @@ begin
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
-  res@mpMaxLatF  =40
+  res@mpMaxLatF  =60
   res@mpMinLatF  =0
-  res@mpMaxLonF  =120
-  res@mpMinLonF  =45
+  res@mpMaxLonF  =140
+  res@mpMinLonF  =30
 
 ;  res@mpShapeMode = "FreeAspect" 
 
@@ -258,6 +258,7 @@ begin
        draw(plot_sh)
        frame(wks)
    end do
+exit
 ;************************************************
 ; High Efficiency to Write the file
 ;************************************************

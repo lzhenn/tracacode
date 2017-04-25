@@ -33,44 +33,45 @@ begin
 
     ;for directory 
     g_var_name = "FLUT"
-    g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
+    g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
+    g_data_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test"
 
     g_font = 0.025
     
     ;Andaman Sea convection
     g_latS=5.
-    g_latN=20.
-    g_lonW=87.5
+    g_latN=22.
+    g_lonW=85
     g_lonE=100.
 
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/model-esm-olr"
+    g_fig_name = "../fig/obv/model-esm-nudg-olr"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)"/)
-    g_fig_title   = "Obv: 1979-2012 vs Sim: 50 esm members"
+    g_fig_title   = "CTRL/SEN"
 
     npos_year = 0
     nneg_year = 0
 
 ;Prepare the variables
-    ctrl_in_files = systemfunc("ls "+g_data3_path+"/*"+g_var_name+"*")
+    ctrl_in_files = systemfunc("ls "+g_data_ctrl_path+"/*"+g_var_name+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in     = addfiles (ctrl_in_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in, "join")
     var  =ctrl_in[:]->$g_var_name$
     var_areamean=wgt_areaave_Wrap(var(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-    
-    ;Read NOAA OLR
-    var_obv=read_noaa_olr_daily_2D(0,180,g_latS,g_latN,g_lonW,g_lonE,"/Users/zhenningli/data/obv/NOAA-OLR/olr.day.mean.f10.nc")
-    var_obv_areamean=wgt_areaave_Wrap(var_obv(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-
     var_mean=dim_avg_n_Wrap(var_areamean,0)  
-    var_obv_mean=dim_avg_n_Wrap(var_obv_areamean,0)  
- 
-
     var_areamean=runave_n_Wrap(var_areamean,10,0,1)  
-    var_obv_areamean=runave_n_Wrap(var_obv_areamean,10,0,1)  
  
+ 
+    nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*"+g_var_name+"*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    nudg_in     = addfiles (nudg_in_files, "r")   ; note the "s" of addfile
+    ListSetType (nudg_in, "join")
+    var_nudg  =nudg_in[:]->$g_var_name$
+    var_nudg_areamean=wgt_areaave_Wrap(var_nudg(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    var_nudg_mean=dim_avg_n_Wrap(var_nudg_areamean,0)  
+    var_nudg_areamean=runave_n_Wrap(var_nudg_areamean,10,0,1)  
     ;************************************************
     ; plotting parameters
     ;************************************************
@@ -118,7 +119,7 @@ begin
 
     plot(0) = gsn_csm_xy (wks,ispan(60,180,1),var_areamean(:,59:),res) ; create plot
     res@xyLineColor       = "lightskyblue" ; colors chosen
-    plot_obv(0)=gsn_csm_xy (wks,ispan(60,180,1),var_obv_areamean(:,59:),res) ; create plot
+    plot_obv(0)=gsn_csm_xy (wks,ispan(60,180,1),var_nudg_areamean(:,59:),res) ; create plot
 
     res@xyLineColor       = "red" ; colors chosen
     res@xyLineThicknesses    = 4.0      ; line thicknesses
@@ -126,7 +127,7 @@ begin
   
     plot(1) = gsn_csm_xy (wks,ispan(60,180,1),var_mean(59:),res) ; create plot
     res@xyLineColor       = "blue" ; colors chosen
-    plot_obv(1) = gsn_csm_xy (wks,ispan(60,180,1),var_obv_mean(59:),res) ; create plot
+    plot_obv(1) = gsn_csm_xy (wks,ispan(60,180,1),var_nudg_mean(59:),res) ; create plot
   
       res_lines=True
       res_lines@gsLineColor       = "black"
