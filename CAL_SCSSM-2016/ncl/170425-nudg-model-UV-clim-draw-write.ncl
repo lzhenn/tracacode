@@ -20,58 +20,40 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCL_SELFLIB/file_io.ncl"
 
 begin
 
-;======================================================
-;Variables List:
-;======================================================
 
-;global variables
-    ;Define parameters
-
-    ;for directory 
-    g_var_name = (/"U","V"/)
-    g_data_ctrl_path ="../data/esm_clim_UV.nc"
-    g_data_nudg_path ="../data/nudg_clim_UV.nc"
-    g_font = 0.02
+    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/pro"
+    g_font=0.02
+    g_latS=-90.
+    g_latN=90.
+    g_lonW=0.
+    g_lonE=360.
     g_level=200
-  
-    g_latN=60
-    g_latS=0
-    g_lonE=140
-    g_lonW=30
-    
-    g_day_strt=91
-    g_day_end=120
 
-    ;Prepare the variables
-    ctrl_in     = addfile (g_data_ctrl_path, "r")   ; note the "s" of addfile
-    var1  =ctrl_in->U
-    var2  =ctrl_in->V
- 
-    nudg_in     = addfile (g_data_nudg_path, "r")   ; note the "s" of addfile
-    nudg_var1  =nudg_in->U
-    nudg_var2  =nudg_in->V
-
-    var1_clim=dim_avg_n_Wrap(var1({g_day_strt:g_day_end},:,:,:),0)
-    var2_clim=dim_avg_n_Wrap(var2({g_day_strt:g_day_end},:,:,:),0)
-    var1_clim_lat = dim_avg_n_Wrap(var1_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
-    
-    nudg_var1_clim=dim_avg_n_Wrap(nudg_var1({g_day_strt:g_day_end},:,:,:),0)
-    nudg_var2_clim=dim_avg_n_Wrap(nudg_var2({g_day_strt:g_day_end},:,:,:),0)
-    nudg_var1_clim_lat = dim_avg_n_Wrap(nudg_var1_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
-    
-    diff_var1_clim=var1_clim
-    diff_var2_clim=var2_clim
-
-    diff_var1_clim=nudg_var1_clim-var1_clim
-    diff_var2_clim=nudg_var2_clim-var2_clim
-    
-    ws = wind_speed(var1_clim, var2_clim)
-    nudg_ws = wind_speed(nudg_var1_clim, nudg_var2_clim)
-    diff_ws = ws
-    diff_ws = nudg_ws-ws
+    g_var_name:=(/"U","V"/)
+    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(0)+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in1, "join")
+    var1  =ctrl_in1[:]->$g_var_name(0)$(:,75:120,{150:500},:,:)
+    delete(ctrl_in1)
+    clim_var1=dim_avg_n_Wrap(var1, 0)
+    delete(var1)
+    ctrl_in_files2 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(1)+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in2     = addfiles (ctrl_in_files2, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in2, "join")
+    var2  =ctrl_in2[:]->$g_var_name(1)$(:,75:120,{150:500},:,:)
+    delete(ctrl_in2)
+    clim_var2=dim_avg_n_Wrap(var2, 0)
+    printVarSummary(clim_var1)
+    delete(var2)
+    dim=dimsizes(clim_var1)
+    time0=dim(0)
+    ws=wind_speed(clim_var1,clim_var2)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -114,9 +96,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -10         ; set min contour level
- res@cnMaxLevelValF        = 10         ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMinLevelValF        = -50         ; set min contour level
+ res@cnMaxLevelValF        = 50         ; set max contour level
+ res@cnLevelSpacingF       = 5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -147,10 +129,10 @@ begin
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
-  res@mpMaxLatF  =g_latN
-  res@mpMinLatF  =g_latS
-  res@mpMaxLonF  =g_lonE
-  res@mpMinLonF  =g_lonW
+  res@mpMaxLatF  =60 
+  res@mpMinLatF  =0
+  res@mpMaxLonF  =140
+  res@mpMinLonF  =30
 
 ;  res@mpShapeMode = "FreeAspect" 
 
@@ -166,10 +148,8 @@ begin
 ;  res@tmYRMinorOutwardLengthF = -0.
     
      ; now change the size of the tickmark labels
-  res@tmXBMode="Explicit"
-  res@tmXBValues=ispan(g_lonW,g_lonE,20)
-  res@tmXBLabels=ispan(g_lonW,g_lonE,20)+"E"
-  res@tmYLTickSpacingF = 10
+  res@tmXBTickSpacingF = 30
+  res@tmYLTickSpacingF = 15
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -191,11 +171,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 20.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "20 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -216,11 +196,10 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/900./)
+  res3@cnLevels = (/0./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
-
 
   res4=res3
   res4@cnLineColor="Grey"
@@ -235,45 +214,74 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
-  g_fig_name="../fig/nudging/esm-nudg-mean-diff-200UV"
-  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
-  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  res@gsnLeftString="Ensemble Mean UV "+g_level+"hPa Day91-120"
+   do ii =0,time0-1 
+       g_fig_name="../fig/nudging/nudg-200mean-Day"+sprinti("%0.3i", ii+75)
+       wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+       gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+       res@gsnLeftString="UV "+g_level+"hPa Day"+ sprinti("%0.3i",ii+75)   
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var1_clim({g_level},:,:),res) ; create a default plot
-  ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  plot_V = gsn_csm_vector(wks,diff_var1_clim({g_level},:,:),diff_var2_clim({g_level},:,:),vcres) 
-  xyres                 = True         ; xy plot mods desired
-  xyres@vpHeightF        = .20          ; set width of second plot
-  xyres@vpWidthF        = .15          ; set width of second plot
-  xyres@tmXBMinorOn     = False        ; no minor tickmarks
+       plot_sh= gsn_csm_contour_map(wks,ws(ii,{g_level},:,:),res) ; create a default plot
+       plot_V = gsn_csm_vector(wks,clim_var1(ii,{g_level},:,:),clim_var2(ii,{g_level},:,:),vcres) 
+       overlay(plot_sh,plot_V)
+       draw(plot_sh)
+       frame(wks)
+   end do
+;************************************************
+; High Efficiency to Write the file
+;************************************************
+    print("Output...")
 
-  xyres@gsnDraw         = False        ; don't draw yet
-  xyres@gsnFrame        = False        ; don't advance frame yet
+    output_fn="../data/nudg_clim_UV.nc"
+;Get dimsize
+    dims=dimsizes(clim_var1)
+    ntime=dims(0)
+    p_lvl=dims(1)
+    nlat=dims(2)
+    nlon=dims(3)
+    
+;Set fileoption    
+    system("rm "+output_fn)
+    fout = addfile(output_fn ,"c")  ; open output netCDF file
+    setfileoption(fout,"DefineMode",True)
 
-  xyres@tmXBLabelFontHeightF=g_font        ; change font height
-  xyres@gsnCenterString=""
-  xyres@trYMinF         = g_latS 
-  xyres@trYMaxF         = g_latN
-  xyres@trXMinF         = -20
-  xyres@trXMaxF         = 40
-  xyres@xyLineThicknesses    = 3.0      ; line thicknesses
- 
-  xyres@tmXBOn              = True
-  xyres@tmXBLabelsOn=True
-  xyres@tmXBMode="Explicit"
-  xyres@tmYRLabelsOn=True
-  xyres@tmXBValues=ispan(-20,40,20)
-  xyres@tmXBLabels=ispan(-20,40,20)
-  
-  xyres@tiXAxisString="U wind (m/s)"
-  xyres@tiXAxisFontHeightF=g_font
-  var1_clim_lat(2,:)=0
-  plotxy = gsn_csm_xy(wks, var1_clim_lat(1:2,:), var1_clim_lat&lat, xyres)
-  overlay(plot_sh,plot_V)
-  ;overlay(plot_sh,plot_cn_max)
-  newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
-  draw(plot_sh)
-  frame(wks)
+;Set All field attribution
+    fileAtt     = True
+    fileAtt@creation_date=systemfunc("date")
+    fileattdef(fout,fileAtt)
+
+;Define Coordinate
+    dimNames    =(/"time","lev","lat","lon"/)
+    dimSizes    =(/-1,p_lvl,nlat,nlon/)
+    dimUnlim    =(/True,False,False,False/)
+    filedimdef(fout,dimNames,dimSizes,dimUnlim)
+
+;Define var, type and dim
+    filevardef(fout,"time",typeof(clim_var1&time),getvardims(clim_var1&time))
+    filevardef(fout,"lev",typeof(clim_var1&lev),getvardims(clim_var1&lev))
+    filevardef(fout,"lat",typeof(clim_var1&lat),getvardims(clim_var1&lat))
+    filevardef(fout,"lon",typeof(clim_var1&lon),getvardims(clim_var1&lon))
+    filevardef(fout,"U",typeof(clim_var1),getvardims(clim_var1))
+    filevardef(fout,"V",typeof(clim_var2),getvardims(clim_var2))
+
+;Define Attribute
+    filevarattdef(fout,"time",clim_var1&time)
+    filevarattdef(fout,"lev",clim_var1&lev)
+    filevarattdef(fout,"lat",clim_var1&lat)
+    filevarattdef(fout,"lon",clim_var1&lon)
+    filevarattdef(fout,"U",clim_var1)
+    filevarattdef(fout,"V",clim_var2)
+    
+    fout->time=(/clim_var1&time/)
+    fout->lev=(/clim_var1&lev/)
+    fout->lat=(/clim_var1&lat/)
+    fout->lon=(/clim_var1&lon/)
+    fout->U=(/clim_var1/)
+    fout->V=(/clim_var2/)
+
+
+
+
+
+
 
 end

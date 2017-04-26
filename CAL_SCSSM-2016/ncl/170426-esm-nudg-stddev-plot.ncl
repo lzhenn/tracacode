@@ -31,47 +31,28 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name = (/"U","V"/)
-    g_data_ctrl_path ="../data/esm_clim_UV.nc"
-    g_data_nudg_path ="../data/nudg_clim_UV.nc"
+    g_var_name="U"
+    g_data_ctrl_path ="/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro"
+    g_data_nudg_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/pro"
     g_font = 0.02
     g_level=200
   
-    g_latN=60
+    g_latN=40
     g_latS=0
-    g_lonE=140
-    g_lonW=30
+    g_lonE=120
+    g_lonW=45
     
-    g_day_strt=91
+    g_day_strt=75
     g_day_end=120
 
     ;Prepare the variables
-    ctrl_in     = addfile (g_data_ctrl_path, "r")   ; note the "s" of addfile
-    var1  =ctrl_in->U
-    var2  =ctrl_in->V
- 
-    nudg_in     = addfile (g_data_nudg_path, "r")   ; note the "s" of addfile
-    nudg_var1  =nudg_in->U
-    nudg_var2  =nudg_in->V
-
-    var1_clim=dim_avg_n_Wrap(var1({g_day_strt:g_day_end},:,:,:),0)
-    var2_clim=dim_avg_n_Wrap(var2({g_day_strt:g_day_end},:,:,:),0)
-    var1_clim_lat = dim_avg_n_Wrap(var1_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
-    
-    nudg_var1_clim=dim_avg_n_Wrap(nudg_var1({g_day_strt:g_day_end},:,:,:),0)
-    nudg_var2_clim=dim_avg_n_Wrap(nudg_var2({g_day_strt:g_day_end},:,:,:),0)
-    nudg_var1_clim_lat = dim_avg_n_Wrap(nudg_var1_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
-    
-    diff_var1_clim=var1_clim
-    diff_var2_clim=var2_clim
-
-    diff_var1_clim=nudg_var1_clim-var1_clim
-    diff_var2_clim=nudg_var2_clim-var2_clim
-    
-    ws = wind_speed(var1_clim, var2_clim)
-    nudg_ws = wind_speed(nudg_var1_clim, nudg_var2_clim)
-    diff_ws = ws
-    diff_ws = nudg_ws-ws
+    ctrl_in_files1 = systemfunc("ls "+g_data_ctrl_path+"/CLIM-Trans-2015.cam.h1.ESMc_add_00*."+g_var_name+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in1, "join")
+    var1  =ctrl_in1[:]->$g_var_name(0)$(:,g_day_strt:g_day_end,{g_level},:,:)
+    printVarSummary(var1)
+    exit
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================

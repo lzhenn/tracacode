@@ -58,7 +58,7 @@ PLEV="(/1000,925,850,700,500,200/)"
 
 
 # Process fig flag
-FLAG2D=0
+FLAG2D=1
 FLAG3D=0
 FLAG3DHY=1
 

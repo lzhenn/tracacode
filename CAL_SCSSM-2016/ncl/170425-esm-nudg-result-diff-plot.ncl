@@ -37,12 +37,12 @@ begin
     g_font = 0.02
     g_level=200
   
-    g_latN=60
+    g_latN=40
     g_latS=0
-    g_lonE=140
-    g_lonW=30
+    g_lonE=120
+    g_lonW=45
     
-    g_day_strt=91
+    g_day_strt=75
     g_day_end=120
 
     ;Prepare the variables
