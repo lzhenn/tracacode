@@ -105,9 +105,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 0         ; set min contour level
- res@cnMaxLevelValF        = 50         ; set max contour level
- res@cnLevelSpacingF       = 5          ; set contour interval
+ res@cnMinLevelValF        = -20         ; set min contour level
+ res@cnMaxLevelValF        = 20         ; set max contour level
+ res@cnLevelSpacingF       = 2          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -273,5 +273,5 @@ begin
                                                  ; use this for NCL V6.3.0 and earlier
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
- gsn_panel(wks,plot_sh,(/2,1/),resP) 
+ gsn_panel(wks,plot_sh,(/1,2/),resP) 
 end
