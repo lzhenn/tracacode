@@ -31,7 +31,7 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name="U"
+    g_var_name="V"
     g_data_ctrl_path ="/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro"
     g_data_nudg_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/pro"
     g_font = 0.02
@@ -105,9 +105,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -20         ; set min contour level
- res@cnMaxLevelValF        = 20         ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMinLevelValF        = -10         ; set min contour level
+ res@cnMaxLevelValF        = 10        ; set max contour level
+ res@cnLevelSpacingF       = 1         ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -226,10 +226,10 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
-  g_fig_name="../fig/nudging/esm-nudg-std-diff-200UV"
+  g_fig_name="../fig/nudging/esm-nudg-std-diff-200V"
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  res@gsnLeftString="Ensemble Mean UV "+g_level+"hPa Day91-120"
+  res@gsnLeftString="V stddev "+g_level+"hPa Day75-120"
 
   plot_sh(0)= gsn_csm_contour_map(wks,std_var1,res) ; create a default plot
   plot_sh(1)= gsn_csm_contour_map(wks,std_nudg_var1,res) ; create a default plot
