@@ -63,7 +63,6 @@ begin
     std_nudg_var1=dim_stddev_n_Wrap(nudg_var1,1)
     std_nudg_var1:=dim_avg_n_Wrap(std_nudg_var1,0)
 
-    exit
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -261,7 +260,7 @@ begin
   
   xyres@tiXAxisString="U wind (m/s)"
   xyres@tiXAxisFontHeightF=g_font
-  var1_clim_lat(2,:)=0
+  ;var1_clim_lat(2,:)=0
   ;plotxy = gsn_csm_xy(wks, var1_clim_lat(1:2,:), var1_clim_lat&lat, xyres)
   ;overlay(plot_sh,plot_cn_max)
   ;newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
