@@ -68,8 +68,8 @@ begin
     var_obv_mean=dim_avg_n_Wrap(var_obv_areamean,0)  
  
 
-    var_areamean=runave_n_Wrap(var_areamean,10,0,1)  
-    var_obv_areamean=runave_n_Wrap(var_obv_areamean,10,0,1)  
+    var_areamean=runave_n_Wrap(var_areamean,5,0,1)  
+    var_obv_areamean=runave_n_Wrap(var_obv_areamean,5,0,1)  
  
     ;************************************************
     ; plotting parameters

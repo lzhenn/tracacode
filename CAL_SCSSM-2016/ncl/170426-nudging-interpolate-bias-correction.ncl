@@ -35,7 +35,7 @@ begin
     g_data_model_path ="../data/esm_clim_UV.nc"
     g_data_era_path ="../data/Nudging-UV-ERA.nc"
     g_data_sample="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/CLIM-Trans-2015.cam.h1.ESMc_add_028.U.hybrid.0101-0701.nc"
-    output_fn ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test/Nudging_UV.nc"
+    output_fn ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test/Nudging_UV_bias_correction.nc"
     g_font = 0.025
     g_level=200
   
@@ -43,7 +43,8 @@ begin
     g_latS=0
     g_lonE=120
     g_lonW=45
-
+    g_day_strt=75
+    g_day_end=120
 
     ;Prepare the variables
     ctrl_in     = addfile (g_data_model_path, "r")   ; note the "s" of addfile
@@ -65,17 +66,16 @@ begin
     time0=dim0(0)
 
     var1_obv_int=f2fsh_Wrap(var1_obv,(/192,288/))
-    printVarSummary(var1_obv_int)
     
+    var1_org=var1
     diff_var1=var1
     var1_obv_int(:,{g_latS:g_latN},{g_lonW:g_lonE})=dim_rmvmean_n_Wrap(var1_obv_int(:,{g_latS:g_latN},{g_lonW:g_lonE}),1)
     do ii=0, time0-1
-       var1(ii,0:3,{0:25},:)=var1(ii,0:3,{0:25},:)+1.25*var1_obv_int(0:3,{0:25},:)
-       var1(ii,4:5,{0:25},:)=var1(ii,4:5,{0:25},:)+1.25*var1_obv_int(5:6,{0:25},:)
-       var1(ii,0:3,{30:40},:)=var1(ii,0:3,{30:40},:)+var1_obv_int(0:3,{30:40},:)
-       var1(ii,4:5,{30:40},:)=var1(ii,4:5,{30:40},:)+var1_obv_int(5:6,{30:40},:)
+       var1(ii,0:3,{3:42},:)=var1(ii,0:3,{3:42},:)+(/var1_obv_int(0:3,{0:40},:)/)
+       var1(ii,4:5,{3:42},:)=var1(ii,4:5,{3:42},:)+(/var1_obv_int(5:6,{0:40},:)/)
+       var1(ii,0:3,{0:3},:)=var1(ii,0:3,{0:3},:)+(/var1_obv_int(0:3,{-3:0},:)/)*0.5
+       var1(ii,4:5,{0:3},:)=var1(ii,4:5,{0:3},:)+(/var1_obv_int(5:6,{-3:0},:)/)*0.5
     end do
-    var1(:,:,{0:30},:)=where(var1(:,:,{0:30},:) .gt. 0, var1(:,:,{0:30},:)*0.9, var1(:,:,{0:30},:))
     diff_var1=var1-diff_var1
 
 
@@ -83,9 +83,30 @@ begin
     var2_smp(:,12:17,:,:)=(/var2/)
     var1_smp&time=var1&time
     var2_smp&time=var2&time
-    ws=wind_speed(var1_smp,var2_smp)
 
-    print(var1_smp(:,{200},{30.0},{80.0}))
+    diff_var1:=dim_avg_n_Wrap(diff_var1(:,{g_level},:,:),0)
+    var1_org_clim=dim_avg_n_Wrap(var1_org,0)
+    var1_org_clim_lat = dim_avg_n_Wrap(var1_org_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
+    var1_clim=dim_avg_n_Wrap(var1,0)
+    var1_clim_lat = dim_avg_n_Wrap(var1_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
+
+
+    var1_clim_max = var1_clim
+    ;get max
+    var1_dim :=dimsizes(var1_clim)
+    do jj=0,var1_dim(2)-1
+        var1_clim_max({g_level},{g_latS:g_latN},jj)=where(var1_clim({g_level},{g_latS:g_latN},jj) .lt.max(var1_clim({g_level},{g_latS:g_latN},jj)),var1_clim({g_level},{g_latS:g_latN},jj),1000.)
+    end do
+
+    var1_org_clim_max = var1_org_clim
+    ;get max
+    var1_org_dim :=dimsizes(var1_org_clim)
+    do jj=0,var1_org_dim(2)-1
+        var1_org_clim_max({g_level},{g_latS:g_latN},jj)=where(var1_org_clim({g_level},{g_latS:g_latN},jj) .lt.max(var1_org_clim({g_level},{g_latS:g_latN},jj)),var1_org_clim({g_level},{g_latS:g_latN},jj),1000.)
+    end do
+
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -128,9 +149,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -50         ; set min contour level
- res@cnMaxLevelValF        = 50         ; set max contour level
- res@cnLevelSpacingF       = 5          ; set contour interval
+ res@cnMinLevelValF        = -5         ; set min contour level
+ res@cnMaxLevelValF        = 5         ; set max contour level
+ res@cnLevelSpacingF       = 1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -152,7 +173,7 @@ begin
 
 
   res@lbLabelBarOn = False   ; turn off the label bar
-  res@lbOrientation          = "vertical"
+  ;res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   res@lbLabelStride = 2 
 
@@ -161,10 +182,10 @@ begin
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
-  res@mpMaxLatF  =60
-  res@mpMinLatF  =0
-  res@mpMaxLonF  =140
-  res@mpMinLonF  =30
+  res@mpMaxLatF  =g_latN
+  res@mpMinLatF  =g_latS
+  res@mpMaxLonF  =g_lonE
+  res@mpMinLonF  =g_lonW
 
 ;  res@mpShapeMode = "FreeAspect" 
 
@@ -180,8 +201,10 @@ begin
 ;  res@tmYRMinorOutwardLengthF = -0.
     
      ; now change the size of the tickmark labels
-  res@tmXBTickSpacingF = 30
-  res@tmYLTickSpacingF = 15
+  res@tmXBMode="Explicit"
+  res@tmXBValues=ispan(g_lonW,g_lonE,20)
+  res@tmXBLabels=ispan(g_lonW,g_lonE,20)+"E"
+  res@tmYLTickSpacingF = 10
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -203,11 +226,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 20.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "20 m/s"
+  vcres@vcRefAnnoString1  = "5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -228,10 +251,11 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/0./)
+  res3@cnLevels = (/900./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
+
 
   res4=res3
   res4@cnLineColor="Grey"
@@ -246,19 +270,57 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
-   do ii =0,time0-1 
-       g_fig_name="../fig/nudging/esm-afterchange-200mean-Day"+sprinti("%0.3i", ii+75)
-       wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
-       gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-       res@gsnLeftString="UV "+g_level+"hPa Day"+ sprinti("%0.3i",ii+75)   
+  g_fig_name="../fig/nudging/esm-era-bias-change-diff"
+  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+  res@gsnLeftString="Mean U Diff after Change "+g_level+"hPa Day75-120"
 
-       plot_sh= gsn_csm_contour_map(wks,ws(ii,{g_level},:,:),res) ; create a default plot
-       plot_V = gsn_csm_vector(wks,var1_smp(ii,{g_level},:,:),var2_smp(ii,{g_level},:,:),vcres) 
-       overlay(plot_sh,plot_V)
-       draw(plot_sh)
-       frame(wks)
-   end do
-exit
+  plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
+  plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
+  
+  
+  res3@cnLineColor      = "gray35"
+  plot_cn_max2 = gsn_csm_contour(wks,var1_org_clim_max({g_level},:,:),res3)
+
+  diff_var2=0
+  xyres                 = True         ; xy plot mods desired
+  xyres@vpHeightF        = .20          ; set width of second plot
+  xyres@vpWidthF        = .25          ; set width of second plot
+  xyres@tmXBMinorOn     = False        ; no minor tickmarks
+
+  xyres@gsnDraw         = False        ; don't draw yet
+  xyres@gsnFrame        = False        ; don't advance frame yet
+
+  xyres@tmXBLabelFontHeightF=g_font        ; change font height
+  xyres@gsnCenterString=""
+  xyres@trYMinF         = g_latS 
+  xyres@trYMaxF         = g_latN
+  xyres@trXMinF         = -20
+  xyres@trXMaxF         = 60
+  xyres@xyLineThicknesses    = 3.0      ; line thicknesses
+ 
+  xyres@tmXBOn              = True
+  xyres@tmXBLabelsOn=True
+  xyres@tmXBMode="Explicit"
+  xyres@tmYRLabelsOn=True
+  xyres@tmXBValues=ispan(-20,60,20)
+  xyres@tmXBLabels=ispan(-20,60,20)
+  
+  xyres@tiXAxisString="U wind (m/s)"
+  xyres@tiXAxisFontHeightF=g_font
+  var1_clim_lat(2,:)=0
+  plotxy = gsn_csm_xy(wks, var1_clim_lat(1:2,:), var1_clim_lat&lat, xyres)
+  xyres@xyLineColor="gray"
+  plotxy2 = gsn_csm_xy(wks, var1_org_clim_lat({g_level},:), var1_org_clim_lat&lat, xyres)
+  overlay(plotxy,plotxy2)
+  overlay(plot_sh,plot_cn_max)
+  overlay(plot_sh,plot_cn_max2)
+  newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
+  draw(plot_sh)
+  frame(wks)
+
+
+
 ;************************************************
 ; High Efficiency to Write the file
 ;************************************************
