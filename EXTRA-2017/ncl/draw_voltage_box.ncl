@@ -48,7 +48,8 @@ begin
 
 
     var1_sn_rm_sealine=regline((/5,10,15,20,30,40/), box_trans(:,2))
-    print(var1_sn_rm_sealine)    
+    print(var1_sn_rm_sealine)   
+    print(var1_sn_rm_sealine@yintercept)
     yReg2 = fspan(0,45,46) 
     yReg2 = var1_sn_rm_sealine*ispan(0,45,1) + var1_sn_rm_sealine@yintercept   ; NCL array notation 
     
