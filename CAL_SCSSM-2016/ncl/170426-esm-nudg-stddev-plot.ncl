@@ -31,7 +31,7 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name="V"
+    g_var_name="U"
     g_data_ctrl_path ="/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro"
     g_data_nudg_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/pro"
     g_font = 0.02
@@ -55,7 +55,7 @@ begin
 
 
     ;Prepare the variables
-    nudg_in_files1 = systemfunc("ls "+g_data_nudg_path+"/*."+g_var_name+".*")
+    nudg_in_files1 = systemfunc("ls "+g_data_nudg_path+"/*ESMn2*."+g_var_name+".*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     nudg_in1     = addfiles (nudg_in_files1, "r")   ; note the "s" of addfile
     ListSetType (nudg_in1, "join")
@@ -222,14 +222,14 @@ begin
   resP                     = True                ; modify the panel plot
                                                  ; new resource added in NCL V6.4.0
 ; resP@gsnPanelMainString = "A plot with a common label bar"
-                                                 ; use this for NCL V6.3.0 and earlier
+                                                 ; use this for NCL 6.3.0 and earlier
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
-  g_fig_name="../fig/nudging/esm-nudg-std-diff-200V"
+  g_fig_name="../fig/nudging/esm-nudg-std-diff-200U"
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  res@gsnLeftString="V stddev "+g_level+"hPa Day75-120"
+  res@gsnLeftString="U stddev "+g_level+"hPa Day75-120"
 
   plot_sh(0)= gsn_csm_contour_map(wks,std_var1,res) ; create a default plot
   plot_sh(1)= gsn_csm_contour_map(wks,std_nudg_var1,res) ; create a default plot

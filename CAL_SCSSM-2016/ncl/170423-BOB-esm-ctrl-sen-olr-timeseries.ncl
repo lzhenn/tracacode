@@ -64,7 +64,7 @@ begin
     var_areamean=runave_n_Wrap(var_areamean,5,0,1)  
  
  
-    nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*"+g_var_name+"*")
+    nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*n3*"+g_var_name+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     nudg_in     = addfiles (nudg_in_files, "r")   ; note the "s" of addfile
     ListSetType (nudg_in, "join")
@@ -118,7 +118,7 @@ begin
     res@trXMaxF            = 180           ; X axis limits
 
     plot(0) = gsn_csm_xy (wks,ispan(60,180,1),var_areamean(:,59:),res) ; create plot
-    res@xyLineColor       = "skyblue" ; colors chosen
+    res@xyLineColor       = "deepskyblue" ; colors chosen
     plot_obv(0)=gsn_csm_xy (wks,ispan(60,180,1),var_nudg_areamean(:,59:),res) ; create plot
 
     res@xyLineColor       = "red" ; colors chosen

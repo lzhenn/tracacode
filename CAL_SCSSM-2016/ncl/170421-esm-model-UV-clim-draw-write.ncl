@@ -34,7 +34,7 @@ begin
     g_level=200
 
     g_var_name:=(/"U","V"/)
-    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(0)+".*")
+    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*ESMn3*."+g_var_name(0)+".*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in1, "join")
@@ -231,7 +231,7 @@ begin
 ;************************************************
     print("Output...")
 
-    output_fn="../data/nudg_clim_UV.nc"
+    output_fn="../data/nudg_ESMn3_clim_UV.nc"
 ;Get dimsize
     dims=dimsizes(clim_var1)
     ntime=dims(0)

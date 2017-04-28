@@ -42,7 +42,7 @@ CASENAME=`basename $WPATH`
 SPATH=/users/yangsong3/L_Zealot/F/DATA_Nudging
 
 # Storage Dir Prefix 
-SDPRE=ESMn2_
+SDPRE=ESMn3_
 
 # Init Dir PATH (must be a separate dir)
 INIT_DIR=$WPATH/init

@@ -31,9 +31,9 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name = (/"U","V"/)
-    g_data_ctrl_path ="../data/esm_clim_UV.nc"
-    g_data_nudg_path ="../data/nudg_ESMn3_clim_UV.nc"
+    g_var_name="U"
+    g_data_ctrl_path ="/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro"
+    g_data_nudg_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/pro"
     g_font = 0.02
     g_level=200
   
@@ -42,36 +42,27 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=100
-    g_day_end=110
+    g_day_strt=75
+    g_day_end=120
+    ;Prepare the variables
+    ctrl_in_files1 = systemfunc("ls "+g_data_ctrl_path+"/CLIM-Trans-2015.cam.h1.ESMc_add_00*."+g_var_name+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in1, "join")
+    var1  =ctrl_in1[:]->$g_var_name(0)$(:,g_day_strt:g_day_end,{g_level},:,:)
+    std_var1=dim_stddev_n_Wrap(var1,1)
+    std_var1:=dim_avg_n_Wrap(std_var1,0)
+
 
     ;Prepare the variables
-    ctrl_in     = addfile (g_data_ctrl_path, "r")   ; note the "s" of addfile
-    var1  =ctrl_in->U
-    var2  =ctrl_in->V
- 
-    nudg_in     = addfile (g_data_nudg_path, "r")   ; note the "s" of addfile
-    nudg_var1  =nudg_in->U
-    nudg_var2  =nudg_in->V
-
-    var1_clim=dim_avg_n_Wrap(var1({g_day_strt:g_day_end},:,:,:),0)
-    var2_clim=dim_avg_n_Wrap(var2({g_day_strt:g_day_end},:,:,:),0)
-    var1_clim_lat = dim_avg_n_Wrap(var1_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
-    
-    nudg_var1_clim=dim_avg_n_Wrap(nudg_var1({g_day_strt:g_day_end},:,:,:),0)
-    nudg_var2_clim=dim_avg_n_Wrap(nudg_var2({g_day_strt:g_day_end},:,:,:),0)
-    nudg_var1_clim_lat = dim_avg_n_Wrap(nudg_var1_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),2)
-    
-    diff_var1_clim=var1_clim
-    diff_var2_clim=var2_clim
-
-    diff_var1_clim=nudg_var1_clim-var1_clim
-    diff_var2_clim=nudg_var2_clim-var2_clim
-    
-    ws = wind_speed(var1_clim, var2_clim)
-    nudg_ws = wind_speed(nudg_var1_clim, nudg_var2_clim)
-    diff_ws = ws
-    diff_ws = nudg_ws-ws
+    nudg_in_files1 = systemfunc("ls "+g_data_nudg_path+"/*ESMn2*."+g_var_name+".*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    nudg_in1     = addfiles (nudg_in_files1, "r")   ; note the "s" of addfile
+    ListSetType (nudg_in1, "join")
+    nudg_var1  =nudg_in1[:]->$g_var_name(0)$(:,g_day_strt:g_day_end,{g_level},:,:)
+    std_nudg_var1=dim_stddev_n_Wrap(nudg_var1,1)
+    std_nudg_var1:=dim_avg_n_Wrap(std_nudg_var1,0)
+    std_nudg_var1 = std_nudg_var1/std_var1*110
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -79,7 +70,7 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-;  plot_sh = new((/g_day_comp_len/),graphic)
+;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/g_day_comp_len/),graphic)
 ;  plot_cn_max = new((/g_day_comp_len/),graphic)
 ;  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
@@ -91,7 +82,6 @@ begin
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
-; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 
 
 ;-----------------------------------------------------------------------------
@@ -114,9 +104,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -10         ; set min contour level
- res@cnMaxLevelValF        = 10         ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMinLevelValF        = 30         ; set min contour level
+ res@cnMaxLevelValF        = 120        ; set max contour level
+ res@cnLevelSpacingF       = 5         ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -137,7 +127,7 @@ begin
   ;res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
 
-  res@lbLabelBarOn = False   ; turn off the label bar
+  res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   res@lbLabelStride = 2 
@@ -216,7 +206,7 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/900./)
+  res3@cnLevels = (/80./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
@@ -235,14 +225,16 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
-  g_fig_name="../fig/nudging/esm-nudg-mean-diff-200UV"
+  g_fig_name="../fig/nudging/esm-nudg-std-diff-200U-percent"
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
-  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  res@gsnLeftString="Ensemble Mean UV "+g_level+"hPa Day"+g_day_strt+"-"+g_day_end
+ ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+ gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+  res@gsnLeftString="U stddev "+g_level+"hPa Day75-120"
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var1_clim({g_level},:,:),res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,std_nudg_var1,res) ; create a default plot
+  plot_cn= gsn_csm_contour(wks,std_nudg_var1,res3) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  plot_V = gsn_csm_vector(wks,diff_var1_clim({g_level},:,:),diff_var2_clim({g_level},:,:),vcres) 
+  ;plot_V = gsn_csm_vector(wks,diff_var1_clim({g_level},:,:),diff_var2_clim({g_level},:,:),vcres) 
   xyres                 = True         ; xy plot mods desired
   xyres@vpHeightF        = .20          ; set width of second plot
   xyres@vpWidthF        = .15          ; set width of second plot
@@ -256,28 +248,33 @@ begin
   xyres@trYMinF         = g_latS 
   xyres@trYMaxF         = g_latN
   xyres@trXMinF         = -20
-  xyres@trXMaxF         = 60
+  xyres@trXMaxF         = 40
   xyres@xyLineThicknesses    = 3.0      ; line thicknesses
  
   xyres@tmXBOn              = True
   xyres@tmXBLabelsOn=True
   xyres@tmXBMode="Explicit"
   xyres@tmYRLabelsOn=True
-  xyres@tmXBValues=ispan(-20,60,20)
-  xyres@tmXBLabels=ispan(-20,60,20)
+  xyres@tmXBValues=ispan(-20,40,20)
+  xyres@tmXBLabels=ispan(-20,40,20)
   
   xyres@tiXAxisString="U wind (m/s)"
   xyres@tiXAxisFontHeightF=g_font
-  var1_clim_lat(2,:)=0
-  xyres@xyLineColor="gray35"
-  plotxy = gsn_csm_xy(wks, var1_clim_lat(1:2,:), var1_clim_lat&lat, xyres)
-  xyres@xyLineColor="black"
-  plotxy2 = gsn_csm_xy(wks, nudg_var1_clim_lat({g_level},:), var1_clim_lat&lat, xyres)
-  overlay(plot_sh,plot_V)
-  overlay(plotxy,plotxy2)
+  ;var1_clim_lat(2,:)=0
+  ;plotxy = gsn_csm_xy(wks, var1_clim_lat(1:2,:), var1_clim_lat&lat, xyres)
   ;overlay(plot_sh,plot_cn_max)
-  newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
+  ;newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
+ ;************************************************
+; create panel
+;************************************************
+  resP                     = True                ; modify the panel plot
+                                                 ; new resource added in NCL V6.4.0
+; resP@gsnPanelMainString = "A plot with a common label bar"
+                                                 ; use this for NCL V6.3.0 and earlier
+  resP@gsnPanelLabelBar    = True                ; add common colorbar
+  resP@lbLabelFontHeightF  = 0.015               ; make labels smaller  
+  overlay(plot_sh,plot_cn)
   draw(plot_sh)
   frame(wks)
-
+; gsn_panel(wks,plot_sh,(/1,2/),resP) 
 end

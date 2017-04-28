@@ -33,7 +33,7 @@ begin
     ;for directory 
     g_var_name = (/"U","V"/)
     g_data_ctrl_path ="../data/esm_clim_UV.nc"
-    g_data_nudg_path ="../data/nudg_clim_UV.nc"
+    g_data_nudg_path ="../data/nudg_ESMn3_clim_UV.nc"
     g_font = 0.02
     g_level=200
   
@@ -42,7 +42,7 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=75
+    g_day_strt=80
     g_day_end=120
 
     ;Prepare the variables
@@ -238,7 +238,7 @@ begin
   g_fig_name="../fig/nudging/esm-nudg-mean-diff-200UV"
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  res@gsnLeftString="Ensemble Mean UV "+g_level+"hPa Day91-120"
+  res@gsnLeftString="Ensemble Mean UV "+g_level+"hPa Day90-100"
 
   plot_sh= gsn_csm_contour_map(wks,diff_var1_clim({g_level},:,:),res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
