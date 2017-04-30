@@ -42,10 +42,10 @@ CASENAME=`basename $WPATH`
 SPATH=/users/yangsong3/L_Zealot/F/DATA_Nudging
 
 # Storage Dir Prefix 
-SDPRE=ESMn3_
+SDPRE=ESMn4_
 
 # Init Dir PATH (must be a separate dir)
-INIT_DIR=$WPATH/init
+INIT_DIR=$WPATH/init-pmctrl
 
 # Init File Name (same as ncdata in user_nl_cam)
 INIT_NAME=CLIM-Trans-2015.cam.i.0006-01-01-00000.nc
