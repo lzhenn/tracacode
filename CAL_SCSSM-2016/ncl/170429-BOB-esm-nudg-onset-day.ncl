@@ -62,7 +62,7 @@ begin
     var_areamean=wgt_areaave_Wrap(var(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
  
  
-    nudg_in_files = systemfunc("ls "+g_data3_nudg_path+"/*ESMn3*"+g_var_name+"*")
+    nudg_in_files = systemfunc("ls "+g_data3_nudg_path+"/*ESMn[3-4]*"+g_var_name+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     nudg_in     = addfiles (nudg_in_files, "r")   ; note the "s" of addfile
     ListSetType (nudg_in, "join")

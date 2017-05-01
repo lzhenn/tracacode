@@ -20,13 +20,13 @@ PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_Nudging/pro/\"
 CASENAME=\"Nudging\"
 
 # ESM folder prefix
-ESM_NAME=ESMn3_
+ESM_NAME=ESMn4_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=15
+ESM_LAST=8
 
 
 
