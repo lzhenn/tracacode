@@ -25,7 +25,7 @@ load "$NCL_SELFLIB/file_io.ncl"
 begin
 
 
-    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_Nudging/pro"
+    g_data3_path ="/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro"
     g_font=0.02
     g_latS=-90.
     g_latN=90.
@@ -34,7 +34,7 @@ begin
     g_level=200
 
     g_var_name:=(/"U","V"/)
-    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*ESMn[3-4]*."+g_var_name(0)+".*")
+    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*ESMc*."+g_var_name(0)+".*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in1, "join")
@@ -42,7 +42,7 @@ begin
     delete(ctrl_in1)
     clim_var1=dim_avg_n_Wrap(var1, 0)
     delete(var1)
-    ctrl_in_files2 = systemfunc("ls "+g_data3_path+"/*ESMn[3-4]*."+g_var_name(1)+".*")
+    ctrl_in_files2 = systemfunc("ls "+g_data3_path+"/*ESMc*."+g_var_name(1)+".*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in2     = addfiles (ctrl_in_files2, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in2, "join")
@@ -231,7 +231,7 @@ begin
 ;************************************************
     print("Output...")
 
-    output_fn="../data/nudg_clim_UV.nc"
+    output_fn="../data/esm_clim_UV.nc"
 ;Get dimsize
     dims=dimsizes(clim_var1)
     ntime=dims(0)

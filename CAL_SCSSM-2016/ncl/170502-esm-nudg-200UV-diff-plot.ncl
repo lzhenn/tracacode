@@ -42,7 +42,7 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=75
+    g_day_strt=90
     g_day_end=120
 
     ;Prepare the variables
@@ -114,9 +114,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -10         ; set min contour level
- res@cnMaxLevelValF        = 10         ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMinLevelValF        = -5         ; set min contour level
+ res@cnMaxLevelValF        = 5         ; set max contour level
+ res@cnLevelSpacingF       = 1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -191,11 +191,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "3 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  

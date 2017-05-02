@@ -33,7 +33,7 @@ begin
     ;for directory 
     g_var_name = (/"U","V"/)
     g_data_ctrl_path ="../data/esm_clim_UV.nc"
-    g_data_nudg_path ="../data/nudg_ESMn3_clim_UV.nc"
+    g_data_nudg_path ="../data/nudg_clim_UV.nc"
     g_font = 0.02
     g_level=200
   
@@ -42,7 +42,7 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=80
+    g_day_strt=75
     g_day_end=120
 
     ;Prepare the variables
@@ -65,6 +65,8 @@ begin
     diff_var1_clim=var1_clim
     diff_var2_clim=var2_clim
 
+    printVarSummary(nudg_var1_clim)
+    printVarSummary(var1_clim)
     diff_var1_clim=nudg_var1_clim-var1_clim
     diff_var2_clim=nudg_var2_clim-var2_clim
     
