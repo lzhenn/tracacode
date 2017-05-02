@@ -34,19 +34,19 @@ begin
     g_level=200
 
     g_var_name:=(/"U","V"/)
-    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(0)+".*")
+    ctrl_in_files1 = systemfunc("ls "+g_data3_path+"/*ESMn[3-4]*."+g_var_name(0)+".*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in1     = addfiles (ctrl_in_files1, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in1, "join")
-    var1  =ctrl_in1[:]->$g_var_name(0)$(:,75:120,{150:500},:,:)
+    var1  =ctrl_in1[:]->$g_var_name(0)$(:,75:120,{150:1000},:,:)
     delete(ctrl_in1)
     clim_var1=dim_avg_n_Wrap(var1, 0)
     delete(var1)
-    ctrl_in_files2 = systemfunc("ls "+g_data3_path+"/*."+g_var_name(1)+".*")
+    ctrl_in_files2 = systemfunc("ls "+g_data3_path+"/*ESMn[3-4]*."+g_var_name(1)+".*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in2     = addfiles (ctrl_in_files2, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in2, "join")
-    var2  =ctrl_in2[:]->$g_var_name(1)$(:,75:120,{150:500},:,:)
+    var2  =ctrl_in2[:]->$g_var_name(1)$(:,75:120,{150:1000},:,:)
     delete(ctrl_in2)
     clim_var2=dim_avg_n_Wrap(var2, 0)
     printVarSummary(clim_var1)

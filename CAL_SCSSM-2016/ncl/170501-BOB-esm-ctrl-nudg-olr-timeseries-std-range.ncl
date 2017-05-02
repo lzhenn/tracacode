@@ -45,10 +45,10 @@ begin
     g_lonE=100.
 
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/model-esm-nudg-olr"
+    g_fig_name = "../fig/obv/model-esm-nudg-olr-std"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)"/)
-    g_fig_title   = "CTRL/SEN"
+    g_fig_title   = "BOB OLR Evolution"
 
     npos_year = 0
     nneg_year = 0
@@ -61,86 +61,127 @@ begin
     var  =ctrl_in[:]->$g_var_name$
     var_areamean=wgt_areaave_Wrap(var(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
     var_mean=dim_avg_n_Wrap(var_areamean,0)  
-    var_areamean=runave_n_Wrap(var_areamean,5,0,1)  
- 
+    var_areamean=runave_n_Wrap(var_areamean,5,1,1)  
+    var_stddev=dim_stddev_n_Wrap(var_areamean,0)
  
     nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*n[3-4]*"+g_var_name+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     nudg_in     = addfiles (nudg_in_files, "r")   ; note the "s" of addfile
     ListSetType (nudg_in, "join")
-    var_nudg  =nudg_in[:]->$g_var_name$
+    var_nudg=nudg_in[:]->$g_var_name$
     var_nudg_areamean=wgt_areaave_Wrap(var_nudg(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
     var_nudg_mean=dim_avg_n_Wrap(var_nudg_areamean,0)  
-    var_nudg_areamean=runave_n_Wrap(var_nudg_areamean,5,0,1)  
-    ;************************************************
-    ; plotting parameters
-    ;************************************************
-    
-    wks = gsn_open_wks ("png",g_fig_name) ; open workstation
-    plot = new((/2/),graphic)
-    plot_obv = new((/2/),graphic)
-    
-    res               = True                    ; plot mods desired
-    res@gsnDraw                = False
-    res@gsnFrame                = False
-    
-    res@vpXF     = 0.2
-    res@vpYF     = 0.85
+    var_nudg_areamean=runave_n_Wrap(var_nudg_areamean,5,1,1)  
+    var_nudg_stddev=dim_stddev_n_Wrap(var_nudg_areamean,0)
+
+    dim_var=dimsizes(var_mean)
+    all_var_ltm=new((/2,dim_var(0)/),"float")
+    all_var_ltm(0,:)=var_mean
+    all_var_ltm(1,:)=var_nudg_mean
+   
+    printVarSummary(var_mean)
+    all_var_range=new((/2,2,dim_var(0)/),"float") ;[0]--ctrl/nudg [1]--+std/-std
+
+    all_var_range(0,0,:)=var_mean+var_stddev
+    all_var_range(0,1,:)=var_mean-var_stddev
+
+    all_var_range(1,0,:)=var_nudg_mean+var_nudg_stddev
+    all_var_range(1,1,:)=var_nudg_mean-var_nudg_stddev
+
+;**********************************************************************************************
+;Mission.3		Display timeseries 
+;**********************************************************************************************
+
+
+
+    day_series=ispan(60,180,1)
+	;************************************************ 
+	; plotting parameters
+	;************************************************
+	wks1   = gsn_open_wks ("png",g_fig_name)                 ; open workstation
+
+	res               = True                    ; plot mods desired
+
+	res@gsnDraw            = False                   ; don't draw	
+	res@gsnFrame           = False                   ; don't advance frame
+             
+    res@vpXF     = 0.15
 
     res@vpWidthF = 0.7
-    res@vpHeightF= 0.5
-
-    res@trYMinF            =  160.0               ; min value on y-axis
-    res@trYMaxF            =  310.0               ; max value on y-axis
-;    res@trXMinF            =  27.5                  ; min value on x-axis
-;    res@trXMaxF            =  30.0                  ; max value on x-axis
+    res@vpHeightF= 0.4
 
 
-    ;---Set some marker resources
- 
-    res@tmYLLabelFontHeightF = g_font
-    res@tmXBLabelFontHeightF = g_font
-    res@gsnStringFontHeightF = g_font
-    res@tiXAxisFontHeightF   = g_font
-    res@tiYAxisFontHeightF   = g_font
-    res@gsnLeftString     = g_fig_title    
-    res@tiYAxisString     = "OLR"
-    res@tiXAxisString = "Day"
+	res@trYMinF            = min(all_var_range)-10                 ; Y axis limits
+	res@trYMaxF            = max(all_var_range)+10
 
-    res@xyMarkLineMode     = "Lines"
-    res@xyLineColor       = "lightpink" ; colors chosen
-    res@xyLineThicknesses    = 1.0      ; line thicknesses
-    res@xyDashPattern=0.
-;    res@tmXBValues = ispan(0,180,1) ;interval
-;    res@tmXBLabels = ispan(0,180,30) ;tick label
-        
-;    res@trXMinF            = 1           ; X axis limits
-    res@trXMaxF            = 180           ; X axis limits
+	;res@trXMinF  = 1                   ; min value on x-axis
+;	res@trXMaxF  = 12                   ; max value on x-axis
+	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
 
-    plot(0) = gsn_csm_xy (wks,ispan(60,180,1),var_areamean(:,59:),res) ; create plot
-    res@xyLineColor       = "deepskyblue" ; colors chosen
-    plot_obv(0)=gsn_csm_xy (wks,ispan(60,180,1),var_nudg_areamean(:,59:),res) ; create plot
+	
+	res@tmXBValues = ispan(60,180,15)
+	res@tmXBLabels = ispan(60,180,15)
+	res@xyMonoLineColor    = False             ; want colored lines
+	res@xyLineColors       = (/"red","blue","green4","black"/) ; colors chosen
+	res@xyLineThicknesses	 = (/4.,4.,4.,6/)      ; line thicknesses
+	res@xyDashPatterns	 = (/0.,0.,0.,0./)      ; make all lines solid
+	res@tmXBMajorThicknessF = 5.0
+	res@tmYLMajorThicknessF = 5.0
+	res@tmXBMinorThicknessF = 4.0
+	res@tmYLMinorThicknessF = 4.0
+	res@tmBorderThicknessF = 4.0
+	res@tmXBLabelFontHeightF = g_font
+	res@tmYLLabelFontHeightF = g_font
+	res@gsnStringFontHeightF = g_font
+    res@gsnCenterString = g_fig_title
+	top_plot  = gsn_csm_xy (wks1,day_series,all_var_ltm(:,60:180),res)   ; create plot
+	
+    ; Create a plot with the area between both curves filled in blue.
+	  delete(res@xyLineColors)
+      res@gsnXYFillOpacities = 0.4
+	  res@gsnXYFillColors = "OrangeRed"
+	  res@xyLineColor     = -1                           ; We don't want the line, so make it transparent.
+	  bot_plot  = gsn_csm_xy (wks1,day_series,all_var_range(0,:,60:180),res)  ; Create filled XY plot.
 
-    res@xyLineColor       = "red" ; colors chosen
-    res@xyLineThicknesses    = 4.0      ; line thicknesses
+	  res@gsnXYFillColors = "DeepSkyBlue"
+	  bot_plot1  = gsn_csm_xy (wks1,day_series,all_var_range(1,:,60:180),res)  ; Create filled XY plot.
+	  overlay(bot_plot,bot_plot1)
+	  
+      overlay(bot_plot,top_plot)
 
-  
-    plot(1) = gsn_csm_xy (wks,ispan(60,180,1),var_mean(59:),res) ; create plot
-    res@xyLineColor       = "blue" ; colors chosen
-    plot_obv(1) = gsn_csm_xy (wks,ispan(60,180,1),var_nudg_mean(59:),res) ; create plot
-  
-      res_lines=True
-      res_lines@gsLineColor       = "black"
-      res_lines@gsLineDashPattern = 2.
-      xx = (/60,180/)
-      yy = (/235.,235./)
-      dum7 = gsn_add_polyline(wks,plot(1),xx,yy,res_lines)              ; add polyline
+    ;*****************************************************   
+	; Manually create and attach legend
+	;***************************************************** 
+	res_text                    = True                  ; text mods desired
+	res_text@txFontHeightF      = 0.02                 ; change text size
+	res_text@txJust             = "CenterLeft"          ; text justification
 
-     
-    overlay(plot(0),plot_obv(0))
-    overlay(plot(0),plot_obv(1))
-    overlay(plot(0),plot(1))
+	res_lines                   = True                  ; polyline mods desired
+	res_lines@gsLineDashPattern = 0.                    ; solid line
+	res_lines@gsLineThicknessF  = 4.                    ; line thicker
+	res_lines@gsLineColor       = "red"                 ; line color
+	
+    xx = (/140,150/) 
+	yy = (/290,290/)
+	dum1 = gsn_add_polyline(wks1,bot_plot,xx,yy,res_lines)              ; add polyline
+	dum2 = gsn_add_text(wks1,bot_plot,"Control",xx(1)+5,yy(0),res_text); add text
+
+
+
+	res_lines@gsLineColor       = "blue"                                 ; change to blue
+	yy = yy -10
+    dum3 = gsn_add_polyline(wks1,bot_plot,xx,yy,res_lines)                ; add polyline
+	dum4 = gsn_add_text(wks1,bot_plot,"Nudging",xx(1)+5,yy(0),res_text)       ; add text
     
-    draw(plot(0))
-    frame(wks)
+    res_ref_lines=True
+    res_ref_lines@gsLineColor       = "black"
+    res_ref_lines@gsLineDashPattern = 4.
+    xx = (/60,180/)
+    yy = (/235,235/)
+    dum7 = gsn_add_polyline(wks1,bot_plot,xx,yy,res_ref_lines)              ; add polyline
+
+ 
+    draw(bot_plot)
+    frame(wks1)
+
 end

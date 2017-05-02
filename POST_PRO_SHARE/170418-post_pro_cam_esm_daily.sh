@@ -11,7 +11,7 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_Nudging/
+PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/
 
 # Path of the post processed data
 PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_Nudging/pro/\"

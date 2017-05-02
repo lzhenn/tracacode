@@ -33,19 +33,19 @@ source ~/.bashrc_cesm
 alias task="/opt/gridview/pbs/dispatcher/bin/qstat -u yangsong3"
 
 # Workspace Path
-WPATH=/users/yangsong3/L_Zealot/F/Nudging
+WPATH=/users/yangsong3/L_Zealot/F/CLIM-Trans-2015
 
 # Case Name
 CASENAME=`basename $WPATH`
 
 # Storage Path
-SPATH=/users/yangsong3/L_Zealot/F/DATA_Nudging
+SPATH=/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015
 
 # Storage Dir Prefix 
-SDPRE=ESMn4_
+SDPRE=ESMc_
 
 # Init Dir PATH (must be a separate dir)
-INIT_DIR=$WPATH/init-pmctrl
+INIT_DIR=$WPATH/init
 
 # Init File Name (same as ncdata in user_nl_cam)
 INIT_NAME=CLIM-Trans-2015.cam.i.0006-01-01-00000.nc
