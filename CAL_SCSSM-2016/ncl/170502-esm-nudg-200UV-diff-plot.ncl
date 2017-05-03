@@ -42,7 +42,7 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=90
+    g_day_strt=75
     g_day_end=120
 
     ;Prepare the variables
@@ -235,7 +235,7 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
-  g_fig_name="../fig/nudging/esm-nudg-mean-diff-200UV"
+  g_fig_name="../fig/nudging/esm-nudg-mean-diff-"+g_level+"UV"
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   res@gsnLeftString="Ensemble Mean UV "+g_level+"hPa Day"+g_day_strt+"-"+g_day_end
@@ -270,7 +270,7 @@ begin
   xyres@tiXAxisFontHeightF=g_font
   var1_clim_lat(2,:)=0
   xyres@xyLineColor="gray35"
-  plotxy = gsn_csm_xy(wks, var1_clim_lat(1:2,:), var1_clim_lat&lat, xyres)
+  plotxy = gsn_csm_xy(wks, var1_clim_lat({g_level},:), var1_clim_lat&lat, xyres)
   xyres@xyLineColor="black"
   plotxy2 = gsn_csm_xy(wks, nudg_var1_clim_lat({g_level},:), var1_clim_lat&lat, xyres)
   overlay(plot_sh,plot_V)
