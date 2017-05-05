@@ -14,25 +14,25 @@
 PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_Nudging/pro/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro/\"
 
 # Case name
-CASENAME=\"Nudging\"
+CASENAME=\"CLIM-Trans-2015\"
 
 # ESM folder prefix
-ESM_NAME=ESMn4_
+ESM_NAME=ESMc_add_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=8
+ESM_LAST=28
 
 
 
 # Names of 2D fields
-FDNAME2D="(/\"PRECL\",\"PRECC\",\"FLUT\",\"PSL\",\"PS\",\"TS\",\"TMQ\"/)" #often use
-#FDNAME2D="(/\"TS\",\"TSMX\"/)" #often use
+#FDNAME2D="(/\"PRECL\",\"PRECC\",\"FLUT\",\"PSL\",\"PS\",\"TS\",\"TMQ\"/)" #often use
+FDNAME2D="(/\"TS\"/)" #often use
 #FDNAME2D="(/\"PRECT\",\"PSL\",\"QBOT\",\"TSMN\",\"U200\",\"U850\",\"UBOT\",\"V200\",\"V850\",\"VBOT\",\"Z200\",\"Z500\"/)" #often use
 
 # Names of 3D fields
@@ -42,8 +42,8 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
 # Names of 3D HY fields
-FDNAME3D_HY="(/\"U\",\"V\"/)" # hybrid coordinate
-#FDNAME3D_HY="(/\"Z3\"/)" # hybrid coordinate
+#FDNAME3D_HY="(/\"U\",\"V\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"T\"/)" # hybrid coordinate
 
 
 
@@ -60,7 +60,7 @@ PLEV="(/1000,925,850,700,500,200/)"
 # Process fig flag
 FLAG2D=1
 FLAG3D=0
-FLAG3DHY=1
+FLAG3DHY=0
 
 
 #-----------------------------------------------------------
