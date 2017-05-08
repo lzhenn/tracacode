@@ -20,19 +20,19 @@ PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro/\"
 CASENAME=\"CLIM-Trans-2015\"
 
 # ESM folder prefix
-ESM_NAME=ESMc_add_
+ESM_NAME=ESMc_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=28
+ESM_LAST=23
 
 
 
 # Names of 2D fields
-#FDNAME2D="(/\"PRECL\",\"PRECC\",\"FLUT\",\"PSL\",\"PS\",\"TS\",\"TMQ\"/)" #often use
-FDNAME2D="(/\"TS\"/)" #often use
+FDNAME2D="(/\"PRECL\",\"PRECC\",\"FLUT\",\"PS\",\"TS\",\"TMQ\"/)" #often use
+#FDNAME2D="(/\"TS\"/)" #often use
 #FDNAME2D="(/\"PRECT\",\"PSL\",\"QBOT\",\"TSMN\",\"U200\",\"U850\",\"UBOT\",\"V200\",\"V850\",\"VBOT\",\"Z200\",\"Z500\"/)" #often use
 
 # Names of 3D fields
@@ -54,12 +54,12 @@ LAYERS=30
 # Output specific pressure layers
 # CAUTION: Do not leave species between element!
 #PLEV="(/925,850,700,600,500,400,300,200,100,50/)"
-PLEV="(/1000,925,850,700,500,200/)"
+PLEV="(/1000,925,850,700,600,500,400,300,200,150/)"
 
 
 # Process fig flag
-FLAG2D=1
-FLAG3D=0
+FLAG2D=0
+FLAG3D=1
 FLAG3DHY=0
 
 
