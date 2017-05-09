@@ -54,13 +54,13 @@ begin
     nneg_year = 0
 
 ;Prepare the variables
-    ctrl_in_files = systemfunc("ls "+g_data_ctrl_path+"/*"+g_var_name(0)+"*")
+    ctrl_in_files = systemfunc("ls "+g_data_ctrl_path+"/*ESMc_0*"+g_var_name(0)+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in     := addfiles (ctrl_in_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in, "join")
     var  =ctrl_in[:]->$g_var_name(0)$
     
-    ctrl_in_files = systemfunc("ls "+g_data_ctrl_path+"/*"+g_var_name(1)+"*")
+    ctrl_in_files = systemfunc("ls "+g_data_ctrl_path+"/*ESMc_0*"+g_var_name(1)+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in     := addfiles (ctrl_in_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in, "join")

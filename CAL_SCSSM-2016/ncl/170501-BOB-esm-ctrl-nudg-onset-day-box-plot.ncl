@@ -51,7 +51,7 @@ begin
     nneg_year = 0
 
 ;Prepare the variables
-    ctrl_in_files = systemfunc("ls "+g_data3_path+"/*"+g_var_name+"*")
+    ctrl_in_files = systemfunc("ls "+g_data3_path+"/*ESMc_0*"+g_var_name+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in     = addfiles (ctrl_in_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in, "join")
@@ -107,6 +107,7 @@ begin
     qsort(onset_esm)
     qsort(onset_nudg)
 
+    print(onset_nudg)
     box_data(0,0)=onset_esm(0)
     box_data(0,1)=(onset_esm(11)+onset_esm(12))/2
     box_data(0,2)=(onset_esm(24)+onset_esm(25))/2

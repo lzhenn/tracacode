@@ -11,22 +11,22 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/
+PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_Nudging/
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_CLIM-Trans-2015/pro/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_Nudging/pro/\"
 
 # Case name
-CASENAME=\"CLIM-Trans-2015\"
+CASENAME=\"Nudging\"
 
 # ESM folder prefix
-ESM_NAME=ESMc_
+ESM_NAME=ESMn4_
 
 # ESM folder memebers
 ESM_STRT=1
 
 # ESM folder memebers
-ESM_LAST=23
+ESM_LAST=8
 
 
 
