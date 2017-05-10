@@ -36,16 +36,16 @@ begin
     g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
     g_data_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test"
 
-    g_font = 0.025
+    g_font = 0.035
     
     ;Andaman Sea convection
     g_latS=0.
-    g_latN=30.
+    g_latN=25.
     g_lonW=70
     g_lonE=120.
 
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/nudg_rainfall_day"
+    g_fig_name = "../fig/obv/esm_rainfall_day"
     g_fig_rank = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)        
     npos_year = 0
     nneg_year = 0
@@ -154,13 +154,13 @@ begin
  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
-  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
+;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
-; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+ gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 ; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
   plot = new((/8/),graphic)
@@ -236,7 +236,7 @@ begin
     
      ; now change the size of the tickmark labels
   res@tmXBTickSpacingF = 15
-  res@tmYLTickSpacingF = 15
+  res@tmYLTickSpacingF = 10
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -251,9 +251,9 @@ begin
         jj=(ii*2-8)
         res@gsnLeftString=g_fig_rank(ii)
         res@gsnCenterString="Day: "+jj
-        plot(ii) = gsn_csm_contour_map_ce(wks,var_nudg_comp(2*ii,:,:),res)
+        plot(ii) = gsn_csm_contour_map_ce(wks,var_comp(2*ii,:,:),res)
     end do
-        gsn_panel(wks,plot,(/4,2/),False)
+        gsn_panel(wks,plot,(/2,4/),False)
 
 
 end
