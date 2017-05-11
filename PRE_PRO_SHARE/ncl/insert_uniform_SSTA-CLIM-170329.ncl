@@ -47,7 +47,7 @@ begin
     data_file_in   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim.nc"
     data_file_out   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim_as_bob_pos_JJA.nc"
     
-    ssta=0.3
+    ssta=1.0
     strt_mon=5 ; 0---Jan
     lst_mon=7 ; 0---Jan
     g_season="JJA"
