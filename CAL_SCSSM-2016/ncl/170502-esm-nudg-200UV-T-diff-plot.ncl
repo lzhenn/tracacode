@@ -40,15 +40,15 @@ begin
     
     
     g_font = 0.02
-    g_level=400
+    g_level=850
   
     g_latN=40
     g_latS=0
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=90
-    g_day_end=120
+    g_day_strt=110
+    g_day_end=115
 
     ;Prepare the variables
     ctrl_in     = addfile (g_data_ctrl_path, "r")   ; note the "s" of addfile
@@ -130,9 +130,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -2         ; set min contour level
- res@cnMaxLevelValF        = 2         ; set max contour level
- res@cnLevelSpacingF       = 0.25          ; set contour interval
+ res@cnMinLevelValF        = -1.0         ; set min contour level
+ res@cnMaxLevelValF        = 1.0         ; set max contour level
+ res@cnLevelSpacingF       = 0.2          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 

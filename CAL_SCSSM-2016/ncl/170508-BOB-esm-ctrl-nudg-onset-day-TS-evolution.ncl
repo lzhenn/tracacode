@@ -33,7 +33,7 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name = (/"PRECC","PRECL","U","V"/)
+    g_var_name = (/"TS"/)
     g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
     g_data_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test"
 
@@ -46,7 +46,7 @@ begin
     g_lonE=120.
 
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/obv/esm_rainfall_day"
+    g_fig_name = "../fig/obv/esm_TS"
     g_fig_rank = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)        
     npos_year = 0
     nneg_year = 0
@@ -62,69 +62,31 @@ begin
 
     g_data_list=g_data_ctrl_path+"/*ESMc_0*"+g_var_name(0)+"*"
     var  =get_esm_var_2d_from_post(g_var_name(0),g_data_list)
-    g_data_list=g_data_ctrl_path+"/*ESMc_0*"+g_var_name(1)+"*"
-    var2  =get_esm_var_2d_from_post(g_var_name(1),g_data_list)
-    var=1000*86400*(var+var2)
-
+  
     g_data_list=g_data_nudg_path+"/*ESMn[3-4]_0*"+g_var_name(0)+"*"
     var_nudg  =get_esm_var_2d_from_post(g_var_name(0),g_data_list)
-    g_data_list=g_data_nudg_path+"/*ESMn[3-4]_0*"+g_var_name(1)+"*"
-    var2_nudg  =get_esm_var_2d_from_post(g_var_name(1),g_data_list)
-    var_nudg=1000*86400*(var_nudg+var2_nudg)
-    
-    delete([/var2, var2_nudg/])
+   
 
-    g_data_list=g_data_ctrl_path+"/*ESMc_0*."+g_var_name(2)+".*"
-    var3  =get_esm_var_2d_from_3d_post(g_var_name(2),g_data_list,g_lvl)
-    g_data_list=g_data_ctrl_path+"/*ESMc_0*."+g_var_name(3)+".*"
-    var4  =get_esm_var_2d_from_3d_post(g_var_name(3),g_data_list,g_lvl)
-
-    g_data_list=g_data_nudg_path+"/*ESMn[3-4]_0*."+g_var_name(2)+".*"
-    var3_nudg  =get_esm_var_2d_from_3d_post(g_var_name(2),g_data_list,g_lvl)
-    g_data_list=g_data_nudg_path+"/*ESMn[3-4]_0*."+g_var_name(3)+".*"
-    var4_nudg  =get_esm_var_2d_from_3d_post(g_var_name(3),g_data_list,g_lvl)
-
-
-
+    var=var-273.15
+    var_nudg=var_nudg-273.15
 
     var=runave_n_Wrap(var,3,0,1)
     var_nudg=runave_n_Wrap(var_nudg,3,0,1)
-    
-    var3=runave_n_Wrap(var3,3,0,1)
-    var3_nudg=runave_n_Wrap(var3_nudg,3,0,1)
-
-    var4=runave_n_Wrap(var4,3,0,1)
-    var4_nudg=runave_n_Wrap(var4_nudg,3,0,1)
 
     var_comp=var(:,0:14,:,:)
     var_nudg_comp=var_nudg(:,0:14,:,:)
-    var3_comp=var3(:,0:14,:,:)
-    var3_nudg_comp=var3_nudg(:,0:14,:,:)
-    var4_comp=var4(:,0:14,:,:)
-    var4_nudg_comp=var4_nudg(:,0:14,:,:)
-
     dim_onset=dimsizes(onset_nudg)
     do ii=0,dim_onset-1
         onsetday=floattoint(onset_esm(ii))
         var_comp(ii,:,:,:)=var(ii,onsetday-8:onsetday+6,:,:)
-        var3_comp(ii,:,:,:)=var3(ii,onsetday-8:onsetday+6,:,:)
-        var4_comp(ii,:,:,:)=var4(ii,onsetday-8:onsetday+6,:,:)
         onsetday=floattoint(onset_nudg(ii))
         var_nudg_comp(ii,:,:,:)=var_nudg(ii,onsetday-8:onsetday+6,:,:)
-        var3_nudg_comp(ii,:,:,:)=var3_nudg(ii,onsetday-8:onsetday+6,:,:)
-        var4_nudg_comp(ii,:,:,:)=var4_nudg(ii,onsetday-8:onsetday+6,:,:)
     end do
     
     var_comp:=dim_avg_n_Wrap(var_comp,0)
     var_nudg_comp:=dim_avg_n_Wrap(var_nudg_comp,0)
-    
-    var3_comp:=dim_avg_n_Wrap(var3_comp,0)
-    var3_nudg_comp:=dim_avg_n_Wrap(var3_nudg_comp,0)
-    var4_comp:=dim_avg_n_Wrap(var4_comp,0)
-    var4_nudg_comp:=dim_avg_n_Wrap(var4_nudg_comp,0)
-
-
- wks = gsn_open_wks("pdf",g_fig_name)  ; open a ps file
+   
+ wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -133,8 +95,8 @@ begin
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
- gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-; gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+ gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
   plot = new((/8/),graphic)
   plot_V = new((/8/),graphic)
@@ -159,9 +121,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 4.0 ; set min contour level
- res@cnMaxLevelValF        = 16.0         ; set max contour level
- res@cnLevelSpacingF       = 1.0         ; set contour interval
+ res@cnMinLevelValF        = -1.0 ; set min contour level
+ res@cnMaxLevelValF        = 1.0         ; set max contour level
+ res@cnLevelSpacingF       = 0.1         ; set contour interval
  res@mpDataBaseVersion    = "MediumRes"
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -220,37 +182,16 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
   res@gsnRightString=""
-        
-  vcres = True
-  vcres@gsnDraw          = False           ; don't draw
-  vcres@gsnFrame         = False           ; don't advance frame
-  vcres@gsnRightString   = " "             ; turn off right string
-  vcres@gsnLeftString    = " "             ; turn off left string
-  vcres@gsnCenterString    = " "
- 
-  vcres@vcRefAnnoOn      = True
-  vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 8.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.035
-  vcres@vcRefAnnoString1  = "8 m/s"
-  vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.02
- 
-  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.01
- 
+  
 
+    var_diff=var_nudg_comp
+    var_diff=var_nudg_comp-var_comp
 
     do ii =0,7
         jj=(ii*2-8)
         res@gsnLeftString=g_fig_rank(ii)
         res@gsnCenterString="Day: "+jj
-        plot(ii) = gsn_csm_contour_map_ce(wks,var_nudg_comp(2*ii,:,:),res)
-        plot_V(ii) = gsn_csm_vector(wks,var3_nudg_comp(2*ii,:,:),var4_nudg_comp(2*ii,:,:),vcres)
-        overlay(plot(ii),plot_V(ii))
+        plot(ii) = gsn_csm_contour_map_ce(wks,var_diff(2*ii,:,:),res)
     end do
 
         gsn_panel(wks,plot,(/2,4/),False)

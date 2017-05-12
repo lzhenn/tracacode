@@ -9,6 +9,17 @@ begin
     var  =ctrl_in[:]->$var_name$
     return(var)
 end 
+ 
+function get_esm_var_2d_from_3d_post(var_name:string, g_data_path:string, plvl)
+begin
+    print("get_esm_var_2d_from_post...")
+    ctrl_in_files = systemfunc("ls "+g_data_path)
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in     = addfiles (ctrl_in_files, "r")   ; note the "s" of addfile
+    ListSetType (ctrl_in, "join")
+    var  =ctrl_in[:]->$var_name$(:,:,{plvl},:,:)
+    return(var)
+end 
     
 
 function get_onset_idx_from_post_flut(g_latS, g_latN, g_lonW, g_lonE, g_data_path:string)
