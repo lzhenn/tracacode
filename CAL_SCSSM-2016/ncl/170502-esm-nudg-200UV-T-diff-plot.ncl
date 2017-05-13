@@ -47,8 +47,8 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=110
-    g_day_end=115
+    g_day_strt=103
+    g_day_end=108
 
     ;Prepare the variables
     ctrl_in     = addfile (g_data_ctrl_path, "r")   ; note the "s" of addfile

@@ -162,13 +162,13 @@ begin
       res@gsnXYFillOpacities = 0.4
 	  res@gsnXYFillColors = "OrangeRed"
 	  res@xyLineColor     = -1                           ; We don't want the line, so make it transparent.
-	  bot_plot  = gsn_csm_xy (wks1,day_series,all_var_range(0,:,60:120),res)  ; Create filled XY plot.
+	  ;bot_plot  = gsn_csm_xy (wks1,day_series,all_var_range(0,:,60:120),res)  ; Create filled XY plot.
 
 	  res@gsnXYFillColors = "DeepSkyBlue"
-	  bot_plot1  = gsn_csm_xy (wks1,day_series,all_var_range(1,:,60:120),res)  ; Create filled XY plot.
-	  overlay(bot_plot,bot_plot1)
+	 ; bot_plot1  = gsn_csm_xy (wks1,day_series,all_var_range(1,:,60:120),res)  ; Create filled XY plot.
+	  ;overlay(bot_plot,bot_plot1)
 	  
-      overlay(bot_plot,top_plot)
+      ;overlay(bot_plot,top_plot)
 
     ;*****************************************************   
 	; Manually create and attach legend
@@ -184,25 +184,25 @@ begin
 	
     xx = (/65,70/) 
 	yy = (/30,30/)
-	dum1 = gsn_add_polyline(wks1,bot_plot,xx,yy,res_lines)              ; add polyline
-	dum2 = gsn_add_text(wks1,bot_plot,"Control",xx(1)+5,yy(0),res_text); add text
+	dum1 = gsn_add_polyline(wks1,top_plot,xx,yy,res_lines)              ; add polyline
+	dum2 = gsn_add_text(wks1,top_plot,"Control",xx(1)+5,yy(0),res_text); add text
 
 
 
 	res_lines@gsLineColor       = "blue"                                 ; change to blue
 	yy = yy -3
-    dum3 = gsn_add_polyline(wks1,bot_plot,xx,yy,res_lines)                ; add polyline
-	dum4 = gsn_add_text(wks1,bot_plot,"Nudging",xx(1)+5,yy(0),res_text)       ; add text
+    dum3 = gsn_add_polyline(wks1,top_plot,xx,yy,res_lines)                ; add polyline
+	dum4 = gsn_add_text(wks1,top_plot,"Nudging",xx(1)+5,yy(0),res_text)       ; add text
     
     res_ref_lines=True
     res_ref_lines@gsLineColor       = "black"
     res_ref_lines@gsLineDashPattern = 4.
     xx = (/60,120/)
     yy = (/20,20/)
-    dum7 = gsn_add_polyline(wks1,bot_plot,xx,yy,res_ref_lines)              ; add polyline
+    dum7 = gsn_add_polyline(wks1,top_plot,xx,yy,res_ref_lines)              ; add polyline
 
  
-    draw(bot_plot)
+    draw(top_plot)
     frame(wks1)
 
 end
