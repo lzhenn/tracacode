@@ -127,9 +127,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -0.3         ; set min contour level
- res@cnMaxLevelValF        = 0.3         ; set max contour level
- res@cnLevelSpacingF       = 0.05          ; set contour interval
+ res@cnMinLevelValF        = -0.9         ; set min contour level
+ res@cnMaxLevelValF        = 0.9        ; set max contour level
+ res@cnLevelSpacingF       = 0.1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -204,11 +204,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 4.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "2 m/s"
+  vcres@vcRefAnnoString1  = "4 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
