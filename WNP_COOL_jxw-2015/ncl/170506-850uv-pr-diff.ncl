@@ -45,12 +45,13 @@ begin
     g_data_sen_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/sen/as-bob-test.cam.h0.PRECC.1-15.nc"
     g_data_sen_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/sen/as-bob-test.cam.h0.PRECL.1-15.nc"
  
-   
+    g_topo_path="../../PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_1.9x2.5_remap_c050602.nc"
+
     g_font = 0.02
     g_level=850
   
     g_latN=50
-    g_latS=0
+    g_latS=-10
     g_lonE=150
     g_lonW=30
     g_season="JJA"
@@ -77,6 +78,11 @@ begin
     sen_var4 =sen_in->PRECL
     sen_var3=(sen_var3+sen_var4)*1000*86400
 
+    topo_in= addfile(g_topo_path,"r")
+    topo_var =topo_in->PHIS
+    topo_var =topo_var/10
+
+    
     var1_clim=dim_avg_n_Wrap(month_to_season(var1(g_skip_year*12:,:,:,:),g_season),0)
     var2_clim=dim_avg_n_Wrap(month_to_season(var2(g_skip_year*12:,:,:,:),g_season),0)
     var3_clim=dim_avg_n_Wrap(month_to_season(var3(g_skip_year*12:,:,:),g_season),0)
@@ -200,9 +206,28 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = ""
+  res@gsnLeftString = "(b)"
   res@gsnRightString = ""
-       
+
+  res3                  = True       ; use plot options
+  res3@cnFillOn         = False;True       ; Fill contours
+  res3@cnLinesOn        = True      ; turn off contour lines
+;for tp masking
+  res3@gsnFrame         = False
+  res3@gsnDraw  = False
+  res3@cnLineLabelsOn   = False     ; turn off contour line labels
+  res3@cnLineThicknessF = 3
+  res3@cnLineColor      = "black"
+  res3@cnInfoLabelOn = False
+ 
+ 
+  res3@cnLevelSelectionMode="ExplicitLevels"
+  res3@cnLevels = (/1500/)
+  res3@gsnLeftString      = " "
+  res3@gsnRightString      = " " 
+
+
+
   vcres = True
   vcres@gsnDraw          = False           ; don't draw
   vcres@gsnFrame         = False           ; don't advance frame
@@ -226,13 +251,15 @@ begin
  
 
   g_fig_name="../fig/bob-as-850uv-pr"
-  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"precip_diff_12lev")
-  res@gsnLeftString="UV850 & Pr Diff"
+  res@gsnCenterString="UV850 & Pr Diff"
 
   plot_sh= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
+  plot_cn= gsn_csm_contour(wks,topo_var,res3) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
   plot_V = gsn_csm_vector(wks,diff_var1({g_level},:,:),diff_var2({g_level},:,:),vcres) 
+  overlay(plot_sh,plot_cn)
   overlay(plot_sh,plot_V)
   draw(plot_sh)
   frame(wks)

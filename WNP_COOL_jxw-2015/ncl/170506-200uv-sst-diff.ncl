@@ -48,7 +48,7 @@ begin
     g_level=200
   
     g_latN=50
-    g_latS=0
+    g_latS=-10
     g_lonE=150
     g_lonW=30
     g_season="JJA"
@@ -192,7 +192,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = ""
+  res@gsnLeftString = "(a)"
   res@gsnRightString = ""
        
   vcres = True
@@ -220,7 +220,7 @@ begin
   g_fig_name="../fig/bob-as-200uv-sst"
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  res@gsnLeftString="UV200 & SST Diff"
+  res@gsnCenterString="UV200 & SST Diff"
 
   plot_sh= gsn_csm_contour_map(wks,diff_var3(0,:,:),res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
