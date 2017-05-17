@@ -36,19 +36,19 @@ begin
 ;SCS-PhS region
     
 
-	latS    =   8.
-	latN    =   25.
-    lonL    =   50.
-    lonR    =   100.
+	latS    =   -7.5
+	latN    =   7.5
+    lonL    =   85
+    lonR    =   135.
 
     
     fig_num     =   (/"(a)","(b)","(c)"/)
     
     data_file_in   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim.nc"
-    data_file_out   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim_as_bob_pos_JJA.nc"
+    data_file_out   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim_mc_pos_JA.nc"
     
-    ssta=1.0
-    strt_mon=5 ; 0---Jan
+    ssta=0.5
+    strt_mon=6 ; 0---Jan
     lst_mon=7 ; 0---Jan
     g_season="JJA"
     
