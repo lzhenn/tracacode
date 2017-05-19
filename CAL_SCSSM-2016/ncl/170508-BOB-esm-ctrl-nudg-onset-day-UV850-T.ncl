@@ -33,7 +33,7 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name = (/"TS"/)
+    g_var_name = (/"T"/)
     g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
     g_data_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test"
 
@@ -56,10 +56,10 @@ begin
     
     g_data_list=g_data_ctrl_path+"/*ESMc_0*FLUT*"
     onset_esm=get_onset_idx_from_post_flut(5, 20, 87.5, 100, g_data_list)
-    g_data_list=g_data_nudg_path+"/*ESMn[3-4]_0*FLUT*"
+    g_data_list=g_data_ctrl_path+"/*ESMc_0*FLUT*"
     onset_nudg=get_onset_idx_from_post_flut(5, 20, 87.5, 100, g_data_list)
-    print(onset_nudg)
-    ;onset_nudg=qsort(onset_nudg)
+
+
     g_data_list=g_data_ctrl_path+"/*ESMc_0*"+g_var_name(0)+"*"
     var  =get_esm_var_2d_from_post(g_var_name(0),g_data_list)
   

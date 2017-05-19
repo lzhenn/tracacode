@@ -34,7 +34,7 @@ begin
     ;for directory 
     g_var_name = "FLUT"
     g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
-    g_data3_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/nudging_test"
+    g_data3_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/amip"
 
     g_font = 0.025
     
@@ -59,13 +59,13 @@ begin
     var_areamean=wgt_areaave_Wrap(var(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
  
  
-    nudg_in_files = systemfunc("ls "+g_data3_nudg_path+"/*ESMn[3-4]*"+g_var_name+"*")
+    nudg_in_files = systemfunc("ls "+g_data3_nudg_path+"/*"+g_var_name+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     nudg_in     = addfiles (nudg_in_files, "r")   ; note the "s" of addfile
     ListSetType (nudg_in, "join")
-    var_nudg  =nudg_in[:]->$g_var_name$
+    var_nudg  =nudg_in[:]->$g_var_name$(:,0:181,:,:)
    
-    var_nudg_areamean=wgt_areaave_Wrap(var_nudg(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    var_nudg_areamean=wgt_areaave_Wrap(var_nudg(:,1:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
 
     var_mean=dim_avg_n_Wrap(var_areamean,0)  
     var_nudg_mean=dim_avg_n_Wrap(var_nudg_areamean,0)  
@@ -107,19 +107,21 @@ begin
     qsort(onset_esm)
     qsort(onset_nudg)
 
-    print(onset_nudg)
+    print(stddev(onset_nudg))
+    print(stddev(onset_esm))
+    
     box_data(0,0)=onset_esm(0)
-    box_data(0,1)=(onset_esm(11)+onset_esm(12))/2
-    box_data(0,2)=(onset_esm(24)+onset_esm(25))/2
-    box_data(0,3)=(onset_esm(36)+onset_esm(37))/2
-    box_data(0,4)=onset_esm(49)
+    box_data(0,1)=onset_esm(5)
+    box_data(0,2)=onset_esm(11)
+    box_data(0,3)=onset_esm(17)
+    box_data(0,4)=onset_esm(22)
 
     box_data(1,0)=onset_nudg(0)
     box_data(1,1)=onset_nudg(5)
     box_data(1,2)=onset_nudg(11)
     box_data(1,3)=onset_nudg(17)
     box_data(1,4)=onset_nudg(22)
-    labels    = (/"Control","Nudging"/)  
+    labels    = (/"FIXED SST","AMIP"/)  
     x = (/-2., 2./)
     esm_avg_onset=dim_avg_Wrap(onset_esm)
     nudg_avg_onset=dim_avg_Wrap(onset_nudg)

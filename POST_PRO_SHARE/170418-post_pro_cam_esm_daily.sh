@@ -11,13 +11,13 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=/users/yangsong3/L_Zealot/F/DATA_Nudging/
+PRE_DIR=/users/yangsong3/L_Zealot/F/AMIP_C5PM/exe/
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/DATA_Nudging/pro/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM/post_data/\"
 
 # Case name
-CASENAME=\"Nudging\"
+CASENAME=\"AMIP_C5PM\"
 
 # ESM folder prefix
 ESM_NAME=ESMn4_

@@ -40,15 +40,15 @@ begin
     
     
     g_font = 0.02
-    g_level=850
+    g_level=500
   
     g_latN=40
     g_latS=0
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=108
-    g_day_end=112
+    g_day_strt=116
+    g_day_end=120
 
     ;Prepare the variables
     ctrl_in     = addfile (g_data_ctrl_path, "r")   ; note the "s" of addfile
