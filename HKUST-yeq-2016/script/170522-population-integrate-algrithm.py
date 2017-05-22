@@ -12,7 +12,6 @@ import numpy as np
 import json
 import datetime
 import time
-
 # Time settings
 start_time='2015-01-01 00:00:00'
 end_time='2015-01-31 00:00:00'
@@ -40,6 +39,17 @@ def read_latlon(pfname):
 # Get gridsystem
 pfname='/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_3km'
 lat_mtx, lon_mtx = read_latlon(pfname)
+latmax=lat_mtx.max()
+latmin=lat_mtx.min()
+lonmax=lon_mtx.max()
+lonmin=lon_mtx.min()
+
+lat_range0=latmax-latmin
+lon_range0=lonmax-lonmin
+size_grid=np.shape(lat_mtx)
+print(lonmin)
+
+
 
 # Get population
 mat_contents=sio.loadmat('../data/obv/population_output_D3.mat')
@@ -65,7 +75,7 @@ while int_time_obj <= end_time_obj:
     lines0=lines[16724:] 
     len_line0=len(lines0)
 
-    # Loop the record
+    # Loop the recordi
     strt_time=time.clock()
     for pos_line, point in enumerate(lines0):
         find_pt=False
@@ -74,21 +84,24 @@ while int_time_obj <= end_time_obj:
         
         lat=float(content[9])     # traj position
         lon=float(content[10])
-        
         if pos_line % 10000==0:
-            elapsed=(time.clock()-strt_time)
-            print('Line '+str(pos_line)+'/'+str(len_line0)+' time elapsed: %10.5f', elapsed)
+            elapsed=time.clock()-strt_time
+            print('Line %10d/%10d Time elapsed:%7.3fs', (pos_line, len_line0, elapsed))
         # initial min distance threshold to the grid point
-        min_dis=0.04
+        min_dis=0.03
+        
+        lat_range=int(size_grid[0]*(lat-latmin)/lat_range0)
+        lon_range=int(size_grid[1]*(lon-lonmin)/lon_range0)
 
-        cor_x_range=np.argwhere(abs(lat_mtx[:,152/2]-lat)<min_dis)
-        cor_y_range=np.argwhere(abs(lon_mtx[110/2,:]-lon)<min_dis)
-        for cor_x_pos in cor_x_range:
-            for cor_y_pos in cor_y_range:
-                if (abs(lat_mtx[cor_x_pos, cor_y_pos]-lat)+abs(lon_mtx[cor_x_pos, cor_y_pos]-lon)<min_dis):
-                    min_dis=abs(lat_mtx[cor_x_pos, cor_y_pos]-lat)+abs(lon_mtx[cor_x_pos, cor_y_pos]-lon)
-                    cor_x_pos0=cor_x_pos
-                    cor_y_pos0=cor_y_pos
+        for cor_x_pos in range(lat_range-3,lat_range+3):
+            try:
+                for cor_y_pos in range(lon_range-3,lon_range+3):
+                    if (abs(lat_mtx[cor_x_pos, cor_y_pos]-lat)+abs(lon_mtx[cor_x_pos, cor_y_pos]-lon)<min_dis):
+                        min_dis=abs(lat_mtx[cor_x_pos, cor_y_pos]-lat)+abs(lon_mtx[cor_x_pos, cor_y_pos]-lon)
+                        cor_x_pos0=cor_x_pos
+                        cor_y_pos0=cor_y_pos
+            except:
+                continue;
         pt_dic[pt_id]['exposure']=pt_dic[pt_id]['exposure']+pop_array[cor_x_pos0, cor_y_pos0]
     for idx in pt_dic:
         pt_dic[idx]['exposure']=pt_dic[idx]['exposure']/12.0 # adjust the exposure unit to pop*hr
