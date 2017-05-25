@@ -56,7 +56,7 @@ begin
     ;********************************************************
 	; create the plot
 	;********************************************************   
-   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+   wks = gsn_open_wks("x11",g_fig_name)  ; open a ps file
    ;plot_box = new((/4/),graphic)
 
 

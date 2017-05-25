@@ -37,11 +37,13 @@ begin
     
     g_data_ctrl_path1 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.U.1-15.nc"
     g_data_ctrl_path2 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.V.1-15.nc"
-    g_data_ctrl_path3 ="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim.nc"
-   
-    g_data_sen_path1 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/sen/as-bob-test.cam.h0.U.1-15.nc"
-    g_data_sen_path2 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/sen/as-bob-test.cam.h0.V.1-15.nc"
-    g_data_sen_path3 ="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim_as_bob_pos_JJA.nc"
+    g_data_ctrl_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.PRECC.1-15.nc"
+    g_data_ctrl_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.PRECL.1-15.nc"
+    
+    g_data_sen_path1 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.U.1-15.nc"
+    g_data_sen_path2 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.V.1-15.nc"
+    g_data_sen_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.PRECC.1-15.nc"
+    g_data_sen_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.PRECL.1-15.nc"
 
    
     g_font = 0.02
@@ -60,22 +62,39 @@ begin
     ctrl_in     = addfile (g_data_ctrl_path2, "r")   ; note the "s" of addfile
     var2  =ctrl_in->V
     ctrl_in     = addfile (g_data_ctrl_path3, "r")   ; note the "s" of addfile
-    var3  =ctrl_in->SST_cpl
+    var3  =ctrl_in->PRECC
+    ctrl_in     = addfile (g_data_ctrl_path4, "r")   ; note the "s" of addfile
+    var4  =ctrl_in->PRECL
+    var3=var3+var4
 
     sen_in     = addfile (g_data_sen_path1, "r")   ; note the "s" of addfile
     sen_var1  =sen_in->U
     sen_in     = addfile (g_data_sen_path2, "r")   ; note the "s" of addfile
     sen_var2  =sen_in->V
     sen_in     = addfile (g_data_sen_path3, "r")   ; note the "s" of addfile
-    sen_var3  =sen_in->SST_cpl
+    sen_var3  =sen_in->PRECC
+    sen_in     = addfile (g_data_sen_path4, "r")   ; note the "s" of addfile
+    sen_var4  =sen_in->PRECL
+    sen_var3=sen_var3+sen_var4
+    
+    printVarSummary(var1(6::12,:,:,:))
+    printVarSummary(var1(7::12,:,:,:))
+    var1(5::12,:,:,:)=(var1(6::12,:,:,:)+var1(7::12,:,:,:))/2
+    var2(5::12,:,:,:)=(var2(6::12,:,:,:)+var2(7::12,:,:,:))/2
+    var3(5::12,:,:)=(var3(6::12,:,:)+var3(7::12,:,:))/2    
 
+    sen_var1(5::12,:,:,:)=(sen_var1(6::12,:,:,:)+sen_var1(7::12,:,:,:))/2
+    sen_var2(5::12,:,:,:)=(sen_var2(6::12,:,:,:)+sen_var2(7::12,:,:,:))/2
+    sen_var3(5::12,:,:)=(sen_var3(6::12,:,:)+sen_var3(7::12,:,:))/2    
+    
+    
     var1_clim=dim_avg_n_Wrap(month_to_season(var1(g_skip_year*12:,:,:,:),g_season),0)
     var2_clim=dim_avg_n_Wrap(month_to_season(var2(g_skip_year*12:,:,:,:),g_season),0)
-    var3_clim=month_to_season(var3,g_season)
+    var3_clim=dim_avg_n_Wrap(month_to_season(var3(g_skip_year*12:,:,:),g_season),0)
 
     sen_var1_clim=dim_avg_n_Wrap(month_to_season(sen_var1(g_skip_year*12:,:,:,:),g_season),0)
     sen_var2_clim=dim_avg_n_Wrap(month_to_season(sen_var2(g_skip_year*12:,:,:,:),g_season),0)
-    sen_var3_clim=month_to_season(sen_var3,g_season)
+    sen_var3_clim=dim_avg_n_Wrap(month_to_season(sen_var3(g_skip_year*12:,:,:),g_season),0)
 
     diff_var1=var1_clim
     diff_var2=var2_clim
@@ -84,7 +103,7 @@ begin
     diff_var1=sen_var1_clim-var1_clim
     diff_var2=sen_var2_clim-var2_clim
     diff_var3=sen_var3_clim-var3_clim
-
+    diff_var3=diff_var3*68400*1000
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -127,9 +146,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -0.9         ; set min contour level
- res@cnMaxLevelValF        = 0.9        ; set max contour level
- res@cnLevelSpacingF       = 0.1          ; set contour interval
+ res@cnMinLevelValF        = -2.0         ; set min contour level
+ res@cnMaxLevelValF        = 2.0        ; set max contour level
+ res@cnLevelSpacingF       = 0.25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -156,7 +175,7 @@ begin
   res@lbLabelStride = 2 
 
 
-  res@mpFillOn   = True    ; turn off gray continents
+  res@mpFillOn   =False   ; turn off gray continents
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
@@ -217,12 +236,12 @@ begin
   vcres@vcLineArrowHeadMaxSizeF   = 0.01
  
 
-  g_fig_name="../fig/bob-as-200uv-sst"
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
-  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+  g_fig_name="../fig/bob-as-200uv-pr"
+  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+  gsn_define_colormap(wks,"precip_diff_12lev")
   res@gsnCenterString="UV200 & SST Diff"
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var3(0,:,:),res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
   plot_V = gsn_csm_vector(wks,diff_var1({g_level},:,:),diff_var2({g_level},:,:),vcres) 
   overlay(plot_sh,plot_V)
