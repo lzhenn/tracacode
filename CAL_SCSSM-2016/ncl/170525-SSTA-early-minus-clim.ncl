@@ -48,7 +48,7 @@ begin
     ; U200 P20-28
     g_day_strt2=110
     g_day_lst2=130
-    g_day_comp_len=19
+    g_day_comp_len=10
     
     ;BOB All
     ;g_comp="all"
@@ -60,7 +60,9 @@ begin
     g_comp="early"
     g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
     g_day_rank=(/108, 105, 93, 100, 107, 99/)-1
-    
+   
+    g_cases=dimsizes(g_day_rank)
+
     ;BOB Late
     g_special_year2=(/ 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
     g_day_rank2=(/ 134, 143, 136, 132, 134, 133, 132, 134/)-1
@@ -70,58 +72,32 @@ begin
     g_font = 0.02
     
         
-    g_latS=0
-    g_latN=60
+    g_latS=-45
+    g_latN=30
     g_lonW=30
     g_lonE=140
-    g_plevel=200
     
-    g_fig_name = "../fig/obv/ERA-UV-HGT-early-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
-        
+    g_fig_name = "../fig/obv/SSTA-before-onset-E-Clim"        
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
     ;day_rank=ispan(0,g_day_comp_len-1,1)
     ;day_rank=day_rank(::-1)
 
-    g_special_cases=dimsizes(g_special_year) 
-    g_special_cases2=dimsizes(g_special_year2) 
-
-    var1=read_oisst_daily(g_latS, g_latN, g_lonW, g_lonE, g_data1_path)
-    printVarSummary(var1)
-    exit
-;Prepare the variables
-    var1_rmean= dim_avg_n_Wrap(var1_data,1)
+    g_special_cases=dimsizes(g_day_rank) 
     
-    var1_cmp1 = var1_rmean(0:g_special_cases-1,:,:,:)
+    var1=read_oisst_daily(g_latS, g_latN, g_lonW, g_lonE, g_data1_path)
+
+;Prepare the variables
+    var1_clim= dim_avg_n_Wrap(var1,0)
+    
+    var1_cmp1 = var1(0:g_special_cases-1,0:g_day_comp_len-1,:,:)
     
     do ii=0, g_special_cases-1
-        var1_cmp1(ii,:,:,:)=var1_rmean(g_special_year(ii),:,:,:)
-        var2_cmp1(ii,:,:,:)=var2_rmean(g_special_year(ii),:,:,:)
-        var3_cmp1(ii,:,:,:)=var3_rmean(g_special_year(ii),:,:,:)
-    end do
-    printVarSummary(var2_cmp1)
-    var1_cmp2 = var1_rmean(0:g_special_cases2-1,:,:,:)
-    var2_cmp2 = var2_rmean(0:g_special_cases2-1,:,:,:)
-    var3_cmp2 = var3_rmean(0:g_special_cases2-1,:,:,:)
-
-    do ii=0, g_special_cases2-1
-        var1_cmp2(ii,:,:,:)=var1_rmean(g_special_year2(ii),:,:,:)
-        var2_cmp2(ii,:,:,:)=var2_rmean(g_special_year2(ii),:,:,:)
-        var3_cmp2(ii,:,:,:)=var3_rmean(g_special_year2(ii),:,:,:)
+        var1_cmp1(ii,:,:,:)=var1(g_special_year(ii),g_day_rank(ii)-9:g_day_rank(ii),:,:)-var1_clim(g_day_rank(ii)-9:g_day_rank(ii),:,:)
     end do
     
     
     var1_cmp1:=dim_avg_n_Wrap(var1_cmp1,0)
-    var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
-    var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,0)
-    
-    var1_cmp2:=dim_avg_n_Wrap(var1_cmp2,0)
-    var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,0)
-    var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,0)
-
-    var1_cmp1=var1_cmp1-var1_cmp2
-    var2_cmp1=var2_cmp1-var2_cmp2
-    var3_cmp1=var3_cmp1-var3_cmp2
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -129,19 +105,13 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
-  plot_sh = new((/g_day_comp_len/),graphic)
-  plot_V = new((/g_day_comp_len/),graphic)
-  plot_cn_max = new((/g_day_comp_len/),graphic)
-  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
-;  plot_sh = new((/2/),graphic)
-;  plot_V = new((/2/),graphic)
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
  
  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
-;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
+   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
@@ -168,9 +138,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -250         ; set min contour level
- res@cnMaxLevelValF        = 250          ; set max contour level
- res@cnLevelSpacingF       = 25          ; set contour interval
+ res@cnMinLevelValF        = -2.0         ; set min contour level
+ res@cnMaxLevelValF        = 2.0          ; set max contour level
+ res@cnLevelSpacingF       = 0.25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -287,9 +257,7 @@ begin
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
 
-        plot_V(0) = gsn_csm_vector(wks,var2_cmp1({g_plevel},:,:),var3_cmp1({g_plevel},:,:),vcres) 
-        plot_sh(0) = gsn_csm_contour_map(wks,var1_cmp1({g_plevel},:,:), res) 
-        overlay(plot_sh(0),plot_V(0))
+    plot_sh = gsn_csm_contour_map(wks,var1_cmp1, res) 
 
     gsn_panel(wks,plot_sh,(/1,1/),resP)
 exit
