@@ -61,13 +61,13 @@ begin
     g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
     g_day_rank=(/108, 105, 93, 100, 107, 99/)-1
    
-    g_cases=dimsizes(g_day_rank)
 
     ;BOB Late
     g_special_year2=(/ 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
     g_day_rank2=(/ 134, 143, 136, 132, 134, 133, 132, 134/)-1
 
 
+    g_cases=dimsizes(g_day_rank)
     g_data1_path ="$DATAOBV/SST/OISST_daily/OISST_daily/*"
     g_font = 0.02
     
@@ -77,13 +77,13 @@ begin
     g_lonW=45
     g_lonE=105
     
-    g_fig_name = "../fig/obv/SSTA-before-onset-E-Clim"        
+    g_fig_name = "../fig/obv/SSTA-before-onset-L-Clim"        
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
     ;day_rank=ispan(0,g_day_comp_len-1,1)
     ;day_rank=day_rank(::-1)
 
-    g_special_cases=dimsizes(g_day_rank) 
+    g_special_cases=dimsizes(g_day_rank2) 
     
     var1=read_oisst_daily(g_latS, g_latN, g_lonW, g_lonE, g_data1_path)
 
@@ -93,7 +93,7 @@ begin
     var1_cmp1 = var1(0:g_special_cases-1,0:g_day_comp_len-1,:,:)
     
     do ii=0, g_special_cases-1
-        var1_cmp1(ii,:,:,:)=var1(g_special_year(ii),g_day_rank(ii)-9:g_day_rank(ii),:,:)-var1_clim(g_day_rank(ii)-9:g_day_rank(ii),:,:)
+        var1_cmp1(ii,:,:,:)=var1(g_special_year2(ii),g_day_rank2(ii)-9:g_day_rank2(ii),:,:)-var1_clim(g_day_rank2(ii)-9:g_day_rank2(ii),:,:)
     end do
     
     
