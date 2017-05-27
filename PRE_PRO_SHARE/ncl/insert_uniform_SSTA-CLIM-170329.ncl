@@ -37,9 +37,9 @@ begin
     
 
 	latS    =   -7.5
-	latN    =   7.5
+	latN    =   5.0
     lonL    =   85
-    lonR    =   135.
+    lonR    =   115.
 
     
     fig_num     =   (/"(a)","(b)","(c)"/)
