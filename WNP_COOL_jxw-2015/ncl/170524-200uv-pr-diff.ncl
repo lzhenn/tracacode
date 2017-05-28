@@ -40,10 +40,10 @@ begin
     g_data_ctrl_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.PRECC.1-15.nc"
     g_data_ctrl_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.PRECL.1-15.nc"
     
-    g_data_sen_path1 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.U.1-15.nc"
-    g_data_sen_path2 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.V.1-15.nc"
-    g_data_sen_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.PRECC.1-15.nc"
-    g_data_sen_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/as-bob-test.cam.h0.PRECL.1-15.nc"
+    g_data_sen_path1 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/junwen-test/as-bob-test.cam.h0.U.1-15.nc"
+    g_data_sen_path2 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/junwen-test/as-bob-test.cam.h0.V.1-15.nc"
+    g_data_sen_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/junwen-test/as-bob-test.cam.h0.PRECC.1-15.nc"
+    g_data_sen_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/mc-JA/junwen-test/as-bob-test.cam.h0.PRECL.1-15.nc"
 
    
     g_font = 0.02
