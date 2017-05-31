@@ -120,7 +120,7 @@ while int_time_obj <= end_time_obj:
         fr2.write('%4d %4d %8.3f %8.3f %7d\n' % (cor_x, cor_y, lat, lon, value))
     fr2.close()
     for idx in pt_dic:
-        pt_dic[idx]['value']=0
+        pt_dic[idx]['exposure']=0
 
     int_time_obj = int_time_obj+time_delta
 # While: All experiments
