@@ -28,17 +28,20 @@ begin
     grid_fn="/Users/zhenningli/data/HKUST-yeq-2016/gridsys/GRIDCRO2D_3km"
     
    
-    ; Processed smoke outputfile
+    ;Smoke output file
     pdata_fn     = "/Users/zhenningli/data/HKUST-yeq-2016/smoke-out/emiss_CB05.HongKong.3km_2015020.ncf"  ; open output netCDF file
+    
+    ;Modified output file with Long Restime Grid PM source
+    pdata_long_fn     = "/Users/zhenningli/data/HKUST-yeq-2016/smoke-out/emiss_CB05.HongKong.3km_2015020.LongRestimePM.ncf"  ; open output netCDF file
+   
+    ;Modified output file with Short Restime Grid PM source
+    pdata_short_fn     = "/Users/zhenningli/data/HKUST-yeq-2016/smoke-out/emiss_CB05.HongKong.3km_2015020.ShortRestimePM.ncf"  ; open output netCDF file
 
     ; Diff Fig name
     g_fig_name="../fig/PMC-0-lv5-distribute"
     
     ; Fig title
     fig_title="PMC Diff after insert new source"
-
-    ; Processed date
-    p_date=20150119
 
     ;font size
     g_font=0.025
@@ -56,20 +59,47 @@ begin
     short_corx=84
     short_cory=104
 
-    ;strong guy
-    emis_corx=77
-    emis_cory=65
+    ;strong guy, typical pmc=20g/s@level13 (102m); pmfine=20g/s@level13 (102m).
+    emis_corx=12
+    emis_cory=60
     
-    ; Processed smoke outputfile
+    ; Process smoke outputfile
+    print("Process the smoke output...")
     source_in=addfile(pdata_fn,"r")
     pmfine=source_in->PMFINE
     pmc=source_in->PMC
+    
+    print("Modify long restime grid PM source...")
+    pmc_long=pmc
+    pmfine_long=pmfine
+    pmc_long(:,:,long_corx,long_cory)=pmc(:,:,long_corx,long_cory)+pmc(:,:,emis_corx,emis_cory)
+    pmfine_long(:,:,long_corx,long_cory)=pmfine(:,:,long_corx,long_cory)+pmfine(:,:,emis_corx,emis_cory)
+    cphdl=systemfunc("cp "+pdata_fn+" "+pdata_long_fn)
+    in = addfile(pdata_long_fn,"w")
+    in->PMFINE=(/pmfine_long/)
+    in->PMC=(/pmc_long/)
+
+    print("Modify short restime grid PM source...")
+    pmc_short=pmc
+    pmfine_short=pmfine
+    pmc_short(:,:,short_corx,short_cory)=pmc(:,:,short_corx,short_cory)+pmc(:,:,emis_corx,emis_cory)
+    pmfine_short(:,:,short_corx,short_cory)=pmfine(:,:,short_corx,short_cory)+pmfine(:,:,emis_corx,emis_cory)
+    cphdl=systemfunc("cp "+pdata_fn+" "+pdata_short_fn)
+    in = addfile(pdata_short_fn,"w")
+    in->PMFINE=(/pmfine_short/)
+    in->PMC=(/pmc_short/)
+
+
+
+
+    ;Assign lat lon grid system
     pmc@lat2d=lat2d
     pmc@lon2d=lon2d
     pmfine@lat2d=lat2d
     pmfine@lon2d=lon2d
-    
-    print(pmc(0,0,emis_corx,emis_cory)) 
+
+    pmc=pmc_short-pmc
+
 ;**********************************************************************************************
     wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
 ;-----------------------------------------------------------------------------
@@ -185,7 +215,7 @@ res@mpInlandWaterFillColor  = "white"
 ;res@mpOceanFillColor        = "white"
 ;res@mpOutlineBoundarySets   = "NoBoundaries"
 
- plot = gsn_csm_contour_map(wks,pmc(0,25,:,:),res) ; dim1 = 0 for lvl = 0
+ plot = gsn_csm_contour_map(wks,pmc(0,13,:,:),res) ; dim1 = 0 for lvl = 0
  
 ;>============================================================<
 ;                      add China map
