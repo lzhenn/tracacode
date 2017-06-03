@@ -59,16 +59,14 @@ begin
     short_corx=84
     short_cory=104
 
-    ;strong guy, typical pmc=20g/s@level13 (102m); pmfine=20g/s@level13 (102m).
-    emis_corx=12
-    emis_cory=60
-    
+    ;strong guy, typical pmc=5g/s@level13 (102m); pmfine=5g/s@level13 (102m).
+    emis_corx=74
+    emis_cory=106
     ; Process smoke outputfile
     print("Process the smoke output...")
     source_in=addfile(pdata_fn,"r")
     pmfine=source_in->PMFINE
     pmc=source_in->PMC
-    
     print("Modify long restime grid PM source...")
     pmc_long=pmc
     pmfine_long=pmfine
@@ -98,7 +96,7 @@ begin
     pmfine@lat2d=lat2d
     pmfine@lon2d=lon2d
 
-    pmc=pmc_short-pmc
+;    pmc=pmc_short-pmc
 
 ;**********************************************************************************************
     wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
@@ -215,7 +213,7 @@ res@mpInlandWaterFillColor  = "white"
 ;res@mpOceanFillColor        = "white"
 ;res@mpOutlineBoundarySets   = "NoBoundaries"
 
- plot = gsn_csm_contour_map(wks,pmc(0,13,:,:),res) ; dim1 = 0 for lvl = 0
+ plot = gsn_csm_contour_map(wks,pmc(0,5,:,:),res) ; dim1 = 0 for lvl = 0
  
 ;>============================================================<
 ;                      add China map
