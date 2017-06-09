@@ -50,7 +50,7 @@ begin
     g_level=200
   
     g_latN=50
-    g_latS=-10
+    g_latS=-30
     g_lonE=150
     g_lonW=30
     g_season="JJA"
@@ -223,17 +223,17 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 4.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "4 m/s"
+  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+  vcres@vcRefLengthF            = 0.05            ; define length of vec ref
+  vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
+  vcres@vcMinDistanceF          = 0.025
+  vcres@vcRefAnnoString1  = "2 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.01
+  vcres@vcLineArrowHeadMinSizeF   = 0.008
+  vcres@vcLineArrowHeadMaxSizeF   = 0.008
  
 
   g_fig_name="../fig/bob-as-200uv-pr"
