@@ -39,13 +39,13 @@ begin
     g_data_nudg_path2 ="../data/Nudging_clim_T.nc"
     
     
-    g_font = 0.02
-    g_level=850
+    g_font = 0.022
+    g_level=925
   
     g_latN=30
     g_latS=-5
     g_lonE=120
-    g_lonW=60
+    g_lonW=45
     
     g_day_strt=76-1
     g_day_end=120-1
@@ -87,6 +87,8 @@ begin
     diff_var2_clim=nudg_var2_clim-var2_clim
     diff_var3_clim=nudg_var3_clim-var3_clim
     
+    var3_clim=var3_clim-273.15
+    printMinMax(var3_clim(:,{g_level},:,:),0)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -209,11 +211,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
+  vcres@vcRefMagnitudeF         = 1.0             ; define vector ref mag
+  vcres@vcRefLengthF            = 0.05            ; define length of vec ref
+  vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "3 m/s"
+  vcres@vcRefAnnoString1  = "1 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -254,7 +256,11 @@ begin
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
   g_fig_name="../fig/nudging/esm-nudg-mean-diff-"+g_level+"UVT_pentad-sm"
-  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+
+    wks_type="png"
+  wks_type@wkWidth = 2000
+     wks_type@wkHeight = 2000 
+    wks = gsn_open_wks(wks_type,g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   do ii = 0, n_smp-1
      res@gsnLeftString="UVT Diff"+g_level+"hPa Day"+(g_day_strt+5*ii+1)+"-"+(g_day_strt+5*(ii+1))
