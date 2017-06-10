@@ -47,7 +47,6 @@ lonmin=lon_mtx.min()
 lat_range0=latmax-latmin
 lon_range0=lonmax-lonmin
 size_grid=np.shape(lat_mtx)
-print(lonmin)
 
 
 
@@ -78,31 +77,38 @@ while int_time_obj <= end_time_obj:
     # Loop the recordi
     strt_time=time.clock()
     for pos_line, point in enumerate(lines0):
-        find_pt=False
         content=point.split() # [0]--# [9]--lat [10]--lon
         pt_id=str(content[0])
         
         lat=float(content[9])     # traj position
         lon=float(content[10])
-        if pos_line % 10000==0:
-            elapsed=time.clock()-strt_time
-            print('Line %10d/%10d Time elapsed:%7.3fs', (pos_line, len_line0, elapsed))
         # initial min distance threshold to the grid point
         min_dis=0.03
         
         lat_range=int(size_grid[0]*(lat-latmin)/lat_range0)
         lon_range=int(size_grid[1]*(lon-lonmin)/lon_range0)
+        cor_x_pos0=lat_range
+        cor_y_pos0=lon_range
 
-        for cor_x_pos in range(lat_range-3,lat_range+3):
-            try:
-                for cor_y_pos in range(lon_range-3,lon_range+3):
-                    if (abs(lat_mtx[cor_x_pos, cor_y_pos]-lat)+abs(lon_mtx[cor_x_pos, cor_y_pos]-lon)<min_dis):
-                        min_dis=abs(lat_mtx[cor_x_pos, cor_y_pos]-lat)+abs(lon_mtx[cor_x_pos, cor_y_pos]-lon)
-                        cor_x_pos0=cor_x_pos
-                        cor_y_pos0=cor_y_pos
-            except:
-                continue;
-        pt_dic[pt_id]['exposure']=pt_dic[pt_id]['exposure']+pop_array[cor_x_pos0, cor_y_pos0]
+#        for cor_x_pos in range(lat_range-1,lat_range+1):
+#            try:
+#                for cor_y_pos in range(lon_range-1,lon_range+1):
+#                    dislat=abs(lat_mtx[cor_x_pos, cor_y_pos]-lat)
+#                    dislon=abs(lon_mtx[cor_x_pos, cor_y_pos]-lon)
+#                    if (dislat+dislon<min_dis):
+#                        min_dis=dislat+dislon
+#                        cor_x_pos0=cor_x_pos
+#                        cor_y_pos0=cor_y_pos
+#            except:
+#                continue
+        if pos_line % 10000==0:
+            elapsed=time.clock()-strt_time
+            print('Line %10d/%10d Time elapsed:%7.3fs Min_Dis=%5.3f' % (pos_line, len_line0, elapsed, min_dis))
+        try:
+            pt_dic[pt_id]['exposure']=pt_dic[pt_id]['exposure']+pop_array[cor_x_pos0, cor_y_pos0]
+        except:
+            continue
+
     for idx in pt_dic:
         pt_dic[idx]['exposure']=pt_dic[idx]['exposure']/12.0 # adjust the exposure unit to pop*hr
 

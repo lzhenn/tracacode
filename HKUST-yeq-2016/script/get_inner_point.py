@@ -26,8 +26,7 @@ end_time_obj = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
 time_delta=datetime.timedelta(hours=int_step)
 
 # parser path
-inv_path='/home/yangsong3/data/model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/traj_200m/'
-
+inv_path='/home/yangsong3/data/model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/maskfile/'
 
 
 #Parser
@@ -36,14 +35,14 @@ polygon = shapefile.Reader('../../UTILITY-2016/shp/PRD/PRD.shp')
 polygon = polygon.shapes()  
 
 pt_dic={}
-fr = open(inv_path+'points', 'r')
+fr = open(inv_path+'../point-3km-xy-grid', 'r')
 point_list=fr.readlines()
 
 for idx, point in enumerate(point_list):
-    content=point.split()       # [4]--lat [5]--lon [6]--height
+    content=point.split()       # [3]--lat [4]--lon
     pt_id =idx+1
-    lat=float(content[4])
-    lon=float(content[5])
+    lat=float(content[3])
+    lon=float(content[4])
     point = Point(lon,lat)
 
     for shape in polygon:
@@ -55,12 +54,10 @@ for idx, point in enumerate(point_list):
             print(pt_dic[str(pt_id)])
             break
 
-jsObj = json.dumps(pt_dic)  
-
-fileObject = open(inv_path+'inner_point.json', 'w')  
-fileObject.write(jsObj)  
-fileObject.close()  
-
+fr2=open(inv_path+'inner_point.txt','w')
+for item in pt_dic.values():
+    fr2.write('%8.3f %8.3f\n' % (item[0], item[1]))
+fr2.close()
 
 
 
