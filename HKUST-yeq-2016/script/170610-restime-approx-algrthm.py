@@ -36,9 +36,16 @@ def read_latlon(pfname):
     lon=corfile.variables['LON'][0,0,:,:]
     return lat, lon
 
+def read_mask(pfname):
+    corfile= Dataset(pfname)
+    mask=corfile.variables['inner_mask']
+    return mask
+
+
 # Get gridsystem
 pfname='/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_3km'
-
+# Get inner points mask
+inner_fname='/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/inner-prd-mask.nc'
 
 print('Initialize Domian grid system...')
 lat_mtx, lon_mtx = read_latlon(pfname)
@@ -54,39 +61,22 @@ size_grid=np.shape(lat_mtx)
 
 # Get the inner point
 print('Initialize PRD grid system...')
-with open('/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/inner_point.json', 'r') as f:
-    inner_pt_dic = json.load(f)
-latmx=0
-latmn=100
-lonmx=0
-lonmn=100
-# these all for prd box border
-for [latx, lonx] in inner_pt_dic.values():
-    if latmx<latx:
-        latmx=latx
-    if latmn>latx:
-        latmn=latx
-    
-    if lonmx<lonx:
-        lonmx=lonx
-    if lonmn>lonx:
-        lonmn=lonx
+mask = read_mask(inner_fname)
+mask_array=np.array(mask)
 
-
-pt_dic={}
 fr = open('/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/point-3km-xy-grid', 'r')
 point_list=fr.readlines()
 
+pt_dic={}
 for idx, point in enumerate(point_list):
     content=point.split()       # [1]--cor_x [2]--cor_y [3]--lat [4]--lon
     pt_id =idx+1
     pt_dic[str(pt_id)]={'cor_x':int(content[1]), 'cor_y':int(content[2]), 'lat':float(content[3]), 'lon':float(content[4]), 'res_time': 0}
 
-# initial min distance threshold to the grid point
-min_dis=0.03
 
 while int_time_obj <= end_time_obj:
     inv_path='/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/test-output/'
+    #inv_path='/home/yangsong3/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/population/traj_record/'+int_time_obj.strftime('%m')+'/'
     print('Parsing '+int_time_obj.strftime('%y%m%d%H')+'...')
     fn='forward_'+int_time_obj.strftime('%y%m%d%H')
     fr = open(inv_path+fn, 'r')
@@ -94,7 +84,7 @@ while int_time_obj <= end_time_obj:
     lines0=lines[npoints*2+4:] 
     len_line0=len(lines0)
 
-    # Loop the recordi
+    # Loop the record
     strt_time=time.clock()
     for pos_line, point in enumerate(lines0):
         content=point.split() # [0]--# [9]--lat [10]--lon
@@ -103,17 +93,9 @@ while int_time_obj <= end_time_obj:
         lat=float(content[9])     # traj position
         lon=float(content[10])
  
-        if pos_line % 10000==0:
-            elapsed=time.clock()-strt_time
-            print('Line %10d/%10d Time elapsed:%7.2fs pt_id=%6s' % (pos_line, len_line0, elapsed, pt_id))
       
-        # out of the prd box
-        if (lat>latmx) or (lat<latmn) or (lon>lonmx) or (lon<lonmn):
-            continue 
-        
         lat_est=int(size_grid[0]*(lat-latmin)/lat_range0)
         lon_est=int(size_grid[1]*(lon-lonmin)/lon_range0)
-        curr_id=lat_est*152+lon_est+1
 
 #        if (dislat+dislon>min_dis):
 #            for est_x in (0, 1,  -1, 2, -2):
@@ -131,17 +113,21 @@ while int_time_obj <= end_time_obj:
 #                        continue
 #                if find_flag:
 #                    break
-#
-        if str(curr_id) in inner_pt_dic.keys(): 
-            pt_dic[pt_id]['res_time']=pt_dic[pt_id]['res_time']+1
-    
+        if pos_line % 10000==0:
+            elapsed=time.clock()-strt_time
+            print('Line %10d/%10d Time elapsed:%7.2fs' % (pos_line, len_line0, elapsed))
+        try:
+            pt_dic[pt_id]['res_time']=pt_dic[pt_id]['res_time']+mask_array[lat_est,lon_est]
+        except:
+            continue
+
     for idx in pt_dic:
         pt_dic[idx]['res_time']=(pt_dic[idx]['res_time'])/12.0 # adjust the res_time unit to hr
 
 
     # output
     print('output...')
-    fr2=open(inv_path+'./res_time/res_'+int_time_obj.strftime('%y%m%d%H')+'.txt','w')
+    fr2=open(inv_path+'./res_time/res_'+int_time_obj.strftime('%y%m%d%H')+'-apx.txt','w')
     for item in pt_dic.values():
         cor_x=item['cor_x']
         cor_y=item['cor_y']

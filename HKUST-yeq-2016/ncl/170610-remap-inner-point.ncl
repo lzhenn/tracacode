@@ -28,7 +28,7 @@ begin
     grid_fn="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_3km"
     
     ;Inner point file
-    data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/inner_point.txt"
+    data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/maskfile/inner_point.txt"
    
     ;Output file 
     pdata_fn     ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/prd/inner-prd-mask.nc"  ; open output netCDF file
@@ -61,12 +61,13 @@ begin
     printVarSummary(var1)
     
     ; Organize points in to var1
-    pt_record  =   asciiread(data_file_name1,(/n_pts,2/),"float") ; get the first file's lat lon and value
+    pt_record  =   asciiread(data_file_name1,(/n_pts,4/),"float") ; get the first file's lat lon and value
     do jj=0, n_pts-1
-        point=getind_latlon2d(lat2d,lon2d,pt_record(jj,0),pt_record(jj,1))
-        cor_x=point(0,0)
-        cor_y=point(0,1)
-        var1(cor_x,cor_y)=1
+       ; point=getind_latlon2d(lat2d,lon2d,pt_record(jj,0),pt_record(jj,1))
+       ; cor_x=point(0,0)
+       ; cor_y=point(0,1)
+        ;var1(cor_x,cor_y)=1
+        var1(floattoint(pt_record(jj,2)),floattoint(pt_record(jj,3)))=1
     end do
 
     

@@ -43,6 +43,8 @@ for idx, point in enumerate(point_list):
     pt_id =idx+1
     lat=float(content[3])
     lon=float(content[4])
+    corx=int(content[1])
+    cory=int(content[2])
     point = Point(lon,lat)
 
     for shape in polygon:
@@ -50,13 +52,13 @@ for idx, point in enumerate(point_list):
         poly = Polygon(shpfilePoints)
         # point in polygon test
         if poly.contains(point):
-            pt_dic[str(pt_id)]=[lat, lon]
+            pt_dic[str(pt_id)]=[lat, lon, corx, cory]
             print(pt_dic[str(pt_id)])
             break
 
 fr2=open(inv_path+'inner_point.txt','w')
 for item in pt_dic.values():
-    fr2.write('%8.3f %8.3f\n' % (item[0], item[1]))
+    fr2.write('%8.3f %8.3f %6d %6d\n' % (item[0], item[1], item[2], item[3]))
 fr2.close()
 
 
