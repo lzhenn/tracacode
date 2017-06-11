@@ -103,7 +103,7 @@ while int_time_obj <= end_time_obj:
 #                continue
         if pos_line % 10000==0:
             elapsed=time.clock()-strt_time
-            print('Line %10d/%10d Time elapsed:%7.3fs' % (pos_line, len_line0, elapsed))
+            print('Line %8d/%8d (%5.2f%%) Time elapsed:%7.3fs' % (pos_line, len_line0, pos_line/(0.01*len_line0), elapsed))
         try:
             pt_dic[pt_id]['exposure']=pt_dic[pt_id]['exposure']+pop_array[cor_x_pos0, cor_y_pos0]
         except:

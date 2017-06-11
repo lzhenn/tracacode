@@ -115,7 +115,7 @@ while int_time_obj <= end_time_obj:
 #                    break
         if pos_line % 10000==0:
             elapsed=time.clock()-strt_time
-            print('Line %10d/%10d Time elapsed:%7.2fs' % (pos_line, len_line0, elapsed))
+            print('Line %8d/%8d (%5.2f%%) Time elapsed:%7.3fs' % (pos_line, len_line0, pos_line/(0.01*len_line0), elapsed))
         try:
             pt_dic[pt_id]['res_time']=pt_dic[pt_id]['res_time']+mask_array[lat_est,lon_est]
         except:
