@@ -34,6 +34,9 @@
 ; -------------- added Jun 07 2017
 ; read_doe_daily_2D(varname, filedir)
 
+; -------------- added Jun 12 2017
+; write_TLL_to_nc(varname, var, filedir)
+
 
 
 
@@ -404,5 +407,53 @@ begin
     return(var_data)
 end
 ; ------------------------------    read_doe_daily_2D   ------------------------------------
+
+
+
+; ------------------------------    write_TLL_to_nc   ---------------------------------------
+; *****************************************************************
+; L_Zealot
+; Write TLLL-formated var list to the prescribed nc file
+; Var coordiantes will be treated automatically.
+;
+procedure write_TLL_to_nc(varname, var, filedir)
+local dims, ntime, nlat, nlon, fout, fileAtt, ii
+begin
+   
+;Set fileoption    
+    system("rm "+filedir)
+    fout = addfile(filedir,"c")  ; open output netCDF file
+    setfileoption(fout,"DefineMode",True)
+
+;Set All field attribution
+    fileAtt     = True
+    fileAtt@creation_date=systemfunc("date")
+    fileattdef(fout,fileAtt)
+
+;Define Coordinate
+    dimNames    =getvardims(var)
+    dimSizes    =dimsizes(var)
+    dimUnlim    =(/True,False,False/)
+    filedimdef(fout,dimNames,dimSizes,dimUnlim)
+
+;Define var, type and dim
+    do ii=0,2
+        filevardef(fout,dimNames(ii),typeof(var&$dimNames(ii)$),getvardims(var&$dimNames(ii)$))
+    end do    
+    filevardef(fout,varname,typeof(var),getvardims(var))
+
+;Define Attribute
+    do ii=0,2
+        filevarattdef(fout,dimNames(ii),var&$dimNames(ii)$)
+    end do    
+    filevarattdef(fout,varname,var)
+;Output var values
+    do ii=0,2    
+        fout->$dimNames(ii)$=(/var&$dimNames(ii)$/)
+    end do    
+    fout->$varname$=(/var/)
+end
+; ------------------------------    write_TLL_to_nc   ---------------------------------------
+
 
 
