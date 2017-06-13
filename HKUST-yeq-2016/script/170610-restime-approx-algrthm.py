@@ -83,7 +83,7 @@ while int_time_obj <= end_time_obj:
     lines=fr.readlines()
     lines0=lines[npoints*2+4:] 
     len_line0=len(lines0)
-
+    min_dis=0.03
     # Loop the record
     strt_time=time.clock()
     for pos_line, point in enumerate(lines0):
@@ -94,35 +94,33 @@ while int_time_obj <= end_time_obj:
         lon=float(content[10])
  
       
-        lat_est=int(size_grid[0]*(lat-latmin)/lat_range0)
-        lon_est=int(size_grid[1]*(lon-lonmin)/lon_range0)
-
-#        if (dislat+dislon>min_dis):
-#            for est_x in (0, 1,  -1, 2, -2):
-#                for est_y in (0, 1, -1, 2, -2):
-#                    try:
-#                        dislat=abs(lat_mtx[cor_x_pos+est_x, cor_y_pos+est_y]-lat)
-#                        dislon=abs(lon_mtx[cor_x_pos+est_x, cor_y_pos+est_y]-lon)
-#                        if (dislat+dislon<=min_dis):
-#                            find_flag=True
-#                            cor_x_pos0=cor_x_pos
-#                            cor_y_pos0=cor_y_pos
-#                            curr_id=cor_x_pos0*152+cor_y_pos0+1
-#                            break
-#                    except:
-#                        continue
-#                if find_flag:
-#                    break
+        cor_x_pos=int(size_grid[0]*(lat-latmin)/lat_range0)
+        cor_y_pos=int(size_grid[1]*(lon-lonmin)/lon_range0)
+        find_flag=False
+        for est_x in (0, 1, -1, 2, -2):
+            for est_y in (0, -1, 1, 2, -2):
+                try:
+                    dislat=abs(lat_mtx[cor_x_pos+est_x, cor_y_pos+est_y]-lat)
+                    dislon=abs(lon_mtx[cor_x_pos+est_x, cor_y_pos+est_y]-lon)
+                    if (dislat+dislon<=min_dis):
+                        find_flag=True
+                        cor_x_pos=cor_x_pos+est_x
+                        cor_y_pos=cor_y_pos+est_y
+                        break
+                except:
+                    continue
+            if find_flag:
+                break
         if pos_line % 10000==0:
             elapsed=time.clock()-strt_time
             print('Line %8d/%8d (%5.2f%%) Time elapsed:%7.3fs' % (pos_line, len_line0, pos_line/(0.01*len_line0), elapsed))
         try:
-            pt_dic[pt_id]['res_time']=pt_dic[pt_id]['res_time']+mask_array[lat_est,lon_est]
+            pt_dic[pt_id]['res_time']=pt_dic[pt_id]['res_time']+mask_array[cor_x_pos,cor_y_pos]
         except:
             continue
 
     for idx in pt_dic:
-        pt_dic[idx]['res_time']=(pt_dic[idx]['res_time'])/12.0 # adjust the res_time unit to hr
+        pt_dic[idx]['res_time']=(pt_dic[idx]['res_time'])/1.0 # adjust the res_time unit to hr
 
 
     # output
