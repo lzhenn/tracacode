@@ -12,7 +12,7 @@
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
 # With only ensemble output in it
-PRE_DIR_ORG=/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/
+PRE_DIR_ORG=/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/
 
 
 # Names of 2D fields
@@ -21,7 +21,7 @@ FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"TMQ\"/)" #often use
 
 # Names of 3D fields
 #FDNAME3D="(/\"U\",\"V\"/)" #often use
-FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
+FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
 # Names of 3D HY fields
@@ -29,7 +29,7 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
 
 # Process fig flag
 FLAG2D=1
-FLAG3D=0
+FLAG3D=1
 FLAG3DHY=0
 
 #-----------------------------------------------------------
@@ -48,13 +48,8 @@ fi
 #Output post processed 3D fields
 if  [ $FLAG3D == 1 ] ; then
 ncl -nQ pre_dir=$PRE_DIR            \
-    pro_dir=$PRO_DIR            \
     fdname3d=$FDNAME3D          \
-    frstyear=$FRSTYEAR          \
-    spinyear=$SPIN_YEAR         \
-    lstyear=$LSTYEAR            \
-    case_name=$CASENAME         \
-    ./ncl/get_3D_clim_from_post_data-170403.ncl
+    ./ncl/170612-extract-3D-clim-from-post-daily-esm.ncl
 fi
 
 ##Output post processed 3D fields

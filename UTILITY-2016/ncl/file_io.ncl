@@ -37,6 +37,13 @@
 ; -------------- added Jun 12 2017
 ; write_TLL_to_nc(varname, var, filedir)
 
+; -------------- added Jun 12 2017
+; write_YDLLL_to_nc(varname, var, filedir)
+
+; -------------- added Jun 12 2017
+; write_YDLL_to_nc(varname, var, filedir)
+
+
 
 
 
@@ -456,4 +463,94 @@ end
 ; ------------------------------    write_TLL_to_nc   ---------------------------------------
 
 
+; ------------------------------    write_YDLLL_to_nc   ---------------------------------------
+; *****************************************************************
+; L_Zealot
+; Write YDLLL-formated var list to the prescribed nc file
+; Var coordiantes will be treated automatically.
+;
+procedure write_YDLLL_to_nc(varname, var, filedir)
+local dims, ntime, p_lvl, nlat, nlon, fout, fileAtt, ii
+begin
+   
+;Set fileoption    
+    system("rm "+filedir)
+    fout = addfile(filedir,"c")  ; open output netCDF file
+    setfileoption(fout,"DefineMode",True)
 
+;Set All field attribution
+    fileAtt     = True
+    fileAtt@creation_date=systemfunc("date")
+    fileattdef(fout,fileAtt)
+
+;Define Coordinate
+    dimNames    =getvardims(var)
+    dimSizes    =dimsizes(var)
+    dimUnlim    =(/True,False,False,False,False/)
+    filedimdef(fout,dimNames,dimSizes,dimUnlim)
+
+;Define var, type and dim
+    do ii=0,4
+        filevardef(fout,dimNames(ii),typeof(var&$dimNames(ii)$),getvardims(var&$dimNames(ii)$))
+    end do    
+    filevardef(fout,varname,typeof(var),getvardims(var))
+
+;Define Attribute
+    do ii=0,4
+        filevarattdef(fout,dimNames(ii),var&$dimNames(ii)$)
+    end do    
+    filevarattdef(fout,varname,var)
+;Output var values
+    do ii=0,4    
+        fout->$dimNames(ii)$=(/var&$dimNames(ii)$/)
+    end do    
+    fout->$varname$=(/var/)
+end
+; ------------------------------    write_YDLLL_to_nc   ---------------------------------------
+
+
+
+; ------------------------------    write_YDLL_to_nc   ---------------------------------------
+; *****************************************************************
+; L_Zealot
+; Write YDLL-formated var list to the prescribed nc file
+; Var coordiantes will be treated automatically.
+;
+procedure write_YDLL_to_nc(varname, var, filedir)
+local dims, fout, fileAtt, ii
+begin
+   
+;Set fileoption    
+    system("rm "+filedir)
+    fout = addfile(filedir,"c")  ; open output netCDF file
+    setfileoption(fout,"DefineMode",True)
+
+;Set All field attribution
+    fileAtt     = True
+    fileAtt@creation_date=systemfunc("date")
+    fileattdef(fout,fileAtt)
+
+;Define Coordinate
+    dimNames    =getvardims(var)
+    dimSizes    =dimsizes(var)
+    dimUnlim    =(/True,False,False,False/)
+    filedimdef(fout,dimNames,dimSizes,dimUnlim)
+
+;Define var, type and dim
+    do ii=0,3
+        filevardef(fout,dimNames(ii),typeof(var&$dimNames(ii)$),getvardims(var&$dimNames(ii)$))
+    end do    
+    filevardef(fout,varname,typeof(var),getvardims(var))
+
+;Define Attribute
+    do ii=0,3
+        filevarattdef(fout,dimNames(ii),var&$dimNames(ii)$)
+    end do    
+    filevarattdef(fout,varname,var)
+;Output var values
+    do ii=0,3    
+        fout->$dimNames(ii)$=(/var&$dimNames(ii)$/)
+    end do    
+    fout->$varname$=(/var/)
+end
+; ------------------------------    write_YDLL_to_nc   ---------------------------------------
