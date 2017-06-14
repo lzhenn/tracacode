@@ -7,6 +7,9 @@
 ;       YDLLL   -- Year Day Lev Lat Lon format (3D Field)
 ;       YDLL    -- Year Day Lat Lon format (2D Field)
 ;
+
+
+;**************************READ******************************
 ; -------------- added Feb 20 2017
 ; read_doe_daily_2Din3D(varname, level, filedir)
 
@@ -28,11 +31,15 @@
 ; -------------- added Apr 10 2017
 ; read_ncep_ncar_daily_3D_UV(varname, lev_top, lev_bot, latS, latN, lonW, lonE, filedir)
 
-; -------------- added Apr 25 2017
-; write_TLLL_to_nc(varname, var, filedir)
-
 ; -------------- added Jun 07 2017
 ; read_doe_daily_2D(varname, filedir)
+
+; -------------- added Jun 12 2017
+; read_large_daily_batch_return_mean(varname, filedir)
+
+;**************************READ******************************
+; -------------- added Apr 25 2017
+; write_TLLL_to_nc(varname, var, filedir)
 
 ; -------------- added Jun 12 2017
 ; write_TLL_to_nc(varname, var, filedir)
@@ -554,3 +561,73 @@ begin
     fout->$varname$=(/var/)
 end
 ; ------------------------------    write_YDLL_to_nc   ---------------------------------------
+
+
+
+; ------------------------------    read_large_daily_batch_return_mean   ---------------------------------------
+; *****************************************************************
+; L_Zealot
+; Read Large Daily batch files, and return mean
+;
+function read_large_daily_batch_return_mean(varname:string, filedir:string)
+local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
+begin
+    print("FILE IO: prepare...")
+    in_files = systemfunc("ls "+filedir+"*")
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
+    n_smp=dimsizes(inlist)
+    ListSetType (inlist, "join")
+
+    print("FILE IO: initial read...")
+    var  = inlist[0]->$varname$
+
+    dimvar=dimsizes(var)
+    leap_flag=False
+
+    n_norm=0
+    n_leap=0
+    
+    print("FILE IO: batch read...")
+    do ii=1, n_smp-1
+        print("FILE IO: read "+inlist[ii])
+        var  := inlist[ii]->$varname$
+        dimvar=dimsizes(var)
+        vardim0=dimvar(0)
+        if (vardim0 .lt. 366) then
+            if (n_norm .eq. 0) then
+                var_mean0=var
+            else
+                var_mean0=var_mean0+var
+            end if
+            n_norm=n_norm+1
+        else
+            if (n_leap .eq. 0) then
+                var_mean1=var
+            else
+                var_mean1=var_mean1+var
+            end if
+            n_leap=n_leap+1
+        end if
+    end do
+
+    print("FILE IO: calculate mean...")
+    if (n_leap .gt. 0) then
+        var_mean=var_mean1
+        if (dimvar .eq. 3) then
+            var_mean(0:364,:,:)=(var_mean1(0:364,:,:)+var_mean0)/(n_leap+n_norm)
+            var_mean(365,:,:)=var_mean1(365,:,:)/n_meap
+        else
+            var_mean(0:364,:,:,:)=(var_mean1(0:364,:,:,:)+var_mean0)/(n_leap+n_norm)
+            var_mean(365,:,:,:)=var_mean1(365,:,:,:)/n_meap
+        end if
+    else
+        var_mean=var_mean0
+        var_mean=var_mean0/n_norm
+    end if
+    return(var_mean)
+end
+; ------------------------------    read_large_daily_batch_return_mean   ---------------------------------------
+
+
+
