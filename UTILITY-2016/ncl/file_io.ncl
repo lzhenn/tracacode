@@ -576,12 +576,11 @@ begin
     in_files = systemfunc("ls "+filedir+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
-    n_smp=dimsizes(inlist)
+    n_smp=dimsizes(in_files)
     ListSetType (inlist, "join")
 
     print("FILE IO: initial read...")
     var  = inlist[0]->$varname$
-
     dimvar=dimsizes(var)
     leap_flag=False
 
@@ -590,11 +589,12 @@ begin
     
     print("FILE IO: batch read...")
     do ii=1, n_smp-1
-        print("FILE IO: read "+inlist[ii])
+        print("FILE IO: read "+in_files(ii))
         var  := inlist[ii]->$varname$
         dimvar=dimsizes(var)
         vardim0=dimvar(0)
         if (vardim0 .lt. 366) then
+            print("normal year")
             if (n_norm .eq. 0) then
                 var_mean0=var
             else
@@ -602,6 +602,7 @@ begin
             end if
             n_norm=n_norm+1
         else
+            print("leap year")
             if (n_leap .eq. 0) then
                 var_mean1=var
             else
@@ -614,12 +615,12 @@ begin
     print("FILE IO: calculate mean...")
     if (n_leap .gt. 0) then
         var_mean=var_mean1
-        if (dimvar .eq. 3) then
+        if (dimsizes(dimvar) .eq. 3) then
             var_mean(0:364,:,:)=(var_mean1(0:364,:,:)+var_mean0)/(n_leap+n_norm)
-            var_mean(365,:,:)=var_mean1(365,:,:)/n_meap
+            var_mean(365,:,:)=var_mean1(365,:,:)/n_leap
         else
             var_mean(0:364,:,:,:)=(var_mean1(0:364,:,:,:)+var_mean0)/(n_leap+n_norm)
-            var_mean(365,:,:,:)=var_mean1(365,:,:,:)/n_meap
+            var_mean(365,:,:,:)=var_mean1(365,:,:,:)/n_leap
         end if
     else
         var_mean=var_mean0

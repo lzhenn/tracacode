@@ -12,11 +12,11 @@
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
 # With only ensemble output in it
-PRE_DIR_ORG=\"/home/yangsong3/data/observation/ERA-interim/pressure/air/\"
+PRE_DIR=\"/home/yangsong3/data/observation/ERA-interim/pressure/hgt/\"
 
-PRO_DIR_ORG=\"/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/\"
+PRO_DIR=\"/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/\"
 
-FDNAME=\"air\" #often use
+FDNAME=\"hgt\" #often use
 
 #-----------------------------------------------------------
 
