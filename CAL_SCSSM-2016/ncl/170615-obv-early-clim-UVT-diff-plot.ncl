@@ -39,34 +39,59 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=90
-    g_day_end=120
+    g_day_strt=89
+    g_day_end=119
 
-    g_level=850
+    g_level=200
 
     ;BOB Early
-    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/) -1979
+    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
     g_day_rank=(/108, 105, 93, 100, 107, 99/)-1
   
     g_clim_datapath="/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/"
-
+    g_datapath="/home/yangsong3/data/observation/ERA-interim/pressure/"
+    
     n_vars=dimsizes(g_var_name)
-    do ii = 0, n_vars-1
+    
+    var_clim_list = NewList("fifo")       ; Create a new list.
+    do ii=0, n_vars-1
         ctrl_in1     = addfile(g_clim_datapath+g_var_name(ii)+".mean.nc", "r") 
-        var1=ctrl_in1->$g_var_name(ii)$
+        ListPush(var_clim_list,ctrl_in1->$g_var_name(ii)$(g_day_strt:g_day_end,:,:,:))  ; Push variable onto list.
     end do
-    exit
+    lcount = ListCount(var_clim_list)   ; Get total list count
+
     n_early=dimsizes(g_special_year)
     
-    var1_special=var1(0:n_early-1,g_day_strt:g_day_end,:,:)
-    do ii = 0, n_early-1
-        var1_special(ii,:,:,:)=var1(g_special_year(ii),g_day_strt:g_day_end,:,:)
-    end do
-    var1_special_clim=dim_avg_n_Wrap(var1_special,0)
-    var1_special_clim:=dim_avg_n_Wrap(var1_special_clim,0)
-    diff_var1_clim=var1_clim
+    ctrl_in1     = addfile(g_datapath+"u/"+g_var_name(0)+".interim."+g_special_year(0)+".nc", "r") 
+    var1=ctrl_in1->$g_var_name(0)$(g_day_strt:g_day_end,:,:,:)
+    ctrl_in1     = addfile(g_datapath+"v/"+g_var_name(1)+".interim."+g_special_year(0)+".nc", "r") 
+    var2=ctrl_in1->$g_var_name(1)$(g_day_strt:g_day_end,:,:,:)
+    ctrl_in1     = addfile(g_datapath+g_var_name(2)+"/"+g_var_name(2)+".interim."+g_special_year(0)+".nc", "r") 
+    var3=ctrl_in1->$g_var_name(2)$(g_day_strt:g_day_end,:,:,:)
 
-    diff_var1_clim=var1_special_clim-var1_clim
+    do ii=1, n_early-1
+        ctrl_in1     = addfile(g_datapath+"u/"+g_var_name(0)+".interim."+g_special_year(ii)+".nc", "r") 
+        var1=var1+ctrl_in1->$g_var_name(0)$(g_day_strt:g_day_end,:,:,:)
+        ctrl_in1     = addfile(g_datapath+"v/"+g_var_name(1)+".interim."+g_special_year(ii)+".nc", "r") 
+        var2=var2+ctrl_in1->$g_var_name(1)$(g_day_strt:g_day_end,:,:,:)
+        ctrl_in1     = addfile(g_datapath+g_var_name(2)+"/"+g_var_name(2)+".interim."+g_special_year(ii)+".nc", "r") 
+        var3=var3+ctrl_in1->$g_var_name(2)$(g_day_strt:g_day_end,:,:,:)
+    end do
+    var1=var1/n_early
+    var2=var2/n_early
+    var3=var3/n_early
+
+    diff_var1=var1
+    diff_var2=var2
+    diff_var3=var3
+    
+    diff_var1=var1-var_clim_list[2]
+    diff_var2=var2-var_clim_list[1]
+    diff_var3=var3-var_clim_list[0]
+    
+    diff_var1:=dim_avg_n_Wrap(diff_var1,0)
+    diff_var2:=dim_avg_n_Wrap(diff_var2,0)
+    diff_var3:=dim_avg_n_Wrap(diff_var3,0)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -111,7 +136,7 @@ begin
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
  res@cnMinLevelValF        = -1.0         ; set min contour level
  res@cnMaxLevelValF        = 1.0         ; set max contour level
- res@cnLevelSpacingF       = 0.2         ; set contour interval
+ res@cnLevelSpacingF       = 0.2          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -126,18 +151,18 @@ begin
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnStringFontHeightF = g_font
 
-  res@gsnMaximize      = True       ; fill up the page
+  ;res@gsnMaximize      = True       ; fill up the page
   res@gsnAddCyclic   = False
   res@gsnPaperOrientation = "portrait"
   ;res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
 
   res@lbLabelBarOn = True   ; turn off the label bar
-;  res@lbOrientation          = "vertical"
+  res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   res@lbLabelStride = 2 
-;  res@lbLabelOffsetF=-0.5
-  res@pmLabelBarOrthogonalPosF = 0.2 
+
+
   res@mpFillOn   = False     ; turn off gray continents
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
@@ -177,83 +202,41 @@ begin
   res@gsnLeftString = ""
   res@gsnRightString = ""
        
-
-
-  res3                  = True       ; use plot options
-  res3@cnFillOn         = False;True       ; Fill contours
-  res3@cnLinesOn        = True      ; turn off contour lines
-;for tp masking
-  res3@gsnFrame         = False
-  res3@gsnDraw  = False
-  res3@cnLineLabelsOn   = False      ; turn off contour line labels
-  res3@cnLineThicknessF = 4 
-  res3@cnInfoLabelOn = False
+  vcres = True
+  vcres@gsnDraw          = False           ; don't draw
+  vcres@gsnFrame         = False           ; don't advance frame
+  vcres@gsnRightString   = " "             ; turn off right string
+  vcres@gsnLeftString    = " "             ; turn off left string
+  vcres@gsnCenterString    = " "
  
+  vcres@vcRefAnnoOn      = True
+  vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
+  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
+  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+  vcres@vcGlyphStyle            = "CurlyVector"    ; turn on curly vectors
+  vcres@vcMinDistanceF          = 0.03
+  vcres@vcRefAnnoString1  = "3 m/s"
+  vcres@vcRefAnnoString2  = ""
+  vcres@vcRefAnnoFontHeightF = 0.02
  
-  res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/900./)
-  res3@cnLineColor      = "Black"
-  res3@gsnLeftString      = " "
-  res3@gsnRightString      = " "
+  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
+  vcres@vcLineArrowHeadMinSizeF   = 0.01
+  vcres@vcLineArrowHeadMaxSizeF   = 0.01
+ 
 
-
-  res4=res3
-  res4@cnLineColor="Grey"
-
-;************************************************
-; create panel
-;************************************************
-  resP                     = True                ; modify the panel plot
-                                                 ; new resource added in NCL V6.4.0
-; resP@gsnPanelMainString = "A plot with a common label bar"
-                                                 ; use this for NCL V6.3.0 and earlier
-  resP@gsnPanelLabelBar    = True                ; add common colorbar
-  resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
-
-  g_fig_name="../fig/nudging/diff-TS-obv-early-clim"
+  g_fig_name="../fig/obv/diff-UVT-obv-early-90-120-"+g_level
+  
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
-  res@gsnLeftString="Early-Clim TS Day"+g_day_strt+"-"+g_day_end
-
-  plot_sh= gsn_csm_contour_map(wks,diff_var1_clim,res) ; create a default plot
-  ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  ;plot_V = gsn_csm_vector(wks,diff_var1_clim({g_level},:,:),diff_var2_clim({g_level},:,:),vcres) 
-  xyres                 = True         ; xy plot mods desired
-  xyres@vpHeightF        = .20          ; set width of second plot
-  xyres@vpWidthF        = .15          ; set width of second plot
-  xyres@tmXBMinorOn     = False        ; no minor tickmarks
-
-  xyres@gsnDraw         = False        ; don't draw yet
-  xyres@gsnFrame        = False        ; don't advance frame yet
-
-  xyres@tmXBLabelFontHeightF=g_font        ; change font height
-  xyres@gsnCenterString=""
-  xyres@trYMinF         = g_latS 
-  xyres@trYMaxF         = g_latN
-  xyres@trXMinF         = 15
-  xyres@trXMaxF         = 30
-  xyres@xyLineThicknesses    = 3.0      ; line thicknesses
- 
-  xyres@tmXBOn              = True
-  xyres@tmXBLabelsOn=True
-  xyres@tmXBMode="Explicit"
-  xyres@tmYRLabelsOn=True
-  xyres@tmXBValues=ispan(15,30,5)
-  xyres@tmXBLabels=ispan(15,30,5)
+  res@gsnLeftString="Early-Clim UVT "+g_level+"hPa Day"+(g_day_strt+1)+"-"+(g_day_end+1)
+  plot_sh= gsn_csm_contour_map(wks,diff_var3({g_level},:,:),res) ; create a default plot
   
-  xyres@tiXAxisString="TS (K)"
-  xyres@tiXAxisFontHeightF=g_font
-  xyres@xyLineColor="gray35"
-  ;plotxy = gsn_csm_xy(wks, var1_clim_lat, var1_clim_lat&lat, xyres)
-  xyres@xyLineColor="black"
- ; plotxy2 = gsn_csm_xy(wks, nudg_var1_clim_lat, var1_clim_lat&lat, xyres)
-;  overlay(plot_sh,plot_V)
-;  overlay(plotxy,plotxy2)
-  ;overlay(plot_sh,plot_cn_max)
-  ;newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
+  plot_V = gsn_csm_vector(wks,diff_var1({g_level},:,:),diff_var2({g_level},:,:),vcres) 
+
+    overlay(plot_sh, plot_V)
+
   draw(plot_sh)
   frame(wks)
-
 end

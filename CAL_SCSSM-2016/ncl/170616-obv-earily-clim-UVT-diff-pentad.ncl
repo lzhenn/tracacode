@@ -20,7 +20,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
-
+load "$NCL_SELFLIB/file_io.ncl"
 begin
 
 ;======================================================
@@ -31,16 +31,8 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name = (/"U","V"/)
-    g_data_ctrl_path ="../data/esm_clim_UV.nc"
-    g_data_nudg_path ="../data/nudg_clim_UV.nc"
-    
-    g_data_ctrl_path2 ="../data/esm_clim_T.nc"
-    g_data_nudg_path2 ="../data/Nudging_clim_T.nc"
-    
-    
-    g_font = 0.022
-    g_level=850
+    g_var_name = (/"uwnd","vwnd","air"/)
+    g_font = 0.02
   
     g_latN=50
     g_latS=-5
@@ -50,45 +42,60 @@ begin
     g_day_strt=76-1
     g_day_end=120-1
 
+    g_level=850
+
+    ;BOB Early
+    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
+    g_day_rank=(/108, 105, 93, 100, 107, 99/)-1
+  
+    g_clim_datapath="/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/"
+    g_datapath="/home/yangsong3/data/observation/ERA-interim/pressure/"
+    
+    n_vars=dimsizes(g_var_name)
+    
+    var_clim_list = NewList("fifo")       ; Create a new list.
+    do ii=0, n_vars-1
+        ctrl_in1     = addfile(g_clim_datapath+g_var_name(ii)+".mean.nc", "r") 
+        ListPush(var_clim_list,ctrl_in1->$g_var_name(ii)$(g_day_strt:g_day_end,:,:,:))  ; Push variable onto list.
+    end do
+    lcount = ListCount(var_clim_list)   ; Get total list count
+
+    n_early=dimsizes(g_special_year)
+    
+    ctrl_in1     = addfile(g_datapath+"u/"+g_var_name(0)+".interim."+g_special_year(0)+".nc", "r") 
+    var1=ctrl_in1->$g_var_name(0)$(g_day_strt:g_day_end,:,:,:)
+    ctrl_in1     = addfile(g_datapath+"v/"+g_var_name(1)+".interim."+g_special_year(0)+".nc", "r") 
+    var2=ctrl_in1->$g_var_name(1)$(g_day_strt:g_day_end,:,:,:)
+    ctrl_in1     = addfile(g_datapath+g_var_name(2)+"/"+g_var_name(2)+".interim."+g_special_year(0)+".nc", "r") 
+    var3=ctrl_in1->$g_var_name(2)$(g_day_strt:g_day_end,:,:,:)
+
+    do ii=1, n_early-1
+        ctrl_in1     = addfile(g_datapath+"u/"+g_var_name(0)+".interim."+g_special_year(ii)+".nc", "r") 
+        var1=var1+ctrl_in1->$g_var_name(0)$(g_day_strt:g_day_end,:,:,:)
+        ctrl_in1     = addfile(g_datapath+"v/"+g_var_name(1)+".interim."+g_special_year(ii)+".nc", "r") 
+        var2=var2+ctrl_in1->$g_var_name(1)$(g_day_strt:g_day_end,:,:,:)
+        ctrl_in1     = addfile(g_datapath+g_var_name(2)+"/"+g_var_name(2)+".interim."+g_special_year(ii)+".nc", "r") 
+        var3=var3+ctrl_in1->$g_var_name(2)$(g_day_strt:g_day_end,:,:,:)
+    end do
+    var1=var1/n_early
+    var2=var2/n_early
+    var3=var3/n_early
+
+    diff_var1=var1
+    diff_var2=var2
+    diff_var3=var3
+    
+    diff_var1=var1-var_clim_list[2]
+    diff_var2=var2-var_clim_list[1]
+    diff_var3=var3-var_clim_list[0]
+    
     n_smp = ((g_day_end-g_day_strt)+1)/5
-
-    ;Prepare the variables
-    ctrl_in     = addfile (g_data_ctrl_path, "r")   ; note the "s" of addfile
-    var1  =ctrl_in->U
-    var2  =ctrl_in->V
- 
-    ctrl_in2     = addfile (g_data_ctrl_path2, "r")   ; note the "s" of addfile
-    var3  =ctrl_in2->T
- 
-    nudg_in     = addfile (g_data_nudg_path, "r")   ; note the "s" of addfile
-    nudg_var1  =nudg_in->U
-    nudg_var2  =nudg_in->V
-
-    nudg_in2     = addfile (g_data_nudg_path2, "r")   ; note the "s" of addfile
-    nudg_var3  =nudg_in2->T
-
-
-    var1_clim=runave_n_Wrap(var1({g_day_strt:g_day_end},:,:,:),5,0,0)
-    var2_clim=runave_n_Wrap(var2({g_day_strt:g_day_end},:,:,:),5,0,0)
-    var3_clim=runave_n_Wrap(var3({g_day_strt:g_day_end},:,:,:),5,0,0)
-    var1_clim_lat = dim_avg_n_Wrap(var1_clim(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),3)
-   
-    nudg_var1_clim=runave_n_Wrap(nudg_var1({g_day_strt:g_day_end},:,:,:),5,0,0)
-    nudg_var2_clim=runave_n_Wrap(nudg_var2({g_day_strt:g_day_end},:,:,:),5,0,0)
-    nudg_var3_clim=runave_n_Wrap(nudg_var3({g_day_strt:g_day_end},:,:,:),5,0,0)
-    nudg_var1_clim_lat = dim_avg_n_Wrap(nudg_var1_clim(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),3)
     
-   
-    diff_var1_clim=var1_clim
-    diff_var2_clim=var2_clim
-    diff_var3_clim=var3_clim
-
-    diff_var1_clim=nudg_var1_clim-var1_clim
-    diff_var2_clim=nudg_var2_clim-var2_clim
-    diff_var3_clim=nudg_var3_clim-var3_clim
     
-    var3_clim=var3_clim-273.15
-    printMinMax(var3_clim(:,{g_level},:,:),0)
+    diff_var1=runave_n_Wrap(diff_var1,5,0,0)
+    diff_var2=runave_n_Wrap(diff_var2,5,0,0)
+    diff_var3=runave_n_Wrap(diff_var3,5,0,0)
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -224,84 +231,22 @@ begin
   vcres@vcLineArrowHeadMaxSizeF   = 0.01
  
 
-  res3                  = True       ; use plot options
-  res3@cnFillOn         = False;True       ; Fill contours
-  res3@cnLinesOn        = True      ; turn off contour lines
-;for tp masking
-  res3@gsnFrame         = False
-  res3@gsnDraw  = False
-  res3@cnLineLabelsOn   = False      ; turn off contour line labels
-  res3@cnLineThicknessF = 4 
-  res3@cnInfoLabelOn = False
- 
- 
-  res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/900./)
-  res3@cnLineColor      = "Black"
-  res3@gsnLeftString      = " "
-  res3@gsnRightString      = " "
 
 
-  res4=res3
-  res4@cnLineColor="Grey"
+  g_fig_name="../fig/obv/diff-UVT-obv-early-pentad-"+g_level
+  
 
-;************************************************
-; create panel
-;************************************************
-  resP                     = True                ; modify the panel plot
-                                                 ; new resource added in NCL V6.4.0
-; resP@gsnPanelMainString = "A plot with a common label bar"
-                                                 ; use this for NCL V6.3.0 and earlier
-  resP@gsnPanelLabelBar    = True                ; add common colorbar
-  resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
-
-  g_fig_name="../fig/nudging/esm-nudg-mean-diff-"+g_level+"UVT_pentad-sm"
-
-    wks_type="png"
-  wks_type@wkWidth = 2000
-     wks_type@wkHeight = 2000 
-    wks = gsn_open_wks(wks_type,g_fig_name)  ; open a ps file
+  wks_type="png"
+  wks_type@wkWidth = 1200
+  wks_type@wkHeight = 1200 
+  wks = gsn_open_wks(wks_type,g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   do ii = 0, n_smp-1
      res@gsnLeftString="UVT Diff"+g_level+"hPa Day"+(g_day_strt+5*ii+1)+"-"+(g_day_strt+5*(ii+1))
-     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3_clim(5*ii+2,{g_level},:,:),res) ; create a default plot
+     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3(5*ii+2,{g_level},:,:),res) ; create a default plot
     ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-     plot_V(ii) = gsn_csm_vector(wks,diff_var1_clim(5*ii+2,{g_level},:,:),diff_var2_clim(5*ii+2,{g_level},:,:),vcres) 
-  end do
-  xyres                 = True         ; xy plot mods desired
-  xyres@vpHeightF        = .20          ; set width of second plot
-  xyres@vpWidthF        = .15          ; set width of second plot
-  xyres@tmXBMinorOn     = False        ; no minor tickmarks
-
-  xyres@gsnDraw         = False        ; don't draw yet
-  xyres@gsnFrame        = False        ; don't advance frame yet
-
-  xyres@tmXBLabelFontHeightF=g_font        ; change font height
-  xyres@gsnCenterString=""
-  xyres@trYMinF         = g_latS 
-  xyres@trYMaxF         = g_latN
-  xyres@trXMinF         = -20
-  xyres@trXMaxF         = 60
-  xyres@xyLineThicknesses    = 3.0      ; line thicknesses
- 
-  xyres@tmXBOn              = True
-  xyres@tmXBLabelsOn=True
-  xyres@tmXBMode="Explicit"
-  xyres@tmYRLabelsOn=True
-  xyres@tmXBValues=ispan(-20,60,20)
-  xyres@tmXBLabels=ispan(-20,60,20)
-  
-  xyres@tiXAxisString="U wind (m/s)"
-  xyres@tiXAxisFontHeightF=g_font
-  var1_clim_lat(:,2,:)=0
-  xyres@xyLineColor="gray35"
-  do ii=0,n_smp-1
-    plot_xy(ii) = gsn_csm_xy(wks, var1_clim_lat(5*ii+2,{g_level},:), var1_clim_lat&lat, xyres)
-    xyres@xyLineColor="black"
-    plot_xynew(ii) = gsn_csm_xy(wks, nudg_var1_clim_lat(5*ii+2,{g_level},:), var1_clim_lat&lat, xyres)
-    overlay(plot_sh(ii),plot_V(ii))
-    overlay(plot_xy(ii),plot_xynew(ii))
-    newplot(ii) = gsn_attach_plots(plot_sh(ii),(/plot_xynew(ii)/),res,xyres)
+     plot_V(ii) = gsn_csm_vector(wks,diff_var1(5*ii+2,{g_level},:,:),diff_var2(5*ii+2,{g_level},:,:),vcres) 
+     overlay(plot_sh(ii), plot_V(ii))
   end do
   gsn_panel(wks,plot_sh,(/3,3/),False)
 end

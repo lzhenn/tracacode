@@ -254,7 +254,7 @@ begin
   g_fig_name="../fig/nudging/esm-nudg-mean-diff-"+g_level+"UVT"
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  res@gsnLeftString="Ensemble Mean UVT "+g_level+"hPa Day"+g_day_strt+"-"+g_day_end
+  res@gsnLeftString="Ensemble Mean UVT "+g_level+"hPa Day"+(g_day_strt)+"-"+(g_day_end)
 
   plot_sh= gsn_csm_contour_map(wks,diff_var3_clim({g_level},:,:),res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
