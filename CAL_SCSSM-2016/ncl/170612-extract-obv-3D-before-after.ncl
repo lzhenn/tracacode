@@ -36,7 +36,8 @@ begin
     ;for directory 
 ;    g_var_name = (/"T","U","V","Q","OMEGA","Z3"/)
 ;    g_var_name = (/"TS","TMQ","PRECC","PRECL","PS","PSL","FLUT"/)
-    g_var_name = (/"air","shum","hgt","omega"/)
+    g_var_name = (/"uwnd","vwnd"/)
+    g_dir_name = (/"u","v"/)
 ;    g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
     g_day_comp_len=20
     
@@ -53,15 +54,13 @@ begin
     pro_dir="/home/yangsong3/L_Zealot/data-mirror/obv/L_Zealot/ERAI/CAL_SCSSM-2016/"
     
    ;BOB All
-   g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
-
-
+   g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/);,113,119,123/)-1
     do jj = 0, dimsizes(g_var_name)-1
         
         g_var= g_var_name(jj)   
 
         print("get "+g_var+"...")
-        all_files=systemfunc("ls "+g_data_path+"/"+g_var+"/"+g_var+".*")
+        all_files:=systemfunc("ls "+g_data_path+"/"+g_dir_name(jj)+"/"+g_var+".*")
         
         n_esm=dimsizes(g_day_rank)
         setfileoption("nc","SuppressClose",False) ; close too many files
