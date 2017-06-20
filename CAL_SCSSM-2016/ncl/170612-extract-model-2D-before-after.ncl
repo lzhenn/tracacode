@@ -49,11 +49,14 @@ begin
     g_lonW=0
     g_lonE=360
   
-    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/"
+    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/"
     pro_dir=g_data_path+"/clim/"
     print("get onset index...")
     g_data_list=g_data_path+"/*FLUT*"
     onset_nudg=get_onset_idx_from_post_flut(5, 20, 87.5, 100, g_data_list)
+
+    print(onset_nudg)
+    exit
     do jj = 0, dimsizes(g_var_name)-1
         
         g_var= g_var_name(jj)   
