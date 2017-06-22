@@ -46,9 +46,8 @@ begin
      ;BOB All
     ;g_comp="all"
     ;g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-    ;g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)-1
-
-    
+    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1
+    n_years=dimsizes(g_day_rank) 
     ;BOB Early
     g_comp="early"
     g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
@@ -61,7 +60,7 @@ begin
 
 
     g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/"
-    n_years=dimsizes(g_special_year)
+    ;n_years=dimsizes(g_special_year)
 
     n_vars=dimsizes(g_var_name)
     
@@ -79,10 +78,18 @@ begin
     end do
     do ii=0, n_years-1
         do jj=0, n_vars-1
-            var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)=var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)-var_ctrl_list[jj](g_onset_ctrl(ii)-20:g_onset_ctrl(ii)+20,:,:)
+        ;    var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)=var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)-var_ctrl_list[jj](g_onset_ctrl(ii)-20:g_onset_ctrl(ii)+20,:,:)
+        ;    var_ctrl_onset_list[jj](ii,:,:,:)=var_ctrl_onset_list[jj](ii,:,:,:)-var_ctrl_list[jj](g_day_rank(ii)-20:g_day_rank(ii)+20,:,:)
         end do
     end do
     
+    clim_var3=var_ctrl_list[0]
+    clim_var2=var_ctrl_list[1]
+    clim_var1=var_ctrl_list[2]
+    
+   
+
+
     var3=dim_avg_n_Wrap(var_ctrl_onset_list[0],0)
     var2=dim_avg_n_Wrap(var_ctrl_onset_list[1],0)
     var1=dim_avg_n_Wrap(var_ctrl_onset_list[2],0)
@@ -214,11 +221,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "3 m/s"
+  vcres@vcRefAnnoString1  = "2 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -238,11 +245,11 @@ begin
   wks = gsn_open_wks(wks_type,g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   do ii = 0, n_smp-1
-     jj=18-3*(ii)
+     jj=18-3*(ii+2)
      res@gsnLeftString="UVT Diff"+g_level+"hPa Day -"+jj
      printMinMax(diff_var3,1)
      plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3(3*(ii)+2,:,:),res) ; create a default plot
-    ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
+    ;plot_cn_max = gsn_csm_contour(wks,var1_diff_max({g_level},:,:),res3)
      plot_V(ii) = gsn_csm_vector(wks,diff_var1(3*(ii)+2,:,:),diff_var2(3*(ii)+2,:,:),vcres) 
      overlay(plot_sh(ii), plot_V(ii))
   end do
