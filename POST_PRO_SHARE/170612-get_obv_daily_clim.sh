@@ -12,11 +12,11 @@
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
 # With only ensemble output in it
-PRE_DIR=\"/home/yangsong3/data/observation/ERA-interim/pressure/hgt/\"
+PRE_DIR=\"/Users/zhenningli/data/obv/NCEP-DOE/daily/vwnd1979-2013/\"
 
-PRO_DIR=\"/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/\"
+PRO_DIR=\"/Users/zhenningli/data/obv/NCEP-DOE/daily/daily-clim/\"
 
-FDNAME=\"hgt\" #often use
+FDNAME=\"vwnd\" #often use
 
 #-----------------------------------------------------------
 

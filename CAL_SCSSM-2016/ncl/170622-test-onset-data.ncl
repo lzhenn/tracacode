@@ -59,7 +59,7 @@ begin
     ;g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
 
 
-    g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/"
+    g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/DOE-clim/"
     ;n_years=dimsizes(g_special_year)
 
     n_vars=dimsizes(g_var_name)
@@ -71,7 +71,7 @@ begin
         ListPush(var_ctrl_list,ctrl_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
        ; nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.clim."+g_var_name(ii)+".0101-0701.nc", "r") 
        ; ListPush(var_nudg_list,nudg_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
-        ctrl_in2     = addfile(g_ctrl_datapath+"interim.41days."+g_var_name(ii)+".nc", "r") 
+        ctrl_in2     = addfile(g_ctrl_datapath+"ncep-doe.41days."+g_var_name(ii)+".nc", "r") 
         ListPush(var_ctrl_onset_list,ctrl_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
        ; nudg_in2     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.41days."+g_var_name(ii)+".0101-0701.nc", "r") 
        ; ListPush(var_nudg_onset_list,nudg_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
@@ -79,7 +79,7 @@ begin
     do ii=0, n_years-1
         do jj=0, n_vars-1
         ;    var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)=var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)-var_ctrl_list[jj](g_onset_ctrl(ii)-20:g_onset_ctrl(ii)+20,:,:)
-            var_ctrl_onset_list[jj](ii,:,:,:)=var_ctrl_onset_list[jj](ii,:,:,:)-var_ctrl_list[jj](g_day_rank(ii)-20:g_day_rank(ii)+20,:,:)
+        ;    var_ctrl_onset_list[jj](ii,:,:,:)=var_ctrl_onset_list[jj](ii,:,:,:)-var_ctrl_list[jj](g_day_rank(ii)-20:g_day_rank(ii)+20,:,:)
         end do
     end do
     
@@ -94,12 +94,7 @@ begin
     var2=dim_avg_n_Wrap(var_ctrl_onset_list[1],0)
     var1=dim_avg_n_Wrap(var_ctrl_onset_list[2],0)
     
-    diff_var1=runave_n_Wrap(var1,3,0,0)
-    diff_var2=runave_n_Wrap(var2,3,0,0)
-    diff_var3=runave_n_Wrap(var3,3,0,0)
-
-
-; ==============================================================
+   ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
@@ -144,9 +139,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -1.0         ; set min contour level
- res@cnMaxLevelValF        = 1.0         ; set max contour level
- res@cnLevelSpacingF       = 0.2          ; set contour interval
+ res@cnMinLevelValF        = 0         ; set min contour level
+ res@cnMaxLevelValF        = 25         ; set max contour level
+ res@cnLevelSpacingF       = 5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -221,11 +216,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 10.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "2 m/s"
+  vcres@vcRefAnnoString1  = "10 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -236,7 +231,7 @@ begin
 
 
 
-  g_fig_name="../fig/obv/diff-UVT-obv-before-onset-"+g_level
+  g_fig_name="../fig/obv/diff-UVT-doe-obv-before-onset-"+g_level
   
 
   wks_type="png"
@@ -244,14 +239,14 @@ begin
   wks_type@wkHeight = 1200 
   wks = gsn_open_wks(wks_type,g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  do ii = 0, n_smp-1
+  do ii = 0, 0
      jj=18-3*(ii+2)
      res@gsnLeftString="UVT Diff"+g_level+"hPa Day -"+jj
-     printMinMax(diff_var3,1)
-     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3(3*(ii)+2,:,:),res) ; create a default plot
+     printMinMax(var3,1)
+     plot_sh(ii)= gsn_csm_contour_map(wks,var3(30,:,:),res) ; create a default plot
     ;plot_cn_max = gsn_csm_contour(wks,var1_diff_max({g_level},:,:),res3)
-     plot_V(ii) = gsn_csm_vector(wks,diff_var1(3*(ii)+2,:,:),diff_var2(3*(ii)+2,:,:),vcres) 
+     plot_V(ii) = gsn_csm_vector(wks,var1(30,:,:),var2(30,:,:),vcres) 
      overlay(plot_sh(ii), plot_V(ii))
   end do
-  gsn_panel(wks,plot_sh,(/2,3/),False)
+  gsn_panel(wks,plot_sh,(/1,1/),False)
 end

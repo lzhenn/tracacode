@@ -36,8 +36,8 @@ begin
     ;for directory 
 ;    g_var_name = (/"T","U","V","Q","OMEGA","Z3"/)
 ;    g_var_name = (/"TS","TMQ","PRECC","PRECL","PS","PSL","FLUT"/)
-    g_var_name = (/"uwnd"/)
-    g_dir_name = (/"u"/)
+    g_var_name = (/"air","uwnd","vwnd"/)
+    g_dir_name = (/"air1979-2013","uwnd1979-2013","vwnd1979-2013"/)
 ;    g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
     g_day_comp_len=20
     
@@ -50,8 +50,8 @@ begin
     g_lonW=0
     g_lonE=360
   
-    g_data_path ="/home/yangsong3/data/observation/ERA-interim/pressure/"
-    pro_dir="/home/yangsong3/L_Zealot/data-mirror/obv/L_Zealot/ERAI/CAL_SCSSM-2016/"
+    g_data_path ="/Users/zhenningli/data/obv/NCEP-DOE/daily/"
+    pro_dir="/Users/zhenningli/data/CAL_SCSSM-2016/DOE-clim/"
     
    ;BOB All
    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1;,113,119,123/)-1
@@ -68,7 +68,7 @@ begin
         ListSetType (ctrl_in, "join")             ; concatenate or "merge" (default)
         print("3D EXTRACT: "+g_var+" Reading...")
         print("  ESM 1/"+n_esm+" Reading...")
-        var1 = ctrl_in[0]->$g_var$
+        var1 = short2flt(ctrl_in[0]->$g_var$)
         
         ;Build ctrl_var1
         dim_var1=dimsizes(var1)
@@ -90,13 +90,13 @@ begin
         do ii=1,n_esm-1
             print("  ESM "+(ii+1)+"/"+n_esm+" Reading...")
             print(ctrl_in[ii])
-            var1 := ctrl_in[ii]->$g_var$
+            var1 := short2flt(ctrl_in[ii]->$g_var$)
             ctrl_var1(ii,:,:,:,:)=(/var1(g_day_rank(ii)-g_day_comp_len:g_day_rank(ii)+g_day_comp_len,:,:,:)/)
         end do
 
         ndays=g_day_comp_len*2+1
         
-        out_name=pro_dir+"interim."+ndays+"days."+g_var+".nc"
+        out_name=pro_dir+"ncep-doe."+ndays+"days."+g_var+".nc"
 
         print("Write...")
         write_YDLLL_to_nc(g_var,ctrl_var1,out_name)

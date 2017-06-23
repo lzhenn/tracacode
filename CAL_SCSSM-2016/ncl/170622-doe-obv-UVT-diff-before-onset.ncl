@@ -59,7 +59,7 @@ begin
     ;g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
 
 
-    g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/"
+    g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/DOE-clim/"
     ;n_years=dimsizes(g_special_year)
 
     n_vars=dimsizes(g_var_name)
@@ -71,41 +71,40 @@ begin
         ListPush(var_ctrl_list,ctrl_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
        ; nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.clim."+g_var_name(ii)+".0101-0701.nc", "r") 
        ; ListPush(var_nudg_list,nudg_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
-        ctrl_in2     = addfile(g_ctrl_datapath+"interim.41days."+g_var_name(ii)+".nc", "r") 
+        ctrl_in2     = addfile(g_ctrl_datapath+"ncep-doe.41days."+g_var_name(ii)+".nc", "r") 
         ListPush(var_ctrl_onset_list,ctrl_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
        ; nudg_in2     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.41days."+g_var_name(ii)+".0101-0701.nc", "r") 
        ; ListPush(var_nudg_onset_list,nudg_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
     end do
-    do ii=0, n_years-1
+    do ii=0, dimsizes(g_special_year)-1
         do jj=0, n_vars-1
-        ;    var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)=var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)-var_ctrl_list[jj](g_onset_ctrl(ii)-20:g_onset_ctrl(ii)+20,:,:)
-            var_ctrl_onset_list[jj](ii,:,:,:)=var_ctrl_onset_list[jj](ii,:,:,:)-var_ctrl_list[jj](g_day_rank(ii)-20:g_day_rank(ii)+20,:,:)
+            var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)=var_ctrl_onset_list[jj](g_special_year(ii),:,:,:)-var_ctrl_list[jj](g_onset_ctrl(ii)-20:g_onset_ctrl(ii)+20,:,:)
+         ;   var_ctrl_onset_list[jj](ii,:,:,:)=var_ctrl_onset_list[jj](ii,:,:,:)-var_ctrl_list[jj](g_day_rank(ii)-20:g_day_rank(ii)+20,:,:)
         end do
     end do
+    var1=var_ctrl_onset_list[2](0:dimsizes(g_special_year)-1,:,:,:)
+    var2=var_ctrl_onset_list[1](0:dimsizes(g_special_year)-1,:,:,:)
+    var3=var_ctrl_onset_list[0](0:dimsizes(g_special_year)-1,:,:,:)
+    do ii=0, dimsizes(g_special_year)-1
+        var1(ii,:,:,:)=var_ctrl_onset_list[2](g_special_year(ii),:,:,:)
+        var2(ii,:,:,:)=var_ctrl_onset_list[1](g_special_year(ii),:,:,:)
+        var3(ii,:,:,:)=var_ctrl_onset_list[0](g_special_year(ii),:,:,:)
+    end do
+    diff_var1=dim_avg_n_Wrap(var1,0)
+    diff_var2=dim_avg_n_Wrap(var2,0)
+    diff_var3=dim_avg_n_Wrap(var3,0)
+    diff_var1:=dim_avg_n_Wrap(diff_var1(11:20,:,:),0)
+    diff_var2:=dim_avg_n_Wrap(diff_var2(11:20,:,:),0)
+    diff_var3:=dim_avg_n_Wrap(diff_var3(11:20,:,:),0)
     
-    clim_var3=var_ctrl_list[0]
-    clim_var2=var_ctrl_list[1]
-    clim_var1=var_ctrl_list[2]
     
-   
-
-
-    var3=dim_avg_n_Wrap(var_ctrl_onset_list[0],0)
-    var2=dim_avg_n_Wrap(var_ctrl_onset_list[1],0)
-    var1=dim_avg_n_Wrap(var_ctrl_onset_list[2],0)
-    
-    diff_var1=runave_n_Wrap(var1,3,0,0)
-    diff_var2=runave_n_Wrap(var2,3,0,0)
-    diff_var3=runave_n_Wrap(var3,3,0,0)
-
-
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
-    n_smp=6
+    n_smp=1
   plot_sh = new((/n_smp/),graphic)
   plot_V = new((/n_smp/),graphic)
   plot_xy = new((/n_smp/),graphic)
@@ -236,7 +235,7 @@ begin
 
 
 
-  g_fig_name="../fig/obv/diff-UVT-obv-before-onset-"+g_level
+  g_fig_name="../fig/obv/diff-UVT-doe-obv-before-onset-"+g_level
   
 
   wks_type="png"
@@ -244,14 +243,13 @@ begin
   wks_type@wkHeight = 1200 
   wks = gsn_open_wks(wks_type,g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-  do ii = 0, n_smp-1
+  do ii = 0, 0
      jj=18-3*(ii+2)
      res@gsnLeftString="UVT Diff"+g_level+"hPa Day -"+jj
-     printMinMax(diff_var3,1)
-     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3(3*(ii)+2,:,:),res) ; create a default plot
+     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
     ;plot_cn_max = gsn_csm_contour(wks,var1_diff_max({g_level},:,:),res3)
-     plot_V(ii) = gsn_csm_vector(wks,diff_var1(3*(ii)+2,:,:),diff_var2(3*(ii)+2,:,:),vcres) 
+     plot_V(ii) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres) 
      overlay(plot_sh(ii), plot_V(ii))
   end do
-  gsn_panel(wks,plot_sh,(/2,3/),False)
+  gsn_panel(wks,plot_sh,(/1,1/),False)
 end

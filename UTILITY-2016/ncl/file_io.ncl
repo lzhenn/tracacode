@@ -580,7 +580,7 @@ begin
     ListSetType (inlist, "join")
 
     print("FILE IO: initial read...")
-    var  = inlist[0]->$varname$
+    var  = short2flt(inlist[0]->$varname$)
     dimvar=dimsizes(var)
     leap_flag=False
 
@@ -590,7 +590,7 @@ begin
     print("FILE IO: batch read...")
     do ii=1, n_smp-1
         print("FILE IO: read "+in_files(ii))
-        var  := inlist[ii]->$varname$
+        var  := short2flt(inlist[ii]->$varname$)
         dimvar=dimsizes(var)
         vardim0=dimvar(0)
         if (vardim0 .lt. 366) then
