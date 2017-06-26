@@ -41,17 +41,17 @@ begin
     g_lonW=30
     
 
-    g_level=500
+    g_level=850
 
      ;BOB All
     ;g_comp="all"
-    ;g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1
-    n_years=dimsizes(g_day_rank) 
+    g_onset_ctrl=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1
+    g_special_year=ispan(0,dimsizes(g_onset_ctrl)-1,1)
+    n_years=num(g_onset_ctrl .lt. 121) 
     ;BOB Early
     g_comp="early"
-    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
-    g_onset_ctrl=(/108, 105, 93, 100, 107, 99/)-1
+    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
+    ;g_onset_ctrl=(/108, 105, 93, 100, 107, 99/)-1
     
     ;BOB Late
     ;g_comp2="late"
@@ -82,13 +82,17 @@ begin
          ;   var_ctrl_onset_list[jj](ii,:,:,:)=var_ctrl_onset_list[jj](ii,:,:,:)-var_ctrl_list[jj](g_day_rank(ii)-20:g_day_rank(ii)+20,:,:)
         end do
     end do
-    var1=var_ctrl_onset_list[2](0:dimsizes(g_special_year)-1,:,:,:)
-    var2=var_ctrl_onset_list[1](0:dimsizes(g_special_year)-1,:,:,:)
-    var3=var_ctrl_onset_list[0](0:dimsizes(g_special_year)-1,:,:,:)
+    var1=var_ctrl_onset_list[2](0:n_years-1,:,:,:)
+    var2=var_ctrl_onset_list[1](0:n_years-1,:,:,:)
+    var3=var_ctrl_onset_list[0](0:n_years-1,:,:,:)
+    jj=0
     do ii=0, dimsizes(g_special_year)-1
-        var1(ii,:,:,:)=var_ctrl_onset_list[2](g_special_year(ii),:,:,:)
-        var2(ii,:,:,:)=var_ctrl_onset_list[1](g_special_year(ii),:,:,:)
-        var3(ii,:,:,:)=var_ctrl_onset_list[0](g_special_year(ii),:,:,:)
+        if g_onset_ctrl(ii) .lt. 121 then
+            var1(jj,:,:,:)=var_ctrl_onset_list[2](ii,:,:,:)
+            var2(jj,:,:,:)=var_ctrl_onset_list[1](ii,:,:,:)
+            var3(jj,:,:,:)=var_ctrl_onset_list[0](ii,:,:,:)
+            jj=jj+1
+        end if
     end do
     diff_var1=dim_avg_n_Wrap(var1,0)
     diff_var2=dim_avg_n_Wrap(var2,0)
@@ -220,17 +224,17 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 1.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.025
-  vcres@vcRefAnnoString1  = "3 m/s"
+  vcres@vcRefAnnoString1  = "1 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.01
+  vcres@vcLineArrowHeadMinSizeF   = 0.008
+  vcres@vcLineArrowHeadMaxSizeF   = 0.008
  
 
 

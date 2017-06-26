@@ -41,7 +41,7 @@ begin
     g_lonW=30
     
 
-    g_level=500
+    g_level=850
 
  
     g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/"
@@ -53,7 +53,8 @@ begin
     g_onset_ctrl=(/138, 94,123,125, 96, 87,134,129,159,116,127, 99,109,121,133,128,121,138,135,136,130,128,116/)
     g_onset_nudg=(/ 86,101, 97,127,116, 88,118, 92, 87,124,128,114,112,104, 90,130,109,132,112, 96,104,132,138/)
     n_years=dimsizes(g_onset_ctrl)
-
+    
+    n_special_year=num(g_onset_nudg .lt.121)
 
 
     n_vars=dimsizes(g_var_name)
@@ -77,15 +78,26 @@ begin
             var_nudg_onset_list[jj](ii,:,:,:)=var_nudg_onset_list[jj](ii,:,:,:)-var_ctrl_list[jj](g_onset_nudg(ii)-20:g_onset_nudg(ii)+20,:,:)
         end do
     end do
+    var1=var_nudg_onset_list[2](0:n_special_year-1,:,:,:)
+    var2=var_nudg_onset_list[1](0:n_special_year-1,:,:,:)
+    var3=var_nudg_onset_list[0](0:n_special_year-1,:,:,:)
+    jj=0
+    do ii=0, n_years-1
+        if g_onset_nudg(ii) .lt. 121 then    
+            var1(jj,:,:,:)=var_nudg_onset_list[2](ii,:,:,:)
+            var2(jj,:,:,:)=var_nudg_onset_list[1](ii,:,:,:)
+            var3(jj,:,:,:)=var_nudg_onset_list[0](ii,:,:,:)
+            jj=jj+1
+        end if
+    end do
+    diff_var1=dim_avg_n_Wrap(var1,0)
+    diff_var2=dim_avg_n_Wrap(var2,0)
+    diff_var3=dim_avg_n_Wrap(var3,0)
     
-    var3=dim_avg_n_Wrap(var_nudg_onset_list[0],0)
-    var2=dim_avg_n_Wrap(var_nudg_onset_list[1],0)
-    var1=dim_avg_n_Wrap(var_nudg_onset_list[2],0)
-    
-    diff_var1=runave_n_Wrap(var1,10,0,0)
-    diff_var2=runave_n_Wrap(var2,10,0,0)
-    diff_var3=runave_n_Wrap(var3,10,0,0)
-
+    ;500hPa 7:14
+    diff_var1:=dim_avg_n_Wrap(diff_var1(7:20,:,:),0)
+    diff_var2:=dim_avg_n_Wrap(diff_var2(7:20,:,:),0)
+    diff_var3:=dim_avg_n_Wrap(diff_var3(7:20,:,:),0)
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -93,7 +105,7 @@ begin
 
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
-  n_smp=4
+  n_smp=1
   plot_sh = new((/n_smp/),graphic)
   plot_V = new((/n_smp/),graphic)
   plot_xy = new((/n_smp/),graphic)
@@ -218,13 +230,13 @@ begin
   vcres@vcRefAnnoFontHeightF = 0.02
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.01
+  vcres@vcLineArrowHeadMinSizeF   = 0.008
+  vcres@vcLineArrowHeadMaxSizeF   = 0.008
  
 
 
 
-  g_fig_name="../fig/obv/diff-UVT-nudg-10day-onset-"+g_level
+  g_fig_name="../fig/obv/diff-UVT-nudg-14day-onset-"+g_level
   
 
   wks_type="png"
@@ -233,12 +245,12 @@ begin
   wks = gsn_open_wks(wks_type,g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   do ii = 0, n_smp-1
-     jj=10*ii+5
+     jj=ii
      res@gsnLeftString="UVT Diff"+g_level+"hPa  "+ii
-     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3(jj,:,:),res) ; create a default plot
+     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
     ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-     plot_V(ii) = gsn_csm_vector(wks,diff_var1(jj,:,:),diff_var2(jj,:,:),vcres) 
+     plot_V(ii) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres) 
      overlay(plot_sh(ii), plot_V(ii))
   end do
-  gsn_panel(wks,plot_sh,(/2,2/),False)
+  gsn_panel(wks,plot_sh,(/1,1/),False)
 end
