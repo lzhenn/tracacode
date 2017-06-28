@@ -34,7 +34,7 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name = (/"U","V","T"/)
+    g_var_name = (/"T","Q"/)
 ;    g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
     
     g_day_strt=74
@@ -45,66 +45,65 @@ begin
     g_lonW=0
     g_lonE=360
   
-    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/"
+    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/"
     pro_dir=g_data_path+"/clim/"
         
 
     all_files=systemfunc("ls "+g_data_path+"/*."+g_var_name(0)+".*")
     n_esm=dimsizes(all_files)
     print("  ESM 1/"+n_esm+" Reading...")
-    print("U Reading...")
+    print("T Reading...")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in1      = addfiles (all_files, "r")   ; note the "s" of addfile            
     var1 = ctrl_in1[0]->$g_var_name(0)$(g_day_strt:g_day_end,:,:,:)
  
-    print("V Reading...")
+    print("Q Reading...")
     all_files=systemfunc("ls "+g_data_path+"/*."+g_var_name(1)+".*")
     ctrl_in2      = addfiles (all_files, "r")   ; note the "s" of addfile            
     var2 = ctrl_in2[0]->$g_var_name(1)$(g_day_strt:g_day_end,:,:,:)
-    ;var2=var1
-    print("T Reading...")
-    all_files=systemfunc("ls "+g_data_path+"/*."+g_var_name(2)+".*")
-    ctrl_in3      = addfiles (all_files, "r")   ; note the "s" of addfile            
-    var3 = ctrl_in3[0]->$g_var_name(2)$(g_day_strt:g_day_end,:,:,:)
     
-    print("adv Building...")
-    ;Build ctrl_adv_var
-    dim_adv_var=dimsizes(var1)
-    ctrl_adv_var:=conform_dims((/n_esm,dim_adv_var(0),dim_adv_var(1),dim_adv_var(2),dim_adv_var(3)/),var1,(/1,2,3,4/))
-    ctrl_adv_var!0="esm"
-    ctrl_adv_var&esm=ispan(1,n_esm,1)
-    ctrl_adv_var&esm@units="ensemble member"
-    ctrl_adv_var!1="day"
-    ctrl_adv_var&day=ispan(g_day_strt+1,g_day_end+1,1)
-    ctrl_adv_var&day@long_name="day since D75"
-    ctrl_adv_var!2=var1!1
-    ctrl_adv_var&level=var1&level
-    ctrl_adv_var!3=var1!2
-    ctrl_adv_var&lat=var1&lat
-    ctrl_adv_var!4=var1!3
-    ctrl_adv_var&lon=var1&lon
-    print("adv calculating...")
-    ;var2=0
-    ctrl_adv_var(0,:,:,:,:)=advect_variable(var1,var2,var3,1,"advection of temperature","K/s",0)
-    printVarSummary(ctrl_adv_var)
+
+    print("theta_e Building...")
+    ;Build ctrl_theta_e_var
+    dim_theta_e_var=dimsizes(var1)
+    ctrl_theta_e_var:=conform_dims((/n_esm,dim_theta_e_var(0),dim_theta_e_var(1),dim_theta_e_var(2),dim_theta_e_var(3)/),var1,(/1,2,3,4/))
+    ctrl_theta_e_var!0="esm"
+    ctrl_theta_e_var&esm=ispan(1,n_esm,1)
+    ctrl_theta_e_var&esm@units="ensemble member"
+    ctrl_theta_e_var!1="day"
+    ctrl_theta_e_var&day=ispan(g_day_strt+1,g_day_end+1,1)
+    ctrl_theta_e_var&day@long_name="day since D75"
+    ctrl_theta_e_var!2=var1!1
+    ctrl_theta_e_var&level=var1&level
+    ctrl_theta_e_var!3=var1!2
+    ctrl_theta_e_var&lat=var1&lat
+    ctrl_theta_e_var!4=var1!3
+    ctrl_theta_e_var&lon=var1&lon
+    print("theta_e calculating...")
+    
+    level=conform(var2, var2&level, 1)
+    ;ctrl_theta_e_var(0,:,:,:,:)=pot_temp_equiv(level, var1, var2, -1, "q")
+    
+    ;var2=100
+    ctrl_theta_e_var(0,:,:,:,:)=pot_temp_equiv(level, var1, var2, -1, "rh")
+    
+    printVarSummary(ctrl_theta_e_var)
     do ii=1,n_esm-1
         print("  ESM "+(ii+1)+"/"+n_esm+" Reading...")
     
-        print("U Reading...")
+        print("T Reading...")
         var1 = ctrl_in1[ii]->$g_var_name(0)$(g_day_strt:g_day_end,:,:,:)
      
-        print("V Reading...")
+        print("Q Reading...")
         var2 = ctrl_in2[ii]->$g_var_name(1)$(g_day_strt:g_day_end,:,:,:)
         
-        print("T Reading...")
-        var3 = ctrl_in3[ii]->$g_var_name(2)$(g_day_strt:g_day_end,:,:,:)
-
-        ctrl_adv_var(ii,:,:,:,:)=advect_variable(var1,var2,var3,1,"advection of temperature","K/s",0)
+        
+        ctrl_theta_e_var(ii,:,:,:,:)=pot_temp_equiv(level, var1, var2, -1, "q")
     end do
     
 
-    pro_dir=g_data_path+"/clim/"+"CLIM-Trans-2015.cam.h1.ESM.75-120.advT.nc"
+    pro_dir=g_data_path+"/clim/"+"Nudging.cam.h1.ESM.75-120.theta_e.nc"
     print("Write...")
-    write_YDLLL_to_nc("advT",ctrl_adv_var,pro_dir)
+    write_YDLLL_to_nc("theta_e",ctrl_theta_e_var,pro_dir)
 end
 
