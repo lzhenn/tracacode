@@ -41,7 +41,7 @@ begin
     g_lonW=30
     
 
-    g_level=850
+    g_level=500
 
  
     g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/"
@@ -50,45 +50,30 @@ begin
     g_nudg_name="Nudging"
 
 
-    g_onset_ctrl=(/138, 94,123,125, 96, 87,134,129,159,116,127, 99,109,121,133,128,121,138,135,136,130,128,116/)
-    g_onset_nudg=(/ 86,101, 97,127,116, 88,118, 92, 87,124,128,114,112,104, 90,130,109,132,112, 96,104,132,138/)
-    n_years=dimsizes(g_onset_ctrl)
+    ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.75-120.advT.nc", "r") 
+    ctrl_var1=ctrl_in1->advT(:,:,{g_level},:,:)
+    nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.75-120.advT.nc", "r") 
+    nudg_var1=nudg_in1->advT(:,:,{g_level},:,:)
     
-    n_special_year=num(g_onset_nudg .lt.121)
+    diff_var1=ctrl_var1
+    diff_var1=nudg_var1-ctrl_var1
+    diff_var1:=dim_avg_n_Wrap(diff_var1,0)
+    diff_var1=diff_var1*86400
+    printMinMax(diff_var1,1)
+    diff_var1:=dim_avg_n_Wrap(diff_var1(5:10,:,:),0)
+    
+    ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.75-120.zonal.advT.nc", "r") 
+    ctrl_var2=ctrl_in1->advT(:,:,{g_level},:,:)
+    nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.75-120.zonal.advT.nc", "r") 
+    nudg_var2=nudg_in1->advT(:,:,{g_level},:,:)
+    
+    diff_var2=ctrl_var2
+    diff_var2=nudg_var2-ctrl_var2
+    diff_var2:=dim_avg_n_Wrap(diff_var2,0)
+    diff_var2=diff_var2*86400
+    printMinMax(diff_var2,1)
+    diff_var2:=dim_avg_n_Wrap(diff_var2(5:10,:,:),0)
 
-
-    n_vars=dimsizes(g_var_name)
-    
-    var_ctrl_list = NewList("fifo")       ; Create a new list.
-    var_nudg_list = NewList("fifo")       ; Create a new list.
-    var_ctrl_onset_list = NewList("fifo")       ; Create a new list.
-    var_nudg_onset_list = NewList("fifo")       ; Create a new list.
-    do ii=0, n_vars-1
-        ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.clim."+g_var_name(ii)+".0101-0701.nc", "r") 
-        ListPush(var_ctrl_list,ctrl_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
-        nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.clim."+g_var_name(ii)+".0101-0701.nc", "r") 
-        ListPush(var_nudg_list,nudg_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
-       ; ctrl_in2     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.41days."+g_var_name(ii)+".0101-0701.nc", "r") 
-       ; ListPush(var_ctrl_onset_list,ctrl_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
-       ; nudg_in2     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.41days."+g_var_name(ii)+".0101-0701.nc", "r") 
-       ; ListPush(var_nudg_onset_list,nudg_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
-    end do
-    ctrl_var1=var_ctrl_list[2]
-    ctrl_var2=var_ctrl_list[1]
-    ctrl_var3=var_ctrl_list[0]
- 
-    nudg_var1=var_nudg_list[2]
-    nudg_var2=var_nudg_list[1]
-    nudg_var3=var_nudg_list[0] 
- 
-    diff_var1=dim_avg_n_Wrap(var1,0)
-    diff_var2=dim_avg_n_Wrap(var2,0)
-    diff_var3=dim_avg_n_Wrap(var3,0)
-    
-    ;500hPa 7:14
-    diff_var1:=dim_avg_n_Wrap(diff_var1(7:20,:,:),0)
-    diff_var2:=dim_avg_n_Wrap(diff_var2(7:20,:,:),0)
-    diff_var3:=dim_avg_n_Wrap(diff_var3(7:20,:,:),0)
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -98,7 +83,7 @@ begin
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
   n_smp=1
   plot_sh = new((/n_smp/),graphic)
-  plot_V = new((/n_smp/),graphic)
+  plot_cn = new((/n_smp/),graphic)
   plot_xy = new((/n_smp/),graphic)
   plot_xynew = new((/n_smp/),graphic)
   newplot = new((/n_smp/),graphic)
@@ -202,32 +187,28 @@ begin
      
   res@gsnLeftString = ""
   res@gsnRightString = ""
+;-------------------------------------------------------------------
+  res3                  = True       ; use plot options
+  res3@cnFillOn         = False;True       ; Fill contours
+  res3@cnLinesOn        = True      ; turn off contour lines
+;for tp masking
+  res3@gsnFrame         = False
+  res3@gsnDraw  = False
+  res3@cnLineLabelsOn   = False      ; turn off contour line labels
+  res3@cnLineThicknessF = 3
+  res3@cnInfoLabelOn = False
+ 
+  res3@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+  res3@cnMinLevelValF        = 0         ; set min contour level
+  res3@cnMaxLevelValF        = 1.0         ; set max contour level
+  res3@cnLevelSpacingF       = 1.0          ; set contour interval
+
+  res3@cnLineColor      = "Red"
+  res3@gsnLeftString      = " "
        
-  vcres = True
-  vcres@gsnDraw          = False           ; don't draw
-  vcres@gsnFrame         = False           ; don't advance frame
-  vcres@gsnRightString   = " "             ; turn off right string
-  vcres@gsnLeftString    = " "             ; turn off left string
-  vcres@gsnCenterString    = " "
- 
-  vcres@vcRefAnnoOn      = True
-  vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.05            ; define length of vec ref
-  vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "2 m/s"
-  vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.02
- 
-  vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.008
-  vcres@vcLineArrowHeadMaxSizeF   = 0.008
  
 
-
-
-  g_fig_name="../fig/obv/diff-UVT-nudg-14day-onset-"+g_level
+  g_fig_name="../fig/obv/diff-advT-nudg-esm-"+g_level
   
 
   wks_type="png"
@@ -237,11 +218,12 @@ begin
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   do ii = 0, n_smp-1
      jj=ii
-     res@gsnLeftString="UVT Diff"+g_level+"hPa  "+ii
-     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
+     res@gsnLeftString="advT & UadvT Diff"+g_level+"hPa  "+ii
+     plot_sh(ii)= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
+     plot_cn(ii)= gsn_csm_contour(wks,diff_var2,res3) ; create a default plot
     ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-     plot_V(ii) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres) 
-     overlay(plot_sh(ii), plot_V(ii))
+     ;plot_V(ii) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres) 
+    overlay(plot_sh(ii), plot_cn(ii))
   end do
   gsn_panel(wks,plot_sh,(/1,1/),False)
 end
