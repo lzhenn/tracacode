@@ -40,8 +40,7 @@ begin
     g_lonE=120
     g_lonW=30
     
-    ;5, 12 works
-    ep_strt=5
+    ep_strt=6
     ep_end=12
 
     g_level=500
@@ -61,14 +60,26 @@ begin
     nudg_var1=nudg_var1*86400
 
     clim_var1=ctrl_var1
-    clim_var1:=dim_avg_n_Wrap(clim_var1(:,:,:,:),0)
+    clim_var1:=dim_avg_n_Wrap(clim_var1,0)
     clim_var1:=dim_avg_n_Wrap(clim_var1(ep_strt:ep_end,:,:),0)
     diff_var1=ctrl_var1
     diff_var1=nudg_var1-ctrl_var1
-    diff_var1:=dim_avg_n_Wrap(diff_var1(:,:,:,:),0)
+    diff_var1:=dim_avg_n_Wrap(diff_var1,0)
     printMinMax(diff_var1,1)
     diff_var1:=dim_avg_n_Wrap(diff_var1(ep_strt:ep_end,:,:),0)
     
+    ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.75-120.zonal.advT.nc", "r") 
+    ctrl_var2=ctrl_in1->advT(:,:,{g_level},:,:)
+    nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.75-120.zonal.advT.nc", "r") 
+    nudg_var2=nudg_in1->advT(:,:,{g_level},:,:)
+    
+    diff_var2=ctrl_var2
+    diff_var2=nudg_var2-ctrl_var2
+    diff_var2:=dim_avg_n_Wrap(diff_var2,0)
+    diff_var2=diff_var2*86400
+    printMinMax(diff_var2,1)
+    diff_var2:=dim_avg_n_Wrap(diff_var2(ep_strt:ep_end,:,:),0)
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -114,9 +125,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -1.2         ; set min contour level
- res@cnMaxLevelValF        = 1.2         ; set max contour level
- res@cnLevelSpacingF       = 0.2          ; set contour interval
+ res@cnMinLevelValF        = -0.8         ; set min contour level
+ res@cnMaxLevelValF        = 0.8         ; set max contour level
+ res@cnLevelSpacingF       = 0.1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -207,7 +218,7 @@ begin
   res4@cnLevelSpacingF       = -1.0          ; set contour interval
   res4@cnLineColor      = "Blue"
 
-    g_fig_name="../fig/obv/diff-advT-nudg-esm-"+g_level+"-"+ep_strt+"day-"+ep_end+"day"
+    g_fig_name="../fig/obv/diff-advT-nudg-esm-"+g_level
   
 
   wks_type="png"

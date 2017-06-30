@@ -74,7 +74,7 @@ begin
     ;var_areamean=runave_n_Wrap(var_areamean,5,1,1)  
     var_stddev=dim_stddev_n_Wrap(var_areamean,0)
  
-    nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*n[3-4]*"+g_var_name(0)+"*")
+    nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*n[3]*"+g_var_name(0)+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     nudg_in     := addfiles (nudg_in_files, "r")   ; note the "s" of addfile
     ListSetType (nudg_in, "join")
@@ -82,7 +82,7 @@ begin
 
     printVarSummary(var_nudg)
 
-    nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*n[3-4]*"+g_var_name(1)+"*")
+    nudg_in_files = systemfunc("ls "+g_data_nudg_path+"/*n[3]*"+g_var_name(1)+"*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     nudg_in     := addfiles (nudg_in_files, "r")   ; note the "s" of addfile
     ListSetType (nudg_in, "join")
