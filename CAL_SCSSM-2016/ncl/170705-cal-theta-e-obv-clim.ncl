@@ -50,11 +50,11 @@ begin
         
 
     print("T Reading...")
-    ctrl_in1      = addfile (g_data_path+"interim.41days.air.nc", "r")   ; note the "s" of addfile            
-    var1 = ctrl_in1->$g_var_name(0)$(:,:,{1000:500},:,:) 
+    ctrl_in1      = addfile (g_data_path+"air.mean.nc", "r")   ; note the "s" of addfile            
+    var1 = ctrl_in1->$g_var_name(0)$(:,{1000:500},:,:) 
     print("Q Reading...")
-    ;ctrl_in2      = addfile (g_data_path+"interim.41days.shum.nc", "r")   ; note the "s" of addfile            
-    ;var2 = ctrl_in2->$g_var_name(1)$(:,:,{1000:500},:,:)
+    ;ctrl_in2      = addfile (g_data_path+"shum.mean.nc", "r")   ; note the "s" of addfile            
+    ;var2 = ctrl_in2->$g_var_name(1)$(:,{1000:500},:,:)
 
     
 
@@ -63,14 +63,13 @@ begin
     ctrl_theta_e_var=var1
     print("theta_e calculating...")
     
-    level=conform(var1, var1&level, 2)
-    ;ctrl_theta_e_var(0,:,:,:,:)=pot_temp_equiv(level, var1, var2, -1, "q")
-    var2=var1 
+    level=conform(var1, var1&level, 1)
+    var2=var1
     var2=100
     ctrl_theta_e_var=pot_temp_equiv(level, var1, var2, -1, "rh")
    
-    pro_dir=g_data_path+"interim.41days.theta_es.nc"
+    pro_dir=g_data_path+"theta_es.mean.nc"
     print("Write...")
-    write_YDLLL_to_nc("theta_es",ctrl_theta_e_var,pro_dir)
+    write_TLLL_to_nc("theta_es",ctrl_theta_e_var,pro_dir)
 end
 

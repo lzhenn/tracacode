@@ -36,14 +36,14 @@ begin
     ;g_var_name = (/"uwnd","vwnd","air"/)
     g_font = 0.02
   
-    g_latN=20
+    g_latN=22
     g_latS=5
     g_lonE=100
     g_lonW=87.5
     
     ;5, 12 works
-    ep_strt=5
-    ep_end=12
+    ep_strt=11
+    ep_end=20
 
     g_level=700
     g_level0=1000
@@ -55,14 +55,14 @@ begin
     g_nudg_name="Nudging"
 
 
-    ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.75-120.theta_es.nc", "r") 
+    ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.41days.theta_es.nc", "r") 
     ctrl_var1=ctrl_in1->theta_es(:,:,{g_level},:,:)
-    nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.75-120.theta_es.nc", "r") 
+    nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.41days.theta_es.nc", "r") 
     nudg_var1=nudg_in1->theta_es(:,:,{g_level},:,:)
  
-    ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.75-120.theta_e.nc", "r") 
+    ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.41days.theta_e.nc", "r") 
     ctrl_var2=ctrl_in1->theta_e(:,:,{g_level0},:,:)
-    nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.75-120.theta_e.nc", "r") 
+    nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.41days.theta_e.nc", "r") 
     nudg_var2=nudg_in1->theta_e(:,:,{g_level0},:,:)   
     
     
