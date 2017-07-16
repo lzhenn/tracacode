@@ -20,6 +20,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCL_SELFLIB/file_io.ncl"
 
 begin
 
@@ -44,7 +45,7 @@ begin
     ; create an array of desired pressure levels:
     g_fig_name = "../fig/pentad-rain"
 
-    ctrl_in1     = addfile ("/Users/zhenningli/data/obv/PRECT/precip.pentad.mean.nc", "r")   ; note the "s" of addfile
+    ctrl_in1     = addfile ("/home/yangsong3/L_Zealot/data-mirror/obv/GPCP-precip/precip.pentad.mean.nc", "r")   ; note the "s" of addfile
     var1=ctrl_in1->precip(:g_yr_len*73-1,:,:)
     var1_dim=dimsizes(var1)
 
@@ -55,12 +56,12 @@ begin
     var1_4d!1="pentad"
     var1_4d!2="lat"
     var1_4d!3="lon"
+    var1_4d&pentad=ispan(1,73,1)
     var1_4d&lat=var1&lat
     var1_4d&lon=var1&lon
     clim_var1=dim_avg_n_Wrap(var1_4d,0)
     
     printVarSummary(var1_4d)
-
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -176,6 +177,7 @@ begin
   end do
   gsn_panel(wks,plot,(/4,4/),False)
 
+  write_TLL_to_nc("precip",clim_var1,"/home/yangsong3/L_Zealot/data-mirror/obv/GPCP-precip/precip.pentad.clim.mean.nc")
 
 end
 
