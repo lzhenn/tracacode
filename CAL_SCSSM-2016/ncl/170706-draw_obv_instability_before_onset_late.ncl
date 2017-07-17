@@ -47,7 +47,7 @@ begin
     g_day_rank=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)
     g_nsp_years=dimsizes(g_special_year)
 
-    g_latN=22
+    g_latN=20
     g_latS=5
     g_lonE=100
     g_lonW=87.5
@@ -56,7 +56,7 @@ begin
     ep_strt=16
     ep_end=20
 
-    clim_strt=105
+    clim_strt=116
     clim_end=120
 
     g_level=700
