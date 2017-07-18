@@ -33,8 +33,8 @@ begin
     g_font2=0.016
     g_fig_rank=(/"(b)(c)"/)
     ;one month rightward shift
-    yrstrt1  = 199601
-    yrlast1  = 199712
+    yrstrt1  = 201401
+    yrlast1  = 201512
 
     ;Smaller Region
     g_latS=-20.

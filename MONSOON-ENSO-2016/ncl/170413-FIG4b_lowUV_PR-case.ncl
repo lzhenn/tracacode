@@ -163,9 +163,9 @@ begin
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -3e-8          ; set min contour level
-    res@cnMaxLevelValF        =  3e-8          ; set max contour level
-    res@cnLevelSpacingF       =  5e-9          ; set contour interval
+    res@cnMinLevelValF        =  -6e-8          ; set min contour level
+    res@cnMaxLevelValF        =  6e-8          ; set max contour level
+    res@cnLevelSpacingF       =  1e-8          ; set contour interval
     res@vpHeightF=0.2
     res@vpWidthF=0.6
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
