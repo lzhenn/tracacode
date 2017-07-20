@@ -92,7 +92,7 @@ begin
     n_nudg=dimsizes(nudg_ip)
     print(n_ctrl)
     print(n_nudg)
-    y1_box(0,:) = (/ctrl_ip(floattoint(0.15*n_ctrl)),ctrl_ip(floattoint(n_ctrl/4)),ctrl_ip(floattoint(n_ctrl/2)),ctrl_ip(floattoint(3*n_ctrl/4)),ctrl_ip(floattoint(n_ctrl*0.85))/)
+    y1_box(0,:) = (/ctrl_ip(floattoint(0.1*n_ctrl)),ctrl_ip(floattoint(n_ctrl/4)),ctrl_ip(floattoint(n_ctrl/2)),ctrl_ip(floattoint(3*n_ctrl/4)),ctrl_ip(floattoint(n_ctrl*0.9))/)
     y1_box(1,:) = (/nudg_ip(floattoint(0.1*n_ctrl)),nudg_ip(floattoint(n_nudg/4)),nudg_ip(floattoint(n_nudg/2)),nudg_ip(floattoint(3*n_nudg/4)),nudg_ip(floattoint(n_nudg*0.9))/)
 
     y1_avg(0) = avg(ctrl_ip)
@@ -146,8 +146,8 @@ begin
     lnres = True
     lnres@gsLineThicknessF = 3.0
     
-    res@trYMaxF  = 285.0
-    res@trYMinF  = 283.0
+    ;res@trYMaxF  = 285.0
+    ;res@trYMinF  = 283.0
     ;siglnres@gsLineThicknessF = 3.0
     ;siglnres@gsLineDashPattern = 2
     ;siglnres@gsLineColor = "red"

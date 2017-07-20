@@ -96,7 +96,7 @@ begin
 
     ctrl_strt=dimsizes(ctrl_ip)-n_ctrl
     nudg_strt=dimsizes(nudg_ip)-n_nudg
-    y1_box(0,:) = (/ctrl_ip(ctrl_strt+floattoint(n_ctrl*0.05)),ctrl_ip(ctrl_strt+floattoint(n_ctrl/4)),ctrl_ip(ctrl_strt+floattoint(n_ctrl/2)),ctrl_ip(ctrl_strt+floattoint(3*n_ctrl/4)),ctrl_ip(ctrl_strt+floattoint(n_ctrl*0.95))/)
+    y1_box(0,:) = (/ctrl_ip(ctrl_strt+floattoint(n_ctrl*0.1)),ctrl_ip(ctrl_strt+floattoint(n_ctrl/4)),ctrl_ip(ctrl_strt+floattoint(n_ctrl/2)),ctrl_ip(ctrl_strt+floattoint(3*n_ctrl/4)),ctrl_ip(ctrl_strt+floattoint(n_ctrl*0.9))/)
     y1_box(1,:) = (/nudg_ip(nudg_strt+floattoint(n_nudg*0.05)),nudg_ip(nudg_strt+floattoint(n_nudg/4)),nudg_ip(nudg_strt+floattoint(n_nudg/2)),nudg_ip(nudg_strt+floattoint(3*n_nudg/4)),nudg_ip(nudg_strt+floattoint(n_nudg*0.95))/)
     print(y1_box)
     y1_avg(0) = avg(ctrl_ip)

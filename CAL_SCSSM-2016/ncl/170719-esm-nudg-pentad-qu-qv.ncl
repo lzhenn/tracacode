@@ -35,15 +35,17 @@ begin
     ;g_var_name = (/"uwnd","vwnd","air"/)
     g_font = 0.02
   
-    g_latN=50
-    g_latS=-5
+    g_latN=30
+    g_latS=0
     g_lonE=120
-    g_lonW=30
+    g_lonW=70
     
 
     g_level=850
 
- 
+    g_day_strt=81
+    g_day_last=95
+
     g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/"
     g_nudg_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/"
     g_ctrl_name="CLIM-Trans-2015"
@@ -68,10 +70,6 @@ begin
         ListPush(var_ctrl_list,ctrl_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
         nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.clim."+g_var_name(ii)+".0101-0701.nc", "r") 
         ListPush(var_nudg_list,nudg_in1->$g_var_name(ii)$(:,{g_level},:,:))  ; Push variable onto list.
-       ; ctrl_in2     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.41days."+g_var_name(ii)+".0101-0701.nc", "r") 
-       ; ListPush(var_ctrl_onset_list,ctrl_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
-       ; nudg_in2     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.41days."+g_var_name(ii)+".0101-0701.nc", "r") 
-       ; ListPush(var_nudg_onset_list,nudg_in2->$g_var_name(ii)$(:,:,{g_level},:,:))  ; Push variable onto list.
     end do
     ctrl_var1=var_ctrl_list[2]
     ctrl_var2=var_ctrl_list[1]
@@ -81,15 +79,24 @@ begin
     nudg_var2=var_nudg_list[1]
     nudg_var3=var_nudg_list[0] 
  
-    diff_var1=dim_avg_n_Wrap(var1,0)
-    diff_var2=dim_avg_n_Wrap(var2,0)
-    diff_var3=dim_avg_n_Wrap(var3,0)
+    ctrl_var1=ctrl_var1*ctrl_var3
+    ctrl_var2=ctrl_var2*ctrl_var3
     
-    ;500hPa 7:14
-    diff_var1:=dim_avg_n_Wrap(diff_var1(7:20,:,:),0)
-    diff_var2:=dim_avg_n_Wrap(diff_var2(7:20,:,:),0)
-    diff_var3:=dim_avg_n_Wrap(diff_var3(7:20,:,:),0)
+    nudg_var1=nudg_var1*nudg_var3
+    nudg_var2=nudg_var2*nudg_var3
 
+    diff_var1=ctrl_var1
+    diff_var2=ctrl_var2
+
+    diff_var1=nudg_var1-ctrl_var1
+    diff_var2=nudg_var2-ctrl_var2
+    
+    diff_var3=diff_var1
+    diff_var3=uv2dv_cfd(diff_var1,diff_var2,ctrl_var1&lat,ctrl_var1&lon,1)
+
+    diff_var1:=dim_avg_n_Wrap(diff_var1(g_day_strt:g_day_last,:,:),0)
+    diff_var2:=dim_avg_n_Wrap(diff_var2(g_day_strt:g_day_last,:,:),0)
+    diff_var3:=dim_avg_n_Wrap(diff_var3(g_day_strt:g_day_last,:,:),0)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -99,9 +106,6 @@ begin
   n_smp=1
   plot_sh = new((/n_smp/),graphic)
   plot_V = new((/n_smp/),graphic)
-  plot_xy = new((/n_smp/),graphic)
-  plot_xynew = new((/n_smp/),graphic)
-  newplot = new((/n_smp/),graphic)
 ;  plot_cn_max = new((/g_day_comp_len/),graphic)
 ;  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
@@ -135,9 +139,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -1.0         ; set min contour level
- res@cnMaxLevelValF        = 1.0         ; set max contour level
- res@cnLevelSpacingF       = 0.2          ; set contour interval
+ res@cnMinLevelValF        = -2.5e-8         ; set min contour level
+ res@cnMaxLevelValF        = 2.5e-8         ; set max contour level
+ res@cnLevelSpacingF       = 0.5e-8          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -212,13 +216,13 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 0.01             ; define vector ref mag
   vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "2 m/s"
+  vcres@vcRefAnnoString1  = "0.01 kg*m/s"
   vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.02
+  vcres@vcRefAnnoFontHeightF = 0.015
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
   vcres@vcLineArrowHeadMinSizeF   = 0.008
@@ -227,7 +231,7 @@ begin
 
 
 
-  g_fig_name="../fig/obv/diff-UVT-nudg-14day-onset-"+g_level
+  g_fig_name="../fig/obv/diff-qu-qv-Nudg-CTRL-"+g_level
   
 
   wks_type="png"
@@ -237,7 +241,7 @@ begin
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
   do ii = 0, n_smp-1
      jj=ii
-     res@gsnLeftString="UVT Diff"+g_level+"hPa  "+ii
+     res@gsnLeftString="Nudg-CTRL: qu, qv, & div<qu,qv> "+g_level+"hPa  "
      plot_sh(ii)= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
     ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
      plot_V(ii) = gsn_csm_vector(wks,diff_var1,diff_var2,vcres) 

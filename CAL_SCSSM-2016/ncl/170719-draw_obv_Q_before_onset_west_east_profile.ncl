@@ -51,7 +51,7 @@ begin
     g_latN0=17.5
     g_latS0=10
     g_lonE0=95
-    g_lonW0=87.5
+    g_lonW0=85.5
  
     ;East guys
     g_latN1=7.5
@@ -118,60 +118,119 @@ begin
     print(var1)
     print(var2)
     
-    exit
     ;********************************************************
     ; create the plot
     ;********************************************************  
-    g_fig_name="../fig/obv/box-west-east-shum" 
-   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
-   ;plot_box = new((/4/),graphic)
+    g_fig_name="../fig/Q-profile"
 
-
-    res            = True                         ; plot mods desired
-    res@tmXBLabels = (/"West Type", "East Type"/) ; labels for each box
-   res@tmXBLabelFontHeightF = g_font
-   res@tmYLLabelFontHeightF = g_font
-   res@tiMainFontHeightF    = g_font
-
-    ;**********************************************
-    ; resources for polylines that draws the boxes
-    ;**********************************************  
-    llres                   = True          
-    llres@gsLineThicknessF  = 5.0                 ; line thickness 
-    ;**********************************************
-    ; resources that control color and width of boxes
-    ;**********************************************  
-    opti          = True            
-    opti@boxWidth = .5              ; Width of box (x units)
-    opti@boxColors = (/"blue","red"/)     ; Color of box(es)
-    ;***********************************************
+    wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
     
-    
-   ;***********************************************
-   ;add polymarker res
-   ;***********************************************
-   mres               = True                     ; marker mods desired
-   mres@gsMarkerIndex = 3                        ; polymarker style
-   mres@gsMarkerSizeF = 20.                      ; polymarker size
-   mres@gsMarkerColor = "navy blue"                    ; polymarker color
-   mres@gsMarkerThicknessF = 3.0
+    resxy                   = True                      ; plot mods desired
+    resxy@gsnDraw           = False
+    resxy@gsnFrame          = False
 
-   ;***********************************************
-   ;add refline res
-   ;***********************************************
 
-    lnres = True
-    lnres@gsLineThicknessF = 3.0
-    
-    ;res@trYMaxF  = 285.0
-    ;res@trYMinF  = 283.0
-    ;siglnres@gsLineThicknessF = 3.0
-    ;siglnres@gsLineDashPattern = 2
-    ;siglnres@gsLineColor = "red"
-    res@tiMainFontHeightF=g_font 
-    res@tiMainString="SH700 Distribution (g/kg)"
-   plot_box = boxplot(wks,x,y1_box,opti,res,llres) ; All 3 options used...
-   dum2 = gsn_add_polymarker(wks,plot_box,x,y1_avg,mres) 
+   ; resxy@gsnXRefLine       = 0.0                       ; draw ref line
+    resxy@trYReverse        = True                      ; reverse Y-axis
+    resxy@xyLineThicknesses=  3.0          
+    resxy@xyLineColor      = "red"          ; change line colors
+    resxy@xyMonoDashPattern = False
+    resxy@xyDashPattern    = 0
+    resxy@trYMinF           = 500.0
+    resxy@trYMaxF           = 1000.0
+    resxy@tiXAxisString = "Specific Humidity (g/kg)"
 
-    gsn_panel(wks,plot_box,(/1,1/),False)
-end
+    ;resxy@pmLegendDisplayMode    = "Always"             ; turn on legend
+    ;resxy@xyExplicitLegendLabels = (/"CON","SEN","CP_CON","CP_HEAT","HEAT"/)
+    ;resxy@pmLegendSide           = "Top"                ; Change location of 
+    ;resxy@pmLegendParallelPosF   = .65                  ; move units right
+    ;resxy@pmLegendOrthogonalPosF = -0.35                ; move units down
+    ;resxy@lgPerimOn = False
+    ;resxy@pmLegendWidthF         = 0.12                   ; Change width and
+    ;resxy@pmLegendHeightF        = 0.12                   ; height of legend.
+    ;resxy@lgLabelFontHeightF     = .020                    ; change font height
+
+    resxy@gsnStringFontHeightF = g_font 
+    ;resxy@gsnLeftString = "(c)"
+
+
+    resxy@trXMinF =  0.  ; axis min
+    resxy@trXMaxF =  20.  ; axis min
+
+    ;resxy@xyMarkLineMode       = "MarkLines"  ; markers and lines
+    ;resxy@xyMarkers            = (/16,16/)           ; filled dot
+    ;resxy@xyMarkerSizeF        = (/0.01,0.01/)
+    ;resxy@xyMarkerThicknessF   = (/0.6,0.6/)
+    ;resxy@xyMarkerColors       = (/"blue","red"/)   
+
+
+    ; Plot 
+    plot  = gsn_csm_xy (wks,var1,var1&level,resxy) ; create plot
+    resxy@xyLineColor      = "blue"          ; change line colors
+ 
+    plot_deep  = gsn_csm_xy (wks,var2,var2&level,resxy) ; create plot
+
+
+
+
+
+
+    overlay(plot,plot_deep)
+
+
+    var1_range=new((/2,dimsizes(var1)/),"float")
+    var1_range(0,:)=var1+std_var1
+    var1_range(1,:)=var1-std_var1
+
+    var2_range=new((/2,dimsizes(var2)/),"float")
+    var2_range(0,:)=var2+std_var2
+    var2_range(1,:)=var2-std_var2
+
+
+    ; Create a plot with the area between both curves filled in blue.
+      resxy@gsnXYFillOpacities = 0.4
+      resxy@gsnXYFillColors = "OrangeRed"
+      resxy@xyLineColor     = -1                           ; We don't want the line, so make it transparent.
+      bot_plot  = gsn_csm_xy (wks,var1_range,var1&level,resxy)  ; Create filled XY plot.
+
+      resxy@gsnXYFillColors = "DeepSkyBlue"
+      bot_plot1  = gsn_csm_xy (wks,var2_range,var2&level,resxy)  ; Create filled XY plot.
+      
+      overlay(plot,bot_plot)
+      overlay(plot,bot_plot1)
+
+
+
+
+
+
+
+
+
+    ;--------------------------------------------------------------------------
+    res_lines                   = True                  ; polyline mods desired
+    res_lines@gsLineDashPattern = 0.                    ; solid line
+    res_lines@gsLineThicknessF  = 3.                    ; line thicker
+
+        res_text                    = True                  ; text mods desired
+    res_text@txFontHeightF      = 0.015                 ; change text size
+    res_text@txJust             = "CenterLeft"          ; text justification
+
+    res_lines@gsLineColor       = "blue"
+    yy = (/600.,600./)
+    xx = (/9.0,12.0/)
+    text_pos = 12.5
+    dum5 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
+    dum6 = gsn_add_text(wks,plot,"Eastern Parcels",text_pos,yy(0),res_text); add text
+
+    res_lines@gsLineColor       = "red"
+    res_lines@gsLineDashPattern = 0.
+    yy = (/650.,650./)
+    dum7 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
+    dum8 = gsn_add_text(wks,plot,"Northwestern Parcels",text_pos,yy(0),res_text); add text
+ 
+;    overlay(plot,plot_diab)
+  draw(plot)
+    frame(wks)
+   
+  end
