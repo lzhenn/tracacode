@@ -82,7 +82,9 @@ begin
     do ii=0,dimsizes(ctrl_ip)-1
         ctrl_ip(ii)=num(ctrl_var1(ii,:,:) .gt. 0)
     end do
-    
+    dim=dimsizes(ctrl_var1)
+    print(dim(1)*dim(2))
+    exit
     nudg_ip=nudg_var1(0:g_nsp_years-1,0:ep_end-ep_strt,0,0)
     do jj=0,g_nsp_years-1
         do ii=0, ep_end-ep_strt;dimsizes(nudg_ip)-1

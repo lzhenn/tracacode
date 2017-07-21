@@ -97,7 +97,7 @@ begin
 
     y1_avg(0) = avg(ctrl_ip)
     y1_avg(1) = avg(nudg_ip)
-    
+    print(y1_avg) 
     ;y1_box(0,:)=y1_box(0,:)/y1_avg(0)
     ;y1_box(1,:)=y1_box(1,:)/y1_avg(0)
 

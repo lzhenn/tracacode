@@ -90,14 +90,12 @@ begin
 
     n_ctrl=dimsizes(ctrl_ip)
     n_nudg=dimsizes(nudg_ip)
-    print(n_ctrl)
-    print(n_nudg)
     y1_box(0,:) = (/ctrl_ip(floattoint(0.1*n_ctrl)),ctrl_ip(floattoint(n_ctrl/4)),ctrl_ip(floattoint(n_ctrl/2)),ctrl_ip(floattoint(3*n_ctrl/4)),ctrl_ip(floattoint(n_ctrl*0.9))/)
     y1_box(1,:) = (/nudg_ip(floattoint(0.1*n_ctrl)),nudg_ip(floattoint(n_nudg/4)),nudg_ip(floattoint(n_nudg/2)),nudg_ip(floattoint(3*n_nudg/4)),nudg_ip(floattoint(n_nudg*0.9))/)
 
     y1_avg(0) = avg(ctrl_ip)
     y1_avg(1) = avg(nudg_ip)
-    
+    print(y1_avg) 
     ;y1_box(0,:)=y1_box(0,:)/y1_avg(0)
     ;y1_box(1,:)=y1_box(1,:)/y1_avg(0)
 

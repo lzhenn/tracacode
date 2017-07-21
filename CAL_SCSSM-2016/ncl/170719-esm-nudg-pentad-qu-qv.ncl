@@ -43,8 +43,8 @@ begin
 
     g_level=850
 
-    g_day_strt=81
-    g_day_last=95
+    g_day_strt=91
+    g_day_last=119
 
     g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/"
     g_nudg_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/"
@@ -216,11 +216,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 0.01             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 0.02             ; define vector ref mag
   vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "0.01 kg*m/s"
+  vcres@vcRefAnnoString1  = "0.02 kg*m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.015
  

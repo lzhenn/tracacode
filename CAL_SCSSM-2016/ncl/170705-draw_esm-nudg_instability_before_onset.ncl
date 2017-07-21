@@ -78,6 +78,8 @@ begin
         ctrl_ip(ii)=num(ctrl_var1(ii,:,:,:) .gt. 0)
         nudg_ip(ii)=num(nudg_var1(ii,:,:,:) .gt. 0)
     end do
+    total=dimsizes(ctrl_var1)
+    print(total(1)*total(2)*total(3))
     qsort(ctrl_ip)
     qsort(nudg_ip)
     nudg_ip(0)=nudg_ip(1)*0.5

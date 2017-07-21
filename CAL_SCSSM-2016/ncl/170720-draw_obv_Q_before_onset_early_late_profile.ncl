@@ -37,9 +37,9 @@ begin
     g_font = 0.02
   
     ;BOB Early
-    ;g_comp="early"
-    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
-    ;g_nsp_years=dimsizes(g_special_year)
+    g_comp="early"
+    g_special_year_e=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
+    g_nsp_years_e=dimsizes(g_special_year_e)
    
     ;BOB Late
     g_comp="late"
@@ -48,17 +48,12 @@ begin
     g_nsp_years=dimsizes(g_special_year)
 
     ;West guys
-    g_latN0=17.5
-    g_latS0=10
+    g_latN0=20.5
+    g_latS0=11
     g_lonE0=95
-    g_lonW0=85.5
+    g_lonW0=87.5
  
-    ;East guys
-    g_latN1=7.5
-    g_latS1=9.5
-    g_lonE1=100
-    g_lonW1=87.5
-    
+   
     ;5, 12 works
     ep_strt=18
     ep_end=19
@@ -72,21 +67,34 @@ begin
 
 
     nudg_in1     = addfile(g_nudg_datapath+"interim.41days.shum.nc", "r") 
-    nudg_var1=nudg_in1->shum(:,ep_strt:ep_end,{1000:500},:,:)
+    nudg_var1=nudg_in1->shum(:,ep_strt:ep_end,{1000:500},{g_latS0:g_latN0},{g_lonE0:g_lonW0})
  
-    ;nudg_in1     = addfile(g_nudg_datapath+"interim.41days.theta_e.nc", "r") 
-    ;nudg_var2=nudg_in1->theta_e(:,ep_strt:ep_end,{g_level0},:,:)   
-    
-    var1=nudg_var1(:,:,:,{g_latS0:g_latN0},{g_lonE0:g_lonW0})
-    var2=nudg_var1(:,:,:,{g_latS1:g_latN1},{g_lonE1:g_lonW1})
-    
+    dim_var1=dimsizes(nudg_var1)
+    var1=nudg_var1(0:g_nsp_years_e-1,:,:,:,:)
+    var2=nudg_var1(0:g_nsp_years-1,:,:,:,:)
+    jj=0
+    kk=0
+    do ii=0, dim_var1(0)-1
+        if ( jj .lt. g_nsp_years_e) then
+            if (ii .eq. g_special_year_e(jj)) then
+                var1(jj,:,:,:,:)=nudg_var1(ii,:,:,:,:)
+                jj=jj+1
+            end if
+        end if
+        if ( kk .lt. g_nsp_years ) then
+            if (ii .eq. g_special_year(kk)) then
+                var2(kk,:,:,:,:)=nudg_var1(ii,:,:,:,:)
+                kk=kk+1
+            end if
+        end if
+    end do
      
 
     var1:=dim_avg_Wrap(var1)
     var1:=dim_avg_Wrap(var1)
   
  
-    dim_var1=dimsizes(var1)
+    dim_var1:=dimsizes(var1)
     var1_for_std=reshape(var1,(/dim_var1(0)*dim_var1(1),dim_var1(2)/))
     std_var1=dim_stddev_n_Wrap(var1_for_std,0)
 
@@ -121,7 +129,7 @@ begin
     ;********************************************************
     ; create the plot
     ;********************************************************  
-    g_fig_name="../fig/Q-profile"
+    g_fig_name="../fig/Q-profile-early-late"
 
     wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
     
@@ -221,13 +229,13 @@ begin
     xx = (/9.0,12.0/)
     text_pos = 12.5
     dum5 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
-    dum6 = gsn_add_text(wks,plot,"Eastern Parcels",text_pos,yy(0),res_text); add text
+    dum6 = gsn_add_text(wks,plot,"Late Onset",text_pos,yy(0),res_text); add text
 
     res_lines@gsLineColor       = "red"
     res_lines@gsLineDashPattern = 0.
     yy = (/650.,650./)
     dum7 = gsn_add_polyline(wks,plot,xx,yy,res_lines)              ; add polyline
-    dum8 = gsn_add_text(wks,plot,"Western Parcels",text_pos,yy(0),res_text); add text
+    dum8 = gsn_add_text(wks,plot,"Early Onset",text_pos,yy(0),res_text); add text
  
 ;    overlay(plot,plot_diab)
   draw(plot)
