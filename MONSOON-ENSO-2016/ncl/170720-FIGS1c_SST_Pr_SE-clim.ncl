@@ -395,26 +395,26 @@ begin
     res3@gsnRightString      = " "
 
     cmp_var4_sp=smth9_Wrap(cmp_var4_sp,0.5,0.25, True)
-    plot_cn_pos(0) = gsn_csm_contour(wks,cmp_var4_sp(2,:,:),res3) ; create a default plot
+    plot_cn_pos(0) = gsn_csm_contour(wks,cmp_var4_sp(3,:,:),res3) ; create a default plot
     cmp_var4_all=smth9_Wrap(cmp_var4_all,0.5,0.25, True)
-    plot_cn_pos(1) = gsn_csm_contour(wks,cmp_var4_all(2,:,:),res3) ; create a default plot
+    plot_cn_pos(1) = gsn_csm_contour(wks,cmp_var4_all(3,:,:),res3) ; create a default plot
     
     res3@cnLevels = -res3@cnLevels
     res3@cnLineColor      = "Red"
     res3@cnLineDashPattern      = 1
-    plot_cn_neg(0) = gsn_csm_contour(wks,cmp_var4_sp(2,:,:),res3) ; create a default plot
-    plot_cn_neg(1) = gsn_csm_contour(wks,cmp_var4_all(2,:,:),res3) ; create a default plot
+    plot_cn_neg(0) = gsn_csm_contour(wks,cmp_var4_sp(3,:,:),res3) ; create a default plot
+    plot_cn_neg(1) = gsn_csm_contour(wks,cmp_var4_all(3,:,:),res3) ; create a default plot
 
     res5=res3
     res5@cnLevels:=(/28.0/)
     res5@cnLineColor      = "Black"
     res5@cnLineDashPattern      = 0
     res5@cnLineThicknessF = 2
-    plot_sst_cmp = gsn_csm_contour(wks,cmp_sp_var3_avg(2,:,:),res5) ; create a default plot
+    plot_sst_cmp = gsn_csm_contour(wks,cmp_sp_var3_avg(3,:,:),res5) ; create a default plot
 
     res5@cnLineColor      = "Gray35"
     res5@cnLineDashPattern      = 1
-    plot_sst_clim = gsn_csm_contour(wks,clim_var3(2,:,:),res5) ; create a default plot
+    plot_sst_clim = gsn_csm_contour(wks,clim_var3(3,:,:),res5) ; create a default plot
 
 ;-------------------------------------------------
 ;-----------------------------------------------------
@@ -471,19 +471,19 @@ begin
     res@gsnCenterString = g_fig_title(0)
     res@gsnRightString = ""
 
-    plot(0) = gsn_csm_contour_map_ce(wks,diff_var3_sp_sig(2,:,:),res)
+    plot(0) = gsn_csm_contour_map_ce(wks,diff_var3_sp_sig(3,:,:),res)
     
     res@gsnLeftString = g_fig_rank(1)
     res@gsnCenterString = g_fig_title(0)
     res@gsnRightString = ""
     ;plot(1) = gsn_csm_contour_map_ce(wks,diff_var3_all_sig(3,:,:),res)
 
-    plot_sig(0) = gsn_csm_contour(wks,diff_var3_sp_sig(2,:,:),res4)  ; Create shaded contours
+    plot_sig(0) = gsn_csm_contour(wks,diff_var3_sp_sig(3,:,:),res4)  ; Create shaded contours
    ; plot_sig(1) = gsn_csm_contour(wks,diff_var3_all_sig(3,:,:),res4)  ; Create shaded contours
     
     res4@cnFillPattern=7
     res4@cnFillColor="black"
-    plot_sig2(0) = gsn_csm_contour(wks,diff_var4_sp_sig(2,:,:),res4)  ; Create shaded contours
+    plot_sig2(0) = gsn_csm_contour(wks,diff_var4_sp_sig(3,:,:),res4)  ; Create shaded contours
     ;plot_sig2(1) = gsn_csm_contour(wks,diff_var4_all_sig(3,:,:),res4)  ; Create shaded contours
     
     ;plot_V(0) = gsn_csm_vector(wks,diff_var1_sp_sig(3,:,:),diff_var2_sp_sig(3,:,:),vcres)
