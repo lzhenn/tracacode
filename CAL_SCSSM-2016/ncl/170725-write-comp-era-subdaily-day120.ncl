@@ -33,9 +33,10 @@ begin
 ;global variables
     ;Define parameters
 
+    g_comp="Clim"
     ;for directory 
-    origin_dir="/Users/zhenningli/data/obv/ERA-daily/uvw/"
-    output_fn="/Users/zhenningli/data/CAL_SCSSM-2016/onset_comp_uvw/early/cmp_uvw.nc"
+    origin_dir="/home/yangsong3/data/observation/ERA-interim/subdaily/temp_convert/"
+    output_fn="/home/yangsong3/data/observation/L_Zealot/ERAI/CAL_SCSSM-2016/onset_comp_uvw-bck-traj/"+g_comp+"/cmp_uvw.nc"
     ;SCS
     ;g_day_rank=(/135,140,150,155,145,140,150,135,160,145,160,140,160,140,150,125,135,130,140,140,150,135,130,135,145,140,150,140,145,125,150,145,130,140/)
     
@@ -54,14 +55,13 @@ begin
     
     ;BOB All
     ;g_comp="all"
-    ;g_special_year=ispan(g_strt_yr,g_lst_yr,1)
-    ;g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)
+    g_special_year=ispan(g_strt_yr,g_lst_yr,1)
+    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123/)
 
     
     ;BOB Early
-    g_comp="early"
-    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
-    g_day_rank=(/108, 105, 93, 100, 107, 99/)
+    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)
+    ;g_day_rank=(/108, 105, 93, 100, 107, 99/)
     
     ;BOB Late
     ;g_comp="late"
@@ -73,17 +73,18 @@ begin
     jj=0
     print("Year: "+g_special_year(jj))    
     yyyymmddhh_list = yyyymmddhh_time(g_special_year(jj), g_lst_yr, 6, "integer")  
-    yyyymmdd_strt=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+g_day_rank(jj)-14)
-    yyyymmdd_end=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+g_day_rank(jj)+9)
+    yyyymmdd_strt=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+120-5)
+    yyyymmdd_end=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+120+5)
     parser_time=yyyymmddhh_list({yyyymmdd_strt*100:yyyymmdd_end*100})
-    all_files = origin_dir+"ei.oper.an.pl.regn128uv."+parser_time+".nc"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
+    print("Parser: "+parser_time)
+    all_files = origin_dir+"ei.oper.an.pl.regn128uv."+parser_time+".nc4"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
     setfileoption("nc","SuppressClose",False) ; close too many files
     ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in, "join")             ; concatenate or "merge" (default)
     ctrl_var1 = ctrl_in[:]->U_GDS4_ISBL
     ctrl_var2 = ctrl_in[:]->V_GDS4_ISBL
 
-    all_files = origin_dir+"ei.oper.an.pl.regn128sc."+parser_time+".nc"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
+    all_files = origin_dir+"ei.oper.an.pl.regn128sc."+parser_time+".nc4"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
     ctrl_in2      = addfiles (all_files, "r")   ; note the "s" of addfile
     ListSetType (ctrl_in2, "join")             ; concatenate or "merge" (default)
     ctrl_var3 = ctrl_in2[:]->W_GDS4_ISBL
@@ -91,15 +92,16 @@ begin
     do ii=1,g_yr_len-1
         if (ii+g_strt_yr) .eq. g_special_year(jj) then
             print("Year: "+g_special_year(jj))    
-            yyyymmdd_strt=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+g_day_rank(jj)-14)
-            yyyymmdd_end=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+g_day_rank(jj)+9)
+            yyyymmdd_strt=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+120-5)
+            yyyymmdd_end=yyyyddd_to_yyyymmdd(g_special_year(jj)*1000+120-5)
             parser_time=yyyymmddhh_list({yyyymmdd_strt*100:yyyymmdd_end*100})
-            all_files = origin_dir+"ei.oper.an.pl.regn128uv."+parser_time+".nc"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
+            print("Parser: "+parser_time)
+            all_files = origin_dir+"ei.oper.an.pl.regn128uv."+parser_time+".nc4"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
             setfileoption("nc","SuppressClose",False) ; close too many files
             ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
             ctrl_var1= ctrl_var1+ ctrl_in[:]->U_GDS4_ISBL
             ctrl_var2 =ctrl_var2+ ctrl_in[:]->V_GDS4_ISBL
-            all_files = origin_dir+"ei.oper.an.pl.regn128sc."+parser_time+".nc"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
+            all_files = origin_dir+"ei.oper.an.pl.regn128sc."+parser_time+".nc4"; ../"+case_name+"/"+exedir+"/*cam.h0.002[0-4]*")
             ctrl_in2      = addfiles (all_files, "r")   ; note the "s" of addfile
             ctrl_var3 = ctrl_var3+ctrl_in2[:]->W_GDS4_ISBL
             
