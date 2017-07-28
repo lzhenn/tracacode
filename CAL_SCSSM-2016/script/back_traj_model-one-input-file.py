@@ -85,10 +85,11 @@ def cal_nextstep(pr_array_istep,lat_array,lon_array,lev_array,var1_nx,var2_nx,va
 #----------------------------------------------------
 
 # Process cases
-casename='clim'
+casename='Early'
+pfname = '/home/yangsong3/data/observation/L_Zealot/ERAI/CAL_SCSSM-2016/onset_comp_uvw-bck-traj/'+casename+'/cmp_uvw.nc'
 
 # Output Dir
-out_dir='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/'+casename+'/'
+out_dir='/home/yangsong3/data-model/L_Zealot/CAL_SCSSM-2016/back_traj/'+casename+'/'
 
 
 # Integration timestep (hr)
@@ -100,8 +101,9 @@ g_itvl=24
 # Individual integration period (hr)
 g_int=96
 
-#g_lvls=[1000,925,850,700,600,500,200
-g_lvls=[600]
+#g_lvls=[1000,925,850,700,600,500,200]
+g_lvls=[825,800,775,750]
+#g_lvls=[600]
 # Points bound
 g_latS=9
 g_latN=15
@@ -125,7 +127,6 @@ CONST={'a':R_EARTH,'dis2lat':DIS2LAT}
 
 print ('Initializing...') 
 
-pfname = '/Users/zhenningli/data/CAL_SCSSM-2016/onset_comp_uvw/'+casename+'/cmp_uvw.nc'
 # Initialization
 fsteps, lat_array, lon_array, lev_array, var1 = read_era_all(pfname, varnames[0], cornames)
 g_fstep=fsteps[1]-fsteps[0]         # Timestep between input field 
@@ -144,7 +145,7 @@ for g_start_level in g_lvls:
     for idx_ini in range(n_initials):
         ini_day=idx_ini*g_itvl/24.0+1
         stop_day=ini_day+g_int/24.0
-        print 'Integrate Day%5.1f <-- Day%5.1f, %4dhPa' % (ini_day, stop_day, g_start_level) 
+        print 'Integrate Day%5.1f X----->O Day%5.1f, %4dhPa' % (ini_day, stop_day, g_start_level) 
 
         fpos=((idx_ini*g_itvl)+g_int)/g_fstep     # Reset pointer to the initial point in the file stream
         for istep in range(int(insteps)):

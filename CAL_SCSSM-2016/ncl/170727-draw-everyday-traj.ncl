@@ -33,22 +33,25 @@ rec_len=total_int_hrs/int_step
 
 
 ;Plvl
-plvl_list=(/1000, 925, 850, 700, 600, 500, 200/)
+;plvl_list=(/1000, 925, 850, 700, 600, 500, 200/)
+plvl_list=(/500/)
+;plvl_list=(/850,825,800,775,750,500/)
 
-latS=-10
-latN=30
+latS=0
+latN=25
 lonW=70
 lonE=120
-g_case="Clim"
+g_case="Late"
 fig_dir="/home/yangsong3/L_Zealot/project/CAL_SCSSM-2016/fig/traj/day120/"
 
 do jj=0,dimsizes(plvl_list)-1
     plvl=plvl_list(jj)
     do i_day=1, 5
        data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/CAL_SCSSM-2016/back_traj/"+g_case+"/Day"+i_day+".0_96hr_"+plvl+"hPa.txt"
+       print("processing Day"+i_day+" @ "+plvl+"hPa")
        pt_record  =   asciiread(data_file_name1,(/n_pts*rec_len,5/),"float") ; get the first file's lat lon and value
        ;pt_record [0]--pt idx [1]--timestamp [2]--lat [3]--lon [4]--plevel
-       wks      = gsn_open_wks("png",fig_dir+g_case+"_Day"+(i_day+115)+"_to_Day"+(i_day+118)+"_"+plvl+"hPa")       ; send graphics to PNG file
+       wks      = gsn_open_wks("png",fig_dir+g_case+"_Day"+(i_day+115)+"_to_Day"+(i_day+119)+"_"+plvl+"hPa")       ; send graphics to PNG file
        res             = True
        res@gsnDraw     = False                         ; don't draw
        res@gsnFrame    = False                         ; don't advance frame
@@ -68,8 +71,9 @@ do jj=0,dimsizes(plvl_list)-1
        res@tmYROn      = False     ; turn off right and top tickmarks
        res@tmXTOn      = False
 
-       res@tiMainString      = "Air Partical Track (Day"+(i_day+115)+" 00Z --> Day"+(i_day+118)+" 00Z, "+plvl+"hPa)"  ; title
-       res@tiMainFontHeightF = 0.02
+       res@tiMainString      = "Air Partical Track (Day"+(i_day+115)+" 00Z --> Day"+(i_day+119)+" 00Z, "+plvl+"hPa)"  ; title
+       ;res@tiMainString      = "Air Partical Track (Day"+(i_day+115)+" 00Z --> Day"+(i_day+119)+" 00Z, "+"700hPa)"  ; title
+       res@tiMainFontHeightF = 0.015
 
        map = gsn_csm_map_ce(wks,res)                  ; create map
 
@@ -86,6 +90,14 @@ do jj=0,dimsizes(plvl_list)-1
 
     ;********************************************
        do ii = 0, n_pts-1
+            if avg(pt_record(ii::n_pts,4)) .lt. plvl-20 then
+                pres@gsLineColor      = "red"
+            else if avg(pt_record(ii::n_pts,4)) .gt. plvl+20 then
+                pres@gsLineColor      = "blue"
+            else
+                pres@gsLineColor      = "black"
+            end if
+            end if
             gsn_polyline(wks,map,pt_record(ii::n_pts,3),pt_record(ii::n_pts,2),pres)      ; draw the traj
             gsn_polymarker(wks,map,pt_record(ii,3),pt_record(ii,2),mres)
        end do
