@@ -57,10 +57,11 @@ begin
     g_latN=90
     g_lonW=0
     g_lonE=360
-    g_var="omega"    
+    g_var="uwnd"    
     g_data1_path ="$DATAOBV/NCEP_NCAR/daily/"+g_var+"/"
-
-    var1_data=read_ncep_ncar_daily_3D(g_var, 100, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path)
+    
+    in_files = systemfunc("ls "+g_data1_path+"*.nc")
+    var1_data=read_ncep_ncar_daily_3D(g_var, 300, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path)
     ctrl_var1=var1_data(g_yr_strtidx:g_yr_lstidx,0:g_day_comp_len*2,:,:,:)
     do ii=0,g_yr_lstidx-g_yr_strtidx
         ctrl_var1(ii,:,:,:,:)=var1_data(g_yr_strtidx+ii,g_day_rank(ii)-g_day_comp_len:g_day_rank(ii)+g_day_comp_len,:,:,:)
