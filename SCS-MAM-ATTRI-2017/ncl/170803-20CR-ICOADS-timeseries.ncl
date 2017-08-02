@@ -30,8 +30,7 @@ begin
 ;================================================
 ;global variables
     ;Define parameters
-    g_data_path1 = "$DATAOBV/20thCRV2/prate.mon.mean.nc";NOAA-CIRES 20th Century Reanalysis version 2
-    g_data_path2 = "$DATAOBV/ERA-20C/surface/ERA20C-1900-2010-MAM-Pr.nc";NOAA-CIRES 20th Century Reanalysis version 2
+    g_data_path1 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/cldc.mean.nc"
 
     ;SCS+PhSea
     sea_latS=0.
@@ -56,10 +55,10 @@ begin
 
     g_font = 0.035
 
-    g_fig_name    =   "../fig/Pr_timeseries_20R"
-    g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_name    =   "../fig/Pr_cldc-timeseries_20R"
+    g_fig_rank    =   (/"","","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = (/"Southern China ","SCS+PhS "/)+g_season +" Pr Timeseries"
+    g_fig_title     = (/"Southern China ","SCS+PhS "/)+g_season +" Cloud Cover Timeseries"
    ;g_fig_title1   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr trend"  ;for dsstdt
    ;g_fig_title2   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr' trend" ;for dsst'dt
 
@@ -76,9 +75,8 @@ begin
     yyyymm =floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = ctrl_in1->prate(istrt:ilast,:,:)
+    var1 = short2flt(ctrl_in1->cldc(istrt:ilast,:,:))
 
-    var1=var1*86400
    
 
     printVarSummary(var1)
@@ -88,30 +86,14 @@ begin
     var1_sn_rm_searunmean=runave_Wrap(var1_season_seamean,11,0)
     var1_sn_rm_sealine=regline(ispan(g_strt_year,g_end_year,1),var1_season_seamean)
     
-	ctrl_file2   = g_data_path2
-	ctrl_in2     = addfile (ctrl_file2, "r")   ; note the "s" of addfile
-    var2  =short2flt(ctrl_in2->tp)			; p for unify the var name
-    var2=var2*1000
-    dim_var2=dimsizes(var2)
-    var2_4d=reshape(var2,(/111,3,dim_var2(1),dim_var2(2)/))
-    var2_4d!0="time"
-    var2_4d!1="month"
-    var2_4d!2="latitude"
-    var2_4d!3="longitude"
-    var2_4d&latitude=var2&latitude
-    var2_4d&longitude=var2&longitude
-    var2_season=dim_avg_n_Wrap(var2_4d,1)
-    var2_season_seamean = wgt_areaave_Wrap(var2_season(:,{sea_latS:sea_latN},{sea_lonW:sea_lonE}),1.0,1.0,0)
-    var2_season_seamean=runave_Wrap(var1_season_seamean,3,1)
-    
+	
     df2   = var1_sn_rm_sealine@nptxy-2
     yReg2 = var1_season_seamean
     yReg2 = var1_sn_rm_sealine*ispan(g_strt_year,g_end_year,1) + var1_sn_rm_sealine@yintercept   ; NCL array notation 
-    data2      = new((/4,dimsizes(var1_season_seamean)/),float)
+    data2      = new((/3,dimsizes(var1_season_seamean)/),float)
     data2(0,:) = var1_season_seamean
-    data2(1,:) = var2_season_seamean
-    data2(2,:) = var1_sn_rm_searunmean
-    data2(3,:) = yReg2
+    data2(1,:) = var1_sn_rm_searunmean
+    data2(2,:) = yReg2
 
 ;**********************************************************************************************
 ;MISSION.3		Display timeseries 
@@ -146,7 +128,7 @@ begin
 	res@trXMinF  = 0                   ; min value on x-axis
 	res@trXMaxF  = dimsizes(var1_season_seamean)-1                   ; max value on x-axis
 	res@tmXBMode      = "Explicit" ; Define own tick mark labels.
-    res@tiYAxisString = "Pr Rate (mm/day)"
+    res@tiYAxisString = "Cloud Cover"
 	res@tmXBValues = ispan(0,dimsizes(var1_season_seamean)-1,10) ;interval
 	res@tmXBLabels = ispan(g_strt_year,g_end_year,10)         ;tick label
 	res@xyMonoLineColor    = False             ; want colored lines
@@ -173,9 +155,9 @@ begin
     delete(res@xyLineColors)
     delete(res@xyLineThicknesses)
     delete(res@xyDashPatterns)
-    res@xyDashPatterns=(/1.,1.,0.,1./)
-    res@xyLineThicknesses=(/2.0,2.0,3.0,3.0/)
-    res@xyLineColors = (/"blue","red","blue","black"/)
+    res@xyDashPatterns=(/1.,0.,1./)
+    res@xyLineThicknesses=(/2.0,3.0,3.0/)
+    res@xyLineColors = (/"blue","blue","black"/)
 	;res@trYMinF            = 9*min(var1_season_seamean)                ; Y axis limits
 	;res@trYMaxF            = 1.1*max(var1_season_seamean)
     plot(0)  = gsn_csm_xy (wks,ispan(0,dimsizes(var1_season_seamean)-1,1),data2,res)   ; create plot
@@ -191,18 +173,19 @@ begin
     res_text@txJust             = "CenterLeft"          ; text justification
 
     res_lines@gsLineColor       = "blue"
-    yy = (/7.0,7.0/)
+    yy = (/4.8, 4.8/)
     xx = (/10,15/)
     text_pos = 18
     dum11 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
-    dum12 = gsn_add_text(wks,plot(0),"NOAA 20CR",text_pos,yy(0),res_text); add text
+    dum12 = gsn_add_text(wks,plot(0),"ICOADS2 CLDC",text_pos,yy(0),res_text); add text
     ;dum55 = gsn_add_polymarker(wks,plot,xx,yy,res_lines)   
 
 
-    res_lines@gsLineColor       = "red"
-    yy = yy - 0.5
+    res_lines@gsLineDashPattern = 0.                    ; solid line
+    res_lines@gsLineThicknessF  = 3.                    ; line thicker
+    yy = yy - 0.4
     dum21 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
-    dum22 = gsn_add_text(wks,plot(0),"ERA 20CR",text_pos,yy(0),res_text); add text
+    dum22 = gsn_add_text(wks,plot(0),"11-yr RM",text_pos,yy(0),res_text); add text
 
     gsn_panel(wks,plot(0),(/1,1/),False)
 

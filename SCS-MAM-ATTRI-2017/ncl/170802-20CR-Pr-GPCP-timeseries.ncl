@@ -32,6 +32,7 @@ begin
     ;Define parameters
     g_data_path1 = "$DATAOBV/20thCRV2/prate.mon.mean.nc";NOAA-CIRES 20th Century Reanalysis version 2
     g_data_path2 = "$DATAOBV/ERA-20C/surface/ERA20C-1900-2010-MAM-Pr.nc";NOAA-CIRES 20th Century Reanalysis version 2
+    g_data_path3 = "/home/yangsong3/L_Zealot/data-mirror/obv/PRECPT/GPCP_precip.mon.mean.nc";NOAA-CIRES 20th Century Reanalysis version 2
 
     ;SCS+PhSea
     sea_latS=0.
@@ -49,15 +50,15 @@ begin
     ;g_season_rank=(/"DJF","MAM","JJA","SON"/)
 ; create an array of desired pressure levels:
 
-    g_strt_year=1900        
+    g_strt_year=1979        
     g_end_year=2010
-    g_strt_yyyymm=190001       
+    g_strt_yyyymm=197901       
     g_end_yyyymm=201012
 
     g_font = 0.035
 
-    g_fig_name    =   "../fig/Pr_timeseries_20R"
-    g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_name    =   "../fig/Pr_timeseries_20R-GPCP"
+    g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     g_fig_title     = (/"Southern China ","SCS+PhS "/)+g_season +" Pr Timeseries"
    ;g_fig_title1   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr trend"  ;for dsstdt
@@ -85,6 +86,7 @@ begin
     var1_season=month_to_season(var1,g_season)
     var1_season_seamean = wgt_areaave_Wrap(var1_season(:,{sea_latS:sea_latN},{sea_lonW:sea_lonE}),1.0,1.0,0)
     var1_season_seamean=runave_Wrap(var1_season_seamean,3,1)
+    var1_season_seamean=dim_rmvmean(var1_season_seamean)
     var1_sn_rm_searunmean=runave_Wrap(var1_season_seamean,11,0)
     var1_sn_rm_sealine=regline(ispan(g_strt_year,g_end_year,1),var1_season_seamean)
     
@@ -102,16 +104,37 @@ begin
     var2_4d&longitude=var2&longitude
     var2_season=dim_avg_n_Wrap(var2_4d,1)
     var2_season_seamean = wgt_areaave_Wrap(var2_season(:,{sea_latS:sea_latN},{sea_lonW:sea_lonE}),1.0,1.0,0)
-    var2_season_seamean=runave_Wrap(var1_season_seamean,3,1)
+    var2_season_seamean=runave_Wrap(var2_season_seamean,3,1)
+    var2_season_seamean=dim_rmvmean(var2_season_seamean)
+	
+    ctrl_file3   = g_data_path3
+	ctrl_in3     = addfile (ctrl_file3, "r")   ; note the "s" of addfile
+    time := ctrl_in3->time
+    yyyymm :=floor( cd_calendar(time,-1))
+    istrt = ind(yyyymm .eq. g_strt_yyyymm)
+    ilast = ind(yyyymm .eq. g_end_yyyymm)
+    var3 = ctrl_in3->precip(istrt:ilast,:,:)
+    var3_season=month_to_season(var3,g_season)
+    var3_season_seamean = wgt_areaave_Wrap(var3_season(:,{sea_latS:sea_latN},{sea_lonW:sea_lonE}),1.0,1.0,0)
+    var3_season_seamean=runave_Wrap(var3_season_seamean,3,1)
+    var3_season_seamean=dim_rmvmean(var3_season_seamean)
+    var3_sn_rm_sealine=regline(ispan(g_strt_year,g_end_year,1),var3_season_seamean)
     
-    df2   = var1_sn_rm_sealine@nptxy-2
-    yReg2 = var1_season_seamean
-    yReg2 = var1_sn_rm_sealine*ispan(g_strt_year,g_end_year,1) + var1_sn_rm_sealine@yintercept   ; NCL array notation 
-    data2      = new((/4,dimsizes(var1_season_seamean)/),float)
+    df   = var1_sn_rm_sealine@nptxy-2
+    yReg = var1_season_seamean
+    yReg = var1_sn_rm_sealine*ispan(g_strt_year,g_end_year,1) + var1_sn_rm_sealine@yintercept   ; NCL array notation 
+
+
+    df2   = var3_sn_rm_sealine@nptxy-2
+    yReg2 = var3_season_seamean
+    printVarSummary(yReg2)
+    yReg2 = var3_sn_rm_sealine*ispan(g_strt_year,g_end_year,1) + var3_sn_rm_sealine@yintercept   ; NCL array notation 
+    data2      = new((/5,dimsizes(var1_season_seamean)/),float)
     data2(0,:) = var1_season_seamean
-    data2(1,:) = var2_season_seamean
-    data2(2,:) = var1_sn_rm_searunmean
+    data2(1,:) = var2_season_seamean(79:)
+    data2(2,:) = var3_season_seamean
     data2(3,:) = yReg2
+    data2(4,:) = yReg
 
 ;**********************************************************************************************
 ;MISSION.3		Display timeseries 
@@ -173,9 +196,9 @@ begin
     delete(res@xyLineColors)
     delete(res@xyLineThicknesses)
     delete(res@xyDashPatterns)
-    res@xyDashPatterns=(/1.,1.,0.,1./)
-    res@xyLineThicknesses=(/2.0,2.0,3.0,3.0/)
-    res@xyLineColors = (/"blue","red","blue","black"/)
+    res@xyDashPatterns=(/1.,1.,0.,0.,1./)
+    res@xyLineThicknesses=(/2.0,2.0,4.0,4.0,3.0/)
+    res@xyLineColors = (/"blue","red","black","black","blue"/)
 	;res@trYMinF            = 9*min(var1_season_seamean)                ; Y axis limits
 	;res@trYMaxF            = 1.1*max(var1_season_seamean)
     plot(0)  = gsn_csm_xy (wks,ispan(0,dimsizes(var1_season_seamean)-1,1),data2,res)   ; create plot
@@ -191,9 +214,9 @@ begin
     res_text@txJust             = "CenterLeft"          ; text justification
 
     res_lines@gsLineColor       = "blue"
-    yy = (/7.0,7.0/)
-    xx = (/10,15/)
-    text_pos = 18
+    yy = (/-0.5,-0.5/)
+    xx = (/20,22/)
+    text_pos = 23 
     dum11 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
     dum12 = gsn_add_text(wks,plot(0),"NOAA 20CR",text_pos,yy(0),res_text); add text
     ;dum55 = gsn_add_polymarker(wks,plot,xx,yy,res_lines)   
@@ -203,6 +226,14 @@ begin
     yy = yy - 0.5
     dum21 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
     dum22 = gsn_add_text(wks,plot(0),"ERA 20CR",text_pos,yy(0),res_text); add text
+
+    res_lines@gsLineColor       = "black"
+    res_lines@gsLineDashPattern = 0.                    ; solid line
+    res_lines@gsLineThicknessF  = 4.                    ; line thicker
+    yy = yy - 0.5
+    dum31 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
+    dum32 = gsn_add_text(wks,plot(0),"GPCP",text_pos,yy(0),res_text); add text
+
 
     gsn_panel(wks,plot(0),(/1,1/),False)
 
