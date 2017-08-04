@@ -33,17 +33,18 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-;    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/noaa_er_sst-185401-201305.nc"
-     g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST_sst_1870-2016.nc"
+    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/prmsl.mon.mean.nc"
+    g_data_path1 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/uwnd.10m.mon.mean.nc"
+    g_data_path2 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/vwnd.10m.mon.mean.nc"
 
     g_font = 0.02
     g_season="MAM" 
-    g_latS=-30.
+    g_latS=-10.
     g_latN=30.
-    g_lonW=90.
-    g_lonE=270.
+    g_lonW=100.
+    g_lonE=180.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/MAM-eisst-diff"
+    g_fig_name = "../fig/MAM-SLP-uv-diff-20CR"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -52,14 +53,33 @@ begin
     yyyymm :=floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = short2flt(ctrl_in1->sst(istrt:ilast,:,:))
+    var1 = short2flt(ctrl_in1->prmsl(istrt:ilast,:,:))
     var1=var1
+    
+    ctrl_in1     = addfile (g_data_path1, "r")   ; note the "s" of addfile
+    var2 = short2flt(ctrl_in1->uwnd(istrt:ilast,:,:))
+    ctrl_in1     = addfile (g_data_path2, "r")   ; note the "s" of addfile
+    var3 = short2flt(ctrl_in1->vwnd(istrt:ilast,:,:))
+    
     season_var1=month_to_season(var1,g_season)
+    season_var2=month_to_season(var2,g_season)
+    season_var3=month_to_season(var3,g_season)
+    
     clim_var1_e=dim_avg_n_Wrap(season_var1(0:29,:,:),0)
+    clim_var2_e=dim_avg_n_Wrap(season_var2(0:29,:,:),0)
+    clim_var3_e=dim_avg_n_Wrap(season_var3(0:29,:,:),0)
+    
     clim_var1_l=dim_avg_n_Wrap(season_var1(80:,:,:),0)
+    clim_var2_l=dim_avg_n_Wrap(season_var2(80:,:,:),0)
+    clim_var3_l=dim_avg_n_Wrap(season_var3(80:,:,:),0)
 
     diff_var1=clim_var1_e
+    diff_var2=clim_var2_e
+    diff_var3=clim_var3_e
+
     diff_var1=clim_var1_l-clim_var1_e
+    diff_var2=clim_var2_l-clim_var2_e
+    diff_var3=clim_var3_l-clim_var3_e
     
     printVarSummary(clim_var1_e)
 ; ==============================================================
@@ -92,9 +112,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -2         ; set min contour level
- res@cnMaxLevelValF        = 2        ; set max contour level
- res@cnLevelSpacingF       = 0.25          ; set contour interval
+ res@cnMinLevelValF        = -200         ; set min contour level
+ res@cnMaxLevelValF        = 200        ; set max contour level
+ res@cnLevelSpacingF       = 25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -157,7 +177,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "NOAA ERSST diff"
+  res@gsnLeftString = "NOAA 20CR slp, 10m uv diff"
   res@gsnRightString = ""
        
   vcres = True
@@ -185,8 +205,8 @@ begin
 
   plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-;  plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
-;  overlay(plot_sh,plot_V)
+  plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
+  overlay(plot_sh,plot_V)
   draw(plot_sh)
   frame(wks)
 

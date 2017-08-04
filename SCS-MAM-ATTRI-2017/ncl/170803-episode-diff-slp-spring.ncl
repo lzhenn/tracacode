@@ -41,7 +41,7 @@ begin
     g_season="MAM" 
     g_latS=-10.
     g_latN=30.
-    g_lonW=90.
+    g_lonW=100.
     g_lonE=180.
     ; create an array of desired pressure levels:
     g_fig_name = "../fig/MAM-SLP-uv-diff"

@@ -43,7 +43,7 @@ begin
     g_lonW=90.
     g_lonE=270.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/MAM-eisst-diff"
+    g_fig_name = "../fig/MAM-hadlsst-clim-e"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -92,8 +92,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -2         ; set min contour level
- res@cnMaxLevelValF        = 2        ; set max contour level
+ res@cnMaxLevelValF        = 30         ; set min contour level
+ res@cnMinLevelValF        = 22        ; set max contour level
  res@cnLevelSpacingF       = 0.25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -110,7 +110,7 @@ begin
   res@gsnStringFontHeightF = g_font
 
   ;res@gsnMaximize      = True       ; fill up the page
-  res@gsnAddCyclic   = False
+  res@gsnAddCyclic   = True 
   res@gsnPaperOrientation = "portrait"
   ;res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
@@ -157,7 +157,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "NOAA ERSST diff"
+  res@gsnLeftString = "HadlSST 1980-2010"
   res@gsnRightString = ""
        
   vcres = True
@@ -183,7 +183,7 @@ begin
  
 
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,clim_var1_l,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
 ;  plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
 ;  overlay(plot_sh,plot_V)
