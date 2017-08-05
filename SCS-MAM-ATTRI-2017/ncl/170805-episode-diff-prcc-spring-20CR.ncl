@@ -33,18 +33,18 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/prate.mon.mean.nc"
+    g_data_path ="/home/yangsong3/data/observation/PRECPT/GPCC_precip.mon.total.05x05.v7.nc"
     g_data_path1 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/uwnd.10m.mon.mean.nc"
     g_data_path2 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/vwnd.10m.mon.mean.nc"
 
     g_font = 0.02
     g_season="MAM" 
-    g_latS=-10.
+    g_latS=-20.
     g_latN=30.
     g_lonW=60.
-    g_lonE=180.
+    g_lonE=150.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/MAM-PR-uv-diff-20CR"
+    g_fig_name = "../fig/MAM-PR-land-uv-diff-20CR"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -53,8 +53,10 @@ begin
     yyyymm :=floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = short2flt(ctrl_in1->prate(istrt:ilast,:,:))
-    var1=var1*86400
+    var1 = short2flt(ctrl_in1->p(istrt:ilast,:,:))
+    var1=var1(:,::-1,:)
+    var1&lat@units="degree_north"
+   ; var1=var1*86400
     
     ctrl_in1     = addfile (g_data_path1, "r")   ; note the "s" of addfile
     var2 = short2flt(ctrl_in1->uwnd(istrt:ilast,:,:))
@@ -81,7 +83,8 @@ begin
     diff_var2=clim_var2_l-clim_var2_e
     diff_var3=clim_var3_l-clim_var3_e
     
-    printVarSummary(clim_var1_e)
+    printVarSummary(diff_var1&lat)
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -112,9 +115,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -2.0         ; set min contour level
- res@cnMaxLevelValF        = 2.0        ; set max contour level
- res@cnLevelSpacingF       = 0.25          ; set contour interval
+ res@cnMinLevelValF        = -50         ; set min contour level
+ res@cnMaxLevelValF        = 50        ; set max contour level
+ res@cnLevelSpacingF       = 5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 

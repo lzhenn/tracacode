@@ -36,9 +36,9 @@ begin
 
     ;SCS+PhSea
     sea_latS=0.
-    sea_latN=15.
-    sea_lonW=105.
-    sea_lonE=155.
+    sea_latN=20.
+    sea_lonW=90.
+    sea_lonE=150.
     
     ;South China
     sc_latS=20.

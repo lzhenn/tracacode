@@ -35,9 +35,9 @@ begin
 
     ;SCS+PhSea
     sea_latS=0.
-    sea_latN=15.
-    sea_lonW=105.
-    sea_lonE=155.
+    sea_latN=20.
+    sea_lonW=90.
+    sea_lonE=150.
     
     ;South China
     sc_latS=20.
@@ -191,7 +191,7 @@ begin
     res_text@txJust             = "CenterLeft"          ; text justification
 
     res_lines@gsLineColor       = "blue"
-    yy = (/7.0,7.0/)
+    yy = (/6.0,6.0/)
     xx = (/10,15/)
     text_pos = 18
     dum11 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
