@@ -42,9 +42,9 @@ begin
     g_latS=-20.
     g_latN=30.
     g_lonW=60.
-    g_lonE=150.
+    g_lonE=180.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/MAM-PR-land-uv-diff-prcc-station"
+    g_fig_name = "../fig/MAM-PR-land-uv-diff-prcc-station-1901-1930"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -93,7 +93,8 @@ begin
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 ; gsn_define_colormap(wks,"precip_diff_12lev")
- gsn_define_colormap(wks,"WhiteYellowOrangeRed")
+ gsn_define_colormap(wks,"MPL_StepSeq")
+; gsn_define_colormap(wks,"WhiteYellowOrangeRed")
   plot = new((/1/),graphic)
 
 ;-----------------------------------------------------------------------------
@@ -206,7 +207,7 @@ begin
  
 
 
-  plot_sh= gsn_csm_contour_map(wks,clim_var1_l,res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,clim_var1_e,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
   plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
   overlay(plot_sh,plot_V)
