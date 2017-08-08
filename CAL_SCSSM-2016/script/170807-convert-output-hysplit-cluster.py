@@ -6,36 +6,71 @@
 #       Feb 28, 2017
 #
 #
-import json
 import datetime
+#---------------------------
+# Function definition
+#---------------------------
 
-start_time='2015-09-01 00:00:00'
-end_time='2015-09-30 00:00:00'
+# get traj end points with 
+def get_inner_points(fn, latS, latN, lonW, lonE):
+    # open the sample file
+    fr = open(fn, 'r')     
+    lines=fr.readlines()
+    fr.close()
+    pt_dic={}
+    for pos_line, point in enumerate(lines):
+        content=point.split() # [0]--# [1]--timestep [2]--lat [3]--lon [4]--pressure
+        pt_id=str(content[0])
+        ts=abs(int(float(content[1])))
+        lat=float(content[2])
+        lon=float(content[3])
+        if ts > 0:
+            break
+        if (lat<=latN and lat>=latS and lon<=lonE and lon>=lonW):            
+            pt_dic[pt_id]={'lat':lat, 'lon':lon}
+    return pt_dic
 
-# Integration step in Hour
-int_step=24
+# move other points to center point
+def trans_points():
+    exit()
 
-# Number of points
-npoints=32224
+year_start=1979
 
-#Operation
-int_time_obj = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-end_time_obj = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-time_delta=datetime.timedelta(hours=int_step)
+# Which level
+p_level=700
+
+# Region
+latS=5
+latN=15
+lonW=87.5
+lonE=105
 
 # parser path
-inv_path='/home/yangsong3/data/model/L_Zealot/HKUST_yeq-2016/resident-time_output/data/hysplit/xiamen/traj_100m/2015/'
+inv_path='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/CAL_SCSSM-2016/'
+out_path='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/CAL_SCSSM-2016/post_process/'
+
+latC=(latS+latN)/2.0
+lonC=(lonW+lonE)/2.0
+
+onset_date=[125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123]
+day_shift=-2
+
 
 #Parser
-with open(inv_path+'../../inner_point.json', 'r') as f:
-        inner_pt_dic = json.load(f)
+init_time = datetime.datetime(year_start, 1, 1, 0)
+init_time += datetime.timedelta(days=((onset_date[0]-1)+day_shift))
+time_stamp=init_time.strftime('%Y%m%d%H')
 
-
-fr1=open(inv_path+'record-hr1-24.txt','w')
-
-while int_time_obj <= end_time_obj:
-    time_stamp=int_time_obj.strftime('%y%m%d%H')
-    print('parsing '+time_stamp+'...')
+print('Parsing points list...')
+filename=inv_path+time_stamp+'-'+str(p_level)+'hPa.txt'
+print('Sample File:'+filename)
+pt_dic=get_inner_points(filename, latS, latN, lonW, lonE)
+for keys,values in pt_dic.items():
+    print(keys)
+    print(values)
+exit()
+for year in range(year_start,year_start+len(onset_date),1):
+        
     fn='backward_'+time_stamp
     fr = open(inv_path+fn, 'r')
     lines=fr.readlines()
@@ -72,10 +107,6 @@ for [latx, lonx] in inner_pt_dic.values():
     if lonmn>lonx:
         lonmn=lonx
 
-pt_dic={}
-for [idx, item] in inner_pt_dic.items():
-    pt_dic[idx]={'lat':item[0], 'lon':item[1], 'value': 0}
- 
 while int_time_obj <= end_time_obj:
     print('parsing '+int_time_obj.strftime('%y%m%d%H')+'...')
     fn='forward_'+int_time_obj.strftime('%y%m%d%H')
@@ -98,7 +129,14 @@ while int_time_obj <= end_time_obj:
                 if abs(lat-latx)+abs(lon-lonx) <=0.09:
                     pt_dic[pt_id]['value']=pt_dic[pt_id]['value']+1
                     break
-            # For: Find if pt inner PRD
+        # For: Find if pt inner PRD
+    init_time = datetime.datetime(year, 1, 1, 0)
+    init_time += datetime.timedelta(days=((onset_date[year-year_start]-1)-left_shift_day))
+
+    time_stamp=init_time.strftime('%y%m%d')
+    print('parsing '+time_stamp+'...')
+
+
     # For: All pts in file
     
     fr2=open(inv_path+'record_'+int_time_obj.strftime('%y%m%d%H')+'.txt','w')
