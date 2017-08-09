@@ -12,12 +12,13 @@ import datetime
 #---------------------------
 
 # get traj end points with 
-def get_inner_points(fn, latS, latN, lonW, lonE):
+def get_inner_points(fn, latS, latN, lonW, lonE, latC, lonC):
     # open the sample file
     fr = open(fn, 'r')     
     lines=fr.readlines()
     fr.close()
     pt_dic={}
+
     for pos_line, point in enumerate(lines):
         content=point.split() # [0]--# [1]--timestep [2]--lat [3]--lon [4]--pressure
         pt_id=str(content[0])
@@ -26,13 +27,81 @@ def get_inner_points(fn, latS, latN, lonW, lonE):
         lon=float(content[3])
         if ts > 0:
             break
-        if (lat<=latN and lat>=latS and lon<=lonE and lon>=lonW):            
+        if (lat<=latN and lat>=latS and lon<=lonE and lon>=lonW and (abs(latC-lat)<0.375 or abs(lonC-lon)<0.375)):            
             pt_dic[pt_id]={'lat':lat, 'lon':lon}
     return pt_dic
 
-# move other points to center point
-def trans_points():
-    exit()
+
+
+
+# Main Function: Process the file
+def process_traj_points(pt_list, latC, lonC, infile, outpath, exppath, hr_end, hr_step, init_time):
+    # open the infile
+    fr = open(infile, 'r')     
+    lines=fr.readlines()
+    fr.close()
+    pt_traj_dic={}
+    for pos_line, point in enumerate(lines):
+        content=point.split() # [0]--# [1]--timestep [2]--lat [3]--lon [4]--pressure
+        pt_id=str(content[0])
+        ts=abs(int(float(content[1])))
+        lat=float(content[2])
+        lon=float(content[3])
+        plvl=float(content[4])
+        # if we got the specific traj
+        if (pt_id in pt_list):
+            if ts==0:            
+                pt_traj_dic[pt_id]={'lat':[latC], 'lon':[lonC], 'plvl':[plvl]}
+            else:
+                # Transform
+                pt_traj_dic[pt_id]['lat'].append(latC+(lat-pt_list[pt_id]['lat']))
+                pt_traj_dic[pt_id]['lon'].append(lonC+(lon-pt_list[pt_id]['lon']))
+                pt_traj_dic[pt_id]['plvl'].append(plvl)
+    write_status=write_traj_points(pt_traj_dic, latC, lonC, outpath, exppath, hr_end, hr_step, init_time)
+
+def write_traj_points(pt_traj, latC, lonC, outpath, exppath, hr_end, hr_step, dum_time_obj):
+    dum_height=500.0
+    fr = open(exppath, 'r')
+    lines=fr.readlines()
+    fr.close()
+    yymmddHH=dum_time_obj.strftime('%y%m%d%H')
+    yy=dum_time_obj.strftime('%y')
+    mon=dum_time_obj.month
+    day=dum_time_obj.day
+    hr=dum_time_obj.hour
+    hr_end=hr_end
+
+    # Headlines
+#     NGM     95    10     1     0    12
+    lines[1]='%7s%7d%6d%6d%6d%6d\n' % ('NGM', int(yy), mon, day, hr, hr_end)
+#     95    10     1     0   40.000  -90.000   500.0
+    lines[3]='%6d%6d%6d%6d%9.3f%9.3f%8.1f\n' % (int(yy), mon, day, hr, latC, lonC, dum_height)
+    
+
+    # Contents
+    for pt_id in pt_traj:
+#      1     1    95    10     1     0     0    11     0.0   40.000  -90.000    500.0    927.9
+        dum_time_pt=dum_time_obj   # Renew time stap
+        fw= open(outpath+'N'+pt_id.zfill(4)+'_'+yymmddHH,'w')
+        fw.writelines(lines[0:5])
+        latlist=pt_traj[pt_id]['lat']
+        lonlist=pt_traj[pt_id]['lon']
+        plvllist=pt_traj[pt_id]['plvl']
+        yy=dum_time_pt.strftime('%y')
+        mon=dum_time_pt.month
+        day=dum_time_pt.day
+        hr=dum_time_pt.hour
+
+        for pos, lat in enumerate(latlist):
+            fw.write('%6d%6d%6d%6d%6d%6d%6d%6d%8.1f%9.3f%9.3f%9.1f%9.1f\n' % (1, 1, int(yy), mon, day, hr, 0, 1, pos*1.0, lat, lonlist[pos], dum_height,plvllist[pos]))
+            dum_time_pt += -datetime.timedelta(hours=hr_step)
+            yy=dum_time_pt.strftime('%y')
+            mon=dum_time_pt.month
+            day=dum_time_pt.day
+            hr=dum_time_pt.hour
+        fw.close()
+    return 0
+# ------------Main------------
 
 year_start=1979
 
@@ -40,19 +109,27 @@ year_start=1979
 p_level=700
 
 # Region
-latS=5
-latN=15
+latS=7.5
+latN=13
 lonW=87.5
-lonE=105
+lonE=97
+
+# Time step
+nhour=1
+# Integration steps
+nsteps=96
+# Total hours for integration
+nhrs=nsteps*nhour
 
 # parser path
 inv_path='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/CAL_SCSSM-2016/'
+exp_path='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/CAL_SCSSM-2016/example-traj.txt'
 out_path='/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/CAL_SCSSM-2016/post_process/'
 
 latC=(latS+latN)/2.0
 lonC=(lonW+lonE)/2.0
 
-onset_date=[125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123]
+onset_date=[125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119]
 day_shift=-2
 
 
@@ -64,90 +141,16 @@ time_stamp=init_time.strftime('%Y%m%d%H')
 print('Parsing points list...')
 filename=inv_path+time_stamp+'-'+str(p_level)+'hPa.txt'
 print('Sample File:'+filename)
-pt_dic=get_inner_points(filename, latS, latN, lonW, lonE)
-for keys,values in pt_dic.items():
-    print(keys)
-    print(values)
-exit()
+pt_dic=get_inner_points(filename, latS, latN, lonW, lonE, latC, lonC)
 for year in range(year_start,year_start+len(onset_date),1):
-        
-    fn='backward_'+time_stamp
-    fr = open(inv_path+fn, 'r')
-    lines=fr.readlines()
-    fr.close()
-    lines0=lines[npoints+4:] 
-    len_line0=len(lines0)
-    for pos_line, point in enumerate(lines0):
-        content=point.split() # [0]--# [8]--timestep [9]--lat [10]--lon
-        pt_id=str(content[0])
-        ts=abs(int(float(content[8])))
-        lat=float(content[9])
-        lon=float(content[10])
-        if  ts in range(1,25) and (pt_id in inner_pt_dic):
-            fr1.write('%6s %6s %3d %8.3f %8.3f\n' % (pt_id, time_stamp, ts, lat, lon))
-    int_time_obj = int_time_obj+time_delta
-fr1.close()
-exit()
-
-
-
-
-latmx=0
-latmn=100
-lonmx=0
-lonmn=100
-for [latx, lonx] in inner_pt_dic.values():
-    if latmx<latx:
-        latmx=latx
-    if latmn>latx:
-        latmn=latx
-    
-    if lonmx<lonx:
-        lonmx=lonx
-    if lonmn>lonx:
-        lonmn=lonx
-
-while int_time_obj <= end_time_obj:
-    print('parsing '+int_time_obj.strftime('%y%m%d%H')+'...')
-    fn='forward_'+int_time_obj.strftime('%y%m%d%H')
-    fr = open(inv_path+fn, 'r')
-    lines=fr.readlines()
-    fr.close()
-    lines0=lines[npoints+4:] 
-    len_line0=len(lines0)
-    for pos_line, point in enumerate(lines0):
-        content=point.split() # [0]--# [9]--lat [10]--lon
-        pt_id=str(content[0])
-        lat=float(content[9])
-        lon=float(content[10])
-        if pos_line % 2000 ==0:
-            print('Line'+str(pos_line)+'/'+str(len_line0))
-        if pt_id in pt_dic:
-            if (lat>latmx) or (lat<latmn) or (lon>lonmx) or (lon<lonmn):
-                continue 
-            for [latx, lonx] in inner_pt_dic.values():
-                if abs(lat-latx)+abs(lon-lonx) <=0.09:
-                    pt_dic[pt_id]['value']=pt_dic[pt_id]['value']+1
-                    break
-        # For: Find if pt inner PRD
     init_time = datetime.datetime(year, 1, 1, 0)
-    init_time += datetime.timedelta(days=((onset_date[year-year_start]-1)-left_shift_day))
-
-    time_stamp=init_time.strftime('%y%m%d')
-    print('parsing '+time_stamp+'...')
-
-
-    # For: All pts in file
+    init_time += datetime.timedelta(days=((onset_date[year-year_start]-1)+day_shift))
+    time_stamp=init_time.strftime('%Y%m%d%H')
+    filename=inv_path+time_stamp+'-'+str(p_level)+'hPa.txt'
+    print('Parsing %8s trajectories...'% time_stamp)
+    traj_result= process_traj_points(pt_dic, latC, lonC, filename, out_path, exp_path, nhrs, nhour, init_time)
     
-    fr2=open(inv_path+'record_'+int_time_obj.strftime('%y%m%d%H')+'.txt','w')
-    for item in pt_dic.values():
-        lat=item['lat']
-        lon=item['lon']
-        value=item['value']
-        fr2.write('%8.3f %8.3f %4d\n' % (lat, lon, value))
-    fr2.close()
-    for idx in pt_dic:
-        pt_dic[idx]['value']=0
+
 # While: All experiments
 
 
