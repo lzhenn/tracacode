@@ -34,8 +34,8 @@ begin
     g_data_path2 = "$DATAOBV/ERA-20C/surface/ERA20C-1900-2010-MAM-Pr.nc";NOAA-CIRES 20th Century Reanalysis version 2
 
     ;SCS+PhSea
-    sea_latS=0.
-    sea_latN=20.
+    sea_latS=-15.
+    sea_latN=15.
     sea_lonW=90.
     sea_lonE=150.
     
@@ -45,7 +45,7 @@ begin
     sc_lonW=110.
     sc_lonE=135.
 
-    g_season = "MAM"
+    g_season = "SON"
     ;g_season_rank=(/"DJF","MAM","JJA","SON"/)
 ; create an array of desired pressure levels:
 
@@ -56,10 +56,10 @@ begin
 
     g_font = 0.035
 
-    g_fig_name    =   "../fig/Pr_timeseries_20R"
-    g_fig_rank    =   (/"(a)","(a)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_name    =   "../fig/Pr_timeseries_20R-"+g_season
+    g_fig_rank    =   (/"","","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
-    g_fig_title     = (/"Southern China ","SCS+PhS "/)+g_season +" Pr Timeseries"
+    g_fig_title     = (/"Southern China ","MC+WEP "/)+g_season +" Pr Timeseries"
    ;g_fig_title1   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr trend"  ;for dsstdt
    ;g_fig_title2   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr' trend" ;for dsst'dt
 
@@ -191,7 +191,7 @@ begin
     res_text@txJust             = "CenterLeft"          ; text justification
 
     res_lines@gsLineColor       = "blue"
-    yy = (/6.0,6.0/)
+    yy = (/7.0,7.0/)
     xx = (/10,15/)
     text_pos = 18
     dum11 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
@@ -200,7 +200,7 @@ begin
 
 
     res_lines@gsLineColor       = "red"
-    yy = yy - 0.5
+    yy = yy - 0.3
     dum21 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
     dum22 = gsn_add_text(wks,plot(0),"ERA 20CR",text_pos,yy(0),res_text); add text
 

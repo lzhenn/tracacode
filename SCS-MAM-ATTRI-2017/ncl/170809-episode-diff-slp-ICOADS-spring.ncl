@@ -33,9 +33,9 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/prmsl.mon.mean.nc"
-    g_data_path1 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/uwnd.10m.mon.mean.nc"
-    g_data_path2 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/vwnd.10m.mon.mean.nc"
+    g_data_path ="/home/yangsong3/data/observation/ICOADS2/Enhanced/slp.mean.nc"
+    g_data_path1 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/uwnd.mean.nc"
+    g_data_path2 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/vwnd.mean.nc"
 
     g_font = 0.02
     g_season="MAM" 
@@ -44,7 +44,7 @@ begin
     g_lonW=60.
     g_lonE=180.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/MAM-SLP-uv-diff-20CR"
+    g_fig_name = "../fig/MAM-slp-uv-diff-ICOADS"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -53,9 +53,9 @@ begin
     yyyymm :=floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = short2flt(ctrl_in1->prmsl(istrt:ilast,:,:))
-    var1=var1
-    
+    var1 = short2flt(ctrl_in1->slp(istrt:ilast,:,:))
+    var1=var1*100
+
     ctrl_in1     = addfile (g_data_path1, "r")   ; note the "s" of addfile
     var2 = short2flt(ctrl_in1->uwnd(istrt:ilast,:,:))
     ctrl_in1     = addfile (g_data_path2, "r")   ; note the "s" of addfile
@@ -112,8 +112,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -200         ; set min contour level
- res@cnMaxLevelValF        = 200        ; set max contour level
+ res@cnMinLevelValF        = -100         ; set min contour level
+ res@cnMaxLevelValF        = 100        ; set max contour level
  res@cnLevelSpacingF       = 25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -177,7 +177,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "NOAA 20CR slp, 10m uv diff"
+  res@gsnLeftString = "ICOADS SLP, surface uv diff"
   res@gsnRightString = ""
        
   vcres = True

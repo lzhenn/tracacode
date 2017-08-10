@@ -33,18 +33,16 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/prmsl.mon.mean.nc"
-    g_data_path1 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/uwnd.10m.mon.mean.nc"
-    g_data_path2 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/vwnd.10m.mon.mean.nc"
+    g_data_path ="/home/yangsong3/data/observation/PRECPT/GPCC_precip.mon.total.05x05.v7.nc"
 
     g_font = 0.02
     g_season="MAM" 
-    g_latS=-20.
-    g_latN=20.
+    g_latS=-15.
+    g_latN=15.
     g_lonW=60.
     g_lonE=180.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/MAM-SLP-uv-diff-20CR"
+    g_fig_name = "../fig/MAM-PR-land-num-guage"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -53,35 +51,33 @@ begin
     yyyymm :=floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = short2flt(ctrl_in1->prmsl(istrt:ilast,:,:))
-    var1=var1
+    var1 = short2flt(ctrl_in1->p(istrt:ilast,:,:))
+    var2 = short2flt(ctrl_in1->s(istrt:ilast,:,:))
+    var1=var1(:,::-1,:)
+    var2=var2(:,::-1,:)
+    var1&lat@units="degree_north"
+    var2&lat@units="degree_north"
+   ; var1=var1*86400
+    var1:=f2fsh_Wrap(var1,(/36, 72/))
+    var2:=f2fsh_Wrap(var2,(/36, 72/))
     
-    ctrl_in1     = addfile (g_data_path1, "r")   ; note the "s" of addfile
-    var2 = short2flt(ctrl_in1->uwnd(istrt:ilast,:,:))
-    ctrl_in1     = addfile (g_data_path2, "r")   ; note the "s" of addfile
-    var3 = short2flt(ctrl_in1->vwnd(istrt:ilast,:,:))
     
     season_var1=month_to_season(var1,g_season)
     season_var2=month_to_season(var2,g_season)
-    season_var3=month_to_season(var3,g_season)
     
     clim_var1_e=dim_avg_n_Wrap(season_var1(0:29,:,:),0)
     clim_var2_e=dim_avg_n_Wrap(season_var2(0:29,:,:),0)
-    clim_var3_e=dim_avg_n_Wrap(season_var3(0:29,:,:),0)
     
     clim_var1_l=dim_avg_n_Wrap(season_var1(80:,:,:),0)
     clim_var2_l=dim_avg_n_Wrap(season_var2(80:,:,:),0)
-    clim_var3_l=dim_avg_n_Wrap(season_var3(80:,:,:),0)
 
     diff_var1=clim_var1_e
     diff_var2=clim_var2_e
-    diff_var3=clim_var3_e
 
     diff_var1=clim_var1_l-clim_var1_e
     diff_var2=clim_var2_l-clim_var2_e
-    diff_var3=clim_var3_l-clim_var3_e
     
-    printVarSummary(clim_var1_e)
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -89,7 +85,8 @@ begin
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
-
+; gsn_define_colormap(wks,"precip_diff_12lev")
+ gsn_define_colormap(wks,"MPL_StepSeq")
   plot = new((/1/),graphic)
 
 ;-----------------------------------------------------------------------------
@@ -112,9 +109,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -200         ; set min contour level
- res@cnMaxLevelValF        = 200        ; set max contour level
- res@cnLevelSpacingF       = 25          ; set contour interval
+ res@cnMinLevelValF        = 0         ; set min contour level
+ res@cnMaxLevelValF        = 0.001        ; set max contour level
+ res@cnLevelSpacingF       = 0.001          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -177,7 +174,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "NOAA 20CR slp, 10m uv diff"
+  res@gsnLeftString = "NOAA 20CR pr, 10m uv diff"
   res@gsnRightString = ""
        
   vcres = True
@@ -203,10 +200,10 @@ begin
  
 
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,clim_var1_e,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
-  overlay(plot_sh,plot_V)
+  ;plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
+  ;overlay(plot_sh,plot_V)
   draw(plot_sh)
   frame(wks)
 

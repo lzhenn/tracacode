@@ -39,8 +39,8 @@ begin
 
     g_font = 0.02
     g_season="MAM" 
-    g_latS=-10.
-    g_latN=30.
+    g_latS=-20.
+    g_latN=20.
     g_lonW=60.
     g_lonE=180.
     ; create an array of desired pressure levels:
