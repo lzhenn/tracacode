@@ -37,8 +37,8 @@ begin
 
     g_font = 0.02
     g_season="SON" 
-    g_latS=-15.
-    g_latN=15.
+    g_latS=-20.
+    g_latN=20.
     g_lonW=60.
     g_lonE=180.
     ; create an array of desired pressure levels:
@@ -58,37 +58,32 @@ begin
     var1&lat@units="degree_north"
     var2&lat@units="degree_north"
    ; var1=var1*86400
-    var2=where(var2 .eq. var2@_FillValue, 0, var2)
-    var1=where(var1 .eq. var1@_FillValue, 0, var1)
-    var1= where(var2 .gt. 0, var1, 0)
-    ;var1:=f2fsh_Wrap(var1,(/36, 72/))
-    ;var2:=f2fsh_Wrap(var2,(/36, 72/))
-    ;var1=var1*100 
-    ;var2=var2*100 
-    season_var1=month_to_season(var1,g_season)
-    season_var2=month_to_season(var2,g_season)
+    ;var2=where(var2 .eq. var2@_FillValue, 0, var2)
+    ;var1=where(var1 .eq. var1@_FillValue, 0, var1)
+    var1= where(var2 .gt. 0, var1, var1@_FillValue)
 
-    clim_var1_e=dim_avg_n_Wrap(season_var1(0:29,:,:),0)
-    clim_var2_e=dim_avg_n_Wrap(season_var2(0:29,:,:),0)
-    
-    clim_var1_l=dim_avg_n_Wrap(season_var1(80:,:,:),0)
-    clim_var2_l=dim_avg_n_Wrap(season_var2(80:,:,:),0)
-
-    diff_var1=clim_var1_e
-    diff_var2=clim_var2_e
-
-    diff_var1=clim_var1_l-clim_var1_e
-    diff_var2=clim_var2_l-clim_var2_e
-    diff_var1=where(diff_var1 .eq. diff_var1@_FillValue, 0, diff_var1)
+    dvar1bar_dt      = var1(0:11,:,:) ; dvar1'dt of every indivadual month  
+    var1bar = month_to_season12(var1)
+    dimz = dimsizes(var1bar(0::12,0,0))
+    do ii=0,11
+        var1bar_oneseason=var1bar(ii::12,:,:)
+        dvar1bar_dt(ii,:,:) = (/regCoef(ispan(0,dimz-1,1), var1bar_oneseason(lat|:,lon|:,time|:))/)
+    end do
+    diff_var1=dvar1bar_dt
     delete(diff_var1@_FillValue)
+    diff_var1=where(diff_var1 .lt. -999, 0, diff_var1)
+    dvar1bar_dt= dimz*dvar1bar_dt
     diff_var1:=f2fsh_Wrap(diff_var1,(/72, 144/))
+
+    clim_var2_e=dim_avg_n_Wrap(var2(0:29*12,:,:),0)
     clim_var2_e=where(clim_var2_e .eq. clim_var2_e@_FillValue, 0, 1)
     delete(clim_var2_e@_FillValue)
     clim_var2_e:=f2fsh_Wrap(clim_var2_e,(/72, 144/))
     diff_var1@_FillValue=-999
-    diff_var1=where(clim_var2_e .gt. 0, diff_var1/clim_var2_e,diff_var1@_FillValue)
-
-
+    do ii=0,11
+        diff_var1(ii,:,:)=where(clim_var2_e .gt. 0, diff_var1(ii,:,:)/clim_var2_e,diff_var1@_FillValue)
+    end do
+    print(wgt_areaave_Wrap(diff_var1(:,{-15:15},{90:150}),1.0,1.0,0))
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -120,9 +115,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -20         ; set min contour level
- res@cnMaxLevelValF        = 20        ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMinLevelValF        = -0.5         ; set min contour level
+ res@cnMaxLevelValF        = 0.5        ; set max contour level
+ res@cnLevelSpacingF       = 0.05          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -212,7 +207,7 @@ begin
  
 
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,diff_var1(3,:,:),res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
   draw(plot_sh)
   frame(wks)
