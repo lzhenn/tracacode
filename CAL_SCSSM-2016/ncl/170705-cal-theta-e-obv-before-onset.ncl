@@ -45,16 +45,16 @@ begin
     g_lonW=0
     g_lonE=360
   
-    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/"
+    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/L_Zealot/ERAI/CAL_SCSSM-2016/"
     pro_dir=g_data_path
         
 
     print("T Reading...")
     ctrl_in1      = addfile (g_data_path+"interim.41days.air.nc", "r")   ; note the "s" of addfile            
-    var1 = ctrl_in1->$g_var_name(0)$(:,:,{1000:500},:,:) 
+    var1 = ctrl_in1->$g_var_name(0)$(:,:,:,:,:) 
     print("Q Reading...")
-    ;ctrl_in2      = addfile (g_data_path+"interim.41days.shum.nc", "r")   ; note the "s" of addfile            
-    ;var2 = ctrl_in2->$g_var_name(1)$(:,:,{1000:500},:,:)
+    ctrl_in2      = addfile (g_data_path+"interim.41days.shum.nc", "r")   ; note the "s" of addfile            
+    var2 = ctrl_in2->$g_var_name(1)$(:,:,:,:,:)
 
     
 
@@ -64,13 +64,13 @@ begin
     print("theta_e calculating...")
     
     level=conform(var1, var1&level, 2)
-    ;ctrl_theta_e_var(0,:,:,:,:)=pot_temp_equiv(level, var1, var2, -1, "q")
-    var2=var1 
-    var2=100
-    ctrl_theta_e_var=pot_temp_equiv(level, var1, var2, -1, "rh")
+    ctrl_theta_e_var=pot_temp_equiv(level, var1, var2, -1, "q")
+    ;var2=var1 
+    ;var2=100
+    ;ctrl_theta_e_var=pot_temp_equiv(level, var1, var2, -1, "rh")
    
-    pro_dir=g_data_path+"interim.41days.theta_es.nc"
+    pro_dir=g_data_path+"interim.41days.theta_e.nc"
     print("Write...")
-    write_YDLLL_to_nc("theta_es",ctrl_theta_e_var,pro_dir)
+    write_YDLLL_to_nc("theta_s",ctrl_theta_e_var,pro_dir)
 end
 

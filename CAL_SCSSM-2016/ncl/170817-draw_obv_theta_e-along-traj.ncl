@@ -42,10 +42,10 @@ begin
    
     record_len=650
      
-    nudg_in1     = addfile("/home/yangsong3/L_Zealot/data-mirror/obv/L_Zealot/ERAI/CAL_SCSSM-2016/interim.41days.shum.nc", "r") 
-    var1=nudg_in1->shum(:,:,{1000:200},:,:)
-    var1=var1*1000
-    all_files=systemfunc ("ls /home/yangsong3/L_Zealot/data-mirror/obv/L_Zealot/CAL_2016_traj/post_process/850hpa/*")
+    nudg_in1     = addfile("/home/yangsong3/L_Zealot/data-mirror/obv/L_Zealot/ERAI/CAL_SCSSM-2016/interim.41days.theta_e.nc", "r") 
+    var1=nudg_in1->theta_s(:,:,{1000:200},:,:)
+
+    all_files=systemfunc ("ls /home/yangsong3/L_Zealot/data-mirror/obv/L_Zealot/CAL_2016_traj/post_process/*")
     n_files=dimsizes(all_files)
     var_point=new((/5000,5,3/),"float")
     tp_pos=new((/5,3/),"integer")
@@ -79,7 +79,7 @@ begin
     all_var_range(:,1,:)=var1_daily_type-std_var1_daily_type
 
 ;====================================================================================== 
-     wks = gsn_open_wks("png","../fig/traj_shum")          ; send graphics to PNG file
+     wks = gsn_open_wks("png","../fig/traj_theta_s")          ; send graphics to PNG file
 
      sres = True
      sres@vpWidthF = 0.7
@@ -87,8 +87,8 @@ begin
      sres@vpXF = .15
      sres@trXMinF = 0
      sres@trXMaxF = 6
-     sres@trYMinF = 3.0
-     sres@trYMaxF = 15.0
+     sres@trYMinF = 327
+     sres@trYMaxF = 334
      sres@gsnDraw = True
      sres@gsnFrame = False
      sres@gsnXYBarChart = True
@@ -103,7 +103,7 @@ begin
 ;     sres@tiMainFont = "helvetica"
      sres@tiMainString = "Specific Humidity along the Trajectories"
      sres@gsnRightString = ""
-     sres@tiYAxisString = "shum"
+     sres@tiYAxisString = "theta_e"
         
      sres@gsnXYBarChartColors = (/"red"/)   
      plot1 = gsn_csm_xy(wks,fspan(0.75,4.75,5),var1_daily_type(2,:),sres)     ; Eastern

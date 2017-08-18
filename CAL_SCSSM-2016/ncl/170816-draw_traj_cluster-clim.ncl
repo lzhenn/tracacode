@@ -23,9 +23,17 @@ begin
 
 ; Backtrac time file
 type_code=(/"I","II","III"/)
+
+;700
 ;clst_ratio=(/24,41,35/)
-clst_ratio=(/12,56,33/)
+;clst_ratio=(/12,56,33/)
 ;clst_ratio=(/9,40,51/)
+
+;850
+clst_ratio=(/30,58,12/)
+;clst_ratio=(/15,40,45/)
+;clst_ratio=(/34,39,27/)
+
 
 ; Integration timestep
 int_step=1 
@@ -44,12 +52,12 @@ lonE=110
 
 ;Plvl
 ;plvl_list=(/1000, 925, 850, 700, 600, 500, 200/)
-plvl_list=(/700/)
+plvl_list=(/850/)
 ;plvl_list=(/850,825,800,775,750,500/)
 
-fig_dir="../fig/Clim700traj_clst_Z"
+fig_dir="../fig/Clim850traj_clst_B2"
 
-data_file_name1="/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/Cluster/Cmean1_3_Z.tdump"
+data_file_name1="/Users/zhenningli/data/CAL_SCSSM-2016/back_traj/Cluster/Cmean1_3_850_B2.tdump"
 pt_record  =   readAsciiTable(data_file_name1,12,"float",7) ; get the first file's lat lon and value
 ;pt_record [0]--pt idx  [9]--lat [10]--lon 
 
@@ -77,7 +85,7 @@ res@mpMaxLonF   = lonE
 res@tmYROn      = False     ; turn off right and top tickmarks
 res@tmXTOn      = False
 
-res@tiMainString      = "Air Parcel Cluster 0 Day (700 hPa)"
+res@tiMainString      = "Air Parcel Cluster -2 Day (850 hPa)"
 res@tiMainFontHeightF = 0.015
 
 map = gsn_csm_map_ce(wks,res)                  ; create map
