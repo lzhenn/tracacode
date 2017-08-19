@@ -93,6 +93,14 @@ begin
     diff_var1=where(clim_var4_e .gt. 0,  diff_var1,diff_var1@_FillValue)
     printVarSummary(diff_var1)
 
+
+     LAT=fspan(-90,90, 73)
+     LON=fspan(-180,180, 144)
+     opt = True
+     opt@critpc = 10                ; require only 50% of the values to be present 
+     diff_var1:= area_hi2lores_Wrap(diff_var1&lon,diff_var1&lat, diff_var1, True, 1,  LON, LAT, opt  )  ; (ntim,49,120)
+    print(num(diff_var1({-15:15},{90:150}) .lt.0))
+    print(num(diff_var1({-15:15},{90:150}) .gt.0))
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================

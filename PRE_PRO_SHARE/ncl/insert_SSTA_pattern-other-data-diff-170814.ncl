@@ -36,8 +36,8 @@ begin
 ;SCS-PhS region
     
 
-	latS    =   -60.0
-	latN    =   60.0
+	latS    =   -30.0
+	latN    =   30.0
     lonL    =   0
     lonR    =   360.
     
@@ -46,7 +46,7 @@ begin
     fig_num     =   (/"(a)","(b)","(c)"/)
     
     data_file_in   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim.nc"
-    data_file_out   =   "../data/SST-FORCE/sst_ersst_bc_1.9x2.5_1979_2010_clim.nc"
+    data_file_out   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim-tropical-E20C-ersst.nc"
     
     data_sample_file_in   =   "/home/yangsong3/data/observation/SST/NOAA_ERSST/noaa_er_sst-185401-201305.nc"
     
@@ -77,7 +77,7 @@ begin
     ilast = ind(yyyymm .eq. g_end_yyyymm)
 
     var2  = short2flt(ctrl_in2->sst(istrt:ilast,:,:))			; p for unify the var name
-    var2=var2(:,::-1,:)    
+    var2 = var2(:,::-1,:) 
     clim_var2_e=clmMonTLL(var2(0:30*12-1,:,:))
     clim_var2_l=clmMonTLL(var2(80*12:,:,:))
     
@@ -91,13 +91,13 @@ begin
     relc      = 0.6              ; relaxation coefficient
     opt       = 0                ; not used
 
-    poisson_grid_fill( clim_var2_l, is_cyclic, guess, nscan, eps, relc, opt) 
+    poisson_grid_fill( diff_var2, is_cyclic, guess, nscan, eps, relc, opt) 
     
-    clim_var2_l:=f2fsh_Wrap(clim_var2_l,(/96,144/))
+    diff_var2:=f2fsh_Wrap(diff_var2,(/96,144/))
 ;------------Operation--------------------
     out_var1 = clim_var1
     
-    out_var1(:,{latS:latN},{lonL:lonR}) = (/clim_var2_l(:,{latS:latN},{lonL:lonR})/)
+    out_var1(:,{latS:latN},{lonL:lonR}) = clim_var1(:,{latS:latN},{lonL:lonR})-diff_var2(:,{latS:latN},{lonL:lonR})
     
     diff_var1 = out_var1
     diff_var1 = out_var1-clim_var1
