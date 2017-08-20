@@ -53,9 +53,9 @@ begin
   
     g_latN=30
     g_latS=-30
-    g_lonE=360
-    g_lonW=0
-    g_season="JJA"
+    g_lonE=180
+    g_lonW=60
+    g_season="MAM"
     g_skip_year=3
 
     ;Prepare the variables
