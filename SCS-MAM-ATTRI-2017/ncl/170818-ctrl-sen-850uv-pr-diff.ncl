@@ -34,13 +34,13 @@ begin
     g_var_name = (/"U","V"/)
     
     
-    ctrl_dir="/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/post_process"    
+    ctrl_dir="/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/pro_data"    
     g_data_ctrl_path1 =ctrl_dir+"/as-bob-test.cam.h0.U.1-12.nc"
     g_data_ctrl_path2 =ctrl_dir+"/as-bob-test.cam.h0.V.1-12.nc"
     g_data_ctrl_path3 =ctrl_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
     g_data_ctrl_path4 =ctrl_dir+"/as-bob-test.cam.h0.PRECL.1-12.nc"
     
-    sen_dir="/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data/post_process"    
+    sen_dir="/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data/pro_data"    
     g_data_sen_path1 =sen_dir+"/as-bob-test.cam.h0.U.1-12.nc"
     g_data_sen_path2 =sen_dir+"/as-bob-test.cam.h0.V.1-12.nc"
     g_data_sen_path3 =sen_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
