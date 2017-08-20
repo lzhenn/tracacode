@@ -34,16 +34,17 @@ begin
     g_var_name = (/"U","V"/)
     
     
+    ctrl_dir="/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/post_process"    
+    g_data_ctrl_path1 =ctrl_dir+"/as-bob-test.cam.h0.U.1-12.nc"
+    g_data_ctrl_path2 =ctrl_dir+"/as-bob-test.cam.h0.V.1-12.nc"
+    g_data_ctrl_path3 =ctrl_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
+    g_data_ctrl_path4 =ctrl_dir+"/as-bob-test.cam.h0.PRECL.1-12.nc"
     
-    g_data_ctrl_path1 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.U.1-15.nc"
-    g_data_ctrl_path2 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.V.1-15.nc"
-    g_data_ctrl_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.PRECC.1-15.nc"
-    g_data_ctrl_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/ctrl/as-bob-test.cam.h0.PRECL.1-15.nc"
-
-    g_data_sen_path1 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/MC-1901-1930/as-bob-test.cam.h0.U.1-15.nc"
-    g_data_sen_path2 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/MC-1901-1930/as-bob-test.cam.h0.V.1-15.nc"
-    g_data_sen_path3 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/MC-1901-1930/as-bob-test.cam.h0.PRECC.1-15.nc"
-    g_data_sen_path4 ="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/POST_SCRATCH-2017/MC-1901-1930/as-bob-test.cam.h0.PRECL.1-15.nc"
+    sen_dir="/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data/post_process"    
+    g_data_sen_path1 =sen_dir+"/as-bob-test.cam.h0.U.1-12.nc"
+    g_data_sen_path2 =sen_dir+"/as-bob-test.cam.h0.V.1-12.nc"
+    g_data_sen_path3 =sen_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
+    g_data_sen_path4 =sen_dir+"/as-bob-test.cam.h0.PRECL.1-12.nc"
  
     g_topo_path="../../PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_1.9x2.5_remap_c050602.nc"
 

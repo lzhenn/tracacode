@@ -10,11 +10,11 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data/\"
+PRE_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data/pro_data/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/pro_data/\"
 
 # Case name
 CASENAME=\"as-bob-test\"
@@ -45,7 +45,7 @@ PLEV="(/1000,925,850,700,600,500,400,300,200,100/)"
 FRSTYEAR=1
 
 # Last year of the subset
-LSTYEAR=15
+LSTYEAR=12
 
 # Process fig flag
 FLAG2D=1
