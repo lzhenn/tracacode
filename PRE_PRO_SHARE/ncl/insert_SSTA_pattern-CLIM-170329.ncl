@@ -36,22 +36,22 @@ begin
 ;SCS-PhS region
     
 
-	latS    =   -7.5
-	latN    =   5.0
-    lonL    =   85
-    lonR    =   115.
+	latS    =   -30.0
+	latN    =   30.0
+    lonL    =   0
+    lonR    =   360.
 
     
     fig_num     =   (/"(a)","(b)","(c)"/)
     
     data_file_in   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim.nc"
-    data_file_out   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1979_2010_clim_mc_pos_JA.nc"
+    data_file_in2 = "/home/yangsong3/data/observation/SST/CAM_FORCE/sst_HadOIBl_bc_1.9x2.5_1850_2013_c140701.nc"
+    data_file_out   =   "../data/SST-FORCE/sst_HadOIBl_bc_1.9x2.5_1901_1930_clim.nc"
     
-    ssta=0.5
-    strt_mon=6 ; 0---Jan
-    lst_mon=7 ; 0---Jan
-    g_season="JJA"
-    
+    g_strt_yyyymm=190101
+    g_end_yyyymm=201012
+    g_season="MAM"
+   
     fig_name   =   "../fig/insert_ssta"
     fig_title   =  (/ "Clim", "Clim+SSTA", " SST Diff ("+latS+"~S~o~N~S-"+latN+"~S~o~N~N, "+lonL+"~S~o~N~E-"+lonR+"~S~o~N~E )"/)
 
@@ -64,10 +64,21 @@ begin
     ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
     clim_var1  = ctrl_in1->SST_cpl			; p for unify the var name
         
+        
+    ctrl_file2   = data_file_in2
+    ctrl_in2     = addfile (ctrl_file2, "r")   ; note the "s" of addfile
+    time := ctrl_in2->time
+    yyyymm :=floor( cd_calendar(time,-1))
+    istrt = ind(yyyymm .eq. g_strt_yyyymm)
+    ilast = ind(yyyymm .eq. g_end_yyyymm)
+
+    var2  = short2flt(ctrl_in2->SST_cpl(istrt:ilast,:,:))			; p for unify the var name
+    clim_var2_e=clmMonTLL(var2(0:30*12-1,:,:))
+ 
 ;------------Operation--------------------
     out_var1 = clim_var1
     
-    out_var1(strt_mon:lst_mon,{latS:latN},{lonL:lonR}) = out_var1(strt_mon:lst_mon,{latS:latN},{lonL:lonR})+ssta
+    out_var1(:,{latS:latN},{lonL:lonR}) = (/clim_var2_e(:,{latS:latN},{lonL:lonR})/)
     
     diff_var1 = out_var1
     diff_var1 = out_var1-clim_var1
