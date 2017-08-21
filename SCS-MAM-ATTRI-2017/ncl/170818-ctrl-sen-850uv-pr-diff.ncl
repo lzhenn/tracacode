@@ -34,13 +34,13 @@ begin
     g_var_name = (/"U","V"/)
     
     
-    ctrl_dir="/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/pro_data"    
+    ctrl_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/ctrl-ersst"    
     g_data_ctrl_path1 =ctrl_dir+"/as-bob-test.cam.h0.U.1-12.nc"
     g_data_ctrl_path2 =ctrl_dir+"/as-bob-test.cam.h0.V.1-12.nc"
     g_data_ctrl_path3 =ctrl_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
     g_data_ctrl_path4 =ctrl_dir+"/as-bob-test.cam.h0.PRECL.1-12.nc"
     
-    sen_dir="/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data/pro_data"    
+    sen_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/E20C-ersst"    
     g_data_sen_path1 =sen_dir+"/as-bob-test.cam.h0.U.1-12.nc"
     g_data_sen_path2 =sen_dir+"/as-bob-test.cam.h0.V.1-12.nc"
     g_data_sen_path3 =sen_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
@@ -53,9 +53,9 @@ begin
   
     g_latN=30
     g_latS=-30
-    g_lonE=180
+    g_lonE=270
     g_lonW=60
-    g_season="MAM"
+    g_season="SON"
     g_skip_year=3
 
     ;Prepare the variables
@@ -142,9 +142,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -3.0        ; set min contour level
- res@cnMaxLevelValF        = 3.0         ; set max contour level
- res@cnLevelSpacingF       = 0.5          ; set contour interval
+ res@cnMinLevelValF        = -2.0        ; set min contour level
+ res@cnMaxLevelValF        = 2.0         ; set max contour level
+ res@cnLevelSpacingF       = 0.25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -207,7 +207,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "(b)"
+  res@gsnLeftString = ""
   res@gsnRightString = ""
 
   res3                  = True       ; use plot options
@@ -247,14 +247,14 @@ begin
   vcres@vcRefAnnoFontHeightF = 0.015
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.01
+  vcres@vcLineArrowHeadMinSizeF   = 0.005
+  vcres@vcLineArrowHeadMaxSizeF   = 0.005
  
 
-  g_fig_name="../fig/global-850uv-pr"
+  g_fig_name="../fig/global-850uv-pr-"+g_season
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"precip_diff_12lev")
-  res@gsnCenterString="UV850 & Pr Diff (CTRL-E20C)"
+  res@gsnCenterString="850UV & Pr Diff (ER_CTRL-ER_E20C)"
 
   plot_sh= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
   plot_cn= gsn_csm_contour(wks,topo_var,res3) ; create a default plot
