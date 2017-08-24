@@ -34,13 +34,13 @@ begin
     g_var_name = (/"U","V"/)
     
     
-    ctrl_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/ctrl-ersst"    
-    g_data_ctrl_path1 =ctrl_dir+"/as-bob-test.cam.h0.U.1-12.nc"
-    g_data_ctrl_path2 =ctrl_dir+"/as-bob-test.cam.h0.V.1-12.nc"
-    g_data_ctrl_path3 =ctrl_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
-    g_data_ctrl_path4 =ctrl_dir+"/as-bob-test.cam.h0.PRECL.1-12.nc"
+    ctrl_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/ctrl-had"    
+    g_data_ctrl_path1 =ctrl_dir+"/as-bob-test.cam.h0.U.1-15.nc"
+    g_data_ctrl_path2 =ctrl_dir+"/as-bob-test.cam.h0.V.1-15.nc"
+    g_data_ctrl_path3 =ctrl_dir+"/as-bob-test.cam.h0.PRECC.1-15.nc"
+    g_data_ctrl_path4 =ctrl_dir+"/as-bob-test.cam.h0.PRECL.1-15.nc"
     
-    sen_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/E20C-ersst"    
+    sen_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/E20C-had"    
     g_data_sen_path1 =sen_dir+"/as-bob-test.cam.h0.U.1-12.nc"
     g_data_sen_path2 =sen_dir+"/as-bob-test.cam.h0.V.1-12.nc"
     g_data_sen_path3 =sen_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
@@ -84,13 +84,13 @@ begin
     topo_var =topo_var/10
 
     
-    var1_clim=dim_avg_n_Wrap(month_to_season(var1(g_skip_year*12:,:,:,:),g_season),0)
-    var2_clim=dim_avg_n_Wrap(month_to_season(var2(g_skip_year*12:,:,:,:),g_season),0)
-    var3_clim=dim_avg_n_Wrap(month_to_season(var3(g_skip_year*12:,:,:),g_season),0)
+    var1_clim=dim_avg_n_Wrap(month_to_season(var1(g_skip_year*12:12*12-1,:,:,:),g_season),0)
+    var2_clim=dim_avg_n_Wrap(month_to_season(var2(g_skip_year*12:12*12-1,:,:,:),g_season),0)
+    var3_clim=dim_avg_n_Wrap(month_to_season(var3(g_skip_year*12:12*12-1,:,:),g_season),0)
 
-    sen_var1_clim=dim_avg_n_Wrap(month_to_season(sen_var1(g_skip_year*12:,:,:,:),g_season),0)
-    sen_var2_clim=dim_avg_n_Wrap(month_to_season(sen_var2(g_skip_year*12:,:,:,:),g_season),0)
-    sen_var3_clim=dim_avg_n_Wrap(month_to_season(sen_var3(g_skip_year*12:,:,:),g_season),0)
+    sen_var1_clim=dim_avg_n_Wrap(month_to_season(sen_var1(g_skip_year*12:12*12-1,:,:,:),g_season),0)
+    sen_var2_clim=dim_avg_n_Wrap(month_to_season(sen_var2(g_skip_year*12:12*12-1,:,:,:),g_season),0)
+    sen_var3_clim=dim_avg_n_Wrap(month_to_season(sen_var3(g_skip_year*12:12*12-1,:,:),g_season),0)
 
     diff_var1=var1_clim
     diff_var2=var2_clim
@@ -251,7 +251,7 @@ begin
   vcres@vcLineArrowHeadMaxSizeF   = 0.005
  
 
-  g_fig_name="../fig/global-850uv-pr-"+g_season
+  g_fig_name="../fig/global-850uv-pr-had-"+g_season
   wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"precip_diff_12lev")
   res@gsnCenterString="850UV & Pr Diff (ER_CTRL-ER_E20C)"

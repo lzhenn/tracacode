@@ -10,11 +10,11 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/\"
+PRE_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data-Had/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/ctrl-ersst-81-10/pro_data/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/as-bob-test/MC-1901-1930-data-Had/pro_data/\"
 
 # Case name
 CASENAME=\"as-bob-test\"
@@ -24,7 +24,7 @@ CASENAME=\"as-bob-test\"
 #FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use
 FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\"/)" #often use
 
-# Names of 3D fields
+#ctrl-ersst-81-10/ Names of 3D fields
 #FDNAME3D="(/\"U\",\"V\"/)" #often use
 FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
