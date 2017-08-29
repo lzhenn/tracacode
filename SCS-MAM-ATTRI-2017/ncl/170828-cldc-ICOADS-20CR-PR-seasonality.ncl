@@ -34,10 +34,10 @@ begin
     g_data_path2 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/slp.mean.nc"
 
     ;MC+WEP
-    sea_latS=-5.
+    sea_latS=-15.
     sea_latN=15.
-    sea_lonW=85.
-    sea_lonE=125.
+    sea_lonW=90.
+    sea_lonE=150.
     
     g_strt_year=1900        
     g_end_year=2010
@@ -46,7 +46,7 @@ begin
 
     g_font = 0.035
 
-    g_fig_name    =   "../fig/Pr_cldc_timeseries_20R-anncyc"
+    g_fig_name    =   "../fig/Pr_timeseries_20R-anncyc"
     g_fig_rank    =   (/"","","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     g_fig_title     = (/"Southern China ","MC+WEP "/)+"ANN Pr Timeseries"
@@ -93,32 +93,32 @@ begin
     yyyymm :=floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var2 = short2flt(ctrl_in2->slp(istrt:ilast,:,:))
+    var1 = short2flt(ctrl_in2->slp(istrt:ilast,:,:))
 
-    printVarSummary(var2)
-    var2_season=month_to_season12(var2)
-    printVarSummary(var2_season)
-    var2_season_seamean = wgt_areaave_Wrap(var2_season(:,{sea_latS:sea_latN},{sea_lonW:sea_lonE}),1.0,1.0,0)
+    printVarSummary(var1)
+    var1_season=month_to_season12(var1)
+    printVarSummary(var1_season)
+    var1_season_seamean = wgt_areaave_Wrap(var1_season(:,{sea_latS:sea_latN},{sea_lonW:sea_lonE}),1.0,1.0,0)
 
     nyears=g_end_year-g_strt_year+1
-    var2_2d=onedtond(var2_season_seamean,(/nyears,12/))   
+    var1_2d=onedtond(var1_season_seamean,(/nyears,12/))   
     
-    nclim:=dim_stddev_n(var2_2d,0)
+    nclim=dim_avg_n(var1_2d,0)
     print(nclim)
-    ntrend2=var2_2d(0,:)
+    ntrend=var1_2d(0,:)
     do ii=0,11
-      ntrend2(ii)=(/regline(ispan(1,nyears,1),var2_2d(:,ii))*nyears/)
+      ntrend(ii)=(/regline(ispan(1,nyears,1),var1_2d(:,ii))*nyears/)
     end do
-    ntrend2=-50*ntrend2/nclim
+    ntrend=100*ntrend/nclim
    
 
 ;*********************************
 ; create plot
 ;********************************
- wks   = gsn_open_wks ("png", "../fig/bar-20CR-cldc-seasonality" )  ; send graphics to PNG file
+ wks   = gsn_open_wks ("png", "../fig/bar-20CR-seasonality" )  ; send graphics to PNG file
  res   = True
-; res@gsnScale = True               
- res@gsnFrame= False
+ res@gsnScale = True               
+
 ; these four resources allow the user to stretch the plot size, and
 ; decide exactly where on the page to draw it.
 
@@ -128,28 +128,22 @@ begin
  res@vpWidthF  = 0.85
  res@gsnMaximize = True
 
- res@trXMinF   = 0        ; min value on y-axis
- res@trXMaxF   =  13        ; max value on y-axis
- res@trYMinF   = 0        ; min value on y-axis
- res@trYMaxF   =  45        ; max value on y-axis
+ res@trYMinF   = -10        ; min value on y-axis
+ res@trYMaxF   =  30        ; max value on y-axis
 
- res@tiYAxisString = "Change (%/100a)" ; y-axis label      
+ res@tiYAxisString = "Pr Change (%)" ; y-axis label      
  res@tiXAxisString = ""
- res@tiMainString  = "Change relative to 1901-2010 Clim" ; title
+ res@tiMainString  = "Pr Change relative to 1901-2010 Clim" ; title
 
  res@gsnYRefLine           = 0.              ; reference line   
  res@gsnXYBarChart         = True            ; create bar chart 
- ;res@gsnAboveYRefLineColor = "red"           ; above ref line fill red
-; res@gsnBelowYRefLineColor = "blue"          ; below ref line fill blue
+ res@gsnAboveYRefLineColor = "red"           ; above ref line fill red
+ res@gsnBelowYRefLineColor = "blue"          ; below ref line fill blue
  res@tmXBMode              = "Explicit"         ; explicit labels
  res@tmXBValues            = ispan(1,12,1)
  res@tmXBLabels            = g_seasons 
- res@gsnXYBarChartBarWidth = 0.25
- res@gsnXYBarChartColors = (/"red"/)   
- plot = gsn_csm_xy (wks,fspan(0.875,11.875,12),ntrend,res) 
- res@gsnXYBarChartColors = (/"blue"/)                  ; but tweaking where
- plot1 = gsn_csm_xy(wks,fspan(1.125,12.125,12),ntrend2,res)        ; Western
- frame(wks)
+
+ plot = gsn_csm_xy (wks,ispan(1,12,1),ntrend,res) 
 end
 
 
