@@ -1,0 +1,50 @@
+ Copyright (C) 1995-2015 - All Rights Reserved
+ University Corporation for Atmospheric Research
+ NCAR Command Language Version 6.3.0
+ The use of this software is governed by a License Agreement.
+ See http://www.ncl.ucar.edu/ for more details.
+
+Variable: var1_ano_line
+Type: float
+Total Size: 2799360 bytes
+            699840 values
+Number of Dimensions: 2
+Dimensions and sizes:	[time | 20] x [pattern | 34992]
+Coordinates: 
+Number Of Attributes: 1
+  _FillValue :	9.96921e+36
+
+Variable: var2_ano_line
+Type: float
+Total Size: 522720 bytes
+            130680 values
+Number of Dimensions: 2
+Dimensions and sizes:	[time | 20] x [pattern | 6534]
+Coordinates: 
+Number Of Attributes: 1
+  _FillValue :	9.96921e+36
+
+
+Variable: mca_var
+Type: float
+Total Size: 16 bytes
+            4 values
+Number of Dimensions: 1
+Dimensions and sizes:	[4]
+Coordinates: 
+Number Of Attributes: 5
+  bk :	<ARRAY of 80 elements>
+  ak :	<ARRAY of 80 elements>
+  lapack_err :	0
+  condn :	-1.471816e-06
+  fnorm :	1.274034e-05
+(0)	20.37132
+(1)	16.01481
+(2)	11.48908
+(3)	8.102627
+(0)	MCA done!
+fatal:Subscript out of range, error in subscript #0
+fatal:An error occurred reading reg_var1
+fatal:["Execute.c":8575]:Execute: Error occurred at or near line 257 in file 170111-prect-U-BOB-onset-MCA-AMJ-left-model.ncl
+
+

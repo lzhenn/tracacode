@@ -1,0 +1,63 @@
+netcdf uwnd.1979 {
+dimensions:
+	lon = 144 ;
+	lat = 73 ;
+	level = 17 ;
+	time = UNLIMITED ; // (365 currently)
+variables:
+	float level(level) ;
+		level:units = "millibar" ;
+		level:actual_range = 1000.f, 10.f ;
+		level:long_name = "Level" ;
+		level:positive = "down" ;
+		level:GRIB_id = 100s ;
+		level:GRIB_name = "hPa" ;
+		level:axis = "Z" ;
+	float lat(lat) ;
+		lat:units = "degrees_north" ;
+		lat:actual_range = 90.f, -90.f ;
+		lat:long_name = "Latitude" ;
+		lat:standard_name = "latitude" ;
+		lat:axis = "Y" ;
+	float lon(lon) ;
+		lon:units = "degrees_east" ;
+		lon:long_name = "Longitude" ;
+		lon:actual_range = 0.f, 357.5f ;
+		lon:standard_name = "longitude" ;
+		lon:axis = "X" ;
+	double time(time) ;
+		time:long_name = "Time" ;
+		time:delta_t = "0000-00-01 00:00:00" ;
+		time:avg_period = "0000-00-01 00:00:00" ;
+		time:standard_name = "time" ;
+		time:axis = "T" ;
+		time:units = "hours since 1800-01-01 00:00:0.0" ;
+		time:actual_range = 1569072., 1577808. ;
+	float uwnd(time, level, lat, lon) ;
+		uwnd:long_name = "mean Daily U-wind" ;
+		uwnd:units = "m/s" ;
+		uwnd:precision = 2s ;
+		uwnd:least_significant_digit = 1s ;
+		uwnd:GRIB_id = 33s ;
+		uwnd:GRIB_name = "UGRD" ;
+		uwnd:var_desc = "u-wind" ;
+		uwnd:dataset = "NCEP Reanalysis Daily Averages" ;
+		uwnd:level_desc = "Multiple levels" ;
+		uwnd:statistic = "Mean" ;
+		uwnd:parent_stat = "Individual Obs" ;
+		uwnd:missing_value = -9.96921e+36f ;
+		uwnd:actual_range = -104.67f, 117.73f ;
+		uwnd:valid_range = -125.f, 160.f ;
+
+// global attributes:
+		:Conventions = "COARDS" ;
+		:title = "mean daily NMC reanalysis (1979)" ;
+		:description = "Data is from NMC initialized reanalysis\n",
+			"(4x/day).  It consists of most variables interpolated to\n",
+			"pressure surfaces from model (sigma) surfaces." ;
+		:platform = "Model" ;
+		:history = "created 95/02/06 by Hoop (netCDF2.3)\n",
+			"Converted to chunked, deflated non-packed NetCDF4 2014/09" ;
+		:References = "http://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis.html" ;
+		:dataset_title = "NCEP-NCAR Reanalysis 1" ;
+}

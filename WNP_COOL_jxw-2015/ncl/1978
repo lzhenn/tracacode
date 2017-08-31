@@ -1,0 +1,64 @@
+netcdf uwnd.1978 {
+dimensions:
+	lon = 144 ;
+	lat = 73 ;
+	level = 17 ;
+	time = UNLIMITED ; // (365 currently)
+variables:
+	float level(level) ;
+		level:units = "millibar" ;
+		level:actual_range = 1000.f, 10.f ;
+		level:long_name = "Level" ;
+		level:positive = "down" ;
+		level:GRIB_id = 100s ;
+		level:GRIB_name = "hPa" ;
+		level:axis = "Z" ;
+	float lat(lat) ;
+		lat:units = "degrees_north" ;
+		lat:actual_range = 90.f, -90.f ;
+		lat:long_name = "Latitude" ;
+		lat:standard_name = "latitude" ;
+		lat:axis = "Y" ;
+	float lon(lon) ;
+		lon:units = "degrees_east" ;
+		lon:long_name = "Longitude" ;
+		lon:actual_range = 0.f, 357.5f ;
+		lon:standard_name = "longitude" ;
+		lon:axis = "X" ;
+	double time(time) ;
+		time:units = "hours since 1-1-1 00:00:0.0" ;
+		time:long_name = "Time" ;
+		time:actual_range = 17330064., 17338800. ;
+		time:delta_t = "0000-00-01 00:00:00" ;
+		time:avg_period = "0000-00-01 00:00:00" ;
+		time:standard_name = "time" ;
+		time:axis = "T" ;
+	short uwnd(time, level, lat, lon) ;
+		uwnd:long_name = "mean Daily U-wind" ;
+		uwnd:unpacked_valid_range = -125.f, 160.f ;
+		uwnd:actual_range = -86.16998f, 114.3f ;
+		uwnd:units = "m/s" ;
+		uwnd:add_offset = 202.66f ;
+		uwnd:scale_factor = 0.01f ;
+		uwnd:missing_value = 32766s ;
+		uwnd:precision = 2s ;
+		uwnd:least_significant_digit = 1s ;
+		uwnd:GRIB_id = 33s ;
+		uwnd:GRIB_name = "UGRD" ;
+		uwnd:var_desc = "u-wind" ;
+		uwnd:dataset = "NCEP Reanalysis Daily Averages" ;
+		uwnd:level_desc = "Multiple levels" ;
+		uwnd:statistic = "Mean" ;
+		uwnd:parent_stat = "Individual Obs" ;
+		uwnd:valid_range = -32766s, -4266s ;
+
+// global attributes:
+		:Conventions = "COARDS" ;
+		:title = "mean daily NMC reanalysis (1978)" ;
+		:history = "created 95/02/06 by Hoop (netCDF2.3)" ;
+		:description = "Data is from NMC initialized reanalysis\n",
+			"(4x/day).  It consists of most variables interpolated to\n",
+			"pressure surfaces from model (sigma) surfaces." ;
+		:platform = "Model" ;
+		:references = "http://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis.html" ;
+}
