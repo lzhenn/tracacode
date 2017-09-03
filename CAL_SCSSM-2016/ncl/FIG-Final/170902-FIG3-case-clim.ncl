@@ -33,16 +33,16 @@ begin
 
 g_data1_path ="../../data/obv/PRECT/precip.pentad.mean.nc"
 g_latS2=5
-g_latN2=20
-g_lonW2=85
-g_lonE2=100
+g_latN2=15
+g_lonW2=87.5
+g_lonE2=97.5
 ctrl_in1 = addfile(g_data1_path, "r")
 time_hist    = ctrl_in1->time
 yyyymm  = cd_calendar(time_hist,-1)
-var1  = ctrl_in1->precip(:37*73-1,{g_latS2:g_latN2},{g_lonW2:g_lonE2})
+var1  = ctrl_in1->precip(:38*73-1,{g_latS2:g_latN2},{g_lonW2:g_lonE2})
 
 var1_dim = dimsizes(var1) 
-var1_4d  = reshape(var1,(/37,73,var1_dim(1),var1_dim(2)/))
+var1_4d  = reshape(var1,(/38,73,var1_dim(1),var1_dim(2)/))
 var1_4d2 = var1_4d
 ;printVarSummary(var1_pt_data_reshape)
 
@@ -81,7 +81,7 @@ var1_clim_ts=wgt_areaave_Wrap(dim_avg_n_Wrap(var1_4d2(:,19:27,:,:),0),1.0,1.0,0)
  res@trXMinF   = 0        ; min value on y-axis
  res@trXMaxF   =  10        ; max value on y-axis
  res@trYMinF   = 0        ; min value on y-axis
- res@trYMaxF   = 20.0        ; max value on y-axis
+ res@trYMaxF   = 22.0        ; max value on y-axis
 
  res@tiYAxisString = "" ; y-axis label      
  res@tiXAxisString = ""
