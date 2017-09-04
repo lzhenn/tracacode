@@ -60,7 +60,7 @@ begin
     ; Early
     g_comp_years=(/1990, 1999, 2000, 2006, 2009, 2012, 2015/)
     ; Late
-;    g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
+    ;g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
 
     g_comp_years=g_comp_years-1979
     g_latS=0
@@ -68,9 +68,10 @@ begin
     g_lonW=75
     g_lonE=100
     ; create an array of desired pressure levels:
-    g_fig_name = "../../fig/FINAL/FIG4-U-sec-pbp"+g_lonW+"-"+g_lonE
+    g_fig_name = "../../fig/FINAL/FIG4a-U-sec-pbp"+g_lonW+"-"+g_lonE
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
+;    g_fig_rank    = (/"(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
     g_fig_title = "Pentad: "+ispan(g_p_strt2+1,g_p_lst2+1,1)+" U Cross (Early)"
 
 ;Prepare the variables
@@ -113,7 +114,7 @@ begin
     var2_comp_clim = dim_avg_n_Wrap(var2_comp_data,0)
     var2_comp_clim_ano = var2_comp_clim
     var2_comp_clim_ano = var2_comp_clim - var2_pt_clim
-
+    var2_comp_clim_ano = where(abs(var2_comp_clim_ano) .lt. 1,var2_comp_clim_ano@_FillValue, var2_comp_clim_ano)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -158,7 +159,7 @@ begin
  res@cnLevelSpacingF       = 1.0        ; set contour interval
  ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
- res@vpHeightF = 0.5
+ res@vpHeightF = 0.4
 ; res@cnMissingValFillColor="black"
 
 

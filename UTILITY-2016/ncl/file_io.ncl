@@ -108,8 +108,8 @@ begin
     setfileoption("nc","SuppressClose",False) ; close too many files
     inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
     ListSetType (inlist, "join")
-    var  =inlist[:]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE})
-    var_366  =inlist[1::4]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE})
+    var  =short2flt(inlist[:]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
+    var_366  =short2flt(inlist[1::4]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
     var_dim = dimsizes(var_366)
     var_dim365 = dimsizes(var)
     len_yr= var_dim(0)+var_dim365(0)

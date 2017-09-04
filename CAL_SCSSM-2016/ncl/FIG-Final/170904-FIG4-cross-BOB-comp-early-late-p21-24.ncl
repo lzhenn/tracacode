@@ -60,9 +60,10 @@ begin
     ; Early
     g_comp_years=(/1990, 1999, 2000, 2006, 2009, 2012, 2015/)
     ; Late
-;    g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
+    g_comp_years2=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
 
     g_comp_years=g_comp_years-1979
+    g_comp_years2=g_comp_years2-1979
     g_latS=0
     g_latN=45
     g_lonW=75
@@ -102,17 +103,36 @@ begin
         topo2d(:,ii)=where(topo2d&level .lt. var1_line(ii),0,1)
         ;topo2d(:,ii)=where(topo2d&level .lt. var1_line(ii),0,topo2d@_FillValue)
     end do
+
     n_cases=dimsizes(g_comp_years)
     var2_pt_clim=dim_avg_n_Wrap(var2_pt_data,0)
     var2_pt_var=dim_variance_n_Wrap(var2_pt_data,0)
-
     var2_comp_data=var2_pt_data(0:n_cases-1,:,:,:)
     do ii=0,n_cases-1
         var2_comp_data(ii,:,:,:)=var2_pt_data(g_comp_years(ii),:,:,:)
     end do
     var2_comp_clim = dim_avg_n_Wrap(var2_comp_data,0)
-    var2_comp_clim_ano = var2_comp_clim
-    var2_comp_clim_ano = var2_comp_clim - var2_pt_clim
+    var2_comp_var = dim_variance_n_Wrap(var2_comp_data,0)
+    
+    n_cases2=dimsizes(g_comp_years2)
+    var2_comp_data2=var2_pt_data(0:n_cases2-1,:,:,:)
+    do ii=0,n_cases2-1
+        var2_comp_data2(ii,:,:,:)=var2_pt_data(g_comp_years2(ii),:,:,:)
+    end do
+    var2_comp_clim2 = dim_avg_n_Wrap(var2_comp_data2,0)
+    var2_comp_var2 = dim_variance_n_Wrap(var2_comp_data2,0)
+
+    var2_comp_clim_ano = var2_comp_clim - var2_comp_clim2
+
+    siglvl = 0.1                       ; critical sig lvl for r
+
+    iflag= False                        ; population variance similar
+    diff_var2_sig = var2_comp_clim
+    do ii = 0,3
+        prob2 = ttest(var2_comp_clim(ii,:,:),var2_comp_var(ii,:,:),n_cases, var2_comp_clim2(ii,:,:),var2_comp_var2(ii,:,:), n_cases2, iflag, False) 
+        diff_var2_sig(ii,:,:) = mask(var2_comp_clim(ii,:,:), prob2 .lt. siglvl,True)
+    end do
+
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -255,7 +275,7 @@ do ii=0,g_p_len-1
     res@gsnCenterString=g_fig_title(ii)
 
 
-    plot_sh(ii) = gsn_csm_pres_hgt(wks, var2_comp_clim_ano(ii,:,:), res ) 
+    plot_sh(ii) = gsn_csm_pres_hgt(wks, diff_var2_sig(ii,:,:), res ) 
     plot_cn_pos(ii) = gsn_csm_contour(wks,var2_pt_clim(ii,:,:),resC)
     plot_cn_neg(ii) = gsn_csm_contour(wks,var2_pt_clim(ii,:,:),resC2)
     plot_topo(ii) = gsn_csm_contour(wks,topo2d,resT)
