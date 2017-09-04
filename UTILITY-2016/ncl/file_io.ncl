@@ -182,7 +182,7 @@ begin
     setfileoption("nc","SuppressClose",False) ; close too many files
     inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
     ListSetType (inlist, "join")
-    var  =inlist[::-1]->$varname$(:,:,{lev},{latS:latN},{lonW:lonE})
+    var  =inlist[:]->$varname$(:,:,{lev},{latS:latN},{lonW:lonE})
     printVarSummary(var)
     var_366  =inlist[1::4]->$varname$(:,:,{lev},{latS:latN},{lonW:lonE})
     var_dim = dimsizes(var_366)
