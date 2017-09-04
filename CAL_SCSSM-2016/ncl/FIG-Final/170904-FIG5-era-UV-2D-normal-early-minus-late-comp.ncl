@@ -46,14 +46,14 @@ begin
  
 
     ; U200 P20-28
-    g_day_strt2=65
-    g_day_lst2=142
+    g_day_strt2=70
+    g_day_lst2=135
     g_day_comp_len=14
     
     ;BOB All
     g_comp="all"
     g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
-    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1-g_day_strt2
+    g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134/)-1-g_day_strt2
 
     
     ;BOB Early
@@ -69,17 +69,16 @@ begin
 
     g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
-    g_data1_path ="$DATAOBV/ERA-interim/pressure/hgt/*"
     g_font = 0.02
     
         
     g_latS=0
-    g_latN=90
-    g_lonW=0
-    g_lonE=360
-    g_plevel=700
+    g_latN=40
+    g_lonW=30
+    g_lonE=45
+    g_plevel=120
     
-    g_fig_name = "../fig/obv/ERA-UV-HGT-early-normal-minus-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
+    g_fig_name = ".../../fig/FINAL/FIG5-ERA-UV-early-normal-minus-late"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -89,37 +88,30 @@ begin
     g_special_cases=dimsizes(g_special_year) 
     g_special_cases2=dimsizes(g_special_year2) 
 
-    var1_data=read_era_daily_3D("hgt", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path) 
-    var2_data=read_era_daily_3D("uwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path) 
-    var3_data=read_era_daily_3D("vwnd", 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data3_path) 
-    var1_data:=var1_data(:,g_day_strt2:g_day_lst2,:,:,:)
-    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
-    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
+    var2_data=read_era_daily_2Din3D("uwnd", g_plevel, g_latS, g_latN, g_lonW, g_lonE, g_data2_path) 
+    var3_data=read_era_daily_2Din3D("vwnd", g_plevel, g_latS, g_latN, g_lonW, g_lonE, g_data3_path) 
+    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:)
+    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:)
 ;Prepare the variables
    
-    var1_cmp1 = var1_data(0:g_special_cases2-1,:,:,:,:)
     var2_cmp1 = var2_data(0:g_special_cases2-1,:,:,:,:)
     var3_cmp1 = var3_data(0:g_special_cases2-1,:,:,:,:)
     
     do ii=0, g_special_cases2-1
-        var1_cmp1(ii,:,:,:,:)=var1_data(g_special_year2(ii),:,:,:,:)
         var2_cmp1(ii,:,:,:,:)=var2_data(g_special_year2(ii),:,:,:,:)
         var3_cmp1(ii,:,:,:,:)=var3_data(g_special_year2(ii),:,:,:,:)
     end do
    
-    var1_cmp1:=dim_avg_n_Wrap(var1_cmp1,0)
     var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
     var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,0)
    
     num_case=num((g_day_rank+1+g_day_strt2) .lt. 130)
     print(num_case)
-    var1_cmp2 = var1_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
     var2_cmp2 = var2_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
     var3_cmp2 = var3_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
     jj=0
     do ii=0,g_special_cases-1
         if g_day_rank(ii)+1+g_day_strt2 .lt. 130 then
-            var1_cmp2(jj,:,:,:,:) = var1_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var1_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
             var2_cmp2(jj,:,:,:,:) = var2_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var2_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
             var3_cmp2(jj,:,:,:,:) = var3_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var3_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
             jj=jj+1
@@ -127,7 +119,6 @@ begin
     end do
    
 
-    var1_cmp2:=dim_avg_n_Wrap(var1_cmp2,1)
     var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,1)
     var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,1)
 
