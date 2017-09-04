@@ -53,7 +53,7 @@ begin
     ;BOB All
     g_comp="all"
     g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
-    g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134/)-1-g_day_strt2
+    g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134,114,106,124,126,101/)-1-g_day_strt2
 
     
     ;BOB Early
@@ -63,12 +63,12 @@ begin
     
     ;BOB Late
     g_comp2="late"
-    g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
+    g_special_year2=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
+    g_day_rank2=(/131, 131, 130, 132, 135, 131, 132, 134/)-1-g_day_strt2
 
 
-    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/u/*"
+    g_data3_path ="$DATAOBV/ERA-interim/pressure/v/*"
     g_font = 0.02
     
         
@@ -78,7 +78,7 @@ begin
     g_lonE=45
     g_plevel=120
     
-    g_fig_name = ".../../fig/FINAL/FIG5-ERA-UV-early-normal-minus-late"
+    g_fig_name = "../../fig/FINAL/FIG5-ERA-UV-early-normal-minus-late"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -94,12 +94,12 @@ begin
     var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:)
 ;Prepare the variables
    
-    var2_cmp1 = var2_data(0:g_special_cases2-1,:,:,:,:)
-    var3_cmp1 = var3_data(0:g_special_cases2-1,:,:,:,:)
+    var2_cmp1 = var2_data(0:g_special_cases2-1,:,:,:)
+    var3_cmp1 = var3_data(0:g_special_cases2-1,:,:,:)
     
     do ii=0, g_special_cases2-1
-        var2_cmp1(ii,:,:,:,:)=var2_data(g_special_year2(ii),:,:,:,:)
-        var3_cmp1(ii,:,:,:,:)=var3_data(g_special_year2(ii),:,:,:,:)
+        var2_cmp1(ii,:,:,:)=var2_data(g_special_year2(ii),:,:,:)
+        var3_cmp1(ii,:,:,:)=var3_data(g_special_year2(ii),:,:,:)
     end do
    
     var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
@@ -107,13 +107,13 @@ begin
    
     num_case=num((g_day_rank+1+g_day_strt2) .lt. 130)
     print(num_case)
-    var2_cmp2 = var2_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
-    var3_cmp2 = var3_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
+    var2_cmp2 = var2_data(0:num_case-1,0:g_day_comp_len-1,:,:)
+    var3_cmp2 = var3_data(0:num_case-1,0:g_day_comp_len-1,:,:)
     jj=0
     do ii=0,g_special_cases-1
         if g_day_rank(ii)+1+g_day_strt2 .lt. 130 then
-            var2_cmp2(jj,:,:,:,:) = var2_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var2_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
-            var3_cmp2(jj,:,:,:,:) = var3_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var3_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
+            var2_cmp2(jj,:,:,:) = var2_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)-var2_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)
+            var3_cmp2(jj,:,:,:) = var3_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)-var3_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)
             jj=jj+1
         end if
     end do
@@ -122,10 +122,8 @@ begin
     var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,1)
     var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,1)
 
-    var1_cmp2:=dim_avg_n_Wrap(var1_cmp2,0)
     var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,0)
     var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,0)
-
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
