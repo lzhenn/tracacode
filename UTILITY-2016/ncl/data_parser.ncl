@@ -20,13 +20,14 @@
 
 undef ("daily_to_pentad_DLL")
 function daily_to_pentad_DLL(var)
-local var, var_pt, day_len
+local var, var_pt, day_len, pentad_len
 begin
    ; Merge normal and leap years 
     day_len = dimsizes(var)
     day_len := day_len(0)
-    var_pt = var(0:72,:,:)
-    do ii=0,72
+    pentad_len:= day_len/5
+    var_pt = var(0:pentad_len-1,:,:)
+    do ii=0,pentad_len-1
         var_pt(ii,:,:)=dim_avg_n_Wrap(var(ii*5:ii*5+4,:,:),0)
     end do
     if (day_len .gt. 365) then

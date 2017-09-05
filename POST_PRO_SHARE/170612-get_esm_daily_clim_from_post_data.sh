@@ -16,8 +16,8 @@ PRE_DIR_ORG=/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/
 
 
 # Names of 2D fields
-#FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use
-FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"TMQ\"/)" #often use
+FDNAME2D="(/\"FLUT\"/)" #often use
+#FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"TMQ\"/)" #often use
 
 # Names of 3D fields
 #FDNAME3D="(/\"U\",\"V\"/)" #often use
@@ -29,7 +29,7 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 
 # Process fig flag
 FLAG2D=1
-FLAG3D=1
+FLAG3D=0
 FLAG3DHY=0
 
 #-----------------------------------------------------------

@@ -46,15 +46,16 @@ begin
  
 
     ; U200 P20-28
-    g_day_strt2=70
-    g_day_lst2=143
+    g_day_strt2=65
+    g_day_lst2=142
     g_day_comp_len=14
     
     ;BOB All
     g_comp="all"
     g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
-    g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134,114,106,124,126,101/)-1-g_day_strt2
-    ;g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123,126,101/)-1-g_day_strt2
+    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1-g_day_strt2
+
+    ;g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134,114,106,124,126,101/)-1-g_day_strt2
     
     ;BOB Early
     ;g_comp="early"
@@ -63,13 +64,14 @@ begin
     
     ;BOB Late
     g_comp2="late"
-    g_special_year2=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    g_day_rank2=(/131, 131, 130, 132, 135, 131, 132, 134/)-1-g_day_strt2
-  ;g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    ;g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
+    g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
+     g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
+    ;g_special_year2=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
+    ;g_day_rank2=(/131, 131, 130, 132, 135, 131, 132, 134/)-1-g_day_strt2
 
-    g_data2_path ="../../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
-    g_data3_path ="../../data/obv/NCEP-DOE/daily/vwnd1979-2013/vwnd*"
+
+    g_data3_path ="$DATAOBV/ERA-interim/pressure/v-10/*"
+    g_data2_path ="$DATAOBV/ERA-interim/pressure/u-10/*"
     g_font = 0.02
     
         
@@ -77,31 +79,31 @@ begin
     g_latN=45
     g_lonW=30
     g_lonE=130
-    g_plevel=200
+    g_plevel=700
     
-    g_fig_name = "../../fig/FINAL/FIG5a-ERA-UV-early-normal-minus-late"
+    g_fig_name = "../../fig/FINAL/FIG5b-ERA-UV-HGT-early-normal-minus-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
-    g_fig_rank:="(a)"
-    g_fig_title="Composite 200 hPa UV"
+    g_fig_rank:="(c)" 
+    g_fig_title="Composite 700 hPa UV"
     ;day_rank=ispan(0,g_day_comp_len-1,1)
     ;day_rank=day_rank(::-1)
 
     g_special_cases=dimsizes(g_special_year) 
     g_special_cases2=dimsizes(g_special_year2) 
 
-    var2_data=read_doe_daily_2Din3D("uwnd", g_plevel, g_latS, g_latN+1, g_lonW, g_lonE+1, g_data2_path) 
-    var3_data=read_doe_daily_2Din3D("vwnd", g_plevel, g_latS, g_latN+1, g_lonW, g_lonE+1, g_data3_path) 
-    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:)
-    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:)
+    var2_data=read_era_daily_3D("uwnd", 600, 700, g_latS, g_latN, g_lonW, g_lonE+1, g_data2_path) 
+    var3_data=read_era_daily_3D("vwnd", 600, 700, g_latS, g_latN, g_lonW, g_lonE+1, g_data3_path) 
+    var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
+    var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
 ;Prepare the variables
    
-    var2_cmp1 = var2_data(0:g_special_cases2-1,:,:,:)
-    var3_cmp1 = var3_data(0:g_special_cases2-1,:,:,:)
+    var2_cmp1 = var2_data(0:g_special_cases2-1,:,:,:,:)
+    var3_cmp1 = var3_data(0:g_special_cases2-1,:,:,:,:)
     
     do ii=0, g_special_cases2-1
-        var2_cmp1(ii,:,:,:)=var2_data(g_special_year2(ii),:,:,:)
-        var3_cmp1(ii,:,:,:)=var3_data(g_special_year2(ii),:,:,:)
+        var2_cmp1(ii,:,:,:,:)=var2_data(g_special_year2(ii),:,:,:,:)
+        var3_cmp1(ii,:,:,:,:)=var3_data(g_special_year2(ii),:,:,:,:)
     end do
    
     var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
@@ -109,14 +111,13 @@ begin
    
     num_case=num((g_day_rank+1+g_day_strt2) .lt. 130)
     print(num_case)
-    
-    var2_cmp2 = var2_data(0:num_case-1,0:g_day_comp_len-1,:,:)
-    var3_cmp2 = var3_data(0:num_case-1,0:g_day_comp_len-1,:,:)
+    var2_cmp2 = var2_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
+    var3_cmp2 = var3_data(0:num_case-1,0:g_day_comp_len-1,:,:,:)
     jj=0
     do ii=0,g_special_cases-1
         if g_day_rank(ii)+1+g_day_strt2 .lt. 130 then
-            var2_cmp2(jj,:,:,:) = var2_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)-var2_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)
-            var3_cmp2(jj,:,:,:) = var3_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)-var3_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:)
+            var2_cmp2(jj,:,:,:,:) = var2_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var2_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
+            var3_cmp2(jj,:,:,:,:) = var3_data(g_special_year(ii),g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)-var3_cmp1(g_day_rank(ii)-g_day_comp_len+1:g_day_rank(ii),:,:,:)
             jj=jj+1
         end if
     end do
@@ -127,6 +128,11 @@ begin
 
     var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,0)
     var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,0)
+
+    var2_cmp2:=var2_cmp2({g_plevel},:,:)
+    var3_cmp2:=var3_cmp2({g_plevel},:,:)
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -142,7 +148,6 @@ begin
 ;  plot_V = new((/2/),graphic)
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
  
-; gsn_define_colormap(wks,"BlRe")
  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -152,6 +157,7 @@ begin
 ;  gsn_define_colormap(wks,"precip_diff_12lev")
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
+
 
 
 ;-----------------------------------------------------------------------------
@@ -174,9 +180,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -10         ; set min contour level
- res@cnMaxLevelValF        = 10          ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMinLevelValF        = -4         ; set min contour level
+ res@cnMaxLevelValF        = 4         ; set max contour level
+ res@cnLevelSpacingF       = 1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -200,7 +206,7 @@ begin
   res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
-  res@lbLabelStride = 2 
+  res@lbLabelStride = 2
 
 
   res@mpFillOn   = False     ; turn off gray continents
@@ -250,11 +256,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"
+  vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcRefAnnoString1  = "2 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.015
  

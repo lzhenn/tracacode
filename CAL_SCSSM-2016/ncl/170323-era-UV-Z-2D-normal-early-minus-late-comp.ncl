@@ -148,7 +148,7 @@ begin
   plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
-  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
  
  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 

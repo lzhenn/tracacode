@@ -65,15 +65,15 @@
 ;
 
 undef ("read_doe_daily_2Din3D")
-function read_doe_daily_2Din3D(varname:string, level, filedir:string)
+function read_doe_daily_2Din3D(varname:string, level, latS, latN, lonW, lonE, filedir:string)
 local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
 begin
     in_files = systemfunc("ls "+filedir)
     setfileoption("nc","SuppressClose",False) ; close too many files
     inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
     ListSetType (inlist, "join")
-    var  =short2flt(inlist[:]->$varname$(:,:,{level},:,:))
-    var_366  =short2flt(inlist[1::4]->$varname$(:,:,{level},:,:))
+    var  =short2flt(inlist[:]->$varname$(:,:,{level},{latS:latN},{lonW:lonE}))
+    var_366  =short2flt(inlist[1::4]->$varname$(:,:,{level},{latS:latN},{lonW:lonE}))
     var_dim = dimsizes(var_366)
     var_dim365 = dimsizes(var)
     len_yr= var_dim(0)+var_dim365(0)
@@ -182,7 +182,7 @@ begin
     setfileoption("nc","SuppressClose",False) ; close too many files
     inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
     ListSetType (inlist, "join")
-    var  =inlist[:]->$varname$(:,:,{lev},{latS:latN},{lonW:lonE})
+    var  =inlist[::-1]->$varname$(:,:,{lev},{latS:latN},{lonW:lonE})
     printVarSummary(var)
     var_366  =inlist[1::4]->$varname$(:,:,{lev},{latS:latN},{lonW:lonE})
     var_dim = dimsizes(var_366)
