@@ -39,7 +39,7 @@ begin
     g_var_name = (/"air","shum"/)
     g_dir_name = (/"air","shum"/)
 ;    g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
-    g_day_comp_len=25
+    g_day_comp_len=(120-90)+1
     
     
     g_font = 0.02
@@ -73,12 +73,12 @@ begin
         
         ;Build ctrl_var1
         dim_var1=dimsizes(var1)
-        ctrl_var1:=conform_dims((/n_esm,2*g_day_comp_len+1,dim_var1(1),dim_var1(2),dim_var1(3)/),var1(0:g_day_comp_len*2,:,:,:),(/1,2,3,4/))
+        ctrl_var1:=conform_dims((/n_esm,g_day_comp_len,dim_var1(1),dim_var1(2),dim_var1(3)/),var1(0:g_day_comp_len-1,:,:,:),(/1,2,3,4/))
         ctrl_var1!0="esm"
         ctrl_var1&esm=ispan(1,n_esm,1)
         ctrl_var1&esm@units="ensemble member"
         ctrl_var1!1="day"
-        ctrl_var1&day=ispan(-g_day_comp_len,g_day_comp_len,1)
+        ctrl_var1&day=ispan(90,120,1)
         ctrl_var1&day@long_name="day offset relative to the first day in onset pentad"
         ctrl_var1!2=var1!1
         ctrl_var1&level=var1&level
@@ -87,17 +87,17 @@ begin
         ctrl_var1!4=var1!3
         ctrl_var1&lon=var1&lon
         copy_VarAtts(var1,ctrl_var1) 
-        ctrl_var1(0,:,:,:,:)=(/var1(g_day_rank(0)-g_day_comp_len:g_day_rank(0)+g_day_comp_len,:,:,:)/)
+        ctrl_var1(0,:,:,:,:)=(/var1(89:89+g_day_comp_len-1,:,:,:)/)
         do ii=1,n_esm-1
             print("  ESM "+(ii+1)+"/"+n_esm+" Reading...")
             var1 := ctrl_in[ii]->$g_var$
             var1 := var1(:,{200:1000},:,:)
-            ctrl_var1(ii,:,:,:,:)=(/var1(g_day_rank(ii)-g_day_comp_len:g_day_rank(ii)+g_day_comp_len,:,:,:)/)
+            ctrl_var1(ii,:,:,:,:)=(/var1(89:89+g_day_comp_len-1,:,:,:)/)
         end do
 
         ndays=g_day_comp_len*2+1
         
-        out_name=pro_dir+"interim."+ndays+"days."+g_var+".nc"
+        out_name=pro_dir+"interim.90-120."+g_var+".nc"
 
         print("Write...")
         write_YDLLL_to_nc(g_var,ctrl_var1,out_name)

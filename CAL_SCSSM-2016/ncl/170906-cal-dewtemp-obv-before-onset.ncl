@@ -34,7 +34,7 @@ begin
     ;Define parameters
 
     ;for directory 
-    g_var_name = (/"air","shum"/)
+    g_var_name = (/"air","rh"/)
 ;    g_data_ctrl_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl"
     
     g_day_strt=74
@@ -52,25 +52,25 @@ begin
     print("T Reading...")
     ctrl_in1      = addfile (g_data_path+"interim.51days.air.nc", "r")   ; note the "s" of addfile            
     var1 = ctrl_in1->$g_var_name(0)$
-    print("Q Reading...")
-    ctrl_in2      = addfile (g_data_path+"interim.51days.shum.nc", "r")   ; note the "s" of addfile            
-;    var2 = ctrl_in2->$g_var_name(1)$
+    print("RH Reading...")
+    ctrl_in2      = addfile (g_data_path+"interim.51days.rh.nc", "r")   ; note the "s" of addfile            
+    var2 = ctrl_in2->$g_var_name(1)$
 
     
 
-    print("theta_es Building...")
+    print("dew Building...")
     ;Build ctrl_theta_e_var
-    ctrl_theta_e_var=var1
-    print("theta_es calculating...")
+    ctrl_theta_e_var=var1(:,:,0,:,:)
+    print("dew calculating...")
     
-    level=conform(var1, var1&level, 2)
-    ;ctrl_theta_e_var=pot_temp_equiv(level, var1, var2, -1, "q")
-    var2=var1 
-    var2=100
-    ctrl_theta_e_var=pot_temp_equiv(level, var1, var2, -1, "rh")
-   
-    pro_dir=g_data_path+"interim.51days.theta_es.nc"
+    level=var1(:,:,0,:,:)
+    level=1000
+    ctrl_theta_e_var=dewtemp_trh(var1(:,:,{1000},:,:), var2(:,:,{1000},:,:))
+    lcl=ctrl_theta_e_var
+    lcl=lclvl(level, var1(:,:,{1000},:,:), ctrl_theta_e_var)
+
+    pro_dir=g_data_path+"interim.51days.lcl.nc"
     print("Write...")
-    write_YDLLL_to_nc("theta_es",ctrl_theta_e_var,pro_dir)
+    write_YDLL_to_nc("lcl",lcl,pro_dir)
 end
 
