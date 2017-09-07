@@ -43,13 +43,13 @@ begin
     g_day_end=120
 
     ;BOB Early
-    g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/) -1979
-    g_day_rank=(/108, 105, 93, 100, 107, 99/)-1
+    g_special_year=(/ 1990, 1999, 2000, 2006, 2009, 2012, 2015/) -1979
+    g_day_rank=(/102, 93, 101, 105, 99, 106, 101/)-1
   
  
     g_datapath="/Users/zhenningli/data/obv/NCEP-DOE/daily/air.2m1979-2014/*"
 
-    var1=read_doe_daily_2Din3D("air", 2, g_datapath)
+    var1=read_doe_daily_2Din3D("air", 2,  g_datapath)
     printVarSummary(var1)
 
     var1_clim=dim_avg_n_Wrap(var1(:,g_day_strt:g_day_end,:,:),0)

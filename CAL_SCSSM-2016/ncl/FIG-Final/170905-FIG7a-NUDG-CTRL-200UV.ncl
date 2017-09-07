@@ -34,6 +34,7 @@ begin
     g_var_name = (/"U","V"/)
     g_data_ctrl_path ="../../data/esm_clim_UV.nc"
     g_data_nudg_path ="../../data/nudg_clim_UV.nc"
+    g_topo_path="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_0.9x1.25_remap_c051027.nc"
     g_font = 0.02
     g_level=200
   
@@ -42,6 +43,10 @@ begin
     g_lonE=120
     g_lonW=45
     
+    topo_in=addfile(g_topo_path,"r")
+    var_topo=topo_in->PHIS
+    var_topo=var_topo/9.8
+
     g_day_strt=75
     g_day_end=120
 
@@ -95,6 +100,7 @@ begin
 ; gsn_define_colormap(wks,"BkBlAqGrYeOrReViWh200")
 ; gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
 
+  plot_topo=new((/1/),graphic)
 
 ;-----------------------------------------------------------------------------
   res                  = True       ; use plot options
@@ -219,7 +225,7 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/900./)
+  res3@cnLevels = (/2000./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
@@ -246,7 +252,7 @@ begin
   plot_V = gsn_csm_vector(wks,diff_var1_clim({g_level},:,:),diff_var2_clim({g_level},:,:),vcres) 
     diff_var1_clim=where(diff_ws .lt. 0.5, diff_var1_clim@_FillValue, diff_var1_clim)
   plot_sh= gsn_csm_contour_map(wks,diff_var1_clim({g_level},:,:),res) ; create a default plot
-  ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
+  plot_topo = gsn_csm_contour(wks,var_topo,res3)
   xyres                 = True         ; xy plot mods desired
   xyres@vpHeightF        = .20          ; set width of second plot
   xyres@vpWidthF        = .15          ; set width of second plot
@@ -283,6 +289,7 @@ begin
   nudg_var1_clim_lat({g_level},{0:40})=nudg_var1_clim_lat({g_level},{-1:39})
   plotxy2 = gsn_csm_xy(wks, nudg_var1_clim_lat({g_level},:), var1_clim_lat&lat, xyres)
   overlay(plot_sh,plot_V)
+  overlay(plot_sh,plot_topo)
   overlay(plotxy,plotxy2)
   ;overlay(plot_sh,plot_cn_max)
   newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)

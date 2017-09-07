@@ -72,28 +72,32 @@ begin
 
     g_data3_path ="$DATAOBV/ERA-interim/pressure/v-10/*"
     g_data2_path ="$DATAOBV/ERA-interim/pressure/u-10/*"
+    g_topo_path="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_0.9x1.25_remap_c051027.nc"
     g_font = 0.02
     
         
+    topo_in=addfile(g_topo_path,"r")
+    var_topo=topo_in->PHIS
+    var_topo=var_topo/9.8
     g_latS=0
     g_latN=45
     g_lonW=30
     g_lonE=130
-    g_plevel=700
+    g_plevel=850
     
     g_fig_name = "../../fig/FINAL/FIG5b-ERA-UV-HGT-early-normal-minus-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     g_fig_rank:="(c)" 
-    g_fig_title="Composite 700 hPa UV"
+    g_fig_title="Composite 850 hPa UV"
     ;day_rank=ispan(0,g_day_comp_len-1,1)
     ;day_rank=day_rank(::-1)
 
     g_special_cases=dimsizes(g_special_year) 
     g_special_cases2=dimsizes(g_special_year2) 
 
-    var2_data=read_era_daily_3D("uwnd", 600, 700, g_latS, g_latN, g_lonW, g_lonE+1, g_data2_path) 
-    var3_data=read_era_daily_3D("vwnd", 600, 700, g_latS, g_latN, g_lonW, g_lonE+1, g_data3_path) 
+    var2_data=read_era_daily_3D("uwnd", 850, 700, g_latS, g_latN, g_lonW, g_lonE+1, g_data2_path) 
+    var3_data=read_era_daily_3D("vwnd", 850, 700, g_latS, g_latN, g_lonW, g_lonE+1, g_data3_path) 
     var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
     var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:,:)
 ;Prepare the variables
@@ -144,6 +148,7 @@ begin
   plot_V = new((/g_day_comp_len/),graphic)
   plot_cn_max = new((/g_day_comp_len/),graphic)
   plot_cn_max_pre = new((/g_day_comp_len/),graphic)
+  plot_topo=new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
@@ -180,9 +185,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -4         ; set min contour level
- res@cnMaxLevelValF        = 4         ; set max contour level
- res@cnLevelSpacingF       = 1          ; set contour interval
+ res@cnMinLevelValF        = -3         ; set min contour level
+ res@cnMaxLevelValF        = 3       ; set max contour level
+ res@cnLevelSpacingF       = 0.5          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -256,11 +261,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 1.5             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "2 m/s"
+  vcres@vcRefAnnoString1  = "1.5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.015
  
@@ -281,7 +286,7 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/0./)
+  res3@cnLevels = (/2000./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
@@ -302,7 +307,9 @@ begin
 
         plot_V(0) = gsn_csm_vector(wks,var2_cmp2,var3_cmp2,vcres) 
         plot_sh(0) = gsn_csm_contour_map(wks,var2_cmp2, res) 
+        plot_topo(0)=gsn_csm_contour(wks,var_topo,res3)
         overlay(plot_sh(0),plot_V(0))
+        overlay(plot_sh(0),plot_topo(0))
 
     gsn_panel(wks,plot_sh,(/1,1/),False)
 end
