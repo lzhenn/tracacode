@@ -39,19 +39,18 @@ begin
     g_lonE=120
     g_lonW=45
     
-    g_day_strt=90
-    g_day_end=120
+    g_day_strt=89
+    g_day_end=119
 
     ;BOB Early
     g_special_year=(/ 1990, 1999, 2000, 2006, 2009, 2012, 2015/) -1979
     g_day_rank=(/102, 93, 101, 105, 99, 106, 101/)-1
   
  
-    g_datapath="/Users/zhenningli/data/obv/NCEP-DOE/daily/air.2m1979-2014/*"
-
-    var1=read_doe_daily_2Din3D("air", 2,  g_datapath)
-    printVarSummary(var1)
-
+    g_datapath="/Users/zhenningli/data/obv/NCEP-DOE/daily/air1979-2013/*"
+    var1=read_doe_daily_2Din3D("air", 850, g_latS-2, g_latN+2, g_lonW+2, g_lonE-2, 0,180, g_datapath)
+    
+    printVarSummary(var1)    
     var1_clim=dim_avg_n_Wrap(var1(:,g_day_strt:g_day_end,:,:),0)
     var1_clim:=dim_avg_n_Wrap(var1_clim,0)
   
@@ -66,7 +65,8 @@ begin
     diff_var1_clim=var1_clim
 
     diff_var1_clim=var1_special_clim-var1_clim
-    diff_var1_clim({25:30},{82:86})=0.5*diff_var1_clim({25:30},{82:86})
+    print(diff_var1_clim)
+;    diff_var1_clim({25:30},{82:86})=0.5*diff_var1_clim({25:30},{82:86})
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -210,7 +210,7 @@ begin
   resP@gsnPanelLabelBar    = True                ; add common colorbar
   resP@lbLabelFontHeightF  = 0.015               ; make labels smaller 
 
-  g_fig_name="../../fig/FINAL/diff-TS-obv-early-clim"
+  g_fig_name="../../fig/FINAL/FIG9a-diff-TS-obv-early-clim"
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
@@ -219,41 +219,6 @@ begin
   res@gsnCenterString="Early-Clim TS Day"+g_day_strt+"-"+g_day_end
 
   plot_sh= gsn_csm_contour_map(wks,diff_var1_clim,res) ; create a default plot
-  ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  ;plot_V = gsn_csm_vector(wks,diff_var1_clim({g_level},:,:),diff_var2_clim({g_level},:,:),vcres) 
-  xyres                 = True         ; xy plot mods desired
-  xyres@vpHeightF        = .20          ; set width of second plot
-  xyres@vpWidthF        = .15          ; set width of second plot
-  xyres@tmXBMinorOn     = False        ; no minor tickmarks
-
-  xyres@gsnDraw         = False        ; don't draw yet
-  xyres@gsnFrame        = False        ; don't advance frame yet
-
-  xyres@tmXBLabelFontHeightF=g_font        ; change font height
-  xyres@gsnCenterString=""
-  xyres@trYMinF         = g_latS 
-  xyres@trYMaxF         = g_latN
-  xyres@trXMinF         = 15
-  xyres@trXMaxF         = 30
-  xyres@xyLineThicknesses    = 3.0      ; line thicknesses
- 
-  xyres@tmXBOn              = True
-  xyres@tmXBLabelsOn=True
-  xyres@tmXBMode="Explicit"
-  xyres@tmYRLabelsOn=True
-  xyres@tmXBValues=ispan(15,30,5)
-  xyres@tmXBLabels=ispan(15,30,5)
-  
-  xyres@tiXAxisString="TS (K)"
-  xyres@tiXAxisFontHeightF=g_font
-  xyres@xyLineColor="gray35"
-  ;plotxy = gsn_csm_xy(wks, var1_clim_lat, var1_clim_lat&lat, xyres)
-  xyres@xyLineColor="black"
- ; plotxy2 = gsn_csm_xy(wks, nudg_var1_clim_lat, var1_clim_lat&lat, xyres)
-;  overlay(plot_sh,plot_V)
-;  overlay(plotxy,plotxy2)
-  ;overlay(plot_sh,plot_cn_max)
-  ;newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
   draw(plot_sh)
   frame(wks)
 

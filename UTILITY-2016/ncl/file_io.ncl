@@ -34,8 +34,8 @@
 ; -------------- added Apr 10 2017
 ; read_ncep_ncar_daily_3D_UV(varname, lev_top, lev_bot, latS, latN, lonW, lonE, filedir)
 
-; -------------- added Jun 07 2017
-; read_doe_daily_2D(varname, filedir)
+; -------------- modified Sep 07 2017  **THIS IS THE TEMPLATE**
+; read_doe_daily_2D(varname, index_start, index_end, filedir)
 
 ; -------------- added Jun 12 2017
 ; read_large_daily_batch_return_mean(varname, filedir)
@@ -65,32 +65,40 @@
 ;
 
 undef ("read_doe_daily_2Din3D")
-function read_doe_daily_2Din3D(varname:string, level, latS, latN, lonW, lonE, filedir:string)
+function read_doe_daily_2Din3D(varname:string, level, latS, latN, lonW, lonE, idx_s, idx_e, filedir:string)
 local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
 begin
     in_files = systemfunc("ls "+filedir)
-    setfileoption("nc","SuppressClose",False) ; close too many files
-    inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
-    ListSetType (inlist, "join")
-    var  =short2flt(inlist[:]->$varname$(:,:,{level},{latS:latN},{lonW:lonE}))
-    var_366  =short2flt(inlist[1::4]->$varname$(:,:,{level},{latS:latN},{lonW:lonE}))
-    var_dim = dimsizes(var_366)
-    var_dim365 = dimsizes(var)
-    len_yr= var_dim(0)+var_dim365(0)
-    var_data = new((/len_yr, var_dim(1), var_dim(2), var_dim(3)/),"float")
-    copy_VarMeta(var_366,var_data)
     
-    ; Merge normal and leap years 
-    sp = 0
-    do ii=0,len_yr-1
-        if (mod((ii-1),4) .eq. 0) then
-            var_data(ii,:,:,:) = var_366((ii-1)/4,:,:,:)
-            sp=sp+1
-        else
-            var_data(ii,0:364,:,:) = var(ii-sp,:,:,:)
-        end if
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in      = addfiles(in_files, "r")   ; note the "s" of addfile            
+    n_esm=ListCount(ctrl_in)
+    ListSetType (ctrl_in, "join")             ; concatenate or "merge" (default)
+    print("3D EXTRACT: "+varname+" Reading...")
+    print("  ESM 1/"+n_esm+" Reading...")
+    var1 = short2flt(ctrl_in[0]->$varname$(idx_s:idx_e,{level},{latS:latN},{lonW:lonE}))
+    ;Build ctrl_var1
+    dim_var1=dimsizes(var1)
+    ctrl_var1:=conform_dims((/n_esm,dim_var1(0),dim_var1(1),dim_var1(2)/),var1,(/1,2,3/))
+    ctrl_var1!0="esm"
+    ctrl_var1&esm=ispan(1,n_esm,1)
+    ctrl_var1&esm@units="ensemble member"
+    ctrl_var1!1="day"
+    ctrl_var1&day=ispan(idx_s+1,idx_e+1,1)
+    ctrl_var1&day@long_name="Julian Day of the year"
+    ctrl_var1!2=var1!1
+    ctrl_var1&lat=var1&lat
+    ctrl_var1!3=var1!2
+    ctrl_var1&lon=var1&lon
+    copy_VarAtts(var1,ctrl_var1) 
+    ctrl_var1(0,:,:,:)=(/var1/)
+    do ii=1,n_esm-1
+        print("  ESM "+(ii+1)+"/"+n_esm+" Reading...")
+        var1 := short2flt(ctrl_in[ii]->$varname$)
+        var1 := var1(idx_s:idx_e,{level},{latS:latN},{lonW:lonE})
+        ctrl_var1(ii,:,:,:)=(/var1(idx_s:idx_e,{latS:latN},{lonW:lonE})/)
     end do
-    return(var_data)
+    return(ctrl_var1)
 end
 ; ------------------------------    read_doe_daily_2Din3D   ------------------------------------
 
@@ -101,32 +109,42 @@ end
 ; level should be assigned.
 ; Must start from 1979
 ;
-function read_doe_daily_3D(varname:string, lev_top, lev_bot, latS, latN, lonW, lonE, filedir:string)
-local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
+function read_doe_daily_3D(varname:string, idx_s, idx_e,lev_top, lev_bot, latS, latN, lonW, lonE, filedir:string)
+local sp, ii, len_yr, in_files, inlist, var, var_dim, var_dim365, var_data
 begin
     in_files = systemfunc("ls "+filedir)
-    setfileoption("nc","SuppressClose",False) ; close too many files
-    inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
-    ListSetType (inlist, "join")
-    var  =short2flt(inlist[:]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
-    var_366  =short2flt(inlist[1::4]->$varname$(:,:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
-    var_dim = dimsizes(var_366)
-    var_dim365 = dimsizes(var)
-    len_yr= var_dim(0)+var_dim365(0)
-    var_data = new((/len_yr, var_dim(1), var_dim(2), var_dim(3), var_dim(4)/),"float")
-    copy_VarMeta(var_366,var_data)
     
-    ; Merge normal and leap years 
-    sp = 0
-    do ii=0,len_yr-1
-        if (mod((ii-1),4) .eq. 0) then
-            var_data(ii,:,:,:,:) = var_366((ii-1)/4,:,:,:,:)
-            sp=sp+1
-        else
-            var_data(ii,0:364,:,:,:) = var(ii-sp,:,:,:,:)
-        end if
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in      = addfiles(in_files, "r")   ; note the "s" of addfile            
+    n_esm=ListCount(ctrl_in)
+    ListSetType (ctrl_in, "join")             ; concatenate or "merge" (default)
+    print("3D EXTRACT: "+varname+" Reading...")
+    print("  ESM 1/"+n_esm+" Reading...")
+    var1 = short2flt(ctrl_in[0]->$varname$(idx_s:idx_e, {lev_top:lev_bot},{latS:latN},{lonW:lonE}))
+    ;Build ctrl_var1
+    dim_var1=dimsizes(var1)
+    ctrl_var1:=conform_dims((/n_esm,dim_var1(0),dim_var1(1),dim_var1(2),dim_var1(3)/),var1,(/1,2,3,4/))
+    ctrl_var1!0="esm"
+    ctrl_var1&esm=ispan(1,n_esm,1)
+    ctrl_var1&esm@units="ensemble member"
+    ctrl_var1!1="day"
+    ctrl_var1&day=ispan(idx_s+1,idx_e+1,1)
+    ctrl_var1&day@long_name="Julian Day of the year"
+    ctrl_var1!2=var1!1
+    ctrl_var1&level=var1&level
+    ctrl_var1!3=var1!2
+    ctrl_var1&lat=var1&lat
+    ctrl_var1!4=var1!3
+    ctrl_var1&lon=var1&lon
+    copy_VarAtts(var1,ctrl_var1) 
+    ctrl_var1(0,:,:,:,:)=(/var1/)
+    do ii=1,n_esm-1
+        print("  ESM "+(ii+1)+"/"+n_esm+" Reading...")
+        var1 := short2flt(ctrl_in[ii]->$varname$)
+        var1 := var1(idx_s:idx_e,{lev_bot:lev_top},{latS:latN},{lonW:lonE})
+        ctrl_var1(ii,:,:,:,:)=(/var1/)
     end do
-    return(var_data)
+    return(ctrl_var1)
 end
 ; ------------------------------    read_doe_daily_3D   ---------------------------------------
 
@@ -437,32 +455,40 @@ end
 ;
 
 undef ("read_doe_daily_2D")
-function read_doe_daily_2D(varname:string,  filedir:string)
+function read_doe_daily_2D(varname:string, idx_s, idx_e, filedir:string)
 local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
 begin
     in_files = systemfunc("ls "+filedir)
-    setfileoption("nc","SuppressClose",False) ; close too many files
-    inlist     = addfiles (in_files, "r")   ; note the "s" of addfile
-    ListSetType (inlist, "join")
-    var  =short2flt(inlist[:]->$varname$)
-    var_366  =short2flt(inlist[1::4]->$varname$)
-    var_dim = dimsizes(var_366)
-    var_dim365 = dimsizes(var)
-    len_yr= var_dim(0)+var_dim365(0)
-    var_data = new((/len_yr, var_dim(1), var_dim(2), var_dim(3)/),"float")
-    copy_VarMeta(var_366,var_data)
     
-    ; Merge normal and leap years 
-    sp = 0
-    do ii=0,len_yr-1
-        if (mod((ii-1),4) .eq. 0) then
-            var_data(ii,:,:,:) = var_366((ii-1)/4,:,:,:)
-            sp=sp+1
-        else
-            var_data(ii,0:364,:,:) = var(ii-sp,:,:,:)
-        end if
+    setfileoption("nc","SuppressClose",False) ; close too many files
+    ctrl_in      = addfiles(in_files, "r")   ; note the "s" of addfile            
+    n_esm=ListCount(ctrl_in)
+    ListSetType (ctrl_in, "join")             ; concatenate or "merge" (default)
+    print("3D EXTRACT: "+varname+" Reading...")
+    print("  ESM 1/"+n_esm+" Reading...")
+    var1 = short2flt(ctrl_in[0]->$varname$(idx_s:idx_e,:,:))
+    ;Build ctrl_var1
+    dim_var1=dimsizes(var1)
+    ctrl_var1:=conform_dims((/n_esm,dim_var1(0),dim_var1(1),dim_var1(2)/),var1,(/1,2,3/))
+    ctrl_var1!0="esm"
+    ctrl_var1&esm=ispan(1,n_esm,1)
+    ctrl_var1&esm@units="ensemble member"
+    ctrl_var1!1="day"
+    ctrl_var1&day=ispan(idx_s+1,idx_e+1,1)
+    ctrl_var1&day@long_name="Julian Day of the year"
+    ctrl_var1!2=var1!1
+    ctrl_var1&lat=var1&lat
+    ctrl_var1!3=var1!2
+    ctrl_var1&lon=var1&lon
+    copy_VarAtts(var1,ctrl_var1) 
+    ctrl_var1(0,:,:,:)=(/var1/)
+    do ii=1,n_esm-1
+        print("  ESM "+(ii+1)+"/"+n_esm+" Reading...")
+        var1 := short2flt(ctrl_in[ii]->$varname$)
+        var1 := var1(idx_s:idx_e,:,:)
+        ctrl_var1(ii,:,:,:)=(/var1(idx_s:idx_e,:,:)/)
     end do
-    return(var_data)
+    return(ctrl_var1)
 end
 ; ------------------------------    read_doe_daily_2D   ------------------------------------
 

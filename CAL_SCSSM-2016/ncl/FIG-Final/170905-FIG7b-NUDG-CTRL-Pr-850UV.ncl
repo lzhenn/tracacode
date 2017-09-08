@@ -41,6 +41,12 @@ begin
     g_data_nudg_pr1_path="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/Nudging.cam.h1.ESM.clim.PRECC.0101-0701.nc"
     g_data_nudg_pr2_path="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/Nudging.cam.h1.ESM.clim.PRECL.0101-0701.nc"
 
+    g_topo_path="/Users/zhenningli/project/PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_0.9x1.25_remap_c051027.nc"
+    topo_in=addfile(g_topo_path,"r")
+    var_topo=topo_in->PHIS
+    var_topo=var_topo/9.8
+
+
     g_font = 0.02
     g_level=850
   
@@ -218,11 +224,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 1.5             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "2 m/s"
+  vcres@vcRefAnnoString1  = "1.5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.02
  
@@ -243,7 +249,7 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/900./)
+  res3@cnLevels = (/2000./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
@@ -303,7 +309,9 @@ begin
   plotxy = gsn_csm_xy(wks, var3_clim_lat, var3_clim_lat&lat, xyres)
   xyres@xyLineColor="black"
   plotxy2 = gsn_csm_xy(wks, nudg_var3_clim_lat(:), var3_clim_lat&lat, xyres)
+  plot_topo = gsn_csm_contour(wks,var_topo,res3)
   overlay(plot_sh,plot_V)
+  overlay(plot_sh,plot_topo)
   overlay(plotxy,plotxy2)
   ;overlay(plot_sh,plot_cn_max)
   newplot = gsn_attach_plots(plot_sh,(/plotxy/),res,xyres)
