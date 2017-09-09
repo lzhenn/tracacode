@@ -108,8 +108,9 @@ begin
     end do
     var2_comp_clim = dim_avg_n_Wrap(var2_comp_data,0)
     var2_comp_clim_ano = var2_comp_clim
-    var2_comp_clim_ano = var2_comp_clim-273.15
-    ;var2_comp_clim_ano = var2_comp_clim - var2_pt_clim
+    ;var2_comp_clim_ano = var2_comp_clim-273.15
+    ;var2_comp_clim_ano = var2_comp_clim_ano(::-1,:)
+    var2_comp_clim_ano = var2_comp_clim - var2_pt_clim
      printVarSummary(var2_comp_clim_ano)
 ;    var2_comp_clim_ano = where(abs(var2_comp_clim_ano) .lt. 0.2,var2_comp_clim_ano@_FillValue, var2_comp_clim_ano)
 ; ==============================================================
