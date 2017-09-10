@@ -40,7 +40,7 @@ begin
     g_yr_len = g_lst_yr-g_strt_yr+1
     
     ; U200 P21-24
-    g_day_strt2=0
+    g_day_strt2=89
     g_day_lst2=119
     
 
@@ -65,7 +65,7 @@ begin
 
     g_latS=0
     g_latN=45
-    g_lonW=60
+    g_lonW=75
     g_lonE=100
     ; create an array of desired pressure levels:
     g_fig_name = "../../fig/FINAL/FIG9a-T-diff-sec-pbp"+g_lonW+"-"+g_lonE
@@ -98,20 +98,19 @@ begin
         topo2d(:,ii)=where(topo2d&level .lt. var1_line(ii),0,1)
         ;topo2d(:,ii)=where(topo2d&level .lt. var1_line(ii),0,topo2d@_FillValue)
     end do
+
     n_cases=dimsizes(g_special_year)
     var2_pt_clim=dim_avg_n_Wrap(var2_pt_data,0)
-    var2_pt_var=dim_variance_n_Wrap(var2_pt_data,0)
-
     var2_comp_data=var2_pt_data(0:n_cases-1,:,:)
-    do ii=0,n_cases-1
-        var2_comp_data(ii,:,:)=var2_pt_data(g_special_year(ii),:,:)
-    end do
+    ;do ii=0,n_cases-1
+    ;    var2_comp_data(ii,:,:)=var2_pt_data(g_special_year(ii),:,:)
+    ;end do
     var2_comp_clim = dim_avg_n_Wrap(var2_comp_data,0)
     var2_comp_clim_ano = var2_comp_clim
     ;var2_comp_clim_ano = var2_comp_clim-273.15
     ;var2_comp_clim_ano = var2_comp_clim_ano(::-1,:)
     var2_comp_clim_ano = var2_comp_clim - var2_pt_clim
-     printVarSummary(var2_comp_clim_ano)
+     print(var2_comp_clim)
 ;    var2_comp_clim_ano = where(abs(var2_comp_clim_ano) .lt. 0.2,var2_comp_clim_ano@_FillValue, var2_comp_clim_ano)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -149,9 +148,9 @@ begin
   res@tmYROn=False
   res@tmYRMode="Automatic"
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -20         ; set min contour level
- res@cnMaxLevelValF        = 30         ; set max contour level
- res@cnLevelSpacingF       = 5        ; set contour interval
+ res@cnMinLevelValF        = -3         ; set min contour level
+ res@cnMaxLevelValF        = 3         ; set max contour level
+ res@cnLevelSpacingF       = 0.5        ; set contour interval
  ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
  res@vpHeightF = 0.4
