@@ -48,13 +48,13 @@ begin
 
     g_var_name1 = "r"
 ;    g_data2_path ="../../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd.198[2-3].nc"
-    g_data2_path="/home/yangsong3/data/observation/ERA-interim/pressure/air/"
+    g_data2_path="/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/interim.75-120.advT.nc"
     g_data_clim="/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/air.mean.nc"
     g_data1_path ="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/TOPO/USGS_gtopo30_0.23x0.31_remap_c061107.nc"
     g_font = 0.02
     
     ;BOB Early
-    g_special_year=(/ 1990, 1999, 2000, 2006, 2009, 2012, 2015/) 
+    g_special_year=(/ 1990, 1999, 2000, 2006, 2009, 2012, 2015/)-1979 
     g_day_rank=(/102, 93, 101, 105, 99, 106, 101/)-1
  
     ;g_comp_years=(/1984, 1990, 1991, 1994, 1996, 1999, 2000, 2001, 2002, 2006, 2008, 2009, 2011/)
@@ -68,11 +68,11 @@ begin
     g_lonW=75
     g_lonE=100
     ; create an array of desired pressure levels:
-    g_fig_name = "../../fig/FINAL/FIG9a-T-diff-sec-pbp"
+    g_fig_name = "../../fig/FINAL/FIG9c-T-adv-sec-pbp"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
 ;    g_fig_rank    = (/"(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
-    g_fig_title = "Day 90-120 T Anom (Early-Clim)"
+    g_fig_title = "Day 90-120 T Adv (Early-Clim)"
 
 ;Prepare the variables
     ; Height --> Pressure
@@ -102,19 +102,25 @@ begin
     var2_clim:=dim_avg_n_Wrap(var2_clim,3)
     var2_clim:=dim_avg_n_Wrap(var2_clim,0)
 
+    adv_file=addfile(g_data2_path,"r")
+    var2_adv=adv_file->advT(:,g_day_strt2-74:g_day_lst2-74,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
+    
+    var2_adv=var2_adv*86400
+    var2_adv := dim_avg_n_Wrap(var2_adv,4)
+    var2_adv := dim_avg_n_Wrap(var2_adv,1)
+    var2_adv_clim := dim_avg_n_Wrap(var2_adv,0)
+    
     n_cases=dimsizes(g_special_year)
+    var2_adv_smp=var2_adv(0:n_cases-1,:,:)
     do ii=0,n_cases-1
-        sample_file=addfile(g_data2_path+"air.interim."+tostring(g_special_year(ii))+".nc","r")
-        print(ii+"/"+n_cases)
-        var2_single=sample_file->air(g_day_strt2:g_day_lst2,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
-        var2_sample=var2_sample+var2_single
+        var2_adv_smp(ii,:,:)=var2_adv(g_special_year(ii),:,:)
     end do
-    var2_sample=var2_sample/n_cases
-    var2_sample := dim_avg_n_Wrap(var2_sample,3)
-    var2_sample := dim_avg_n_Wrap(var2_sample,0)
-    var2_comp_clim_ano = var2_clim
-    var2_comp_clim_ano = var2_sample - var2_clim
-    var2_comp_clim_ano = dim_rmvmean_n_Wrap(var2_comp_clim_ano, 1)
+    var2_adv_smp_mean=dim_avg_n_Wrap(var2_adv_smp,0)
+    var2_adv_ano=var2_adv_smp_mean
+    var2_adv_ano=var2_adv_smp_mean-var2_adv_clim
+;    var2_comp_clim_ano = var2_clim
+;    var2_comp_clim_ano = var2_sample - var2_clim
+;    var2_comp_clim_ano = dim_rmvmean_n_Wrap(var2_comp_clim_ano, 1)
     var2_clim = dim_rmvmean_n_Wrap(var2_clim, 1)
 ;    var2_comp_clim_ano = where(abs(var2_comp_clim_ano) .lt. 0.2,var2_comp_clim_ano@_FillValue, var2_comp_clim_ano)
 ; ==============================================================
@@ -155,7 +161,7 @@ begin
   res@tmYROn=False
   res@tmYRMode="Automatic"
  res@cnLevelSelectionMode  = "ExplicitLevels" ; set manual contour levels
- res@cnLevels=(/-4.0,-2.0,-1.5,-1.0,-0.75,-0.5, -0.25,-0.1,0,0.1,0.25,0.5,0.75,1.0,1.5,2.0,4.0/)
+ res@cnLevels=(/-0.75,-0.5, -0.25,-0.1,-0.05,0,0.05,0.1,0.25,0.5,0.75/)
  ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
  res@vpHeightF = 0.4
@@ -205,7 +211,7 @@ begin
   resC@gsnContourZeroLineThicknessF = 3.  ;set thickness of zero
   resC@cnLineThicknessF=2.0
   resC@cnLevelSelectionMode = "ExplicitLevels"  ; use explicit levels
-  resC@cnLevels=fspan(0,5,6)
+  resC@cnLevels=fspan(0,1.0,6)
   resC@cnLineDashPattern = 0
 ;  resC@cnLevels             = ispan(-20,40,10 )   ; set the contour levels
   resC@gsnLeftString=""
@@ -255,9 +261,9 @@ do ii=0,0
     res@gsnCenterString=g_fig_title(ii)
 
 
-    plot_sh(ii) = gsn_csm_pres_hgt(wks, var2_comp_clim_ano, res ) 
-    plot_cn_pos(ii) = gsn_csm_contour(wks,var2_clim,resC)
-    plot_cn_neg(ii) = gsn_csm_contour(wks,var2_clim,resC2)
+    plot_sh(ii) = gsn_csm_pres_hgt(wks, var2_adv_ano, res ) 
+    plot_cn_pos(ii) = gsn_csm_contour(wks,var2_adv_clim,resC)
+    plot_cn_neg(ii) = gsn_csm_contour(wks,var2_adv_clim,resC2)
     plot_topo(ii) = gsn_csm_contour(wks,topo2d,resT)
 ;    plot_sig(ii) = gsn_csm_contour(wks,var2_comp_sig(ii,:,:),res_sig)
  
