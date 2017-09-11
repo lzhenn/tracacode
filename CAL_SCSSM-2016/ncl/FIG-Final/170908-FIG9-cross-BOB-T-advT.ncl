@@ -51,7 +51,7 @@ begin
     g_data2_path="/Users/zhenningli/data/obv/NCEP-DOE/daily/air1979-2013/*"
 
     g_data1_path ="/Users/zhenningli/data/obv/topo/USGS_gtopo30_0.23x0.31_remap_c061107.nc"
-    g_font = 0.03
+    g_font = 0.02
     
     ;BOB Early
     g_special_year=(/ 1990, 1999, 2000, 2006, 2009, 2012, 2015/) -1979
@@ -64,8 +64,8 @@ begin
     ;g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
 
     g_latS=0
-    g_latN=45
-    g_lonW=75
+    g_latN=30
+    g_lonW=60
     g_lonE=100
     ; create an array of desired pressure levels:
     g_fig_name = "../../fig/FINAL/FIG9a-T-diff-sec-pbp"+g_lonW+"-"+g_lonE
@@ -81,7 +81,8 @@ begin
     var1 = 1013.25*(1-(var1/9.8)*0.0065/288.15)^5.25145
     var1_line=dim_avg_n_Wrap(var1,1)
     var1_line=dim_median_n(var1,1)
-    var2_data=read_doe_daily_3D("air", 0, 119, 100, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
+    var2_data=read_doe_daily_3D("air", 0, 119, 200, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
+    var2_data&level=var2_data&level(::-1)
     var2_pt_data = var2_data(:,g_day_strt2:g_day_lst2,:,:,:)
     var2_pt_data:=dim_avg_n_Wrap(var2_pt_data, 4)
     var2_pt_data:=dim_avg_n_Wrap(var2_pt_data, 1)
@@ -100,17 +101,16 @@ begin
     end do
 
     n_cases=dimsizes(g_special_year)
+    print(n_cases)    
     var2_pt_clim=dim_avg_n_Wrap(var2_pt_data,0)
     var2_comp_data=var2_pt_data(0:n_cases-1,:,:)
-    ;do ii=0,n_cases-1
-    ;    var2_comp_data(ii,:,:)=var2_pt_data(g_special_year(ii),:,:)
-    ;end do
+    do ii=0,n_cases-1
+        var2_comp_data(ii,:,:)=var2_pt_data(g_special_year(ii),:,:)
+    end do
     var2_comp_clim = dim_avg_n_Wrap(var2_comp_data,0)
     var2_comp_clim_ano = var2_comp_clim
-    ;var2_comp_clim_ano = var2_comp_clim-273.15
-    ;var2_comp_clim_ano = var2_comp_clim_ano(::-1,:)
     var2_comp_clim_ano = var2_comp_clim - var2_pt_clim
-     print(var2_comp_clim)
+    var2_comp_clim_ano = dim_rmvmean_n_Wrap(var2_comp_clim_ano, 1)
 ;    var2_comp_clim_ano = where(abs(var2_comp_clim_ano) .lt. 0.2,var2_comp_clim_ano@_FillValue, var2_comp_clim_ano)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -148,9 +148,9 @@ begin
   res@tmYROn=False
   res@tmYRMode="Automatic"
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -3         ; set min contour level
- res@cnMaxLevelValF        = 3         ; set max contour level
- res@cnLevelSpacingF       = 0.5        ; set contour interval
+ res@cnMinLevelValF        = -2         ; set min contour level
+ res@cnMaxLevelValF        = 2         ; set max contour level
+ res@cnLevelSpacingF       = 0.25        ; set contour interval
  ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
  res@vpHeightF = 0.4
