@@ -51,6 +51,7 @@ begin
     g_data2_path="/home/yangsong3/data/observation/ERA-interim/pressure/air/"
     g_data_clim="/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/air.mean.nc"
     g_data1_path ="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/TOPO/USGS_gtopo30_0.23x0.31_remap_c061107.nc"
+    g_data_adv_path="/home/yangsong3/data/observation/ERA-interim/pressure/daily-clim/interim.75-120.advT.nc"
     g_font = 0.02
     
     ;BOB Early
@@ -72,7 +73,7 @@ begin
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
 ;    g_fig_rank    = (/"(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
-    g_fig_title = "Day 90-120 T Anom (Early-Clim)"
+    g_fig_title = "Day 90-120 T Grad & Adv (Early-Clim)"
 
 ;Prepare the variables
     ; Height --> Pressure
@@ -116,6 +117,26 @@ begin
     var2_comp_clim_ano = var2_sample - var2_clim
     var2_comp_clim_ano = dim_rmvmean_n_Wrap(var2_comp_clim_ano, 1)
     var2_clim = dim_rmvmean_n_Wrap(var2_clim, 1)
+
+
+    adv_file=addfile(g_data_adv_path,"r")
+    var2_adv=adv_file->advT(:,g_day_strt2-74:g_day_lst2-74,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
+    
+    var2_adv=var2_adv*86400
+    var2_adv := dim_avg_n_Wrap(var2_adv,4)
+    var2_adv := dim_avg_n_Wrap(var2_adv,1)
+    var2_adv_clim := dim_avg_n_Wrap(var2_adv,0)
+    
+    n_cases=dimsizes(g_special_year)
+    var2_adv_smp=var2_adv(0:n_cases-1,:,:)
+    do ii=0,n_cases-1
+        var2_adv_smp(ii,:,:)=var2_adv(g_special_year(ii)-1979,:,:)
+    end do
+    var2_adv_smp_mean=dim_avg_n_Wrap(var2_adv_smp,0)
+    var2_adv_ano=var2_adv_smp_mean
+    var2_adv_ano=var2_adv_smp_mean-var2_adv_clim
+    var2_adv_ano=where(var2_adv_ano .lt. 0.05, var2_adv_ano@_FillValue, var2_adv_ano)
+
 ;    var2_comp_clim_ano = where(abs(var2_comp_clim_ano) .lt. 0.2,var2_comp_clim_ano@_FillValue, var2_comp_clim_ano)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -128,6 +149,7 @@ begin
   plot_sh = new((/1/),graphic)
   plot_cn_pos = new((/1/),graphic)
   plot_cn_neg = new((/1/),graphic)
+  plot_sig = new((/1/),graphic)
   plot_topo = new((/1/),graphic)
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -228,9 +250,9 @@ begin
     res_sig@cnMonoFillPattern    = True;False
     res_sig@cnFillPattern = 17
     res_sig@cnMonoFillScale = True
-    res_sig@cnFillScaleF = 2.
+    res_sig@cnFillScaleF = 1.5
     res_sig@cnMonoFillColor = True
-    res_sig@cnFillColor  =  "red"
+    res_sig@cnFillColor  =  "darkgreen"
     res_sig@cnFillDotSizeF = 0.005
 
     res_sig@lbLabelBarOn = False;True   ; turn off the label bar
@@ -259,11 +281,11 @@ do ii=0,0
     plot_cn_pos(ii) = gsn_csm_contour(wks,var2_clim,resC)
     plot_cn_neg(ii) = gsn_csm_contour(wks,var2_clim,resC2)
     plot_topo(ii) = gsn_csm_contour(wks,topo2d,resT)
-;    plot_sig(ii) = gsn_csm_contour(wks,var2_comp_sig(ii,:,:),res_sig)
+     plot_sig(ii) = gsn_csm_contour(wks,var2_adv_ano,res_sig)
  
     overlay(plot_sh(ii),plot_cn_neg(ii))
     overlay(plot_sh(ii),plot_cn_pos(ii))
-;    overlay(plot_sh(ii),plot_sig(ii))
+    overlay(plot_sh(ii),plot_sig(ii))
    overlay(plot_sh(ii),plot_topo(ii))
     draw(plot_sh)
     frame(wks)
