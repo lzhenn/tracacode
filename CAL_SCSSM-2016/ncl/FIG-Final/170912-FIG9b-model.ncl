@@ -50,31 +50,21 @@ begin
 ;    g_data2_path ="../../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd.198[2-3].nc"
     g_data_clim="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/CLIM-Trans-2015.cam.h1.ESM.clim.T.0101-0701.nc"
     g_data2_clim="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/Nudging.cam.h1.ESM.clim.T.0101-0701.nc"
-    g_data1_path ="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/TOPO/USGS_gtopo30_0.23x0.31_remap_c061107.nc"
-    g_data_adv_path="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/"
-    g_data2_adv_path="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/"
+    g_data1_path ="/Users/zhenningli/project/PRE_PRO_SHARE/data/TOPO/USGS_gtopo30_0.23x0.31_remap_c061107.nc"
+    g_data_adv_path="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/CLIM-Trans-2015.cam.h1.ESM.75-120.advT.nc"
+    g_data2_adv_path="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/Nudging.cam.h1.ESM.75-120.advT.nc"
     g_font = 0.02
     
-    ;BOB Early
-    g_special_year=(/ 1990, 1999, 2000, 2006, 2009, 2012, 2015/) 
-    g_day_rank=(/102, 93, 101, 105, 99, 106, 101/)-1
- 
-    ;g_comp_years=(/1984, 1990, 1991, 1994, 1996, 1999, 2000, 2001, 2002, 2006, 2008, 2009, 2011/)
-    ;g_comp_years=(/1984, 1990, 1991, 1999, 2000, 2006, 2009/)
-    ; Early
-    ; Late
-    ;g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
-
     g_latS=0
     g_latN=40
     g_lonW=75
     g_lonE=100
     ; create an array of desired pressure levels:
-    g_fig_name = "../../fig/FINAL/FIG9a-T-diff-sec-pbp"
+    g_fig_name = "../../fig/FINAL/FIG9b-T-diff-sec-pbp"
         
-    g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
+    g_fig_rank    = (/"(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
 ;    g_fig_rank    = (/"(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)"/)
-    g_fig_title = "Day 90-120 T Grad & Adv (Early-Clim)"
+    g_fig_title = "Day 90-120 T Grad & Adv (NUDG-CTRL)"
 
 ;Prepare the variables
     ; Height --> Pressure
@@ -98,26 +88,23 @@ begin
     end do
 
     clim_file=addfile(g_data_clim,"r")
-    var2_clim=clim_file->air(g_day_strt2:g_day_lst2,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
+    var2_clim=clim_file->T(g_day_strt2:g_day_lst2,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
     var2_sample=var2_clim
     var2_sample=0
     var2_clim:=dim_avg_n_Wrap(var2_clim,3)
     var2_clim:=dim_avg_n_Wrap(var2_clim,0)
 
-    n_cases=dimsizes(g_special_year)
-    do ii=0,n_cases-1
-        sample_file=addfile(g_data2_path+"air.interim."+tostring(g_special_year(ii))+".nc","r")
-        print(ii+"/"+n_cases)
-        var2_single=sample_file->air(g_day_strt2:g_day_lst2,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
-        var2_sample=var2_sample+var2_single
-    end do
-    var2_sample=var2_sample/n_cases
-    var2_sample := dim_avg_n_Wrap(var2_sample,3)
-    var2_sample := dim_avg_n_Wrap(var2_sample,0)
-    var2_comp_clim_ano = var2_clim
-    var2_comp_clim_ano = var2_sample - var2_clim
-    var2_comp_clim_ano = dim_rmvmean_n_Wrap(var2_comp_clim_ano, 1)
-    var2_clim = dim_rmvmean_n_Wrap(var2_clim, 1)
+    clim_file=addfile(g_data2_clim,"r")
+    nudg_var2_clim=clim_file->T(g_day_strt2:g_day_lst2,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
+    nudg_var2_sample=nudg_var2_clim
+    nudg_var2_sample=0
+    nudg_var2_clim:=dim_avg_n_Wrap(nudg_var2_clim,3)
+    nudg_var2_clim:=dim_avg_n_Wrap(nudg_var2_clim,0)
+    
+    diff_var2_clim=nudg_var2_clim
+    diff_var2_clim=nudg_var2_clim-var2_clim
+    diff_var2_clim=dim_rmvmean_n_Wrap(diff_var2_clim,1)
+    var2_clim=dim_rmvmean_n_Wrap(var2_clim,1)
 
 
     adv_file=addfile(g_data_adv_path,"r")
@@ -127,18 +114,20 @@ begin
     var2_adv := dim_avg_n_Wrap(var2_adv,4)
     var2_adv := dim_avg_n_Wrap(var2_adv,1)
     var2_adv_clim := dim_avg_n_Wrap(var2_adv,0)
+   
     
-    n_cases=dimsizes(g_special_year)
-    var2_adv_smp=var2_adv(0:n_cases-1,:,:)
-    do ii=0,n_cases-1
-        var2_adv_smp(ii,:,:)=var2_adv(g_special_year(ii)-1979,:,:)
-    end do
-    var2_adv_smp_mean=dim_avg_n_Wrap(var2_adv_smp,0)
-    var2_adv_ano=var2_adv_smp_mean
-    var2_adv_ano=var2_adv_smp_mean-var2_adv_clim
-    var2_adv_ano=where(var2_adv_ano .lt. 0.05, var2_adv_ano@_FillValue, var2_adv_ano)
-
-;    var2_comp_clim_ano = where(abs(var2_comp_clim_ano) .lt. 0.2,var2_comp_clim_ano@_FillValue, var2_comp_clim_ano)
+    adv_file=addfile(g_data2_adv_path,"r")
+    nudg_adv=adv_file->advT(:,g_day_strt2-74:g_day_lst2-74,{200:1000},{g_latS:g_latN},{g_lonW:g_lonE})
+    nudg_adv=nudg_adv*86400
+    nudg_adv := dim_avg_n_Wrap(nudg_adv,4)
+    nudg_adv := dim_avg_n_Wrap(nudg_adv,1)
+    nudg_adv_clim := dim_avg_n_Wrap(nudg_adv,0)
+   
+    diff_adv_clim=nudg_adv_clim
+    diff_adv_clim=diff_adv_clim-var2_adv_clim
+   
+    diff_adv_clim = where(abs(diff_adv_clim) .lt. 0.1,diff_adv_clim@_FillValue, diff_adv_clim)
+    diff_adv_clim(:,{0:22})=diff_var2_clim@_FillValue
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -278,11 +267,11 @@ do ii=0,0
     res@gsnCenterString=g_fig_title(ii)
 
 
-    plot_sh(ii) = gsn_csm_pres_hgt(wks, var2_comp_clim_ano, res ) 
+    plot_sh(ii) = gsn_csm_pres_hgt(wks, diff_var2_clim, res ) 
     plot_cn_pos(ii) = gsn_csm_contour(wks,var2_clim,resC)
     plot_cn_neg(ii) = gsn_csm_contour(wks,var2_clim,resC2)
     plot_topo(ii) = gsn_csm_contour(wks,topo2d,resT)
-     plot_sig(ii) = gsn_csm_contour(wks,var2_adv_ano,res_sig)
+     plot_sig(ii) = gsn_csm_contour(wks,diff_adv_clim,res_sig)
  
     overlay(plot_sh(ii),plot_cn_neg(ii))
     overlay(plot_sh(ii),plot_cn_pos(ii))

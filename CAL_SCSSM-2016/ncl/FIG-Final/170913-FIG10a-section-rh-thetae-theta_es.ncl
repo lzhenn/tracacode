@@ -39,9 +39,14 @@ begin
     ;g_day_rank=(/135,140,150,155,145,140,150,135,160,145,160,140,160,140,150,125,135,130,140,140,150,135,130,135,145,140,150,140,145,125,150,145,130,140/)
     
     ;BOB
-    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_e.nc"
+    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.lcl.nc"
+    g_data2_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_e.nc"
     g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_es.nc"
-    g_data2_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.lcl.nc"
+
+    ; Early
+    ;g_comp_years=(/1990, 1999, 2000, 2006, 2009, 2012, 2015/)
+    ; Late
+    g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
 
 
 
@@ -54,7 +59,7 @@ begin
     g_lonW=87.5
     g_lonE=100
     
-    g_fig_name = "../../fig/FINAL/Sep-vert"
+    g_fig_name = "../../fig/FINAL/Sep-vert-shum"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -62,31 +67,32 @@ begin
 
     ;Prepare the variables
     ctrl_in=addfile(g_data_path,"r")
-    var1=ctrl_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
-   
-    ctrl_in2=addfile(g_data2_path,"r")
-    var2=ctrl_in2->lcl(:,:,{g_latS:g_latN},{g_lonW:g_lonE})
-    var2_mean=dim_avg_n_Wrap(var2,0)
-    var2_mean:=dim_avg_n_Wrap(var2_mean,2)
-    var2_mean:=dim_avg_n_Wrap(var2_mean,1)
-    printVarSummary(var2_mean)
-   var_cmp:=dim_avg_n_Wrap(var1,0)
-    
-    var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-   ; Anomaly percentage
-   ; var_cmp_mean=dim_avg_n_Wrap(var_cmp,0)
-   ; var_cmp=100*dim_rmvmean_n_Wrap(var_cmp,0)/conform(var_cmp,var_cmp_mean,1)
-   ; var_cmp=dim_standardize_n_Wrap(var_cmp,1,0)
-
+    var1=ctrl_in->lcl(:,:,{g_latS:g_latN},{g_lonW:g_lonE})
+    ctrl_in=addfile(g_data2_path,"r")
+    var2=ctrl_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})     ;Prepare the variables
     ctrl_in=addfile(g_data3_path,"r")
-    var1=ctrl_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
+    var3=ctrl_in->theta_es(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
  
-    var_cmp:=var_cmp(level|:,day|:)
-    ;var_cmp=var_cmp*100
-    var_cmp&level=var_cmp&level(::-1)
-;    var_cmp=var_cmp(::-1,:)
-    var_cmp&day=ispan(-25,25,1)
-    ;var_cmp=dim_standardize_n_Wrap(var_cmp,1,1)
+    var_cmp:=dim_avg_n_Wrap(var1,0)
+    var_cmp:=wgt_areaave_Wrap(var_cmp(:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+
+
+    var2_cmp:=dim_avg_n_Wrap(var2,0)
+    var2_cmp:=wgt_areaave_Wrap(var2_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    var2_cmp&day=ispan(-25,25,1)
+    var2_pbl=dim_avg_n_Wrap(var2_cmp(:,{1000:1000}),1)
+    var2_cmp:=var2_cmp(level|:,day|:)
+    ;var2_cmp&level=var2_cmp&level(::-1)
+
+    var3_cmp:=dim_avg_n_Wrap(var3(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE}),0)
+    var3_cmp:=wgt_areaave_Wrap(var3_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    var2_dim=conform(var3_cmp,var2_pbl,0)
+    var3_cmp=var2_dim-var3_cmp
+    ;var3_cmp&level=var3_cmp&level(::-1)
+    var3_cmp:=var3_cmp(level|:,day|:)
+    ;var3_cmp=where(var3_cmp .lt. 0, var3_cmp, var3_cmp@_FillValue)
+
+;    var_cmp=dim_standardize_n_Wrap(var_cmp,1,1)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -119,14 +125,14 @@ begin
   res@cnFillOn             = True               ; turn on color for contours
   res@cnLinesOn            = False              ; turn off contour lines
   res@cnLineLabelsOn       = False              ; turn off contour line labels
-
+  res@trYReverse = True
 
   res@tmYRMode = "Automatic"
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 315        ; set min contour level
-  res@cnMaxLevelValF        = 345         ; set max contour level
-  res@cnLevelSpacingF       = 0.2       ; set contour interval
- ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
+  res@cnMinLevelValF        = 325        ; set min contour level
+  res@cnMaxLevelValF        = 340        ; set max contour level
+  res@cnLevelSpacingF       = 0.25       ; set contour interval
+; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.5
  res@vpHeightF = 0.4
 
@@ -203,7 +209,7 @@ begin
   res3@tmYRMode = "Automatic"
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/1, 2, 3, 4, 5/)
+  res3@cnLevels = (/0/)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = "shum & U"
   res3@gsnRightString      = " "
@@ -216,14 +222,14 @@ begin
 ;************************************************
 ; create panel
 ;************************************************
- plot_sh = gsn_csm_pres_hgt(wks, var_cmp, res )  
-; plot_cn_pos = gsn_csm_pres_hgt(wks, var2_cmp, res3 )  
+ plot_sh = gsn_csm_contour(wks, var2_cmp(:,{-10:10}), res )  
+ plot_cn_pos = gsn_csm_contour(wks, var3_cmp(:,{-10:10}), res3 )  
 ; plot_cn_neg = gsn_csm_pres_hgt(wks, var2_cmp, res4 )  
-; overlay(plot_sh, plot_cn_pos)
+ overlay(plot_sh, plot_cn_pos)
 ; overlay(plot_sh, plot_cn_neg)
 res_lines                   = True                  ; polyline mods desired
 res_lines@gsLineDashPattern = 0.                    ; solid line
-;dum1 = gsn_add_polyline(wks,plot_sh,ispan,var2_mean,res_lines)              ; add polyline
+dum1 = gsn_add_polyline(wks,plot_sh,ispan(-10,10,1),var_cmp,res_lines)              ; add polyline
 
 
 

@@ -39,9 +39,15 @@ begin
     ;g_day_rank=(/135,140,150,155,145,140,150,135,160,145,160,140,160,140,150,125,135,130,140,140,150,135,130,135,145,140,150,140,145,125,150,145,130,140/)
     
     ;BOB
+    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.rh.nc"
     g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_e.nc"
-    g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_es.nc"
+    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_es.nc"
     g_data2_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.lcl.nc"
+
+    ; Early
+    ;g_comp_years=(/1990, 1999, 2000, 2006, 2009, 2012, 2015/)
+    ; Late
+    g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
 
 
 
@@ -54,7 +60,7 @@ begin
     g_lonW=87.5
     g_lonE=100
     
-    g_fig_name = "../../fig/FINAL/Sep-vert"
+    g_fig_name = "../../fig/FINAL/Sep-vert-shum-late"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
@@ -62,31 +68,34 @@ begin
 
     ;Prepare the variables
     ctrl_in=addfile(g_data_path,"r")
-    var1=ctrl_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
-   
+    var1=ctrl_in->rh(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
     ctrl_in2=addfile(g_data2_path,"r")
     var2=ctrl_in2->lcl(:,:,{g_latS:g_latN},{g_lonW:g_lonE})
-    var2_mean=dim_avg_n_Wrap(var2,0)
-    var2_mean:=dim_avg_n_Wrap(var2_mean,2)
-    var2_mean:=dim_avg_n_Wrap(var2_mean,1)
-    printVarSummary(var2_mean)
-   var_cmp:=dim_avg_n_Wrap(var1,0)
+
+    n_cases=dimsizes(g_comp_years)
+    var_comp=var1(0:n_cases-1,:,:,:,:)
+    do ii=0,n_cases-1
+        var_comp(ii,:,:,:,:)=var1(g_comp_years(ii)-1979,:,:,:,:)
+    end do
+
+ 
+
+   var_cmp:=dim_avg_n_Wrap(var_comp,0)
     
     var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
    ; Anomaly percentage
    ; var_cmp_mean=dim_avg_n_Wrap(var_cmp,0)
    ; var_cmp=100*dim_rmvmean_n_Wrap(var_cmp,0)/conform(var_cmp,var_cmp_mean,1)
    ; var_cmp=dim_standardize_n_Wrap(var_cmp,1,0)
+    
+    
 
-    ctrl_in=addfile(g_data3_path,"r")
-    var1=ctrl_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
- 
     var_cmp:=var_cmp(level|:,day|:)
     ;var_cmp=var_cmp*100
     var_cmp&level=var_cmp&level(::-1)
 ;    var_cmp=var_cmp(::-1,:)
     var_cmp&day=ispan(-25,25,1)
-    ;var_cmp=dim_standardize_n_Wrap(var_cmp,1,1)
+;    var_cmp=dim_standardize_n_Wrap(var_cmp,1,1)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -123,9 +132,9 @@ begin
 
   res@tmYRMode = "Automatic"
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 315        ; set min contour level
-  res@cnMaxLevelValF        = 345         ; set max contour level
-  res@cnLevelSpacingF       = 0.2       ; set contour interval
+  res@cnMinLevelValF        = 25        ; set min contour level
+  res@cnMaxLevelValF        = 75        ; set max contour level
+  res@cnLevelSpacingF       = 0.25       ; set contour interval
  ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.5
  res@vpHeightF = 0.4

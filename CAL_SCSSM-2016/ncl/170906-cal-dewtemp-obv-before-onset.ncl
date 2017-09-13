@@ -64,10 +64,11 @@ begin
     print("dew calculating...")
     
     level=var1(:,:,0,:,:)
-    level=1000
-    ctrl_theta_e_var=dewtemp_trh(var1(:,:,{1000},:,:), var2(:,:,{1000},:,:))
+    level=950
+    level0=950
+    ctrl_theta_e_var=dewtemp_trh(var1(:,:,{level0},:,:), var2(:,:,{level0},:,:))
     lcl=ctrl_theta_e_var
-    lcl=lclvl(level, var1(:,:,{1000},:,:), ctrl_theta_e_var)
+    lcl=lclvl(level, var1(:,:,{level0},:,:), ctrl_theta_e_var)
 
     pro_dir=g_data_path+"interim.51days.lcl.nc"
     print("Write...")
