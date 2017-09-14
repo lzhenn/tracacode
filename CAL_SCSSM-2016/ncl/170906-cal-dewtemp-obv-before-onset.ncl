@@ -64,8 +64,8 @@ begin
     print("dew calculating...")
     
     level=var1(:,:,0,:,:)
-    level=950
-    level0=950
+    level=850
+    level0=850
     ctrl_theta_e_var=dewtemp_trh(var1(:,:,{level0},:,:), var2(:,:,{level0},:,:))
     lcl=ctrl_theta_e_var
     lcl=lclvl(level, var1(:,:,{level0},:,:), ctrl_theta_e_var)

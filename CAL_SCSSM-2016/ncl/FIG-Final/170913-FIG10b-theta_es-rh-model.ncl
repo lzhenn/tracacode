@@ -39,9 +39,12 @@ begin
     ;g_day_rank=(/135,140,150,155,145,140,150,135,160,145,160,140,160,140,150,125,135,130,140,140,150,135,130,135,145,140,150,140,145,125,150,145,130,140/)
     
     ;BOB
-    g_data_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.rh.nc"
-    g_data2_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_e.nc"
-    g_data3_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ERA-clim/interim.51days.theta_es.nc"
+    g_data2_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/CLIM-Trans-2015.cam.h1.ESM.clim.Q.0101-0701.nc"
+    g_data2_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/Nudging.cam.h1.ESM.clim.Q.0101-0701.nc"
+    g_data1_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/CLIM-Trans-2015.cam.h1.ESM.75-120.theta_e.nc"
+    g_data1_nudg_path ="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/nudg/clim/Nudging.cam.h1.ESM.75-120.theta_e.nc"
+
+
 
     ; Early
     ;g_comp_years=(/1990, 1999, 2000, 2006, 2009, 2012, 2015/)
@@ -52,39 +55,62 @@ begin
 
 
     g_font = 0.025
-    
+    g_day_strt=75
+    g_day_end=95
         
     g_latS=9
     g_latN=15
     g_lonW=87.5
     g_lonE=100
     
-    g_fig_name = "../../fig/FINAL/Sep-vert-shum"
+    g_fig_name = "../../fig/FINAL/Sep-vert-shum-model"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
     
     g_fig_title = "Level-Time RH Distribution" 
 
     ;Prepare the variables
-    ctrl_in=addfile(g_data_path,"r")
-    var1=ctrl_in->rh(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
+;    ctrl_in=addfile(g_data_path,"r")
+;    var1=ctrl_in->rh(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
     ctrl_in=addfile(g_data2_path,"r")
-    var2=ctrl_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})     ;Prepare the variables
+    var2=ctrl_in->Q(74:119,:,{g_latS:g_latN},{g_lonW:g_lonE})     ;Prepare the variables
+    nudg_in=addfile(g_data2_nudg_path,"r")
+    nudg_var2=nudg_in->Q(74:119,:,{g_latS:g_latN},{g_lonW:g_lonE})     ;Prepare the variables
+
+    ctrl_in=addfile(g_data1_path,"r")
+    var=ctrl_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})     ;Prepare the variables
+    nudg_in=addfile(g_data1_nudg_path,"r")
+    nudg_var=nudg_in->theta_e(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})     ;Prepare the variables
+
     ;ctrl_in=addfile(g_data3_path,"r")
     ;var3=ctrl_in->theta_es(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE})
  
-    var_cmp:=dim_avg_n_Wrap(var1,0)
-    var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+ ;   var_cmp:=dim_avg_n_Wrap(var1,0)
+ ;   var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
 
     ;var_cmp&day=ispan(-25,25,1)
     ;printVarSummary(var_cmp)
-    var2_cmp:=dim_avg_n_Wrap(var2,0)
-    var2_cmp:=wgt_areaave_Wrap(var2_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-    var_cmp&day=ispan(-26,24,1)
-    var2_cmp&day=ispan(-26,24,1)
-    var2_pbl=dim_avg_n_Wrap(var2_cmp(:,{1000:1000}),1)
-    var2_cmp:=var2_cmp(level|:,day|:)
+    var_cmp:=dim_avg_n_Wrap(var,0)
+    var_cmp:=wgt_areaave_Wrap(var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    nudg_var_cmp:=dim_avg_n_Wrap(nudg_var,0)
+    nudg_var_cmp:=wgt_areaave_Wrap(nudg_var_cmp(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    var_cmp=nudg_var_cmp-var_cmp
+
+    ;var2_cmp:=dim_avg_n_Wrap(var2,0)
+    var2_cmp:=wgt_areaave_Wrap(var2(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    ;nudg_var2_cmp:=dim_avg_n_Wrap(nudg_var2,0)
+    nudg_var2_cmp:=wgt_areaave_Wrap(nudg_var2(:,:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+    var2_cmp!0="day"
+    ;  var_cmp&day=ispan(-26,24,1)
+    var2_cmp&day=ispan(75,120,1)
+    var_cmp!0="day"
+    var_cmp&day=ispan(75,120,1)
+    var2_diff=var2_cmp
+    var2_diff=nudg_var2_cmp-var2_cmp
+    var2_diff:=var2_diff(level|:,day|:)
     var_cmp:=var_cmp(level|:,day|:)
+
+   ; var_cmp:=var_cmp(level|:,day|:)
     ;var2_cmp&level=var2_cmp&level(::-1)
 
     ;var3_cmp:=dim_avg_n_Wrap(var3(:,:,:,{g_latS:g_latN},{g_lonW:g_lonE}),0)
@@ -108,7 +134,7 @@ begin
 ;  plot_V = new((/2/),graphic)
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
  
- gsn_define_colormap(wks,"BlRe")
+ gsn_define_colormap(wks,"MPL_BuGn")
 ; gsn_define_colormap(wks,"MPL_greens")
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
@@ -132,9 +158,9 @@ begin
 
   res@tmYRMode = "Automatic"
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 325        ; set min contour level
-  res@cnMaxLevelValF        = 340        ; set max contour level
-  res@cnLevelSpacingF       = 0.25       ; set contour interval
+;  res@cnMinLevelValF        = 0        ; set min contour level
+;  res@cnMaxLevelValF        = 10        ; set max contour level
+;  res@cnLevelSpacingF       = 0.2       ; set contour interval
 ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
  res@vpHeightF = 0.4
@@ -157,11 +183,11 @@ begin
   ;res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   res@lbBoxLinesOn=False
- res@lbLabelStride = 12
-;  res@tmYLValues = fspan(100,1000,10)
-;  res@tmYLLabels = fspan(100,1000,10)
-res@tmYLMajorOutwardLengthF=0
-res@tmYLMajorLengthF=0.0
+; res@lbLabelStride = 12
+  res@tmXBValues = ispan(g_day_strt,g_day_end,5)
+  res@tmXBLabels = ispan(g_day_strt,g_day_end,5)
+;res@tmYLMajorOutwardLengthF=0.1
+;res@tmYLMajorLengthF=0.1
   res@tmXBMinorOn=False
   
   res@tmXBLabelFontHeightF = g_font
@@ -191,7 +217,7 @@ res@tmYLMajorLengthF=0.0
   res3@tmYRMode = "Automatic"
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/35,40,45,50,55,60/)
+  res3@cnLevels = (/0.25,0.5,0.75/)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = ""
   res3@gsnRightString      = " "
@@ -199,9 +225,8 @@ res@tmYLMajorLengthF=0.0
 ;************************************************
 ; create panel
 ;************************************************
- plot_sh = gsn_csm_pres_hgt(wks, var2_cmp(:,{-10:10}), res )  
-printVarSummary(var_cmp)
-plot_cn_pos = gsn_csm_contour(wks, var_cmp(:,{-10:10}), res3 )  
+ plot_sh = gsn_csm_pres_hgt(wks, var2_diff(:,{g_day_strt:g_day_end}), res )  
+plot_cn_pos = gsn_csm_contour(wks, var_cmp(:,{g_day_strt:g_day_end}), res3 )  
 ; plot_cn_neg = gsn_csm_pres_hgt(wks, var2_cmp, res4 )  
  overlay(plot_sh, plot_cn_pos)
 ; overlay(plot_sh, plot_cn_neg)
