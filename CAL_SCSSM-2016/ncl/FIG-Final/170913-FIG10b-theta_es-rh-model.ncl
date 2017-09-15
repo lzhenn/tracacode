@@ -109,7 +109,7 @@ begin
     var2_diff=nudg_var2_cmp-var2_cmp
     var2_diff:=var2_diff(level|:,day|:)
     var_cmp:=var_cmp(level|:,day|:)
-
+    var2_diff=var2_diff*1000
    ; var_cmp:=var_cmp(level|:,day|:)
     ;var2_cmp&level=var2_cmp&level(::-1)
 
@@ -158,9 +158,9 @@ begin
 
   res@tmYRMode = "Automatic"
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-;  res@cnMinLevelValF        = 0        ; set min contour level
-;  res@cnMaxLevelValF        = 10        ; set max contour level
-;  res@cnLevelSpacingF       = 0.2       ; set contour interval
+  res@cnMinLevelValF        = 0        ; set min contour level
+  res@cnMaxLevelValF        = 1        ; set max contour level
+  res@cnLevelSpacingF       = 0.05       ; set contour interval
 ; res@cnFillColors =(/2,4,7,8,8,9,11,13/)
  res@vpWidthF = 0.7
  res@vpHeightF = 0.4
@@ -186,9 +186,10 @@ begin
 ; res@lbLabelStride = 12
   res@tmXBValues = ispan(g_day_strt,g_day_end,5)
   res@tmXBLabels = ispan(g_day_strt,g_day_end,5)
-;res@tmYLMajorOutwardLengthF=0.1
-;res@tmYLMajorLengthF=0.1
+res@tmYLMajorOutwardLengthF=0
+res@tmYLMajorLengthF=0
   res@tmXBMinorOn=False
+  res@tmXBMajorLengthF=0
   
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
@@ -200,8 +201,8 @@ begin
 
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "(a)"
-  res@gsnCenterString = "Obv theta-e and RH"
+  res@gsnLeftString = "(b)"
+  res@gsnCenterString = "Theta-e and SHUM (NUDG-CTRL)"
   res@gsnRightString = ""
        
   res3                  = True       ; use plot options
@@ -225,8 +226,8 @@ begin
 ;************************************************
 ; create panel
 ;************************************************
- plot_sh = gsn_csm_pres_hgt(wks, var2_diff(:,{g_day_strt:g_day_end}), res )  
-plot_cn_pos = gsn_csm_contour(wks, var_cmp(:,{g_day_strt:g_day_end}), res3 )  
+ plot_sh = gsn_csm_pres_hgt(wks, var2_diff({200:1000},{g_day_strt:g_day_end}), res )  
+plot_cn_pos = gsn_csm_contour(wks, var_cmp({200:1000},{g_day_strt:g_day_end}), res3 )  
 ; plot_cn_neg = gsn_csm_pres_hgt(wks, var2_cmp, res4 )  
  overlay(plot_sh, plot_cn_pos)
 ; overlay(plot_sh, plot_cn_neg)
