@@ -666,11 +666,10 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
 
 
     !*** MOD START: Use module
+    use comsrf,             only: tpmask 
+    use pio,                only: file_desc_t
+    use cam_initfiles,      only: tpmask_file_get_id
     use ncdio_atm,          only: infld
-    use pio,          only: file_desc_t
-    use ioFileMod,        only: getfil
-    use cam_pio_utils,    only: cam_pio_openfile
-    use comsrf,           only: urelax, vrelax
     !*** MOD END: Use module
     
     ! Input/output arguments
@@ -687,28 +686,17 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
     logical           :: do_clubb_sgs
 
     !*** MOD START: define field
-    type(file_desc_t) ::  fh_relax
-    !allocate(rfmask(pcols,begchunk:endchunk,12))   ! Rainfall Mask flag
+    type(file_desc_t), pointer :: fh_tpmask
     logical :: found=.false.
-    integer :: nm   ! time frame controller 
-    character(len=256) :: relax_loc   ! filepath of urelax file 
-
     !*** MOD END: define field
 
 
 
-    !*** MOD START: infld UV Field
-    relax_loc="/users/yangsong3/L_Zealot/F/Nudging/nudging-data/esm_changed_clim_UV.nc"
-    !bnd_rfmask_loc ="/users/yangsong3/CESM/input/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_clim_c040926.nc"
-    call cam_pio_openfile(fh_relax, relax_loc, 0)
-    do nm=1, 46
-        call infld('U', fh_relax, 'lon', 'lev', 'lat', 1, pcols, 1, pver, begchunk, endchunk, &
-             urelax(:,:,:,nm), found, grid_map='PHYS', timelevel=nm)
-        
-        call infld('V', fh_relax, 'lon', 'lev', 'lat', 1, pcols, 1, pver, begchunk, endchunk, &
-             vrelax(:,:,:,nm), found, grid_map='PHYS', timelevel=nm)
-    end do
-    !*** MOD END: infld UV Field
+    !*** MOD START: infld TP mask 
+    fh_tpmask=>tpmask_file_get_id()
+    call infld('tp', fh_tpmask, 'lon', 'lat', 1, pcols, begchunk, endchunk, &
+            tpmask, found, grid_map='PHYS')
+    !*** MOD END: infld TP mask 
     
     !-----------------------------------------------------------------------
 
@@ -1277,13 +1265,13 @@ subroutine tphysac (ztodt,   cam_in,  &
     use perf_mod
     use phys_control,       only: phys_do_flux_avg, waccmx_is
     use flux_avg,           only: flux_avg_run
-    !*** MOD START: Use module
-    use time_manager,       only: get_curr_calday, get_step_size
-    use cam_logfile,     only: iulog
-    use comsrf,         only: urelax, vrelax 
-    !*** MOD END: Use module
- 
 
+
+    !*** MOD START: Use module
+    use time_manager,       only: get_curr_calday
+    use comsrf,             only: tpmask 
+    !*** MOD END: Use module
+    
     
     implicit none
 
@@ -1343,22 +1331,16 @@ subroutine tphysac (ztodt,   cam_in,  &
 
     logical :: do_clubb_sgs 
 
-        
-    ! Debug physics_state.
-    logical :: state_debug_checks
-
     !*** MOD START: Define variable
     integer, parameter :: day_rank(12)=(/31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365/)
-    real(r8) :: calday,  G0
+    real(r8) :: calday
     real(r8) :: stat_lat, stat_lon
-    integer :: ii,timeframe                 ! column indices, time frame
-    !real(r8), :: rfmask(pcols,begchunk:endchunk,12)    ! Rainfall Mask flag
+    integer :: j                 ! column indices
     !*** MOD END: Define variable
     
-
-
     
-    
+    ! Debug physics_state.
+    logical :: state_debug_checks
     !
     !-----------------------------------------------------------------------
     !
@@ -1474,14 +1456,46 @@ subroutine tphysac (ztodt,   cam_in,  &
        call physics_update(state, ptend, ztodt, tend)
 
     else
-
+        
+        !*** MOD START: Close surface heating 
+        
+        calday = get_curr_calday();
+        
+        !Below to get out which month we are in
+        
+        do j = 1,12
+            if (calday < day_rank(j)+1) then
+                exit
+            end if
+        end do
+        if ((j>=6) .and. (j<=8)) then
+            do i = 1,ncol 
+                stat_lat=state%lat(i)*180.0/3.1415926
+                stat_lon=state%lon(i)*180.0/3.1415926
+                if (tpmask(i,lchnk) > 0.5) then    ! TP mask = True
+                    ! Close the heat force
+                    cam_in%shf(i) = 0.0000001*cam_in%shf(i)
+                    
+                    ! Below to output debug info
+                    if ((calday-floor(calday))<0.01) then 
+                        if ((abs(stat_lon-90.0)<0.5).and. &
+                        (abs(stat_lat-35.0)<0.5)) then
+                            write(iulog,"(A30,F8.2,A5,F6.2,A5,F6.2)") "CLOSE_HEATF= TRUE Calday:",calday,&
+                            "Lat:",stat_lat,"Lon:",stat_lon
+                            exit
+                        end if
+                    end if
+                end if
+            end do
+        end if
        call t_startf('vertical_diffusion_tend')
        call vertical_diffusion_tend (ztodt ,state ,cam_in%wsx, cam_in%wsy,   &
             cam_in%shf     ,cam_in%cflx     ,surfric  ,obklen   ,ptend    ,ast    ,&
             cam_in%ocnfrac  , cam_in%landfrac ,        &
             sgh30    ,pbuf )
         
-        
+
+
     !------------------------------------------
     ! Call major diffusion for extended model
     !------------------------------------------
@@ -1548,42 +1562,6 @@ subroutine tphysac (ztodt,   cam_in,  &
 
     call gw_intr(state, sgh, pbuf, ztodt, ptend, cam_in%landfrac)
 
-    !*** MOD START: Relaxing the U/V to the model state
-    
-    calday = get_curr_calday()
-    G0=1.0/(86400*5.0)    ! How long to relax to the given field, 
-    !Below to get out which month we are in
-    
-
-    do ii = 1,ncol   ! cols in chunk 
-        stat_lat=state%lat(ii)*180.0/3.1415926
-        stat_lon=state%lon(ii)*180.0/3.1415926
-        if (calday >=75.0 .and. calday<=120.0 .and. stat_lat >= 0.0 .and. stat_lat <= 40.0 &
-        .and. stat_lon >= 45.0 .and. stat_lon<= 120.0) then
-            timeframe=floor(calday-74.0)
-            ! Let's nudge the field!
-            do k = 13,18
-                ptend%u(ii,k) = ptend%u(ii,k)+G0*(urelax(ii,k,lchnk,timeframe)-state%u(ii,k))
-                !ptend%v(ii,k) = ptend%v(ii,k)+G0*(vrelax(ii,k,lchnk,timeframe)-state%v(ii,k))
-            end do
-
-            ! Below to output debug info
-            if ((calday-floor(calday))<0.01) then 
-                ! EA Test
-                if ((abs(stat_lon-80.0)<0.5).and. &
-                (abs(stat_lat-30.0)<0.5)) then
-                    write(iulog,"(A30,F8.2,A5,F6.2,A5,F6.2,A15,F6.2,A15,F6.2,A5,F8.6,A15,F6.2,A15,F12.1)")  "L_Zealot MOD FLAG: Calday:",calday,&
-                    "Lat:",stat_lat,"Lon:",stat_lon," urelax(lv13)=", urelax(ii,13,lchnk,timeframe)," vrelax(lv13)=", vrelax(ii,13,lchnk,timeframe),&
-                    "G0=",G0,"udiff(lv13)=",urelax(ii,13,lchnk,timeframe)-state%u(ii,13),"vdiff(lv13)=",vrelax(ii,13,lchnk,timeframe)-state%v(ii,13)
-                    exit
-                end if
-            end if
-        end if
-    end do
-   !*** MOD END: Relaxing the U/V to the model state
-
-
-
     call physics_update(state, ptend, ztodt, tend)
     ! Check energy integrals
     call check_energy_chng(state, tend, "gwdrag", nstep, ztodt, zero, zero, zero, zero)
@@ -1593,8 +1571,6 @@ subroutine tphysac (ztodt,   cam_in,  &
 
     ! QBO relaxation
     call qbo_relax(state, ptend)
-   
-    
     call physics_update(state, ptend, ztodt, tend)
     ! Check energy integrals
     call check_energy_chng(state, tend, "qborelax", nstep, ztodt, zero, zero, zero, zero)
@@ -1740,7 +1716,6 @@ subroutine tphysbc (ztodt,               &
     use tropopause,      only: tropopause_output
     use abortutils,      only: endrun
 
-   
     implicit none
 
     !
@@ -1846,7 +1821,7 @@ subroutine tphysbc (ztodt,               &
 
     ! Debug physics_state.
     logical :: state_debug_checks
-    
+
     call phys_getopts( microp_scheme_out      = microp_scheme, &
                        macrop_scheme_out      = macrop_scheme, &
                        state_debug_checks_out = state_debug_checks)

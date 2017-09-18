@@ -11,6 +11,8 @@ module physpkg
   ! Nov 2010    A. Gettelman   Put micro/macro physics into separate routines
   !-----------------------------------------------------------------------
 
+  use time_manager,     only: get_curr_calday
+  
   use shr_kind_mod,     only: r8 => shr_kind_r8
   use spmd_utils,       only: masterproc
   use physconst,        only: latvap, latice, rh2o
@@ -663,16 +665,6 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
     use solar_data,         only: solar_data_init
     use rad_solar_var,      only: rad_solar_var_init
 
-
-
-    !*** MOD START: Use module
-    use ncdio_atm,          only: infld
-    use pio,          only: file_desc_t
-    use ioFileMod,        only: getfil
-    use cam_pio_utils,    only: cam_pio_openfile
-    use comsrf,           only: urelax, vrelax
-    !*** MOD END: Use module
-    
     ! Input/output arguments
     type(physics_state), pointer       :: phys_state(:)
     type(physics_tend ), pointer       :: phys_tend(:)
@@ -686,30 +678,6 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
     character(len=16) :: microp_scheme 
     logical           :: do_clubb_sgs
 
-    !*** MOD START: define field
-    type(file_desc_t) ::  fh_relax
-    !allocate(rfmask(pcols,begchunk:endchunk,12))   ! Rainfall Mask flag
-    logical :: found=.false.
-    integer :: nm   ! time frame controller 
-    character(len=256) :: relax_loc   ! filepath of urelax file 
-
-    !*** MOD END: define field
-
-
-
-    !*** MOD START: infld UV Field
-    relax_loc="/users/yangsong3/L_Zealot/F/Nudging/nudging-data/esm_changed_clim_UV.nc"
-    !bnd_rfmask_loc ="/users/yangsong3/CESM/input/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_clim_c040926.nc"
-    call cam_pio_openfile(fh_relax, relax_loc, 0)
-    do nm=1, 46
-        call infld('U', fh_relax, 'lon', 'lev', 'lat', 1, pcols, 1, pver, begchunk, endchunk, &
-             urelax(:,:,:,nm), found, grid_map='PHYS', timelevel=nm)
-        
-        call infld('V', fh_relax, 'lon', 'lev', 'lat', 1, pcols, 1, pver, begchunk, endchunk, &
-             vrelax(:,:,:,nm), found, grid_map='PHYS', timelevel=nm)
-    end do
-    !*** MOD END: infld UV Field
-    
     !-----------------------------------------------------------------------
 
     ! Get microphysics option
@@ -1277,14 +1245,6 @@ subroutine tphysac (ztodt,   cam_in,  &
     use perf_mod
     use phys_control,       only: phys_do_flux_avg, waccmx_is
     use flux_avg,           only: flux_avg_run
-    !*** MOD START: Use module
-    use time_manager,       only: get_curr_calday, get_step_size
-    use cam_logfile,     only: iulog
-    use comsrf,         only: urelax, vrelax 
-    !*** MOD END: Use module
- 
-
-    
     implicit none
 
     !
@@ -1343,22 +1303,8 @@ subroutine tphysac (ztodt,   cam_in,  &
 
     logical :: do_clubb_sgs 
 
-        
     ! Debug physics_state.
     logical :: state_debug_checks
-
-    !*** MOD START: Define variable
-    integer, parameter :: day_rank(12)=(/31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365/)
-    real(r8) :: calday,  G0
-    real(r8) :: stat_lat, stat_lon
-    integer :: ii,timeframe                 ! column indices, time frame
-    !real(r8), :: rfmask(pcols,begchunk:endchunk,12)    ! Rainfall Mask flag
-    !*** MOD END: Define variable
-    
-
-
-    
-    
     !
     !-----------------------------------------------------------------------
     !
@@ -1480,8 +1426,7 @@ subroutine tphysac (ztodt,   cam_in,  &
             cam_in%shf     ,cam_in%cflx     ,surfric  ,obklen   ,ptend    ,ast    ,&
             cam_in%ocnfrac  , cam_in%landfrac ,        &
             sgh30    ,pbuf )
-        
-        
+
     !------------------------------------------
     ! Call major diffusion for extended model
     !------------------------------------------
@@ -1548,42 +1493,6 @@ subroutine tphysac (ztodt,   cam_in,  &
 
     call gw_intr(state, sgh, pbuf, ztodt, ptend, cam_in%landfrac)
 
-    !*** MOD START: Relaxing the U/V to the model state
-    
-    calday = get_curr_calday()
-    G0=1.0/(86400*5.0)    ! How long to relax to the given field, 
-    !Below to get out which month we are in
-    
-
-    do ii = 1,ncol   ! cols in chunk 
-        stat_lat=state%lat(ii)*180.0/3.1415926
-        stat_lon=state%lon(ii)*180.0/3.1415926
-        if (calday >=75.0 .and. calday<=120.0 .and. stat_lat >= 0.0 .and. stat_lat <= 40.0 &
-        .and. stat_lon >= 45.0 .and. stat_lon<= 120.0) then
-            timeframe=floor(calday-74.0)
-            ! Let's nudge the field!
-            do k = 13,18
-                ptend%u(ii,k) = ptend%u(ii,k)+G0*(urelax(ii,k,lchnk,timeframe)-state%u(ii,k))
-                !ptend%v(ii,k) = ptend%v(ii,k)+G0*(vrelax(ii,k,lchnk,timeframe)-state%v(ii,k))
-            end do
-
-            ! Below to output debug info
-            if ((calday-floor(calday))<0.01) then 
-                ! EA Test
-                if ((abs(stat_lon-80.0)<0.5).and. &
-                (abs(stat_lat-30.0)<0.5)) then
-                    write(iulog,"(A30,F8.2,A5,F6.2,A5,F6.2,A15,F6.2,A15,F6.2,A5,F8.6,A15,F6.2,A15,F12.1)")  "L_Zealot MOD FLAG: Calday:",calday,&
-                    "Lat:",stat_lat,"Lon:",stat_lon," urelax(lv13)=", urelax(ii,13,lchnk,timeframe)," vrelax(lv13)=", vrelax(ii,13,lchnk,timeframe),&
-                    "G0=",G0,"udiff(lv13)=",urelax(ii,13,lchnk,timeframe)-state%u(ii,13),"vdiff(lv13)=",vrelax(ii,13,lchnk,timeframe)-state%v(ii,13)
-                    exit
-                end if
-            end if
-        end if
-    end do
-   !*** MOD END: Relaxing the U/V to the model state
-
-
-
     call physics_update(state, ptend, ztodt, tend)
     ! Check energy integrals
     call check_energy_chng(state, tend, "gwdrag", nstep, ztodt, zero, zero, zero, zero)
@@ -1593,8 +1502,6 @@ subroutine tphysac (ztodt,   cam_in,  &
 
     ! QBO relaxation
     call qbo_relax(state, ptend)
-   
-    
     call physics_update(state, ptend, ztodt, tend)
     ! Check energy integrals
     call check_energy_chng(state, tend, "qborelax", nstep, ztodt, zero, zero, zero, zero)
@@ -1740,7 +1647,6 @@ subroutine tphysbc (ztodt,               &
     use tropopause,      only: tropopause_output
     use abortutils,      only: endrun
 
-   
     implicit none
 
     !
@@ -1838,6 +1744,26 @@ subroutine tphysbc (ztodt,               &
     type(check_tracers_data):: tracerint             ! energy integrals and cummulative boundary fluxes
     real(r8) :: zero_tracers(pcols,pcnst)
 
+
+
+
+    real ::  heat_mar(26)=(/1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00&
+    ,1.00 ,1.15 ,1.28 ,1.29 ,1.26 ,1.24 ,1.23 ,1.21 ,1.20 ,1.20 ,1.17 ,1.08&
+    ,1.04 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00/)
+    real ::  heat_apr(26)=(/1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00&
+    ,1.38 ,1.34 ,1.31 ,1.28 ,1.26 ,1.25 ,1.24 ,1.23 ,1.22 ,1.20 ,1.15 ,1.09&
+    ,1.06 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00/)
+    real ::  heat_may(26)=(/1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00&
+    ,1.03 ,1.17 ,1.20 ,1.16 ,1.14 ,1.14 ,1.13 ,1.11 ,1.11 ,1.11 ,1.09 ,1.05&
+    ,1.03 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00/)
+
+    real(r8) :: calday
+    real(r8) :: stat_lat, stat_lon
+    integer  :: j
+    integer pos_lat, pos_lon 
+    integer, parameter :: day_rank(12)=(/31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365/)
+
+
     logical   :: lq(pcnst)
 
     !  pass macro to micro
@@ -1846,7 +1772,7 @@ subroutine tphysbc (ztodt,               &
 
     ! Debug physics_state.
     logical :: state_debug_checks
-    
+
     call phys_getopts( microp_scheme_out      = microp_scheme, &
                        macrop_scheme_out      = macrop_scheme, &
                        state_debug_checks_out = state_debug_checks)
@@ -2010,6 +1936,38 @@ subroutine tphysbc (ztodt,               &
          ztodt,   &
          state,   ptend, cam_in%landfrac, pbuf) 
     call t_stopf('convect_deep_tend')
+
+    calday = get_curr_calday();
+    !Below to get out which month we are in
+    do j = 1,12
+        if (calday < day_rank(j)+1) then
+            exit
+        end if
+    end do
+
+    do i = 1,ncol 
+         stat_lat=state%lat(i)*180.0/3.1415926
+         stat_lon=state%lon(i)*180.0/3.1415926
+         if (stat_lat >= 0.0 .and. &
+         stat_lat <= 20.0 .and. &
+         stat_lon <= 155.0 .and. &
+         stat_lon >= 105.0)  then
+            ! Inject the heat force
+            do k = 1,pver
+                if (j == 3 .and. ptend%s(i,k)>0) then
+                    ptend%s(i,k) = ptend%s(i,k)*((heat_mar(k)-1)*2.0+1.0)
+                else if (j == 4 .and. ptend%s(i,k)>0) then
+                    ptend%s(i,k) = ptend%s(i,k)*((heat_apr(k)-1)*2.0+1.0)
+                else if (j == 5  .and. ptend%s(i,k)>0) then
+                    ptend%s(i,k) = ptend%s(i,k)*((heat_may(k)-1)*2.0+1.0)
+                end if
+            end do
+         end if
+    end do
+         
+    call outfld('PTENDT', ptend%s, pcols, lchnk)
+
+
 
     call physics_update(state, ptend, ztodt, tend)
 
