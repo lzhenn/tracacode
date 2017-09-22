@@ -10,7 +10,7 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/users/yangsong3/L_Zealot/F/WZQ-TP-2017/exe/\"
+PRE_DIR=\"/users/yangsong3/L_Zealot/F/WZQ-TP-2017/pre-cool/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
