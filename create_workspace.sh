@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=EXTRA-2017
+WORKNAME=SUPERMARKET-2016
 
 # Now to create the workspace
 mkdir $WORKNAME
