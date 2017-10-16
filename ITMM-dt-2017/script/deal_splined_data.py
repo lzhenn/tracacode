@@ -8,7 +8,9 @@
 import math
 #from numpy import *
 import numpy as np
+import pandas as pd
 import datetime
+import decimal
 
 #-------------------------------------
 # Function Definition Part
@@ -54,19 +56,27 @@ def main():
         # Point to next file
         curr_time_obj=curr_time_obj+file_time_delta
         
-        try:
-            fr = open(fname, 'r')
-            print('parsing '+fname+'...')
-            lines=fr.readlines()
-            fr.close()
-        except:
-            continue
+        fr = open(fname, 'r')
+        print('parsing '+fname+'...')
+        lines=fr.readlines()
+        fr.close()
+        df=org_data(lines, curr_time_obj)
+        break
 
 def get_file_name(sta_num, timestmp):
-#    20121010_1100_67606.ded
     time0=timestmp.strftime('%Y%m%d_%H%M')   
     fname=time0+'_'+sta_num+'.ded'
     return fname
+
+def org_data(lines, timestmp):
+    time_frames=pd.date_range(timestmp, periods=60, freq='M')
+    df = pd.DataFrame(np.random.randn(60,4761), index=time_frames, columns=list(drange(290.0, 670.0, '0.5')))
+
+def drange(x, y, jump):
+    while x < y:
+        yield float(x)
+        x += decimal.Decimal(jump)
+
 if __name__ == "__main__":
     main()
 
