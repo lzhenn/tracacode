@@ -23,121 +23,33 @@ def main():
     # Station Number
     sta_num='67605'
 
-    # Start Time 
-    start_time='2012-10-02 06:00:00'
+    # Input File
+    in_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined-hourly/2012100206-2012101020_67605_C1.csv'
 
-    # End Time 
-    end_time='2012-10-10 20:00:00'
-
-    # Input Dir
-    in_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined/'
-    
-    # Output Dir 
-    out_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined-hourly/'
-
-    # Correct Algrithm
-    #   C1 -- Both j and splined
-    #   C2 == Only j
-    corr_algthm='C1' 
-
+    # Output Dir
+    out_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined-hourly/R2012100206-2012101020_67605_C1.csv'
+ 
 
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
- 
-    # Preparation
-    int_time_obj = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-    end_time_obj = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-    file_time_delta=datetime.timedelta(hours=1)
-    curr_time_obj=int_time_obj
-
-    fout_name=out_dir+get_outfile_name(sta_num, int_time_obj, end_time_obj, corr_algthm)
+    pt=pd.read_csv(in_dir)
+    r_uva, r_uvb, r_total=cal_rad(pt)
+    dfout = pd.DataFrame(np.append([r_uva.values, r_uvb.values], [r_total.values], axis=0).T, index=pt.iloc[:,0], columns=['uva', 'uvb', 'total'])
     
-    # Main Loop...
-    while curr_time_obj <= end_time_obj:
-        fname=in_dir+get_file_name(sta_num, curr_time_obj)
-        
-        try:    
-            fr = open(fname, 'r')
-        except:
-            curr_time_obj=curr_time_obj+file_time_delta
-            continue
-        print('parsing '+fname+'...')
-        lines=fr.readlines()
-        fr.close()
-        df=org_data(lines, curr_time_obj, corr_algthm, sta_num)
-        df_hour=df.resample('1H').mean()    # Resample into hourly data
-
-        if os.path.isfile(fout_name):
-            with open(fout_name, 'a') as f:
-                df_hour.loc[curr_time_obj:curr_time_obj,:].to_csv(f, header=False)
-        else:
-            with open(fout_name, 'w') as f:
-                df_hour.loc[curr_time_obj:curr_time_obj,:].to_csv(f)
-        #     df_ht.to_csv(f, header=False)
-        # Point to next file
-        curr_time_obj=curr_time_obj+file_time_delta
+    with open(out_dir, 'w') as f:
+        dfout.to_csv(f)
+    exit()
 
 
-def get_outfile_name(sta_num, strt_time, end_time, corr):
-    time0=strt_time.strftime('%Y%m%d%H')
-    time1=end_time.strftime('%Y%m%d%H')
-    fname=time0+'-'+time1+'_'+sta_num+'_'+corr+'.csv'
-    return fname
-
-def get_file_name(sta_num, timestmp):
-    time0=timestmp.strftime('%Y%m%d_%H%M')   
-    fname=time0+'_'+sta_num+'.ded'
-    return fname
+def cal_rad(pt):
+    uva=pt.loc[:,'320.0':'422.0'].sum(axis=1)*0.5
+    uvb=pt.loc[:,'290.0':'320.0'].sum(axis=1)*0.5
+    total=pt.sum(axis=1)*0.5
+    return uva, uvb, total
 
 
-# Organize all data into the dataframe
-def org_data(lines, timestmp, corr_algthm, sta_num):
 
-    # Initial
-    yyyymmdd=timestmp.strftime('%Y%m%d') 
-    time_frames=[]
-    t_pos=-1                # start from 01 min 
-    data0=np.zeros((3600,761))
-    # Loop the file
-    for pos_line, line in enumerate(lines):
-        
-        # Skip the timestamp lines
-        if len(line) <= 10:
-            continue
-        elif len(line)<=30:
-            t_pos+=1
-            l_pos=0
-            t_line=line.split()
-            t_line=t_line[0].strip() # taking out timestamp HH:MM:SS
-            time_frames.append(datetime.datetime.strptime(yyyymmdd+' '+t_line, '%Y%m%d %H:%M:%S'))
-            if (t_pos>=2) and (abs(time_frames[-2].minute-time_frames[-1].minute) < 1):
-                print('    '+time_frames[-2].strftime('%Y%m%d %H:%M:%S')+' followed by '+time_frames[-1].strftime('%Y%m%d %H:%M:%S')+', less than 1min')
-            continue
-        content=line.split() # [0]--wavelength [1]--radiation
-        value=content[1]
-        data0[t_pos,l_pos]=value
-        l_pos+=1
-
-    if timestmp < datetime.datetime(2015,9,1):
-        data0=data_corr_algthm(data0, corr_algthm, sta_num)
-    
-    df = pd.DataFrame(data0[0:t_pos+1,:], index=time_frames, columns=list(drange(290, 670.5, '0.5')))
-    return df
-
-def data_corr_algthm(data, alg, sta_num):
-    if sta_num == '67606':
-        if alg=='C1':
-            data=data/4.91
-    elif sta_num == '67605':
-        data=data/0.7
-    return data
-
-
-def drange(x, y, jump):
-    while x < y:
-        yield float(x)
-        x += decimal.Decimal(jump)
 
 if __name__ == "__main__":
     main()
