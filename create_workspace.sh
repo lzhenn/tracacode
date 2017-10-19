@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=SUPERMARKET-2016
+WORKNAME=TP-NUDG-2017
 
 # Now to create the workspace
 mkdir $WORKNAME

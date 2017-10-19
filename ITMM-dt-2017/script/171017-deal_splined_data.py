@@ -21,24 +21,24 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
-    # Start Time 
-    start_time='2012-10-02 06:00:00'
-
-    # End Time 
-    end_time='2012-10-10 20:00:00'
+    # Start Year 
+    start_year='2013'
+    
+    # End Year
+    end_year='2017'
 
     # Input Dir
-    in_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined/'
+    in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/'
     
     # Output Dir 
-    out_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined-hourly/'
+    out_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
 
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1' 
+    corr_algthm='C2' 
 
 
 #----------------------------------------------------
@@ -46,48 +46,61 @@ def main():
 #----------------------------------------------------
  
     # Preparation
-    int_time_obj = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-    end_time_obj = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-    file_time_delta=datetime.timedelta(hours=1)
-    curr_time_obj=int_time_obj
-
-    fout_name=out_dir+get_outfile_name(sta_num, int_time_obj, end_time_obj, corr_algthm)
-    
-    # Main Loop...
-    while curr_time_obj <= end_time_obj:
-        fname=in_dir+get_file_name(sta_num, curr_time_obj)
+    curr_year=start_year
+    while curr_year<=end_year:
+        start_time=curr_year+'-01-01 00:00:00'
+        end_time=curr_year+'-12-31 23:59:00'
         
-        try:    
-            fr = open(fname, 'r')
-        except:
+        int_time_obj = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+        end_time_obj = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+        
+        file_time_delta=datetime.timedelta(hours=1)
+        curr_time_obj=int_time_obj
+
+        
+
+        fout_name=out_dir+get_outfile_name(sta_num, curr_year, corr_algthm)
+        
+        # Main Loop...
+        while curr_time_obj <= end_time_obj:
+            fname=in_dir+get_file_name(sta_num, curr_time_obj)
+            
+            try:    
+                fr = open(fname, 'r')
+            except:
+                curr_time_obj=curr_time_obj+file_time_delta
+                continue
+            print('parsing '+fname+'...')
+            lines=fr.readlines()
+            fr.close()
+            df=org_data(lines, curr_time_obj, corr_algthm, sta_num)
+            try:
+                df_hour=df.resample('1H').mean()    # Resample into hourly data
+            except:
+                curr_time_obj=curr_time_obj+file_time_delta
+                continue
+            if os.path.isfile(fout_name):
+                with open(fout_name, 'a') as f:
+                    df_hour.loc[curr_time_obj:curr_time_obj,:].to_csv(f, header=False)
+            else:
+                with open(fout_name, 'w') as f:
+                    df_hour.loc[curr_time_obj:curr_time_obj,:].to_csv(f)
+            
+            # Point to the next file
             curr_time_obj=curr_time_obj+file_time_delta
-            continue
-        print('parsing '+fname+'...')
-        lines=fr.readlines()
-        fr.close()
-        df=org_data(lines, curr_time_obj, corr_algthm, sta_num)
-        df_hour=df.resample('1H').mean()    # Resample into hourly data
+        curr_year=str(int(curr_year)+1)
 
-        if os.path.isfile(fout_name):
-            with open(fout_name, 'a') as f:
-                df_hour.loc[curr_time_obj:curr_time_obj,:].to_csv(f, header=False)
-        else:
-            with open(fout_name, 'w') as f:
-                df_hour.loc[curr_time_obj:curr_time_obj,:].to_csv(f)
-        #     df_ht.to_csv(f, header=False)
-        # Point to next file
-        curr_time_obj=curr_time_obj+file_time_delta
-
-
-def get_outfile_name(sta_num, strt_time, end_time, corr):
-    time0=strt_time.strftime('%Y%m%d%H')
-    time1=end_time.strftime('%Y%m%d%H')
-    fname=time0+'-'+time1+'_'+sta_num+'_'+corr+'.csv'
+def get_outfile_name(sta_num, curr_year, corr):
+    fname='splined_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
 def get_file_name(sta_num, timestmp):
+    year0=timestmp.strftime('%Y')   
     time0=timestmp.strftime('%Y%m%d_%H%M')   
-    fname=time0+'_'+sta_num+'.ded'
+    if sta_num=='67606':
+        fname=year0+'/'+time0+'_'+sta_num+'.ded'
+    elif sta_num=='67605':
+        fname=time0+'_'+sta_num+'.ded'
     return fname
 
 
@@ -111,13 +124,21 @@ def org_data(lines, timestmp, corr_algthm, sta_num):
             t_line=line.split()
             t_line=t_line[0].strip() # taking out timestamp HH:MM:SS
             time_frames.append(datetime.datetime.strptime(yyyymmdd+' '+t_line, '%Y%m%d %H:%M:%S'))
-            if (t_pos>=2) and (abs(time_frames[-2].minute-time_frames[-1].minute) < 1):
-                print('    '+time_frames[-2].strftime('%Y%m%d %H:%M:%S')+' followed by '+time_frames[-1].strftime('%Y%m%d %H:%M:%S')+', less than 1min')
             continue
         content=line.split() # [0]--wavelength [1]--radiation
-        value=content[1]
-        data0[t_pos,l_pos]=value
+        try:
+            value=content[1]
+        except:
+            continue
+        # strenge cases
+        if l_pos > 760:
+            continue
+        try:
+            data0[t_pos,l_pos]=value
+        except:
+            continue
         l_pos+=1
+
 
     if timestmp < datetime.datetime(2015,9,1):
         data0=data_corr_algthm(data0, corr_algthm, sta_num)

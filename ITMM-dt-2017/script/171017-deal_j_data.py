@@ -24,17 +24,17 @@ def main():
     # Station Number
     sta_num='67605'
 
-    # Start Date in Julian Day 
-    start_time='2012276'
-
-    # End Date in Julian Day
-    end_time='2012284'
+    # Start Year 
+    start_year='2014'
+    
+    # End Year
+    end_year='2017'
 
     # Input Dir
-    in_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/j/'
+    in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/'
     
     # Output Dir 
-    out_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/j-hourly/'
+    out_dir='../data/ITMM-dt-2017/'+sta_num+'/J/pro_data/'
 
     # Correct Algrithm
     #   C1 -- Both j and splined
@@ -51,47 +51,52 @@ def main():
 # Main function
 #----------------------------------------------------
  
+
     # Preparation
-    int_time_obj = datetime.datetime.strptime(start_time, '%Y%j')
-    end_time_obj = datetime.datetime.strptime(end_time, '%Y%j')
-    time0 = datetime.datetime.strptime(time_base,'%Y%m%d%H%M')
-    file_time_delta=datetime.timedelta(days=1)
-    record_time_delta=datetime.timedelta(hours=23)
-    curr_time_obj=int_time_obj
-
-    
-    # Main Loop...
-    while curr_time_obj <= end_time_obj:
-        time0_str=curr_time_obj.strftime('%y%j')   
-  
+    curr_year=start_year
+    while curr_year<=end_year:
+        # Start Date in Julian Day 
+        start_time=curr_year+'001'
+        # End Date in Julian Day
+        end_time=curr_year+'366'
+        
+        int_time_obj = datetime.datetime.strptime(start_time, '%Y%j')
+        end_time_obj = datetime.datetime.strptime(end_time, '%Y%j')
+        time0 = datetime.datetime.strptime(time_base,'%Y%m%d%H%M')
+        file_time_delta=datetime.timedelta(days=1)
+        record_time_delta=datetime.timedelta(hours=23)
+        curr_time_obj=int_time_obj
+       
+        # Main Loop...
         # Loop the individual species
-        for pos_line, spe in enumerate(species):
-            
-            fn=in_dir+'j'+spe+time0_str+'.ded'
-            try:
-                fr = open(fn, 'r')
-            except:
-                continue
-            print('parsing '+fn+'...')
-            lines=fr.readlines()
-            fr.close()
-            df = org_data(lines, time0, spe, corr_algthm, sta_num)
-            df_hour=df.resample('1H').mean()    # Resample into hourly data
-            fout_name=out_dir+get_outfile_name(sta_num, int_time_obj, end_time_obj, corr_algthm, spe)
-            if os.path.isfile(fout_name):
-                with open(fout_name, 'a') as f:
-                    df_hour.loc[curr_time_obj:curr_time_obj+record_time_delta,:].to_csv(f, header=False)
-            else:
-                with open(fout_name, 'w') as f:
-                    df_hour.loc[curr_time_obj:curr_time_obj+record_time_delta,:].to_csv(f)
-        # Point to next file
-        curr_time_obj=curr_time_obj+file_time_delta
+        for pos, spe in enumerate(species):
+            fout_name=out_dir+get_outfile_name(sta_num, curr_year, corr_algthm, spe)
+            while curr_time_obj <= end_time_obj:
+                time0_str=curr_time_obj.strftime('%y%j')   
+                fn=in_dir+'j'+spe+time0_str+'.ded'
+                try:
+                    fr = open(fn, 'r')
+                except:
+                    curr_time_obj=curr_time_obj+file_time_delta
+                    continue
+                print('parsing '+fn+'...')
+                lines=fr.readlines()
+                fr.close()
+                df = org_data(lines, time0, spe, corr_algthm, sta_num)
+                df_hour=df.resample('1H').mean()    # Resample into hourly data
+                if os.path.isfile(fout_name):
+                    with open(fout_name, 'a') as f:
+                        df_hour.loc[curr_time_obj:curr_time_obj+record_time_delta,:].to_csv(f, header=False)
+                else:
+                    with open(fout_name, 'w') as f:
+                        df_hour.loc[curr_time_obj:curr_time_obj+record_time_delta,:].to_csv(f)
+                # Point to next file
+                curr_time_obj=curr_time_obj+file_time_delta
+            curr_time_obj=int_time_obj
+        curr_year=str(int(curr_year)+1)
 
-
-def get_outfile_name(sta_num, strt_time, end_time, corr, spe):
-    time0=strt_time.strftime('%Y%m%d%H')
-    time1=end_time.strftime('%Y%m%d%H')
-    fname='j'+spe+'_'+time0+'-'+time1+'_'+sta_num+'_'+corr+'.csv'
+def get_outfile_name(sta_num, curr_year, corr, spe):
+    fname='j'+spe+'_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
 def get_file_name(timestmp, species):
@@ -106,7 +111,7 @@ def org_data(lines, time0, spe, corr_algthm, sta_num):
     time_str=time0.strftime('%Y%m%d%H')
     timestamp=[]
     values=[]
-    for pos_line, line in enumerate(lines):
+    for pos, line in enumerate(lines):
         content=line.split() # [0]--timeshift [1]--j ratio
         timeshift=float(content[0])
         value=float(content[1])

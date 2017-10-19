@@ -31,9 +31,10 @@ FDNAME2D="(/\"PRECC\",\"PRECL\",\"FLUT\"/)" #often use
 #FDNAME3D="(/\"RELHUM\"/)" #often use
 #FDNAME3D_HY="(/\"RELHUM\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"U\",\"V\",\"T\"/)" # hybrid coordinate
 
 # First year of the subset
-FRSTYEAR=2002
+FRSTYEAR=1979
 
 # Last year of the subset
 LSTYEAR=2005
@@ -49,8 +50,9 @@ PLEV="(/925,850,700,500,200/)"
 
 
 # Process flag
-FLAG_2D=1
+FLAG_2D=0
 FLAG_3D=0
+FLAG_3D_HY=1
 
 #-----------------------------------------------------------
 
@@ -75,9 +77,22 @@ if [ $FLAG_3D == 1 ] ; then
        pre_dir=$PRE_DIR            \
        pro_dir=$PRO_DIR            \
        fdname3d=$FDNAME3D          \
-       n_esm=$N_ESM                \
        layers=$LAYERS              \
        plev=$PLEV                  \
        case_name=$CASENAME         \
        ./ncl/package_3D_from_raw_data_daily-160402.ncl
+fi
+
+#Output post processed 3D Hybrid fields
+if [ $FLAG_3D_HY == 1 ] ; then
+    echo "-----package 3D field    (1)-----"
+    ncl -nQ \
+       pre_dir=$PRE_DIR            \
+       pro_dir=$PRO_DIR            \
+       fdname3d=$FDNAME3D_HY          \
+       frstyear=$FRSTYEAR          \
+       lstyear=$LSTYEAR           \
+       layers=$LAYERS              \
+       case_name=$CASENAME         \
+       ./ncl/package_3DHY_from_raw_data_daily-171019.ncl
 fi

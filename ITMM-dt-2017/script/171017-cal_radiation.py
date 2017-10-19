@@ -21,26 +21,45 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Input File
-    in_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined-hourly/2012100206-2012101020_67605_C1.csv'
+    in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
 
     # Output Dir
-    out_dir='../data/ITMM-dt-2017/sample/'+sta_num+'/splined-hourly/R2012100206-2012101020_67605_C1.csv'
+    out_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
  
+    # Start Year 
+    start_year='2011'
+    
+    # End Year
+    end_year='2017'
+
+    # Correct Algrithm
+    #   C1 -- Both j and splined
+    #   C2 == Only j
+    corr_algthm='C1' 
 
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
-    pt=pd.read_csv(in_dir)
-    r_uva, r_uvb, r_total=cal_rad(pt)
-    dfout = pd.DataFrame(np.append([r_uva.values, r_uvb.values], [r_total.values], axis=0).T, index=pt.iloc[:,0], columns=['uva', 'uvb', 'total'])
-    
-    with open(out_dir, 'w') as f:
-        dfout.to_csv(f)
-    exit()
+    curr_year=start_year
+    while curr_year<=end_year:
 
+        pt=pd.read_csv(in_dir+get_file_name(sta_num, curr_year, corr_algthm))
+        print('parsing '+in_dir+get_file_name(sta_num, curr_year, corr_algthm))
+        r_uva, r_uvb, r_total=cal_rad(pt)
+        dfout = pd.DataFrame(np.append([r_uva.values, r_uvb.values], [r_total.values], axis=0).T, index=pt.iloc[:,0], columns=['uva', 'uvb', 'total'])
+        with open(out_dir+get_outfile_name(sta_num, curr_year, corr_algthm), 'w') as f:
+            dfout.to_csv(f)
+        curr_year=str(int(curr_year)+1)
+
+def get_file_name(sta_num, curr_year, corr):
+    fname='splined_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
+    return fname
+def get_outfile_name(sta_num, curr_year, corr):
+    fname='Rad_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
+    return fname
 
 def cal_rad(pt):
     uva=pt.loc[:,'320.0':'422.0'].sum(axis=1)*0.5
