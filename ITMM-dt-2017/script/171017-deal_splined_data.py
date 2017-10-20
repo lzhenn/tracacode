@@ -24,10 +24,10 @@ def main():
     sta_num='67606'
 
     # Start Year 
-    start_year='2013'
+    start_year='2011'
     
     # End Year
-    end_year='2017'
+    end_year='2012'
 
     # Input Dir
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/'
