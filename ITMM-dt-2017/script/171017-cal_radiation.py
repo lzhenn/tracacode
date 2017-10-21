@@ -21,7 +21,7 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Input File
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
@@ -38,7 +38,7 @@ def main():
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C2' 
+    corr_algthm='C1' 
 
 #----------------------------------------------------
 # Main function
