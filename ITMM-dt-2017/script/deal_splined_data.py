@@ -22,7 +22,7 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Start Time 
     start_time='2012-10-02 06:00:00'

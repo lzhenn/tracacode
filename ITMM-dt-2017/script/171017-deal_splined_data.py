@@ -21,13 +21,13 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Start Year 
-    start_year='2011'
+    start_year='2015'
     
     # End Year
-    end_year='2012'
+    end_year='2017'
 
     # Input Dir
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/'
@@ -38,7 +38,7 @@ def main():
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C2' 
+    corr_algthm='C1' 
 
 
 #----------------------------------------------------
@@ -139,17 +139,14 @@ def org_data(lines, timestmp, corr_algthm, sta_num):
             continue
         l_pos+=1
 
-
-    if timestmp < datetime.datetime(2015,9,1):
-        data0=data_corr_algthm(data0, corr_algthm, sta_num)
-    
+    if not(sta_num == '67606' and timestmp >= datetime.datetime(2015,9,1)):
+        data0=data_corr_algthm(data0, sta_num)
     df = pd.DataFrame(data0[0:t_pos+1,:], index=time_frames, columns=list(drange(290, 670.5, '0.5')))
     return df
 
-def data_corr_algthm(data, alg, sta_num):
+def data_corr_algthm(data, sta_num):
     if sta_num == '67606':
-        if alg=='C1':
-            data=data/4.91
+        data=data/4.91
     elif sta_num == '67605':
         data=data/0.7
     return data
