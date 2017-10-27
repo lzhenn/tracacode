@@ -22,7 +22,7 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Start Year 
     start_year='2011'
@@ -120,7 +120,7 @@ def org_data(lines, time0, spe, corr_algthm, sta_num):
         timestamp.append(time_now)
         values.append(value)
     values=np.array(values)
-    if not(sta_num == '67606' and timestmp >= datetime.datetime(2015,9,1)):
+    if not(sta_num == '67606' and time0 >= datetime.datetime(2015,9,1)):
         values=data_corr_algthm(values, corr_algthm, sta_num, spe)
     df= pd.DataFrame(values,index=timestamp,columns=[spe])
     return df
