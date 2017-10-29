@@ -11,27 +11,27 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM/exe/\"
+PRE_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM_TP_NUDG/exe/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM/post_data/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM_TP_NUDG/post_data/\"
 
 # Case name
-CASENAME=\"AMIP_C5PM\"
+CASENAME=\"AMIP_C5PM_TP_NUDG\"
 
 
 # Names of 2D fields
 #FDNAME2D="(/\"PRECL\",\"PRECC\",\"LHFLX\",\"PS\",\"PSL\",\"QFLX\",\"TS\",\"TMQ\"/)" #often use
 #FDNAME2D="(/\"TS\",\"TSMX\"/)" #often use
 #FDNAME2D="(/\"PRECT\",\"U850\",\"V850\"/)" #often use
-FDNAME2D="(/\"PRECC\",\"PRECL\",\"FLUT\"/)" #often use
+FDNAME2D="(/\"PRECC\",\"PRECL\"/)" #often use
 
 # Names of 3D fields
-#FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
+FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"RELHUM\"/)" #often use
 #FDNAME3D_HY="(/\"RELHUM\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
-FDNAME3D_HY="(/\"U\",\"V\",\"T\"/)" # hybrid coordinate
+#FDNAME3D_HY="(/\"U\",\"V\",\"T\"/)" # hybrid coordinate
 
 # First year of the subset
 FRSTYEAR=1979
@@ -46,13 +46,13 @@ LAYERS=30
 # Output specific pressure layers
 # CAUTION: Do not leave species between element!
 #PLEV="(/925,850,700,600,500,400,300,200,100,50/)"
-PLEV="(/925,850,700,500,200/)"
+PLEV="(/1000,925,850,700,500,200/)"
 
 
 # Process flag
 FLAG_2D=0
-FLAG_3D=0
-FLAG_3D_HY=1
+FLAG_3D=1
+FLAG_3D_HY=0
 
 #-----------------------------------------------------------
 
@@ -79,8 +79,10 @@ if [ $FLAG_3D == 1 ] ; then
        fdname3d=$FDNAME3D          \
        layers=$LAYERS              \
        plev=$PLEV                  \
+       frstyear=$FRSTYEAR          \
+       lstyear=$LSTYEAR           \
        case_name=$CASENAME         \
-       ./ncl/package_3D_from_raw_data_daily-160402.ncl
+       ./ncl/package_3D_from_raw_data_daily-160808.ncl
 fi
 
 #Output post processed 3D Hybrid fields

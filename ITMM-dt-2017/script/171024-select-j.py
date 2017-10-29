@@ -20,7 +20,7 @@ def main():
 # User Defined Part
 #----------------------------------------------------
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Start Year 
     start_year='2011'

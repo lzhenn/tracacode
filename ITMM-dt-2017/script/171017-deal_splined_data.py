@@ -24,7 +24,7 @@ def main():
     sta_num='67605'
 
     # Start Year 
-    start_year='2015'
+    start_year='2013'
     
     # End Year
     end_year='2017'
@@ -111,7 +111,7 @@ def org_data(lines, timestmp, corr_algthm, sta_num):
     yyyymmdd=timestmp.strftime('%Y%m%d') 
     time_frames=[]
     t_pos=-1                # start from 01 min 
-    data0=np.zeros((3600,761))
+    data0=np.empty((3600,761))
     # Loop the file
     for pos_line, line in enumerate(lines):
         
@@ -123,22 +123,22 @@ def org_data(lines, timestmp, corr_algthm, sta_num):
             l_pos=0
             t_line=line.split()
             t_line=t_line[0].strip() # taking out timestamp HH:MM:SS
-            time_frames.append(datetime.datetime.strptime(yyyymmdd+' '+t_line, '%Y%m%d %H:%M:%S'))
+            time0=datetime.datetime.strptime(yyyymmdd+' '+t_line, '%Y%m%d %H:%M:%S')
+            time_frames.append(time0)
             continue
         content=line.split() # [0]--wavelength [1]--radiation
         try:
+            wv_len=float(content[0])
+            l_pos=int((wv_len-290.0)*2)
             value=content[1]
         except:
             continue
-        # strenge cases
-        if l_pos > 760:
+        if l_pos>760 or l_pos<0:
             continue
         try:
             data0[t_pos,l_pos]=value
         except:
             continue
-        l_pos+=1
-
     if not(sta_num == '67606' and timestmp >= datetime.datetime(2015,9,1)):
         data0=data_corr_algthm(data0, sta_num)
     df = pd.DataFrame(data0[0:t_pos+1,:], index=time_frames, columns=list(drange(290, 670.5, '0.5')))
