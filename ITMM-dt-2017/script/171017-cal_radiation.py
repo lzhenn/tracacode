@@ -21,7 +21,7 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Input File
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
