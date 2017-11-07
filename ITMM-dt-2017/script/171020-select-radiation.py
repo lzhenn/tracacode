@@ -43,29 +43,25 @@ def main():
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
-    curr_year=start_year
-    while curr_year<=end_year:
+    pt=pd.read_csv(in_dir+get_file_name(sta_num, corr_algthm), parse_dates=True, skiprows=1, names=['time','uva','uvb','total'], index_col='time')
+    print('parsing '+in_dir+get_file_name(sta_num, corr_algthm))
+    pt_use, pt_use_max=reorg_rad(pt)
+    for item in [10,12,14,16]:
+        with open(out_dir+get_outfile_name(sta_num, corr_algthm, item), 'w') as f:
+            pt_use[pt_use.index.hour==item].to_csv(f)
+    with open(out_dir+get_outfile_name_max(sta_num, corr_algthm, 'max'), 'w') as f:
+        pt_use_max.to_csv(f)
 
-        pt=pd.read_csv(in_dir+get_file_name(sta_num, curr_year, corr_algthm), parse_dates=True, skiprows=1, names=['time','uva','uvb','total'], index_col='time')
-        print('parsing '+in_dir+get_file_name(sta_num, curr_year, corr_algthm))
-        pt_use, pt_use_max=reorg_rad(pt)
-        for item in [10,12,14,16]:
-            with open(out_dir+get_outfile_name(sta_num, curr_year, corr_algthm, item), 'w') as f:
-                pt_use[pt_use.index.hour==item].to_csv(f)
-        with open(out_dir+get_outfile_name_max(sta_num, curr_year, corr_algthm, 'max'), 'w') as f:
-            pt_use_max.to_csv(f)
-        curr_year=str(int(curr_year)+1)
-
-def get_file_name(sta_num, curr_year, corr):
-    fname='Rad_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
+def get_file_name(sta_num,  corr):
+    fname='Rad_'+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
-def get_outfile_name(sta_num, curr_year, corr, item):
-    fname='Rad_'+curr_year+'_'+sta_num+'_'+corr+'_'+str(item)+'H.csv'
+def get_outfile_name(sta_num, corr, item):
+    fname='Rad_'+'_'+sta_num+'_'+corr+'_'+str(item)+'H.csv'
     return fname
 
-def get_outfile_name_max(sta_num, curr_year, corr, item):
-    fname='Rad_'+curr_year+'_'+sta_num+'_'+corr+'_'+item+'_daily.csv'
+def get_outfile_name_max(sta_num, corr, item):
+    fname='Rad_'+sta_num+'_'+corr+'_'+item+'_daily.csv'
     return fname
 
 

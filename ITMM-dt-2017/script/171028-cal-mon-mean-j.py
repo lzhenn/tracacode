@@ -20,7 +20,7 @@ def main():
 # User Defined Part
 #----------------------------------------------------
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Start Year 
     start_year='2011'
@@ -35,7 +35,7 @@ def main():
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1' 
+    corr_algthm='C2' 
 
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']
@@ -61,7 +61,7 @@ def main():
 
 
 def get_file_name(sta_num, curr_year, corr, spe):
-    fname='j'+spe+'_'+curr_year+'_'+sta_num+'_'+corr+'_Daily.csv'
+    fname='j'+spe+'_'+sta_num+'_'+corr+'_Daily.csv'
     return fname
 
 def get_outfile_name(sta_num, corr, spe):

@@ -50,15 +50,20 @@ def main():
         print('parsing '+in_dir+get_file_name(sta_num, curr_year, corr_algthm))
         r_uva, r_uvb, r_total=cal_rad(pt)
         dfout = pd.DataFrame(np.append([r_uva.values, r_uvb.values], [r_total.values], axis=0).T, index=pt.iloc[:,0], columns=['uva', 'uvb', 'total'])
-        with open(out_dir+get_outfile_name(sta_num, curr_year, corr_algthm), 'w') as f:
-            dfout.to_csv(f)
+        fout_name=out_dir+get_outfile_name(sta_num, curr_year, corr_algthm)
+        if os.path.isfile(fout_name):
+            with open(fout_name, 'a') as f:
+                dfout.to_csv(f, header=False)
+        else:
+            with open(fout_name, 'w') as f:
+                dfout.to_csv(f)
         curr_year=str(int(curr_year)+1)
 
 def get_file_name(sta_num, curr_year, corr):
     fname='splined_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 def get_outfile_name(sta_num, curr_year, corr):
-    fname='Rad_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
+    fname='Rad_'+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
 def cal_rad(pt):
