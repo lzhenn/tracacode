@@ -21,7 +21,7 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Input File
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
@@ -63,7 +63,7 @@ def get_file_name(sta_num, curr_year, corr):
     fname='splined_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 def get_outfile_name(sta_num, curr_year, corr):
-    fname='Rad_'+'_'+sta_num+'_'+corr+'_Hour.csv'
+    fname='Rad_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
 def cal_rad(pt):

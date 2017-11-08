@@ -22,10 +22,10 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Start Year 
-    start_year='2011'
+    start_year='2015'
     
     # End Year
     end_year='2017'
@@ -120,7 +120,7 @@ def org_data(lines, time0, spe, corr_algthm, sta_num):
         timestamp.append(time_now)
         values.append(value)
     values=np.array(values)
-    if not(sta_num == '67606' and time_now >= datetime.datetime(2015,9,1)):
+    if not( time_now >= datetime.datetime(2015,9,1)):
         values=data_corr_algthm(values, corr_algthm, sta_num, spe)
     else:
         print(time_now)

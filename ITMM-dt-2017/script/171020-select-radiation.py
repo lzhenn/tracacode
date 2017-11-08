@@ -21,7 +21,7 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Input File
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
@@ -53,11 +53,11 @@ def main():
         pt_use_max.to_csv(f)
 
 def get_file_name(sta_num,  corr):
-    fname='Rad_'+'_'+sta_num+'_'+corr+'_Hour.csv'
+    fname='Rad_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
 def get_outfile_name(sta_num, corr, item):
-    fname='Rad_'+'_'+sta_num+'_'+corr+'_'+str(item)+'H.csv'
+    fname='Rad_'+sta_num+'_'+corr+'_'+str(item)+'H.csv'
     return fname
 
 def get_outfile_name_max(sta_num, corr, item):
