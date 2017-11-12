@@ -48,7 +48,7 @@ begin
   data_mask    = shapefile_mask_data(data,shp_filename,True)
 
 ;---Start the graphics
-  wks  = gsn_open_wks("png","../fig/shapefiles")  ; send graphics to PNG file
+  wks  = gsn_open_wks("x11","../fig/shapefiles")  ; send graphics to PNG file
 
   res                     = True
 
