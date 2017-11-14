@@ -20,7 +20,7 @@ def main():
 # User Defined Part
 #----------------------------------------------------
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Start Year 
     start_year='2011'
@@ -56,10 +56,10 @@ def get_file_name(sta_num, corr, spe):
     return fname
 
 def get_outfile_name(sta_num, corr, spe):
-    fname='Rad_'+sta_num+'_'+corr+'_'+spe+'_Mon.csv'
+    fname='Rad_'+sta_num+'_'+corr+'_'+spe+'_Mon_std.csv'
     return fname
 def reorg_rad(pt):
-    pt_all=pt.resample('m').mean()
+    pt_all=pt.resample('m').std()
     pt_all.index=pt_all.index.strftime('%Y-%m')
     return pt_all
 
