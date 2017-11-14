@@ -43,29 +43,33 @@ def main():
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
-    for pos, spe in enumerate(species):
-        pt=pd.read_csv(in_dir+get_file_name(sta_num, corr_algthm, spe), parse_dates=True, skiprows=1, names=['time', '10H', '12H', '14H', '16H', 'Max'], index_col='time')
-        print('parsing '+in_dir+get_file_name(sta_num, corr_algthm, spe))
-        pt_out=reorg_rad(pt)
-        fout_name=out_dir+get_outfile_name(sta_num, corr_algthm, spe)
-        if os.path.isfile(fout_name):
-            with open(fout_name, 'a') as f:
-                pt_out.to_csv(f, header=False)
-        else:
-            with open(fout_name, 'w') as f:
-                pt_out.to_csv(f)
+    curr_year=start_year
+    while curr_year<=end_year:
+        for pos, spe in enumerate(species):
+            pt=pd.read_csv(in_dir+get_file_name(sta_num, curr_year, corr_algthm, spe), parse_dates=True, skiprows=1, names=['time', 'mean'], index_col='time')
+            print('parsing '+in_dir+get_file_name(sta_num, curr_year, corr_algthm, spe))
+            pt_out=reorg_rad(pt)
+            fout_name=out_dir+get_outfile_name(sta_num, corr_algthm, spe)
+            if os.path.isfile(fout_name):
+                with open(fout_name, 'a') as f:
+                    pt_out.to_csv(f, header=False)
+            else:
+                with open(fout_name, 'w') as f:
+                    pt_out.to_csv(f)
+        curr_year=str(int(curr_year)+1)
 
-
-def get_file_name(sta_num, corr, spe):
-    fname='j'+spe+'_'+sta_num+'_'+corr+'_Daily.csv'
+def get_file_name(sta_num, curr_year, corr, spe):
+    fname='j'+spe+'_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
 def get_outfile_name(sta_num, corr, spe):
-    fname='j'+spe+'_'+sta_num+'_'+corr+'_Mon.csv'
+    fname='j'+spe+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
+
 def reorg_rad(pt):
-    pt_all=pt.resample('m').mean()
-    pt_all.index=pt_all.index.strftime('%Y-%m')
+    pt_all=pt.resample('H').mean()
+    pt_all=pt_all[pt_all.index.hour>=6]
+    pt_all=pt_all[pt_all.index.hour<=20]
     return pt_all
 
 if __name__ == "__main__":

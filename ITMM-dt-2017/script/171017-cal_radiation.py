@@ -70,6 +70,9 @@ def cal_rad(pt):
     uva=pt.loc[:,'320.0':'422.0'].sum(axis=1)*0.5
     uvb=pt.loc[:,'290.0':'320.0'].sum(axis=1)*0.5
     total=pt.sum(axis=1)*0.5
+    uva[uva<0]=np.nan
+    uvb[uvb<0]=np.nan
+    total[total<0]=np.nan
     return uva, uvb, total
 
 

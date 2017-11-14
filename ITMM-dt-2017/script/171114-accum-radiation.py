@@ -45,31 +45,23 @@ def main():
 #----------------------------------------------------
     pt=pd.read_csv(in_dir+get_file_name(sta_num, corr_algthm), parse_dates=True, skiprows=1, names=['time','uva','uvb','total'], index_col='time')
     print('parsing '+in_dir+get_file_name(sta_num, corr_algthm))
-    pt_use, pt_use_max=reorg_rad(pt)
-    for item in [10,12,14,16]:
-        with open(out_dir+get_outfile_name(sta_num, corr_algthm, item), 'w') as f:
-            pt_use[pt_use.index.hour==item].to_csv(f)
-    with open(out_dir+get_outfile_name_max(sta_num, corr_algthm, 'max'), 'w') as f:
-        pt_use_max.to_csv(f)
+    pt_use=reorg_rad(pt)
+    with open(out_dir+get_outfile_name_acc(sta_num, corr_algthm), 'w') as f:
+        pt_use.to_csv(f)
 
 def get_file_name(sta_num,  corr):
     fname='Rad_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
-def get_outfile_name(sta_num, corr, item):
-    fname='Rad_'+sta_num+'_'+corr+'_'+str(item)+'H.csv'
+def get_outfile_name_acc(sta_num, corr):
+    fname='Rad_'+sta_num+'_'+corr+'_Hourly.csv'
     return fname
-
-def get_outfile_name_max(sta_num, corr, item):
-    fname='Rad_'+sta_num+'_'+corr+'_'+item+'_daily.csv'
-    return fname
-
 
 def reorg_rad(pt):
-    pt_use=pt[pt.index.hour>=10]
-    pt_use=pt_use[pt_use.index.hour<=16]
-    pt_use_max=pt_use.resample('D').max()
-    return pt_use, pt_use_max 
+    pt=pt.resample('H').mean()
+    pt=pt[pt.index.hour>=6]
+    pt=pt[pt.index.hour<=20]
+    return pt
 
 if __name__ == "__main__":
     main()

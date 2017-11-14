@@ -22,10 +22,10 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Start Year 
-    start_year='2015'
+    start_year='2011'
     
     # End Year
     end_year='2017'
@@ -39,7 +39,7 @@ def main():
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1' 
+    corr_algthm='C2' 
 
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']
@@ -83,7 +83,10 @@ def main():
                 lines=fr.readlines()
                 fr.close()
                 df = org_data(lines, time0, spe, corr_algthm, sta_num)
-                df_hour=df.resample('1H').mean()    # Resample into hourly data
+                df = df[df>0]
+                df_hour=df.resample('H').mean()    # Resample into hourly data
+                df_hour=df_hour[df_hour.index.hour>=6]
+                df_hour=df_hour[df_hour.index.hour<=20]
                 if os.path.isfile(fout_name):
                     with open(fout_name, 'a') as f:
                         df_hour.loc[curr_time_obj:curr_time_obj+record_time_delta,:].to_csv(f, header=False)
@@ -94,7 +97,6 @@ def main():
                 curr_time_obj=curr_time_obj+file_time_delta
             curr_time_obj=int_time_obj
         curr_year=str(int(curr_year)+1)
-
 def get_outfile_name(sta_num, curr_year, corr, spe):
     fname='j'+spe+'_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
@@ -122,8 +124,6 @@ def org_data(lines, time0, spe, corr_algthm, sta_num):
     values=np.array(values)
     if not( time_now >= datetime.datetime(2015,9,1)):
         values=data_corr_algthm(values, corr_algthm, sta_num, spe)
-    else:
-        print(time_now)
     df= pd.DataFrame(values,index=timestamp,columns=[spe])
     return df
 
