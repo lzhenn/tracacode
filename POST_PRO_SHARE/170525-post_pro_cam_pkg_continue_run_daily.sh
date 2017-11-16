@@ -11,13 +11,13 @@
 # Path of the original data
 # Caution: DO NOT DELETE \" IN STRING!
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/L_Zealot/cesm/B/B2000_f09_CAM5_spin-up/run/\"
-PRE_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM_TP_NUDG/exe/\"
+PRE_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM/exe/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM_TP_NUDG/post_data/\"
+PRO_DIR=\"/users/yangsong3/L_Zealot/F/AMIP_C5PM/post_data/\"
 
 # Case name
-CASENAME=\"AMIP_C5PM_TP_NUDG\"
+CASENAME=\"AMIP_C5PM\"
 
 
 # Names of 2D fields
