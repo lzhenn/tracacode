@@ -12,7 +12,7 @@
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
 # With only ensemble output in it
-PRE_DIR_ORG=/users/yangsong3/L_Zealot/F/AMIP_C5PM_TP_NUDG/post_data/
+PRE_DIR_ORG=/users/yangsong3/L_Zealot/F/AMIP_C5PM/post_data/
 
 
 # Names of 2D fields

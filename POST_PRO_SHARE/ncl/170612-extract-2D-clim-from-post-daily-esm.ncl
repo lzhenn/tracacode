@@ -42,7 +42,7 @@ begin
         
         ;Process
         out_name_ele=str_split(all_files(0),".")
-        out_name=out_name_ele(0)+".cam.h1.ESM.clim."+out_name_ele(4)+"."+out_name_ele(5)+"."+out_name_ele(6)
+        out_name=out_name_ele(0)+".cam.h1.ESM.clim.daily."+fdname2d(i)+".nc"
         out_name_ele:=str_split(out_name,"/")
         len=dimsizes(out_name_ele)
         out_name=pro_dir+out_name_ele(len-1)
@@ -52,5 +52,8 @@ begin
         ;Write
         print("2D EXTRACT: "+fdname2d(i)+" Writing: "+out_name)
         write_TLL_to_nc(fdname2d(i),clim_var1,out_name)
+
+
+        delete(out_name_ele)
     end do
 end
