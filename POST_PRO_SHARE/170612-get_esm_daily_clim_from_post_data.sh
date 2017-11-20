@@ -18,11 +18,12 @@ PRE_DIR_ORG=/users/yangsong3/L_Zealot/F/AMIP_C5PM/post_data/
 # Names of 2D fields
 #FDNAME2D="(/\"FLUT\"/)" #often use
 #FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"TMQ\"/)" #often use
-FDNAME2D="(/\"PRECL\",\"PRECC\"/)" #often use
+#FDNAME2D="(/\"PRECL\",\"PRECC\"/)" #often use
 
 # Names of 3D fields
+FDNAME3D="(/\"U\"/)" #often use
 #FDNAME3D="(/\"U\",\"V\"/)" #often use
-FDNAME3D="(/\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
+#FDNAME3D="(/\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
 # Names of 3D HY fields
