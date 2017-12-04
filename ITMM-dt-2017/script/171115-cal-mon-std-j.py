@@ -20,7 +20,7 @@ def main():
 # User Defined Part
 #----------------------------------------------------
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Start Year 
     start_year='2011'
@@ -35,7 +35,7 @@ def main():
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1' 
+    corr_algthm='C1'
 
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']

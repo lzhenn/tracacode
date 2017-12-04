@@ -20,13 +20,7 @@ def main():
 # User Defined Part
 #----------------------------------------------------
     # Station Number
-    sta_num='67605'
-
-    # Start Year 
-    start_year='2011'
-    
-    # End Year
-    end_year='2017'
+    sta_num='67606'
 
     # Input Dir
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/pro_data/'
@@ -35,7 +29,7 @@ def main():
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1' 
+    corr_algthm='C2' 
 
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']
@@ -43,23 +37,16 @@ def main():
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
-    curr_year=start_year
-    while curr_year<=end_year:
-        for pos, spe in enumerate(species):
-            pt=pd.read_csv(in_dir+get_file_name(sta_num, curr_year, corr_algthm, spe), parse_dates=True, skiprows=1, names=['time', 'max'], index_col='time')
-            print('parsing '+in_dir+get_file_name(sta_num, curr_year, corr_algthm, spe))
-            pt_out=reorg_rad(pt)
-            fout_name=out_dir+get_outfile_name(sta_num, corr_algthm, spe)
-            if os.path.isfile(fout_name):
-                with open(fout_name, 'a') as f:
-                    pt_out.to_csv(f, header=False)
-            else:
-                with open(fout_name, 'w') as f:
-                    pt_out.to_csv(f)
-        curr_year=str(int(curr_year)+1)
+    for pos, spe in enumerate(species):
+        pt=pd.read_csv(in_dir+get_file_name(sta_num,  corr_algthm, spe), parse_dates=True, skiprows=1, names=['time', 'max'], index_col='time')
+        print('parsing '+in_dir+get_file_name(sta_num,  corr_algthm, spe))
+        pt_out=reorg_rad(pt)
+        fout_name=out_dir+get_outfile_name(sta_num, corr_algthm, spe)
+        with open(fout_name, 'w') as f:
+            pt_out.to_csv(f)
 
-def get_file_name(sta_num, curr_year, corr, spe):
-    fname='j'+spe+'_'+curr_year+'_'+sta_num+'_'+corr+'_Hour.csv'
+def get_file_name(sta_num,  corr, spe):
+    fname='j'+spe+'_'+sta_num+'_'+corr+'_Hour.csv'
     return fname
 
 def get_outfile_name(sta_num, corr, spe):
@@ -70,12 +57,14 @@ def reorg_rad(pt):
     pt_use=pt[pt.index.hour>=10]
     pt_use=pt_use[pt_use.index.hour<=16]
     pt_all=pt_use.resample('D').max()
+
+    #Only fit the hour start at even values!#
     pt_use=pt_use.resample('2H').first() # bug: we got an all day result...
     pt_use=pt_use[pt_use.index.hour>=10]
     pt_use=pt_use[pt_use.index.hour<=16]
     len_row=len(pt_use.index)
     len_out=len_row % 4
-    if len_out >0:
+    if len_out >0:          # if not stop at a good point, add hour to fit 10 12 14 16
         for item in [2,4,6]:
             if len_out>1:
                 len_out=len_out-1
