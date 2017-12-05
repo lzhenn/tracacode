@@ -20,13 +20,7 @@ def main():
 # User Defined Part
 #----------------------------------------------------
     # Station Number
-    sta_num='67605'
-
-    # Start Year 
-    start_year='2011'
-    
-    # End Year
-    end_year='2017'
+    sta_num='67606'
 
     # Input Dir
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/pro_data/'
@@ -35,7 +29,7 @@ def main():
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1'
+    corr_algthm='C2'
 
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']
@@ -48,12 +42,8 @@ def main():
         print('parsing '+in_dir+get_file_name(sta_num, corr_algthm, spe))
         pt_out=reorg_rad(pt)
         fout_name=out_dir+get_outfile_name(sta_num, corr_algthm, spe)
-        if os.path.isfile(fout_name):
-            with open(fout_name, 'a') as f:
-                pt_out.to_csv(f, header=False)
-        else:
-            with open(fout_name, 'w') as f:
-                pt_out.to_csv(f)
+        with open(fout_name, 'w') as f:
+            pt_out.to_csv(f)
 
 
 def get_file_name(sta_num, corr, spe):

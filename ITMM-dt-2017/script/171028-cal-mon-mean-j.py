@@ -41,12 +41,8 @@ def main():
         print('parsing '+in_dir+get_file_name(sta_num, corr_algthm, spe))
         pt_out=reorg_rad(pt)
         fout_name=out_dir+get_outfile_name(sta_num, corr_algthm, spe)
-        if os.path.isfile(fout_name):
-            with open(fout_name, 'a') as f:
-                pt_out.to_csv(f, header=False)
-        else:
-            with open(fout_name, 'w') as f:
-                pt_out.to_csv(f)
+        with open(fout_name, 'w') as f:
+            pt_out.to_csv(f)
 
 
 def get_file_name(sta_num, corr, spe):
