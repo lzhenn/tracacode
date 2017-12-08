@@ -40,7 +40,10 @@
 ; -------------- added Jun 12 2017
 ; read_large_daily_batch_return_mean(varname, filedir)
 
-;**************************READ******************************
+; -------------- added Dec 08 2017
+; read_large_daily_batch_return_batch(varname:string, filedir:string, strt_year, end_year, lev_top, lev_bot, latS, latN, lonW, lonE)
+
+;**************************WRITE******************************
 ; -------------- added Apr 25 2017
 ; write_TLLL_to_nc(varname, var, filedir)
 
@@ -52,7 +55,6 @@
 
 ; -------------- added Jun 12 2017
 ; write_YDLL_to_nc(varname, var, filedir)
-
 
 
 
@@ -631,6 +633,118 @@ begin
     fout->$varname$=(/var/)
 end
 ; ------------------------------    write_YDLL_to_nc   ---------------------------------------
+
+; ------------------------------    read_large_daily_batch_return_batch   ---------------------------------------
+; *****************************************************************
+; L_Zealot
+; Read Large Daily batch files, and return batch
+;
+function read_large_daily_batch_return_batch(varname:string, filedir:string, strt_year, end_year, lev_top, lev_bot, latS, latN, lonW, lonE)
+local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
+begin
+    nsmp=end_year-strt_year+1
+    
+    
+    print("FILE IO: prepare...")
+    in_file_str = systemfunc("ls "+filedir+"/*"+strt_year+"*")
+    infile     = addfile (in_file_str, "r")   ; note the "s" of addfile
+    print("FILE IO: initial read...")
+    if (getfilevartypes (infile,varname).eq."short") then
+        var  = short2flt(infile->$varname$)
+    else
+        var  = infile->$varname$
+    end if
+    dimvar=dimsizes(var)
+    dims=dimsizes(dimvar)
+    if (dimvar(0) .eq. 366) then
+        print("leap year")
+        leap_flag=True
+    else
+        print("normal year")
+        leap_flag=False
+
+        ;extend the array
+        if (dims .eq. 3) then ; TLL
+            var := array_append_record (var, var(0:0,:,:), 0)
+            var:=var(:,{latS:latN},{lonW:lonE})
+            var(365,:,:)=0
+        else ; TLLL
+            var:= array_append_record (var, var(0:0,:,:,:), 0)
+            var:=var(:,{lev_top:lev_bot},{latS:latN},{lonW:lonE})
+            var(365,:,:,:)=0
+        end if
+        ; clean the last record
+    end if
+    dimvar:=dimsizes(var)
+    print("PROCESS: make batch var...")
+    ;Build ctrl_var1
+    if (dims .eq. 3) then ; TLL
+        var_batch=conform_dims((/nsmp, dimvar(0), dimvar(1), dimvar(2)/), var, (/1,2,3/))
+    else    ; TLLL
+        var_batch=conform_dims((/nsmp, dimvar(0), dimvar(1), dimvar(2), dimvar(3)/), var, (/1,2,3,4/))
+        var_batch!4=var!3
+    end if
+
+    var_batch!0="year"
+    var_batch&year=ispan(strt_year,end_year,1)
+    var_batch&year@units="year"
+    var_batch!1="day"
+    var_batch&day=ispan(1,366,1)
+    var_batch&day@long_name="Julian Day of the year"
+    var_batch!2=var!1
+    var_batch!3=var!2
+    if (dims .eq. 4) then
+        var_batch&level=var&level
+    end if
+    var_batch&lat=var&lat
+    var_batch&lon=var&lon
+    copy_VarAtts(var,var_batch) 
+    printVarSummary(var_batch)    
+    print("FILE IO: batch read...")
+    do ii=1, nsmp-1
+        strt_year=strt_year+1
+        in_file_str := systemfunc("ls "+filedir+"/*"+strt_year+"*")
+        print("FILE IO: read "+in_file_str)
+        infile     := addfile (in_file_str, "r")   ; note the "s" of addfile
+        if (getfilevartypes (infile,varname).eq."short") then
+            if (dims .eq. 3) then ; TLL
+                var  := short2flt(infile->$varname$(:,{latS:latN},{lonW:lonE}))
+            else
+                var  := short2flt(infile->$varname$(:,{lev_top:lev_bot},{latS:latN},{lonW:lonE}))
+            end if
+        else
+            if (dims .eq. 3) then ; TLL
+                var  := infile->$varname$(:,{latS:latN},{lonW:lonE})
+            else
+                var  := infile->$varname$(:,{lev_top:lev_bot},{latS:latN},{lonW:lonE})
+            end if
+        end if
+ 
+
+        dimvar=dimsizes(var)
+        vardim0=dimvar(0)
+        if (vardim0 .lt. 366) then
+            print("normal year")
+            if (dims .eq. 3) then ; TLL
+                var_batch(ii,0:364,:,:)=(/var/)
+            else
+                var_batch(ii,0:364,:,:,:)=(/var/)
+            end if
+        else
+            print("leap year")
+            if (dims .eq. 3) then ; TLLL
+                var_batch(ii,:,:,:)=(/var/)
+            else
+                var_batch(ii,:,:,:,:)=(/var/)
+            end if
+
+        end if
+    end do
+
+    return(var_batch)
+end
+; ------------------------------    read_large_daily_batch_return_mean   ---------------------------------------
+
 
 
 

@@ -61,9 +61,14 @@ begin
     g_var_out="wgt_qv"
     g_data1_path ="$DATAOBV/NCEP_NCAR/daily/"+g_var+"/"
 
-    var1_data=read_ncep_ncar_daily_3D(g_var(0), 300, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path(0))
-    var2_data=read_ncep_ncar_daily_3D(g_var(1), 300, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path(1))
-    var3_data=read_ncep_ncar_daily_3D(g_var(2), 300, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data1_path(2))
+    g_data_mask_path ="$DATAOBV/NCEP_NCAR/ltmmean/pres.mon.ltm.nc"
+    surf_in1     = addfile (g_data_mask_path, "r") 
+    surf_pres    = surf_in1->pres
+    mean_pres=dim_avg_n_Wrap(surf_pres,0)
+
+    var1_data=read_large_daily_batch_return_batch(g_var(0), g_data1_path(0),1979,2016, 300, 1000, g_latS, g_latN, g_lonW, g_lonE)
+    var2_data=read_large_daily_batch_return_batch(g_var(1), g_data1_path(1), 1979,2016,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
+    var3_data=read_large_daily_batch_return_batch(g_var(2), g_data1_path(2), 1979,2016,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
     ctrl_var1=var1_data(g_yr_strtidx:g_yr_lstidx,0:g_day_comp_len*2,:,:,:)
     ctrl_var1!0="year"
     ctrl_var1&year=ispan(g_strt_yr,g_lst_yr,1)
@@ -81,10 +86,11 @@ begin
         ctrl_var2(ii,:,:,:,:)=(/var2_data(g_yr_strtidx+ii,g_day_rank(ii)-g_day_comp_len:g_day_rank(ii)+g_day_comp_len,:,:,:)/)
         ctrl_var3(ii,:,:,:,:)=(/var3_data(g_yr_strtidx+ii,g_day_rank(ii)-g_day_comp_len:g_day_rank(ii)+g_day_comp_len,:,:,:)/)
     end do
+    dims=dimsizes(ctrl_var3)
+    mean_pres:=conform_dims((/dims(0),dims(1),dims(2),dims(3),dims(4)/),mean_pres,(/3,4/))
+    ctrl_var3@_FillValue=-999
+    ;ctrl_var3=where(ctrl_var3&level .gt. mean_pres, ctrl_var3@_FillValue, ctrl_var3)
 
-
-
-    
     
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
