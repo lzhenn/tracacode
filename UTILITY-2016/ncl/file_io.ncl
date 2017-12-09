@@ -640,11 +640,10 @@ end
 ; Read Large Daily batch files, and return batch
 ;
 function read_large_daily_batch_return_batch(varname:string, filedir:string, strt_year, end_year, lev_top, lev_bot, latS, latN, lonW, lonE)
-local sp, ii, len_yr, in_files, inlist, var, var_366, var_dim, var_dim365, var_data
+local nsmp,var_batch, ii, len_yr, in_files, inlist, var, loop_year
 begin
     nsmp=end_year-strt_year+1
-    
-    
+    loop_year=strt_year
     print("FILE IO: prepare...")
     in_file_str = systemfunc("ls "+filedir+"/*"+strt_year+"*")
     infile     = addfile (in_file_str, "r")   ; note the "s" of addfile
@@ -662,7 +661,6 @@ begin
     else
         print("normal year")
         leap_flag=False
-
         ;extend the array
         if (dims .eq. 3) then ; TLL
             var := array_append_record (var, var(0:0,:,:), 0)
@@ -671,9 +669,9 @@ begin
         else ; TLLL
             var:= array_append_record (var, var(0:0,:,:,:), 0)
             var:=var(:,{lev_top:lev_bot},{latS:latN},{lonW:lonE})
+            ; clean the last record
             var(365,:,:,:)=0
         end if
-        ; clean the last record
     end if
     dimvar:=dimsizes(var)
     print("PROCESS: make batch var...")
@@ -702,8 +700,9 @@ begin
     printVarSummary(var_batch)    
     print("FILE IO: batch read...")
     do ii=1, nsmp-1
-        strt_year=strt_year+1
-        in_file_str := systemfunc("ls "+filedir+"/*"+strt_year+"*")
+        loop_year=loop_year+1
+
+        in_file_str := systemfunc("ls "+filedir+"/*"+loop_year+"*")
         print("FILE IO: read "+in_file_str)
         infile     := addfile (in_file_str, "r")   ; note the "s" of addfile
         if (getfilevartypes (infile,varname).eq."short") then
@@ -721,6 +720,7 @@ begin
         end if
  
 
+        printVarSummary(var)
         dimvar=dimsizes(var)
         vardim0=dimvar(0)
         if (vardim0 .lt. 366) then

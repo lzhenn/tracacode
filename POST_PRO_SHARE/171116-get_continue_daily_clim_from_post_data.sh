@@ -21,15 +21,15 @@ PRE_DIR_ORG=/users/yangsong3/L_Zealot/F/AMIP_C5PM_TP_NUDG/post_data/
 FDNAME2D="(/\"PRECL\",\"PRECC\"/)" #often use
 
 # Names of 3D fields
-#FDNAME3D="(/\"U\",\"V\"/)" #often use
-FDNAME3D="(/\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
+FDNAME3D="(/\"U\",\"V\",\"T\"/)" #often use
+#FDNAME3D="(/\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
 # Names of 3D HY fields
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
 # Process fig flag
-FLAG2D=1
+FLAG2D=0
 FLAG3D=1
 FLAG3DHY=0
 

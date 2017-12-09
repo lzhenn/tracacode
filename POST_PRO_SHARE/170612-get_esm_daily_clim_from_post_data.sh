@@ -28,11 +28,12 @@ FDNAME3D="(/\"U\"/)" #often use
 
 # Names of 3D HY fields
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"U\",\"V\",\"T\"/)"
 
 # Process fig flag
-FLAG2D=1
-FLAG3D=1
-FLAG3DHY=0
+FLAG2D=0
+FLAG3D=0
+FLAG3DHY=1
 
 #-----------------------------------------------------------
 

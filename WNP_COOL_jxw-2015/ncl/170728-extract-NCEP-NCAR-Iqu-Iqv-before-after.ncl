@@ -44,9 +44,8 @@ begin
     g_data_strt_yr=1948
     g_data_lst_yr=2015
  
-    g_yr_strtidx=g_strt_yr-g_data_strt_yr
-    g_yr_lstidx=(g_data_lst_yr-g_data_strt_yr)-(g_data_lst_yr-g_lst_yr)
-    
+    g_yr_strtidx=0
+    g_yr_lstidx=g_lst_yr-g_strt_yr  
     g_day_comp_len=22
     
     
@@ -58,7 +57,6 @@ begin
     g_lonW=0
     g_lonE=360
     g_var=(/"uwnd","vwnd","shum"/)
-    g_var_out="wgt_qv"
     g_data1_path ="$DATAOBV/NCEP_NCAR/daily/"+g_var+"/"
 
     g_data_mask_path ="$DATAOBV/NCEP_NCAR/ltmmean/pres.mon.ltm.nc"
@@ -66,9 +64,9 @@ begin
     surf_pres    = surf_in1->pres
     mean_pres=dim_avg_n_Wrap(surf_pres,0)
 
-    var1_data=read_large_daily_batch_return_batch(g_var(0), g_data1_path(0),1979,2016, 300, 1000, g_latS, g_latN, g_lonW, g_lonE)
-    var2_data=read_large_daily_batch_return_batch(g_var(1), g_data1_path(1), 1979,2016,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
-    var3_data=read_large_daily_batch_return_batch(g_var(2), g_data1_path(2), 1979,2016,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
+    var1_data=read_large_daily_batch_return_batch(g_var(0), g_data1_path(0),g_strt_yr, g_lst_yr, 300, 1000, g_latS, g_latN, g_lonW, g_lonE)
+    var2_data=read_large_daily_batch_return_batch(g_var(1), g_data1_path(1),g_strt_yr, g_lst_yr,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
+    var3_data=read_large_daily_batch_return_batch(g_var(2), g_data1_path(2),g_strt_yr, g_lst_yr,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
     ctrl_var1=var1_data(g_yr_strtidx:g_yr_lstidx,0:g_day_comp_len*2,:,:,:)
     ctrl_var1!0="year"
     ctrl_var1&year=ispan(g_strt_yr,g_lst_yr,1)
@@ -89,7 +87,8 @@ begin
     dims=dimsizes(ctrl_var3)
     mean_pres:=conform_dims((/dims(0),dims(1),dims(2),dims(3),dims(4)/),mean_pres,(/3,4/))
     ctrl_var3@_FillValue=-999
-    ;ctrl_var3=where(ctrl_var3&level .gt. mean_pres, ctrl_var3@_FillValue, ctrl_var3)
+    var_level:=conform_dims((/dims(0),dims(1),dims(2),dims(3),dims(4)/),ctrl_var3&level,(/2/))
+;    ctrl_var3=where(var_level .gt. mean_pres, ctrl_var3@_FillValue, ctrl_var3)
 
     
 ; ==============================================================
@@ -119,7 +118,9 @@ begin
     wgt_qv = wgt_qv/9.8
     printVarSummary(wgt_qu) 
     ndays=g_day_comp_len*2+1
-    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar."+g_var_out+".slice.45days.nc"
-    write_YDLL_to_nc(g_var_out, wgt_qv, pdata_fn)
+    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar.wgt_qu.slice.45days.nc"
+    write_YDLL_to_nc("wgt_qu", wgt_qu, pdata_fn)
+    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar.wgt_qv.slice.45days.nc"
+    write_YDLL_to_nc("wgt_qv", wgt_qv, pdata_fn)
 end
 
