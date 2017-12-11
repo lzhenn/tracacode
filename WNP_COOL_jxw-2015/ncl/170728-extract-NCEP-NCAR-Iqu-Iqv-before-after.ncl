@@ -41,8 +41,8 @@ begin
     g_strt_yr=1951
     g_lst_yr=2014
  
-    g_data_strt_yr=1948
-    g_data_lst_yr=2015
+    ;g_data_strt_yr=1948
+    ;g_data_lst_yr=1950
  
     g_yr_strtidx=0
     g_yr_lstidx=g_lst_yr-g_strt_yr  
@@ -62,8 +62,9 @@ begin
     g_data_mask_path ="$DATAOBV/NCEP_NCAR/ltmmean/pres.mon.ltm.nc"
     surf_in1     = addfile (g_data_mask_path, "r") 
     surf_pres    = surf_in1->pres
-    mean_pres=dim_avg_n_Wrap(surf_pres,0)
-
+    mean_pres=surf_pres(4,:,:) ; May
+    mean_pres:=mean_pres(::-1,:)
+    print(mean_pres({30},{90}))
     var1_data=read_large_daily_batch_return_batch(g_var(0), g_data1_path(0),g_strt_yr, g_lst_yr, 300, 1000, g_latS, g_latN, g_lonW, g_lonE)
     var2_data=read_large_daily_batch_return_batch(g_var(1), g_data1_path(1),g_strt_yr, g_lst_yr,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
     var3_data=read_large_daily_batch_return_batch(g_var(2), g_data1_path(2),g_strt_yr, g_lst_yr,300, 1000, g_latS, g_latN, g_lonW, g_lonE)
@@ -86,10 +87,13 @@ begin
     end do
     dims=dimsizes(ctrl_var3)
     mean_pres:=conform_dims((/dims(0),dims(1),dims(2),dims(3),dims(4)/),mean_pres,(/3,4/))
-    ctrl_var3@_FillValue=-999
     var_level:=conform_dims((/dims(0),dims(1),dims(2),dims(3),dims(4)/),ctrl_var3&level,(/2/))
-;    ctrl_var3=where(var_level .gt. mean_pres, ctrl_var3@_FillValue, ctrl_var3)
-
+    copy_VarMeta(ctrl_var3,var_level)
+    copy_VarMeta(ctrl_var3,mean_pres)
+    print(mean_pres(0,0,:,{30},{90}))
+    print(var_level(0,0,:,{30},{90}))
+    ctrl_var3=where(var_level .gt. mean_pres, ctrl_var3@_FillValue, ctrl_var3)
+    print(ctrl_var3(0,0,:,{30},{90}))
     
 ; ==============================================================
 ; Mission 2. post-post process data to deserved results
@@ -118,9 +122,9 @@ begin
     wgt_qv = wgt_qv/9.8
     printVarSummary(wgt_qu) 
     ndays=g_day_comp_len*2+1
-    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar.wgt_qu.slice.45days.nc"
+    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar.mask.wgt_qu.slice.45days.nc"
     write_YDLL_to_nc("wgt_qu", wgt_qu, pdata_fn)
-    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar.wgt_qv.slice.45days.nc"
+    pdata_fn = "$DATAOBV/NCEP_NCAR/daily/ncep_ncar.mask.wgt_qv.slice.45days.nc"
     write_YDLL_to_nc("wgt_qv", wgt_qv, pdata_fn)
 end
 
