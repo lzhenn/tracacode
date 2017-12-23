@@ -22,8 +22,8 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 
 begin
-    data_file_name3="$DATAOBV/PRECT/gpcp.precip.mon.nc"
-    g_data_path3 = "$DATAOBV/SST/HadISST_sst.nc"
+    data_file_name3="$DATAOBV/PRECPT/GPCP_precip.mon.mean.nc"
+    g_data_path3 = "$DATAOBV/SST/HadISST/HadISST_sst.nc"
 
     g_el_year=(/1979, 1982, 1986, 1991, 1994, 1997, 2004, 2006, 2009, 2015/)
     g_el_mon=(/5, 14, 17, 13, 6, 12, 10, 5, 10, 21/)
@@ -76,7 +76,7 @@ begin
     ;************************************************
     ; plotting parameters
     ;************************************************
-     wks  = gsn_open_wks("eps",g_fig_name)             ; send graphics to PNG file
+     wks  = gsn_open_wks("x11",g_fig_name)             ; send graphics to PNG file
      
      res                     = True                   ; plot mods desired
 ;     res@gsnMaximize         = True                   ; maximize plot in frame
@@ -93,6 +93,7 @@ begin
      res@tiXAxisString="MAM Pr Index (mm/day) R=0.61"
      res@gsnStringFontHeightF=g_font
      res@tiXAxisFontHeightF=g_font
+    print(var3_idx)
     plot  = gsn_csm_xy (wks,var3_idx(0:nidx-2),data,res)        ; create plot 
 
 end
