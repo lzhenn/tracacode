@@ -70,7 +70,7 @@ begin
     n_su_events= dimsizes(g_su_events)
     g_fig_name    =   "../fig/paper/R1/FIGS1b"+g_strt_mon+"-"+g_lst_mon+"_UV10_Curl_Clim"    
     ;g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
-    g_fig_rank    =   (/"(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_rank    =   (/"(c)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     ;g_fig_title     = (/"LE", "SE"/)+"-Clim SST, UV10, & Pr"
     g_fig_title     ="MAM LE-SE Surface UV & Wind Stress Curl"
@@ -526,6 +526,7 @@ begin
     res@gsnRightString = ""
 
     curl_diff0=smth9_Wrap(curl_diff0,0.5,0.25, True)
+    curl_diff0=-curl_diff0
     plot(0) = gsn_csm_contour_map_ce(wks,curl_diff0(3,:,:),res)
     
     res@gsnLeftString = g_fig_rank(0)

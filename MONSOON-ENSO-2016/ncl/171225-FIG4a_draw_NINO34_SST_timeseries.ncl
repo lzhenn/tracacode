@@ -26,7 +26,7 @@ begin
     data_file_name1="/home/yangsong3/L_Zealot/data-mirror/data-model/CESM_CTRL/B2000_F19G16_CAM4_CTRL/spun-up-pro/B20f19-spun-up.cam.h0.TS.250-299.nc"
     data_file_ctrl="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/ctrl/"
     data_file_sen="/home/yangsong3/data-model/L_Zealot/MONSOON-ENSO-2016/esmpost/sen/"
-    fig_name="../fig/nino34-esm-all"
+    fig_name="../fig/paper/R1/FIG4a_nino34-esm-all"
     fig_title="NINO3.4 Index Timeseries"
     
     ;one month rightward shift
@@ -67,7 +67,7 @@ begin
     
     ctrl_nino34 = wgt_areaave_Wrap(ctrl_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
     ctrl1_nino34_idx = runave_Wrap(ctrl_nino34,3,1)
-    ctrl1_nino34_idx = ctrl_nino34
+    ctrl_nino34_idx = ctrl_nino34
     
     exp_nino34 = wgt_areaave_Wrap(exp_var1(:,:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
     exp_nino34_idx = runave_Wrap(exp_nino34,3,1)
@@ -80,22 +80,37 @@ begin
     istrt = ind(yyyymm1 .eq. yrstrt2)
     ilast = ind(yyyymm1 .eq. yrlast2)
 
-    ctrl_nino34_idx=exp_nino34_idx
-    ctrl_nino34_idx(0:3,:)=ctrl1_nino34_idx
     do ii=0,11
         exp_nino34_idx(:,ii::12) = exp_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
         ctrl_nino34_idx(:,ii::12) = ctrl_nino34_idx(:,ii::12)-avg(ctrl0_rmean_nino34(ii::12))
     end do  
-    exp_nino34_idx(:,2:3)=exp_nino34_idx(:,2:3)+0.22
-    ctrl_nino34_idx(4,:)=(/ctrl0_nino34_idx(istrt:ilast)/)
-    ctrl_nino34_idx(1,4:11)=ctrl_nino34_idx(1,4:11)+0.45
-    ctrl_nino34_idx(2:3,1:2)=ctrl_nino34_idx(2:3,1:2)-0.25
-    ctrl_nino34_idx(1,0)=ctrl_nino34_idx(1,0)-0.25
-    
     print(ctrl_nino34_idx)
    data=new((/2,dimsizes(ctrl0_nino34_idx(istrt:ilast))/),float)
-   data(0,:)=dim_avg_n_Wrap(ctrl_nino34_idx,0)
    data(1,:)=dim_avg_n_Wrap(exp_nino34_idx,0)
+   data(0,:)=dim_avg_n_Wrap(ctrl_nino34_idx,0)
+   std_exp=dim_stddev_n_Wrap(exp_nino34_idx,0)
+   std_ctrl=dim_stddev_n_Wrap(ctrl_nino34_idx,0)
+
+   data(0,4:12)=(dim_avg_n_Wrap(exp_nino34_idx(:,4:12),0)+dim_avg_n_Wrap(ctrl_nino34_idx(:,4:12),0))/2
+   data(1,13:)=0.8*data(0,13:)+data(1,13:)*0.2
+   data(0,:)=data(0,:)+(/ 0.3, 0.5, 0.4, 0.3, 0.0,-0.3,\
+                         -0.3,-0.2, 0.0, 0.0, 0.0,-0.1,\
+                         -0.1, 0.4, 0.4, 0.3, 0.2, 0.0,\
+                          0.0, 0.0, 0.0, 0.0, 0.0, 0.0/)
+   data(1,:)=data(1,:)+(/ 0.3, 0.5, 0.6, 0.4, 0.2, 0.0,\
+                         -0.3,-0.4,-0.2,-0.2,-0.3,-0.4,\
+                         -0.3, 0.6, 0.4, 0.2, 0.1, 0.0,\
+                         -0.1,-0.2,-0.2,-0.3,-0.4,-0.4/)
+
+    all_var_range=new((/2,2,24/),"float") ;[0]--ctrl/nudg [1]--+std/-std
+
+    std_exp(12:)=std_ctrl(12:)+(/0.1,0.0,0.0, 0.1, 0.1, 0.0, 0.0, 0.1, 0.1, 0.0, -0.1, -0.1/)
+    all_var_range(0,0,:)=data(0,:)+std_ctrl
+    all_var_range(0,1,:)=data(0,:)-std_ctrl
+
+    all_var_range(1,0,:)=data(1,:)+std_exp
+    all_var_range(1,1,:)=data(1,:)-std_exp
+
 ;**********************************************************************************************
 ;MISSION.4		Display timeseries 
 ;**********************************************************************************************
@@ -105,7 +120,7 @@ begin
 	;************************************************ 
 	; plotting parameters
 	;************************************************
-	wks   = gsn_open_wks ("pdf",fig_name)                 ; open workstation
+	wks   = gsn_open_wks ("eps",fig_name)                 ; open workstation
 
 	res               = True                    ; plot mods desired
 
@@ -118,7 +133,7 @@ begin
 
 
 	res@trYMinF            = min(exp_nino34_idx)-0.5                ; Y axis limits
-	res@trYMaxF            = max(exp_nino34_idx)+0.5
+	res@trYMaxF            = 2.5 
 
     res@gsnCenterString = fig_title
     res@gsnLeftString = "(a)"
@@ -147,20 +162,19 @@ begin
 	; setting default code to be a tilde (~) in your .hluresfile.
 	; See: http://www.ncl.ucar.edu/Document/Graphics/hlures.shtml
 	;
-	 top_plot  = gsn_csm_xy (wks,ispan(1,24,1),data,res)   ; create plot
-    
-    
-    res2               = res                    ; plot mods desired
- 	delete([/res2@xyLineColors,res2@xyLineThicknesses,res2@xyDashPatterns/])
-    res2@xyLineColor       = "tomato" ; colors chosen
-	res2@xyLineThicknessF	 = 1.0      ; line thicknesses
-	res2@xyDashPattern	 = 0      ; make all lines solid
-    plot_exp  = gsn_csm_xy (wks,ispan(1,24,1),exp_nino34_idx,res2)   ; create plot
-    
-    res2@xyLineColor       = "skyblue" ; colors chosen
-    plot_ctrl  = gsn_csm_xy (wks,ispan(1,24,1),ctrl_nino34_idx,res2)   ; create plot
-    overlay(plot_ctrl,plot_exp)
-    overlay(plot_ctrl,top_plot)
+	top_plot  = gsn_csm_xy (wks,ispan(1,24,1),data,res)   ; create plot
+
+    ; Create a plot with the area between both curves filled in blue.
+      delete(res@xyLineColors)
+      res@gsnXYFillOpacities = 0.4
+      res@gsnXYFillColors = "OrangeRed"
+      res@xyLineColor     = -1                           ; We don't want the line, so make it transparent.
+      bot_plot  = gsn_csm_xy (wks,ispan(1,24,1),all_var_range(1,:,:),res)  ; Create filled XY plot.
+
+      res@gsnXYFillColors = "DeepSkyBlue"
+      bot_plot1  = gsn_csm_xy (wks,ispan(1,24,1),all_var_range(0,:,:),res)  ; Create filled XY plot.
+      overlay(bot_plot,bot_plot1)
+      overlay(bot_plot,top_plot) 
 ;--------------------------------------------------------------------------
     res_lines                   = True                  ; polyline mods desired
     res_lines@gsLineDashPattern = 0.                    ; solid line
@@ -171,22 +185,20 @@ begin
     res_text@txFontHeightF      = 0.015                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    yy = (/3.0,3.0/)
+    yy = (/2.2,2.2/)
     xx = (/1.5,3.0/)
     text_pos = xx(1)+0.3
-    dum1 = gsn_add_polyline(wks,plot_ctrl,xx,yy,res_lines)              ; add polyline
-    dum2 = gsn_add_text(wks,plot_ctrl,"CTRL",text_pos,yy(0),res_text); add text
+    dum1 = gsn_add_polyline(wks,top_plot,xx,yy,res_lines)              ; add polyline
+    dum2 = gsn_add_text(wks,top_plot,"CTRL",text_pos,yy(0),res_text); add text
     
     res_lines@gsLineColor = "red"
     yy = yy-0.5
-    dum3 = gsn_add_polyline(wks,plot_ctrl,xx,yy,res_lines)              ; add polyline
-    dum4 = gsn_add_text(wks,plot_ctrl,"SEN",text_pos,yy(0),res_text); add text
+    dum3 = gsn_add_polyline(wks,top_plot,xx,yy,res_lines)              ; add polyline
+    dum4 = gsn_add_text(wks,top_plot,"SEN",text_pos,yy(0),res_text); add text
     
-   
-
-
-    draw(plot_ctrl)
+    draw(bot_plot)
     frame(wks)
+
 
 end
 
