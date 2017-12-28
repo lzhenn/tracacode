@@ -47,45 +47,45 @@ begin
     all_file=systemfunc("ls "+data_file_name11+"*.cam.h0.U.*")
     ctrl_in1 = addfiles(all_file,"r")
     ListSetType (ctrl_in1, "join")
-    ctrl_var1 = ctrl_in1[:]->U(:,1:4,25,:,:)
+    ctrl_var1 = ctrl_in1[:]->U(:,2:5,25,:,:)
     
     all_file=systemfunc("ls "+data_file_name11+"*.cam.h0.V.*")
     ctrl_in1 = addfiles(all_file,"r")
     ListSetType (ctrl_in1, "join")
-    ctrl_var2 = ctrl_in1[:]->V(:,1:4,25,:,:)    
+    ctrl_var2 = ctrl_in1[:]->V(:,2:5,25,:,:)    
     
     all_file=systemfunc("ls "+data_file_name1+"*.cam.h0.PRECC.*")
     ctrl_in1 = addfiles(all_file,"r")
     ListSetType (ctrl_in1, "join")
-    ctrl_var3 = ctrl_in1[:]->PRECC(:,1:4,:,:)    
+    ctrl_var3 = ctrl_in1[:]->PRECC(:,2:5,:,:)    
     
     all_file=systemfunc("ls "+data_file_name1+"*.cam.h0.PRECL.*")
     ctrl_in1 = addfiles(all_file,"r")
     ListSetType (ctrl_in1, "join")
-    ctrl_var4 = ctrl_in1[:]->PRECL(:,1:4,:,:)
+    ctrl_var4 = ctrl_in1[:]->PRECL(:,2:5,:,:)
     ctrl_var3 = (ctrl_var3+ctrl_var4)*86400*1000
 
     delete([/all_file/])
     all_file=systemfunc("ls "+data_file_name22+"*.cam.h0.U.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var1 = exp_in[:]->U(:,1:4,25,:,:)
+    exp_var1 = exp_in[:]->U(:,2:5,25,:,:)
 
     all_file=systemfunc("ls "+data_file_name22+"*.cam.h0.V.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var2 = exp_in[:]->V(:,1:4,25,:,:)
+    exp_var2 = exp_in[:]->V(:,2:5,25,:,:)
 
     delete([/all_file/])
     all_file=systemfunc("ls "+data_file_name2+"*.cam.h0.PRECC.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var3 = exp_in[:]->PRECC(:,1:4,:,:)
+    exp_var3 = exp_in[:]->PRECC(:,2:5,:,:)
 
     all_file=systemfunc("ls "+data_file_name2+"*.cam.h0.PRECL.*")
     exp_in = addfiles(all_file,"r")
     ListSetType (exp_in, "join")
-    exp_var4 = exp_in[:]->PRECL(:,1:4,:,:)
+    exp_var4 = exp_in[:]->PRECL(:,2:5,:,:)
     exp_var3 = (exp_var3+exp_var4)*86400*1000
 
     ctrl_var1=ctrl_var1*1.25
@@ -224,9 +224,9 @@ plot = new((/2/),graphic)
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        =  -4e-8          ; set min contour level
-    res@cnMaxLevelValF        =  4e-8          ; set max contour level
-    res@cnLevelSpacingF       =  5e-9          ; set contour interval
+    res@cnMinLevelValF        =  -2e-8          ; set min contour level
+    res@cnMaxLevelValF        =  2e-8          ; set max contour level
+    res@cnLevelSpacingF       =  2e-9          ; set contour interval
     res@vpHeightF=0.2
     res@vpWidthF=0.6
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
