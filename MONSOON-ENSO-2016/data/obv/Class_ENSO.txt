@@ -1,0 +1,25 @@
+Longer than 3 months, break no more than 3 months.
+Based on the CPC new ONI, available at: http://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ensoyears.shtml
+Long >= 10 months
+Short < 10 months
+
+
+1977-1978 5  ASO-DJF SE
+1979-1980 5  SON-JFM SE
+1982-1983 14 MAM-MJJ LE
+1984-1985 9  SON-MJJ SL
+1986-1988 17 ASO-JFM LE  (1987 Peak)
+1988-1989 12 AMJ-AMJ LL
+1991-1992 13 MJJ-JJA LE
+1994-1995 6  SON-FMA SE
+1995-1996 8  JAS-FMA SL
+1997-1998 12 AMJ-AMJ LE
+1998-2001 32 JJA-JFM LL  (1999 Peak)
+2002-2003 9  MJJ-JFM SE
+2004-2005 10 JJA-MAM LE
+2006-2007 5  ASO-DJF SE
+2007-2008 11 JAS-MJJ LL
+2009-2010 10 JJA-MAM LE
+2010-2011 10 JJA-MAM LL
+2011-2012 8  JAS-JFM SL
+2014-2016 21 OND-AMJ LE

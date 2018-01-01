@@ -18,9 +18,6 @@ begin
     ;grid file
     grid_fn="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_3km"
     
-    ;Pop file
-    data_file_name1="../data/obv/population_output_D3.txt"
-   
     ;Output file 
     pdata_fn     ="../data/obv/population_output_D3.nc"  ; open output netCDF file
 

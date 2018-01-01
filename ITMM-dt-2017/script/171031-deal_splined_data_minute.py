@@ -21,10 +21,10 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Start Year 
-    start_year='2011'
+    start_year='2015'
     
     # End Year
     end_year='2017'
@@ -140,7 +140,7 @@ def org_data(lines, timestmp, corr_algthm, sta_num):
             data0[t_pos,l_pos]=value
         except:
             continue
-    if not(sta_num == '67606' and timestmp >= datetime.datetime(2015,9,1)):
+    if not(timestmp >= datetime.datetime(2015,9,1)):
         data0=data_corr_algthm(data0, sta_num)
     df = pd.DataFrame(data0[0:t_pos+1,:], index=time_frames, columns=list(drange(290, 670.5, '0.5')))
     return df

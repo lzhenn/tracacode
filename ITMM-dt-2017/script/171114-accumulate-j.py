@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  Deal with splined data 
-#   
+#   Accumulate separted hourly data into one file   
 #               L_Zealot
 #               Oct 16, 2017
 #               Guangzhou, GD

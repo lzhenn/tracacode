@@ -30,7 +30,7 @@ def main():
     out_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/'
  
     # Start Year 
-    start_year='2012'
+    start_year='2015'
     
     # End Year
     end_year='2017'
