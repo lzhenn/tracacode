@@ -21,21 +21,25 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Input File
-    in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/'
+    in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/'
 
     # Select Source 
     select_dir='../data/ITMM-dt-2017/clear-time/'
 
     # Output Dir
-    out_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/selected/'
- 
+    out_dir='../data/ITMM-dt-2017/'+sta_num+'/J/pro_data/selected/'
+    
+    # Species
+    species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']
+    
+
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1' 
+    corr_algthm='C2' 
 
 #----------------------------------------------------
 # Main function
@@ -57,22 +61,21 @@ def main():
 
 
         pd_date=pd.date_range(date_obj, periods=1)
-        try:
-            pt=pd.read_csv(in_dir+get_file_name(sta_num, date_obj, corr_algthm), parse_dates=True, skiprows=1, names=['time','uva','uvb','total'], index_col='time')
-            ptout=pt.loc[date_obj.strftime('%Y-%m-%d %H:%M:%S')]
-        except:
-            print(date_obj.strftime('%Y-%m-%d %H:%M:%S')+' failed')
-            ptout=pd.DataFrame(np.array([np.nan, np.nan, np.nan]).reshape(1,3), index=pd_date, columns=['uva','uvb','total'])
-        with open(out_dir+'selected_min.csv', 'a') as f:
-            values=ptout.values
-            if len(values)==3:
-                values=values.reshape(1,3)
-                ptout=pd.DataFrame(values, index=pd_date, columns=['uva','uvb','total'])
+        data0=np.zeros((1,len(species)))
+        data0.fill(np.nan)
+        ptout=pd.DataFrame(data0, index=pd_date, columns=species)
+        for pos, spe in enumerate(species):
+            try:
+                pt=pd.read_csv(in_dir+get_file_name(sta_num, date_obj, corr_algthm, spe), parse_dates=True, skiprows=1, names=['time',spe], index_col='time')
+                ptout[spe][0]=pt.loc[date_obj.strftime('%Y-%m-%d %H:%M:%S')].values
+            except:
+                print(date_obj.strftime('%Y-%m-%d %H:%M:%S')+' '+spe+' failed')
+        with open(out_dir+'selected_min_'+corr_algthm+'.csv', 'a') as f:
             ptout.to_csv(f, header=False)
 
-def get_file_name(sta_num, timestmp, corr):
+def get_file_name(sta_num, timestmp, corr, spe):
     time0=timestmp.strftime('%Y%m%d')   
-    fname='Rad_'+time0+'_'+sta_num+'_'+corr+'_Min_Clean.csv'
+    fname='j'+spe+'_'+time0+'_'+sta_num+'_'+corr+'_Min.csv'
     return fname
 
 if __name__ == "__main__":

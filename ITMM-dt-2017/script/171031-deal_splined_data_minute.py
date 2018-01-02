@@ -21,10 +21,10 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Start Year 
-    start_year='2015'
+    start_year='2011'
     
     # End Year
     end_year='2017'
