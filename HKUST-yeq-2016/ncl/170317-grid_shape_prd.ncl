@@ -20,7 +20,7 @@
 load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 load "$NCL_SELFLIB/shapefile_utils.ncl"
 
-grid_fn="/Users/zhenningli/data/HKUST-yeq-2016/gridsys/GRIDCRO2D_3km"
+grid_fn="/home/yangsong3/data/model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_3km"
 
 latlon_in   =  addfile(grid_fn,"r")
 lat2d0 = latlon_in->LAT(0,0,:,:)
@@ -56,7 +56,7 @@ begin
   data_mask    = shapefile_mask_data(data,shp_filename,True)
 
 ;---Start the graphics
-  wks  = gsn_open_wks("png","../fig/shapefiles")  ; send graphics to PNG file
+  wks  = gsn_open_wks("eps","../fig/shapefiles")  ; send graphics to PNG file
 
   res                     = True
 
@@ -77,28 +77,19 @@ begin
   res@tiMainString        = "Mississippi River Basin with full data"
 
 ;---Create contours over map.
-  map_data = gsn_csm_contour_map(wks,data,res)
+;  map_data = gsn_csm_contour_map(wks,data,res)
 
 ;---Resources for polyline
   lnres                  = True
   lnres@gsLineColor      = "blue"
   lnres@gsLineThicknessF = 2.0            ; 2x thickness
 
-  line_data = gsn_add_shapefile_polylines(wks, map_data, shp_filename, lnres)
-
-;---Draw plot and advance frame
-  draw(map_data)
-  frame(wks)
-
+;  line_data = gsn_add_shapefile_polylines(wks, map_data, shp_filename, lnres)
 ;---Draw contours of masked data
   res@tiMainString  = "Mississippi River Basin with masked data"
 
-  map_mask  = gsn_csm_contour_map(wks,data_mask,res)
-  line_mask = gsn_add_shapefile_polylines(wks, map_mask, shp_filename, lnres)
-
-  draw(map_mask)
-  frame(wks)
-
+;  map_mask  = gsn_csm_contour_map(wks,data_mask,res)
+;  line_mask = gsn_add_shapefile_polylines(wks, map_mask, shp_filename, lnres)
 ;---Draw the part of the lat/lon grid that was masked out. 
 ;   Only draw the map this time (no contours).
 
@@ -132,7 +123,7 @@ begin
   mkres@gsMarkerIndex = 16    ; Filled dots
   mkres@gsMarkerSizeF = 0.003
 
-  markers = gsn_add_polymarker(wks,map,lon_markers,lat_markers,mkres)
+;  markers = gsn_add_polymarker(wks,map,lon_markers,lat_markers,mkres)
   line    = gsn_add_shapefile_polylines(wks, map, shp_filename, lnres)
   
   ;>============================================================<
