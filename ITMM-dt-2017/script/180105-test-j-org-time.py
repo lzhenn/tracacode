@@ -103,9 +103,9 @@ def org_data(lines, time0, spe, corr_algthm, sta_num):
         timestamp.append(time_now)
         values.append(value)
     values=np.array(values)
-#    if not(time_now >= datetime.datetime(2015,9,1)):
-#        values=data_corr_algthm(values, corr_algthm, sta_num, spe)
-#    else:
+    if not(time_now >= datetime.datetime(2015,9,1)):
+        values=data_corr_algthm(values, corr_algthm, sta_num, spe)
+    else:
     print(time_now)
     df= pd.DataFrame(values,index=timestamp,columns=[spe])
     return df
