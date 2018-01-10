@@ -25,16 +25,16 @@ def main():
     sta_num='67605'
 
     # Start Year 
-    start_year='2011'
+    start_year='2017'
     
     # End Year
-    end_year='2017'
+    end_year='2018'
 
     # Input Dir
-    in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/'
+    in_dir='/home/yangsong3/L_Zealot/project/ITMM-dt-2017/data/ITMM-dt-2017/17-18new/'+sta_num+'/J/'
     
     # Output Dir 
-    out_dir='../data/ITMM-dt-2017/'+sta_num+'/J/pro_data/'
+    out_dir=in_dir+'pro_data/'
 
     # Correct Algrithm
     #   C1 -- Both j and splined
@@ -115,9 +115,13 @@ def org_data(lines, time0, spe, corr_algthm, sta_num):
     values=[]
     for pos, line in enumerate(lines):
         content=line.split() # [0]--timeshift [1]--j ratio
-        timeshift=float(content[0])
+        try:
+            timeshift=float(content[0])
+        except:
+            print('Wrong file! ')
+            return  
         value=float(content[1])
-        date_delta=datetime.timedelta(days=timeshift-2.0)
+        date_delta=datetime.timedelta(days=timeshift-1.999999999)
         time_now=time0+date_delta
         timestamp.append(time_now)
         values.append(value)

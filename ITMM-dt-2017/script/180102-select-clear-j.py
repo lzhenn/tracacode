@@ -21,7 +21,7 @@ def main():
 #----------------------------------------------------
 
     # Station Number
-    sta_num='67605'
+    sta_num='67606'
 
     # Input File
     in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/'
@@ -34,12 +34,14 @@ def main():
     
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']
-    
+   
+    # Time range (min)
+    delta_time=7
 
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C1' 
+    corr_algthm='C2' 
 
 #----------------------------------------------------
 # Main function
@@ -47,7 +49,8 @@ def main():
     
     
     select_pt=pd.read_csv(select_dir+"Dubovik_stats_Panyu_20131220-dengtao1.csv")
-    time_delta=datetime.timedelta(hours=8)
+    time_delta=datetime.timedelta(hours=8) # UTC to BJT
+    avg_delta=datetime.timedelta(minutes=delta_time)
     for item in select_pt.index:
         yyyy=int(select_pt.iloc[item]['year'])
         mm=int(select_pt.iloc[item]['mm'])
@@ -67,9 +70,10 @@ def main():
         for pos, spe in enumerate(species):
             try:
                 pt=pd.read_csv(in_dir+get_file_name(sta_num, date_obj, corr_algthm, spe), parse_dates=True, skiprows=1, names=['time',spe], index_col='time')
-                ptout[spe][0]=pt.loc[date_obj.strftime('%Y-%m-%d %H:%M:%S')].values
-            except:
+                ptout[spe][0]=pt.loc[date_obj-avg_delta:date_obj+avg_delta].values.mean()
+            except:                
                 print(date_obj.strftime('%Y-%m-%d %H:%M:%S')+' '+spe+' failed')
+
         with open(out_dir+'selected_min_'+corr_algthm+'.csv', 'a') as f:
             ptout.to_csv(f, header=False)
 

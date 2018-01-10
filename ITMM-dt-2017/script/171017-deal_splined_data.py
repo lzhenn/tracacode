@@ -24,16 +24,16 @@ def main():
     sta_num='67606'
 
     # Start Year 
-    start_year='2011'
+    start_year='2017'
     
     # End Year
-    end_year='2017'
+    end_year='2018'
 
     # Input Dir
-    in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/'
+    in_dir='/home/yangsong3/L_Zealot/project/ITMM-dt-2017/data/ITMM-dt-2017/17-18new/'+sta_num+'/splined/'
     
     # Output Dir 
-    out_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
+    out_dir=in_dir+'pro_data/'
 
     # Correct Algrithm
     #   C1 -- Both j and splined
@@ -97,10 +97,7 @@ def get_outfile_name(sta_num, curr_year, corr):
 def get_file_name(sta_num, timestmp):
     year0=timestmp.strftime('%Y')   
     time0=timestmp.strftime('%Y%m%d_%H%M')   
-    if sta_num=='67606':
-        fname=year0+'/'+time0+'_'+sta_num+'.ded'
-    elif sta_num=='67605':
-        fname=time0+'_'+sta_num+'.ded'
+    fname=time0+'_'+sta_num+'.ded'
     return fname
 
 

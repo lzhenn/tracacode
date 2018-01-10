@@ -24,10 +24,10 @@ def main():
     sta_num='67605'
 
     # Input File
-    in_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
-
+    in_dir='/home/yangsong3/L_Zealot/project/ITMM-dt-2017/data/ITMM-dt-2017/17-18new/'+sta_num+'/splined/pro_data/'
+    
     # Output Dir
-    out_dir='../data/ITMM-dt-2017/'+sta_num+'/splined/pro_data/'
+    out_dir=in_dir
  
     # Start Year 
     start_year='2011'
