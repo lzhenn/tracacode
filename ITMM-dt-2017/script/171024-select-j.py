@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#  Deal with splined data 
+#  Select J data to 10H 12H 14H and 16H
 #   
 #               L_Zealot
 #               Oct 16, 2017
@@ -23,17 +23,19 @@ def main():
     sta_num='67606'
 
     # Input Dir
-    in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/pro_data/'
+    in_dir='/home/yangsong3/L_Zealot/project/ITMM-dt-2017/data/ITMM-dt-2017/17-18new/'+sta_num+'/J/pro_data/'
     out_dir=in_dir 
 
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C2' 
+    corr_algthm='C1' 
 
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']
- 
+
+
+    pd.set_option('display.max_rows',None)
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
@@ -57,19 +59,25 @@ def reorg_rad(pt):
     pt_use=pt[pt.index.hour>=10]
     pt_use=pt_use[pt_use.index.hour<=16]
     pt_all=pt_use.resample('D').max()
-
     #Only fit the hour start at even values!#
-    pt_use=pt_use.resample('2H').first() # bug: we got an all day result...
+    if pt_use.index[0].hour % 2 ==0:
+        pt_use=pt_use.resample('2H').first() # bug: we got an all day result...
+    else:
+        pt_use=pt_use.resample('2H').second() # bug: we got an all day result...
     pt_use=pt_use[pt_use.index.hour>=10]
     pt_use=pt_use[pt_use.index.hour<=16]
-    len_row=len(pt_use.index)
-    len_out=len_row % 4
-    if len_out >0:          # if not stop at a good point, add hour to fit 10 12 14 16
-        for item in [2,4,6]:
-            if len_out>1:
-                len_out=len_out-1
-                continue
-            pt_use.loc[pt_use.index[-1]+datetime.timedelta(hours=2)]=np.nan
+
+    len_out_s=(pt_use.index[0].hour-10)/2 # How many hours need we add in the start time, e.g. start at 16H, need 3 (10 12 14)
+    while len_out_s >0:          # if not start at a good point, add hour to fit 10 12 14 16
+        # hard work to insert before the first row
+        insert_date=pd.date_range(pt_use.index[0]-datetime.timedelta(hours=2), periods=1)
+        insert_row=pd.DataFrame(np.nan, index=insert_date, columns=pt_use.columns)
+        pt_use=insert_row.append(pt_use)
+        len_out_s = len_out_s -1
+    len_out_e=(16-pt_use.index[-1].hour)/2 # How many hours need we add in the end time, e.g. end at 10H, need 3 (12 14 16)
+    while len_out_e >0 :
+        pt_use.loc[pt_use.index[-1]+datetime.timedelta(hours=2)]=np.nan
+        len_out_e = len_out_e -1
     len_row=len(pt_use.index) # New length
     pt_value=pt_use.values.reshape((len_row/4,4))
     pt_hour=pd.DataFrame(pt_value, index=pt_all.index, columns=['10H','12H','14H','16H'])

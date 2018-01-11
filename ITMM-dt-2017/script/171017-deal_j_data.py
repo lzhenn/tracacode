@@ -83,7 +83,11 @@ def main():
                 lines=fr.readlines()
                 fr.close()
                 df = org_data(lines, time0, spe, corr_algthm, sta_num)
-                df = df[df>0]
+                try:
+                    df = df[df>0]
+                except:
+                    curr_time_obj=curr_time_obj+file_time_delta
+                    continue
                 df_hour=df.resample('H').mean()    # Resample into hourly data
                 df_hour=df_hour[df_hour.index.hour>=6]
                 df_hour=df_hour[df_hour.index.hour<=20]

@@ -1,2 +1,11 @@
+Radiation Process:
+
 171017-deal_splined_data.py --> 171017-cal_radiation.py --> 171114-accum-radiation.py 
 --> 171020-select-radiation.py 
+
+
+J Process:
+171017-deal_j_data.py --> 171114-accumulate-j.py --> 171024-select-j.py
+
+
+# Be careful with the select process, which is easily produce error.
