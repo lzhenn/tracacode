@@ -1,11 +1,19 @@
-Radiation Process:
+## Radiation Process:
 
-171017-deal_splined_data.py --> 171017-cal_radiation.py --> 171114-accum-radiation.py 
+171017-deal_splined_data.py 
+--> 171017-cal_radiation.py 
+--> 171114-accum-radiation.py 
 --> 171020-select-radiation.py 
+--> 171030-cal-mon-mean-radiation.py 
+--> 171030-cal-mon-stddev-radiation.py
 
 
-J Process:
-171017-deal_j_data.py --> 171114-accumulate-j.py --> 171024-select-j.py
+## J Process:
+171017-deal_j_data.py 
+--> 171114-accumulate-j.py 
+--> 171024-select-j.py
+--> 171028-cal-mon-mean-j.py
+--> 171115-cal-mon-std-j.py
+--> 180116-combine-j.py
 
-
-# Be careful with the select process, which is easily produce error.
+## Be careful with the select process, which is easily produce error.

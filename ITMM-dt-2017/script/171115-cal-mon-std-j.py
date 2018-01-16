@@ -20,16 +20,16 @@ def main():
 # User Defined Part
 #----------------------------------------------------
     # Station Number
-    sta_num='67606'
+    sta_num='67605'
 
     # Input Dir
-    in_dir='../data/ITMM-dt-2017/'+sta_num+'/J/pro_data/'
+    in_dir='/home/yangsong3/L_Zealot/project/ITMM-dt-2017/data/ITMM-dt-2017/17-18new/'+sta_num+'/J/pro_data/'
     out_dir=in_dir 
 
     # Correct Algrithm
     #   C1 -- Both j and splined
     #   C2 == Only j
-    corr_algthm='C2'
+    corr_algthm='C1'
 
     # Species
     species=['H2O2','HCHO_M','HCHO_R','HONO','NO3_M','NO3_R','NO2','O1D']

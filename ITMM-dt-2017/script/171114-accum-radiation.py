@@ -30,10 +30,10 @@ def main():
     out_dir= in_dir
  
     # Start Year 
-    start_year='2011'
+    start_year='2017'
     
     # End Year
-    end_year='2017'
+    end_year='2018'
 
     # Correct Algrithm
     #   C1 -- Both j and splined
