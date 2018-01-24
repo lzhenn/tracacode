@@ -1,0 +1,11 @@
+1. 设置ptlist文件，第一列经度，第二列纬度，决定哪些点需要做轨迹模拟
+2. 设置参数控制脚本run-hysplit4-daily.sh的用户参数
+3. 运行流程：
+    3.1 执行run-hysplit4-daily.sh后，会将参数传递给run-hysplit4-daily.py流程控制脚本
+    3.2 流程控制脚本run-hysplit4-daily.py执行流程
+        3.2.1 根据当前时间锁定wrf预报结果所在路径
+        3.2.2 链接预报结果到wrf-link目录
+        3.2.3 调用exec_arw2arl.sh，执行awr2arl程序，生成hysplit需要的风场BIN文件
+        3.2.4 读取样本点文件ptlist.txt
+        3.2.5 根据CONTROL.smp，分配样本点，循环生成CONTROL并执行hyts_std程序计算后向轨迹
+4. 输出文件在./exec下，文件名为trajout_NNNN，NNNN代表point序数
