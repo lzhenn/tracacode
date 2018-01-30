@@ -20,5 +20,16 @@ Remove the vertical diffusion (turbulance) caused heating to the atmosphere over
 ### SourceMods-SST-decoupling
 Partially decoupling the Air-sea interaction by fixing the SST values to the prescribed SST datasets.
 
-LZN
-Last Updated: Jan 30, 2018
+* Please use 'LZN' (no apostrophe) to lock the code modification segmentation.
+* Set proper namelist variable in pop2_in **Note that ./$CASE.run operation will overwrite the pop2_in namelist file, please specify the variable and **submit the task manually**.
+
+``` fortran
+ptempf_file_name       = '$PATH_TO_YOUR_DATA/nudging_ptemp.nc'
+ptempf_file_fmt        = 'nc'
+```
+
+
+
+
+    LZN
+    Last Updated: Jan 30, 2018
