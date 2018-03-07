@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=TP-NUDG-2017
+WORKNAME=ENSO-REV-2018
 
 # Now to create the workspace
 mkdir $WORKNAME
