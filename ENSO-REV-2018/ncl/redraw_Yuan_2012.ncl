@@ -98,12 +98,38 @@ begin
     var1_djf=month_to_season(var1,"DJF")
     nino3=wgt_areaave_Wrap(var1_djf(:,{g_latS:g_latN},{g_lonW:g_lonE}), 1.0, 1.0, 0)
     
-    w_p=wgt_areaave_Wrap(var1(:,{g_wlatS:g_wlatN},{g_wlonW:g_wlonE}), 1.0, 1.0, 0)
-    c_p=wgt_areaave_Wrap(var1(:,{g_clatS:g_clatN},{g_clonW:g_clonE}), 1.0, 1.0, 0)
-    e_p=wgt_areaave_Wrap(var1(:,{g_elatS:g_elatN},{g_elonW:g_elonE}), 1.0, 1.0, 0)
+    w_p=wgt_areaave_Wrap(var1_djf(:,{g_wlatS:g_wlatN},{g_wlonW:g_wlonE}), 1.0, 1.0, 0)
+    c_p=wgt_areaave_Wrap(var1_djf(:,{g_clatS:g_clatN},{g_clonW:g_clonE}), 1.0, 1.0, 0)
+    e_p=wgt_areaave_Wrap(var1_djf(:,{g_elatS:g_elatN},{g_elonW:g_elonE}), 1.0, 1.0, 0)
 
     emi=w_p
     emi=c_p-0.5*e_p-0.5*w_p
+    
+    emi=dim_standardize_Wrap(emi,1)
+    nino3=dim_standardize_Wrap(nino3,1)
+
+    ;   sst     --- 1
+    ;   nino3   --- 2
+    ;   emi     --- 3
+    r12=escorc(nino3,var1_djf(latitude|:,longitude|:,time|:))
+    r13=escorc(emi,var1_djf(latitude|:,longitude|:,time|:))
+    r23_temp=escorc(emi,nino3)
+    r23=r13
+    r23=r23_temp
+    pr12_3=var1_djf(0,:,:)
+    pr12_3=(/(r12-r13*r23)/(sqrt(1-r13*r13)*sqrt(1-r23*r23))/)
+
+
+    ; significance test
+    n = dimsizes(emi)
+    df= n-1-2
+    t=pr12_3*sqrt(df)/sqrt(1-pr12_3*pr12_3)
+    p=student_t(t,df)
+    psig = 0.05
+    pr12_3@_FillValue=-999.099.0
+    pr12_3=where(p .le. psig, pr12_3, pr12_3@_FillValue)
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -149,9 +175,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 0.          ; set min contour level
- res@cnMaxLevelValF        = 32.          ; set max contour level
- res@cnLevelSpacingF       = 0.5         ; set contour interval
+ res@cnMinLevelValF        = -1.          ; set min contour level
+ res@cnMaxLevelValF        = 1.          ; set max contour level
+ res@cnLevelSpacingF       = 0.05         ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -212,11 +238,11 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
 
-do i = 0,6
+do i = 0,0
     res@gsnLeftString = g_fig_rank(i)
     res@gsnCenterString = g_fig_title(i)
     res@gsnRightString = ""
-    plot(i) = gsn_csm_contour_map_ce(wks,var1(i,:,:),res) ; create a default plot
+    plot(i) = gsn_csm_contour_map_ce(wks,pr12_3,res) ; create a default plot
 end do
 
 
