@@ -80,9 +80,9 @@ begin
 
     g_strt_mon = 197901 
     g_lst_mon = 201712
-    g_fig_name    =   "../fig/yuan-2012-replot-left"
-    g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
-    g_fig_title     = " PCOR ("+(/"JJA", "SON", "DJF", "MAM1", "JJA1"/)+" SSTA & Wind850, DJF Nino3)"
+    g_fig_name    =   "../fig/yuan-2012-replot-right"
+    g_fig_rank    =   (/"(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_title     = " PCOR ("+(/"JJA", "SON", "DJF", "MAM1", "JJA1"/)+" SSTA & Wind850, DJF EMI)"
 
 
 ;*************************For F_Compset Ctrl***********************************
@@ -151,16 +151,16 @@ begin
         var3_ssn:=var3_ssntemp(lat|:,lon|:,time|:)
         var3_ssn:=var3_ssn(:,:,0:years-2)
  
-        r12=escorc(nino3(1:),var1_ssn)
-        r13=escorc(emi(1:),var1_ssn)
+        r12=escorc(emi(1:),var1_ssn)
+        r13=escorc(nino3(1:),var1_ssn)
         pr12_3(ii,:,:)=(/(r12-r13*r23)/(sqrt(1-r13*r13)*sqrt(1-r23*r23))/)
 
-        r12_u=escorc(nino3(1:),var2_ssn)
-        r13_u=escorc(emi(1:),var2_ssn)
+        r12_u=escorc(emi(1:),var2_ssn)
+        r13_u=escorc(nino3(1:),var2_ssn)
         pr12_3_u(ii,:,:)=(/(r12_u-r13_u*r23_uv)/(sqrt(1-r13_u*r13_u)*sqrt(1-r23_uv*r23_uv))/)
         
-        r12_v=escorc(nino3(1:),var3_ssn)
-        r13_v=escorc(emi(1:),var3_ssn)
+        r12_v=escorc(emi(1:),var3_ssn)
+        r13_v=escorc(nino3(1:),var3_ssn)
         pr12_3_v(ii,:,:)=(/(r12_v-r13_v*r23_uv)/(sqrt(1-r13_v*r13_v)*sqrt(1-r23_uv*r23_uv))/)
         ; significance test
         n = years-1 
@@ -183,16 +183,16 @@ begin
         var2_ssn:=month_to_season(var2,g_season_rank(ii))
         var3_ssn:=month_to_season(var3,g_season_rank(ii))
         
-        r12=escorc(nino3,var1_ssn(latitude|:,longitude|:,time|:))
-        r13=escorc(emi,var1_ssn(latitude|:,longitude|:,time|:))
+        r12=escorc(emi,var1_ssn(latitude|:,longitude|:,time|:))
+        r13=escorc(nino3,var1_ssn(latitude|:,longitude|:,time|:))
         pr12_3(ii+2,:,:)=(/(r12-r13*r23)/(sqrt(1-r13*r13)*sqrt(1-r23*r23))/)
 
-        r12_u=escorc(nino3,var2_ssn(lat|:,lon|:,time|:))
-        r13_u=escorc(emi,var2_ssn(lat|:,lon|:,time|:))
+        r12_u=escorc(emi,var2_ssn(lat|:,lon|:,time|:))
+        r13_u=escorc(nino3,var2_ssn(lat|:,lon|:,time|:))
         pr12_3_u(ii+2,:,:)=(/(r12_u-r13_u*r23_uv)/(sqrt(1-r13_u*r13_u)*sqrt(1-r23_uv*r23_uv))/)
         
-        r12_v=escorc(nino3,var3_ssn(lat|:,lon|:,time|:))
-        r13_v=escorc(emi,var3_ssn(lat|:,lon|:,time|:))
+        r12_v=escorc(emi,var3_ssn(lat|:,lon|:,time|:))
+        r13_v=escorc(nino3,var3_ssn(lat|:,lon|:,time|:))
         pr12_3_v(ii+2,:,:)=(/(r12_v-r13_v*r23_uv)/(sqrt(1-r13_v*r13_v)*sqrt(1-r23_uv*r23_uv))/)
         
         ; significance test
@@ -354,7 +354,6 @@ end do
   pres= True 
   pres@gsnPanelLabelBar   = True      ;Universial colorbar
   pres@lbLabelFontHeightF = 0.012
-
   gsn_panel(wks,plot,(/5,1/),pres)
 
 end 
