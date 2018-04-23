@@ -89,7 +89,7 @@ begin
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("x11",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
  gsn_define_colormap(wks,"precip_diff_12lev")
