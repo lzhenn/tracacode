@@ -33,9 +33,9 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-    g_data_path ="/home/yangsong3/data/observation/ICOADS2/Enhanced/cldc.mean.nc"
-    g_data_path1 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/uwnd.mean.nc"
-    g_data_path2 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/vwnd.mean.nc"
+    g_data_path ="/home/yangsong3/data/observation/PRECPT/GPCC_precip.mon.total.05x05.v7.nc"
+    g_data_path1 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/uwnd.10m.mon.mean.nc"
+    g_data_path2 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/vwnd.10m.mon.mean.nc"
 
     g_font = 0.02
     g_season="MAM" 
@@ -44,7 +44,7 @@ begin
     g_lonW=60.
     g_lonE=180.
     ; create an array of desired pressure levels:
-    g_fig_name = "../../fig/paper/Fig1d-ICOADS-cldc-uv-diff"
+    g_fig_name = "../../fig/paper/Fig1b-land-uv-diff-prcc-station-1901-1930"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -53,9 +53,17 @@ begin
     yyyymm :=floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = short2flt(ctrl_in1->cldc(istrt:ilast,:,:))
-    var1=var1/8
-    
+    var1 = short2flt(ctrl_in1->p(istrt:ilast,:,:))
+    var1=var1(:,::-1,:)
+    var1&lat@units="degree_north"
+    ;var1=var1*86400
+    var4=ctrl_in1->s(istrt:ilast,:,:)
+    var4=var4(:,::-1,:)
+    var4&lat@units="degree_north"
+
+
+
+
     ctrl_in1     = addfile (g_data_path1, "r")   ; note the "s" of addfile
     var2 = short2flt(ctrl_in1->uwnd(istrt:ilast,:,:))
     ctrl_in1     = addfile (g_data_path2, "r")   ; note the "s" of addfile
@@ -77,11 +85,22 @@ begin
     diff_var2=clim_var2_e
     diff_var3=clim_var3_e
 
-    diff_var1=100*(clim_var1_l-clim_var1_e)
-    diff_var2=(clim_var2_l-clim_var2_e)
-    diff_var3=(clim_var3_l-clim_var3_e)
-    
+    diff_var1=clim_var1_l-clim_var1_e
+    diff_var2=clim_var2_l-clim_var2_e
+    diff_var3=clim_var3_l-clim_var3_e
+    season_var4=month_to_season(var4,g_season)
+    clim_var4_e=dim_avg_n_Wrap(season_var4(0:29,:,:),0)
+    diff_var1=where(clim_var4_e .gt. 0,  diff_var1,diff_var1@_FillValue)
+    printVarSummary(diff_var1)
 
+
+     LAT=fspan(-90,90, 73)
+     LON=fspan(-180,180, 144)
+     opt = True
+     opt@critpc = 10                ; require only 50% of the values to be present 
+     diff_var1:= area_hi2lores_Wrap(diff_var1&lon,diff_var1&lat, diff_var1, True, 1,  LON, LAT, opt  )  ; (ntim,49,120)
+    print(num(diff_var1({-15:15},{90:150}) .lt.0))
+    print(num(diff_var1({-15:15},{90:150}) .gt.0))
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -89,7 +108,9 @@ begin
   wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
-
+ gsn_define_colormap(wks,"precip_diff_12lev")
+; gsn_define_colormap(wks,"MPL_StepSeq")
+; gsn_define_colormap(wks,"WhiteYellowOrangeRed")
   plot = new((/1/),graphic)
 
 ;-----------------------------------------------------------------------------
@@ -112,15 +133,16 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -25         ; set min contour level
- res@cnMaxLevelValF        = 25        ; set max contour level
- res@cnLevelSpacingF       = 5          ; set contour interval
+ res@cnMinLevelValF        =-30         ; set min contour level
+ res@cnMaxLevelValF        =30        ; set max contour level
+ res@cnLevelSpacingF       = 3          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
 
   res@gsnFrame         = False
   res@gsnDraw  = False
+  
 ;  res@gsnSpreadColors      = True               ; use full color map
 ;  res@gsnSpreadColorStart  = 2               ; start at color 17
 ;  res@gsnSpreadColorEnd    = 14                ; end at color 200
@@ -138,13 +160,11 @@ begin
   res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   res@lbLabelStride = 2 
-
-
+  res@cnFillMode           = "CellFill"
   res@mpFillOn   =False   ; turn off gray continents
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
   res@mpFillDrawOrder="PostDraw"
-;  res@cnFillMode           = "CellFill"  
   res@mpMaxLatF  =g_latN
   res@mpMinLatF  =g_latS
   res@mpMaxLonF  =g_lonE
@@ -177,8 +197,8 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "(c) ICOADS cloud cover, surface uv diff"
-  res@gsnRightString = "%"
+  res@gsnLeftString = "(b) NOAA PRCC, 20CR 10m uv diff"
+  res@gsnRightString = "mm/mon"
        
   vcres = True
   vcres@gsnDraw          = False           ; don't draw
@@ -190,7 +210,7 @@ begin
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
   vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.04            ; define length of vec ref
+  vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
   vcres@vcMinDistanceF          = 0.025
   vcres@vcRefAnnoString1  = "3 m/s"
@@ -198,15 +218,15 @@ begin
   vcres@vcRefAnnoFontHeightF = 0.012
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.01
-  vcres@vcLineArrowHeadMaxSizeF   = 0.01
+  vcres@vcLineArrowHeadMinSizeF   = 0.008
+  vcres@vcLineArrowHeadMaxSizeF   = 0.008
  
 
 
   plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
   plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
-  overlay(plot_sh,plot_V)
+  ;overlay(plot_sh,plot_V)
   draw(plot_sh)
   frame(wks)
 
