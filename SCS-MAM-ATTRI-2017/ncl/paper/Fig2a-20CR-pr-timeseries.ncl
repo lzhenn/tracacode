@@ -45,7 +45,7 @@ begin
     sc_lonW=110.
     sc_lonE=135.
 
-    g_season = "SON"
+    g_season = "MAM"
     ;g_season_rank=(/"DJF","MAM","JJA","SON"/)
 ; create an array of desired pressure levels:
 
@@ -54,10 +54,10 @@ begin
     g_strt_yyyymm=190001       
     g_end_yyyymm=201012
 
-    g_font = 0.035
+    g_font = 0.02
 
-    g_fig_name    =   "../fig/Pr_timeseries_20R-"+g_season
-    g_fig_rank    =   (/"","","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
+    g_fig_name    =   "../../fig/paper/Fig2a-ts-20cr"
+    g_fig_rank    =   (/"(a)","","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     g_fig_title     = (/"Southern China ","MC+WEP "/)+g_season +" Pr Timeseries"
    ;g_fig_title1   =   (/"Mar","Apr","May","Jun","Jul","Aug","Sep"/)+" Pr trend"  ;for dsstdt
@@ -122,7 +122,7 @@ begin
 	;************************************************ 
 	; plotting parameters
 	;************************************************
-	wks   = gsn_open_wks ("x11",g_fig_name)                 ; open workstation
+	wks   = gsn_open_wks ("eps",g_fig_name)                 ; open workstation
 
 	res               = True                    ; plot mods desired
 
@@ -153,13 +153,14 @@ begin
 	res@xyLineColors       = (/"blue","brown","darkgreen","red","black"/) ; colors chosen
 	res@xyLineThicknesses	 = (/2.0,2.0,2.0,2.0,2.0/)      ; line thicknesses
 	res@xyDashPatterns	 = (/1.,1.,0.,0.,1./)      ; make all lines solid
-	res@tmXBMajorThicknessF = 5.0
-	res@tmYLMajorThicknessF = 5.0
-	res@tmXBMinorThicknessF = 4.0
-	res@tmYLMinorThicknessF = 4.0
-	res@tmBorderThicknessF = 4.0
-	res@tmXBLabelFontHeightF =0.022
-	res@tmYLLabelFontHeightF = 0.022
+    res@tmXTOn= False
+	;res@tmXBMajorThicknessF = 5.0
+	;res@tmYLMajorThicknessF = 5.0
+	;res@tmXBMinorThicknessF = 4.0
+	;res@tmYLMinorThicknessF = 4.0
+	;res@tmBorderThicknessF = 4.0
+	res@tmXBLabelFontHeightF = g_font
+	res@tmYLLabelFontHeightF = g_font
 	; Note that a colon is the default function code. We recommend
 	; setting default code to be a tilde (~) in your .hluresfile.
 	; See: http://www.ncl.ucar.edu/Document/Graphics/hlures.shtml
@@ -169,13 +170,13 @@ begin
     
     res@tiXAxisString = "Year"
     res@gsnCenterString = g_fig_title(1)
-    res@gsnLeftString = g_fig_rank(1)
+    res@gsnLeftString = g_fig_rank(0)
     delete(res@xyLineColors)
     delete(res@xyLineThicknesses)
     delete(res@xyDashPatterns)
-    res@xyDashPatterns=(/1.,1.,0.,1./)
-    res@xyLineThicknesses=(/2.0,2.0,3.0,3.0/)
-    res@xyLineColors = (/"blue","red","blue","black"/)
+    res@xyDashPatterns=(/1.,1.,0.,2./)
+    res@xyLineThicknesses=(/1.0,1.0,2.0,2.0/)
+    res@xyLineColors = (/"blue","red","blue","blue"/)
 	;res@trYMinF            = 9*min(var1_season_seamean)                ; Y axis limits
 	;res@trYMaxF            = 1.1*max(var1_season_seamean)
     plot(0)  = gsn_csm_xy (wks,ispan(0,dimsizes(var1_season_seamean)-1,1),data2,res)   ; create plot
@@ -192,19 +193,36 @@ begin
 
     res_lines@gsLineColor       = "blue"
     yy = (/7.0,7.0/)
-    xx = (/10,15/)
-    text_pos = 18
+    xx = (/5,10/)
+    text_pos = 13 
     dum11 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
     dum12 = gsn_add_text(wks,plot(0),"NOAA 20CR",text_pos,yy(0),res_text); add text
-    ;dum55 = gsn_add_polymarker(wks,plot,xx,yy,res_lines)   
-
-
+    
     res_lines@gsLineColor       = "red"
-    yy = yy - 0.3
+    yy = yy - 0.2
     dum21 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
     dum22 = gsn_add_text(wks,plot(0),"ERA 20CR",text_pos,yy(0),res_text); add text
 
-    gsn_panel(wks,plot(0),(/1,1/),False)
+
+    
+    res_lines@gsLineColor       = "blue"
+    res_lines@gsLineDashPattern=0
+    yy = yy - 0.2
+    dum31 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
+    dum32 = gsn_add_text(wks,plot(0),"NOAA 20CR 11yr runmean",text_pos,yy(0),res_text); add text
+    
+    res_lines@gsLineDashPattern=2
+    yy = yy - 0.2
+    dum41 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
+    dum42 = gsn_add_text(wks,plot(0),"NOAA 20CR trend line",text_pos,yy(0),res_text); add text
+
+
+
+    
+    ;dum55 = gsn_add_polymarker(wks,plot,xx,yy,res_lines)   
+
+
+        gsn_panel(wks,plot(0),(/1,1/),False)
 
 end
 

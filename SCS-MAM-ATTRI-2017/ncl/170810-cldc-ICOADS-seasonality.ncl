@@ -30,7 +30,7 @@ begin
 ;================================================
 ;global variables
     ;Define parameters
-    g_data_path1 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/slp.mean.nc"
+    g_data_path1 ="/home/yangsong3/data/observation/ICOADS2/Enhanced/cldc.mean.nc"
     ;MC+WEP
     sea_latS=-15.
     sea_latN=15.
@@ -64,7 +64,7 @@ begin
     yyyymm =floor( cd_calendar(time,-1))
     istrt = ind(yyyymm .eq. g_strt_yyyymm)
     ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = short2flt(ctrl_in1->slp(istrt:ilast,:,:))
+    var1 = short2flt(ctrl_in1->cldc(istrt:ilast,:,:))
 
     printVarSummary(var1)
     var1_season=month_to_season12(var1)

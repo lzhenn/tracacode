@@ -44,9 +44,9 @@ begin
     g_strt_yyyymm=190101       
     g_end_yyyymm=201012
 
-    g_font = 0.02
+    g_font = 0.025
 
-    g_fig_name    =   "../fig/Pr_cldc_timeseries_20R-anncyc"
+    g_fig_name    =   "../../fig/Pr_cldc_timeseries_20R-anncyc"
     g_fig_rank    =   (/"","","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
     
     g_fig_title     = (/"Southern China ","MC+WEP "/)+"ANN Pr Timeseries"
@@ -115,7 +115,7 @@ begin
 ;*********************************
 ; create plot
 ;********************************
- wks   = gsn_open_wks ("eps", "../../fig/Fig2b-20CR-cldc-seasonality" )  ; send graphics to PNG file
+ wks   = gsn_open_wks ("eps", "../../fig/paper/Fig2b-20CR-cldc-seasonality" )  ; send graphics to PNG file
  res   = True
 ; res@gsnScale = True               
  res@gsnFrame= False
@@ -124,18 +124,24 @@ begin
 
 ; res@vpXF      = 0.10        ; In page coordinates, where to start
 ; res@vpYF      = 0.75        ; the plot
- res@vpHeightF = 0.43        ; Changes the aspect ratio
- res@vpWidthF  = 0.85
- res@gsnMaximize = True
+ res@vpHeightF = 0.36        ; Changes the aspect ratio
+ res@vpWidthF  = 0.8
+ res@gsnMaximize = False 
  res@gsnStringFontHeightF = g_font
-eres@trXMinF   = 0        ; min value on y-axis
+ res@tiYAxisFontHeightF = g_font
+ res@tiXAxisFontHeightF = g_font
+ res@tmXBLabelFontHeightF = 0.018
+ res@tmYLLabelFontHeightF = g_font
+res@trXMinF   = 0        ; min value on y-axis
  res@trXMaxF   =  13        ; max value on y-axis
  res@trYMinF   = 0        ; min value on y-axis
- res@trYMaxF   =  45        ; max value on y-axis
+ res@trYMaxF   =  25        ; max value on y-axis
+ res@tmXTOn = False
 
  res@tiYAxisString = "Change (%/100a)" ; y-axis label      
- res@tiXAxisString = ""
- res@tiMainString  = "Change relative to 1901-2010 Clim" ; title
+ res@tiXAxisString = "Season"
+ res@gsnCenterString  = "Change relative to 1901-2010 Clim" ; title
+ res@gsnLeftString  = "(b)" ; title
 
  res@gsnYRefLine           = 0.              ; reference line   
  res@gsnXYBarChart         = True            ; create bar chart 
