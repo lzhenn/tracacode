@@ -33,8 +33,8 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-;    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/noaa_er_sst-185401-201305.nc"
-     g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST/HadISST_sst.nc"
+    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/noaa_er_sst-185401-201305.nc"
+ ;    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST/HadISST_sst.nc"
 
     g_font = 0.02
     g_season="MAM" 
@@ -43,7 +43,7 @@ begin
     g_lonW=90.
     g_lonE=270.
     ; create an array of desired pressure levels:
-    g_fig_name = "../fig/MAM-hadlsst-clim-e"
+    g_fig_name = "../../fig/paper/Fig3b-ersst-diff"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -66,7 +66,7 @@ begin
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("x11",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -92,8 +92,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMaxLevelValF        = 30         ; set min contour level
- res@cnMinLevelValF        = 22        ; set max contour level
+ res@cnMinLevelValF        = -2         ; set min contour level
+ res@cnMaxLevelValF        = 2        ; set max contour level
  res@cnLevelSpacingF       = 0.25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -157,8 +157,8 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "HadlSST 1980-2010"
-  res@gsnRightString = ""
+  res@gsnLeftString = "(b) ERSST diff between 1981-2010 and 1901-1930"
+  res@gsnRightString = "degC"
        
   vcres = True
   vcres@gsnDraw          = False           ; don't draw
@@ -183,7 +183,7 @@ begin
  
 
 
-  plot_sh= gsn_csm_contour_map(wks,clim_var1_l,res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
 ;  plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
 ;  overlay(plot_sh,plot_V)

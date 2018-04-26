@@ -49,7 +49,7 @@ begin
     g_topo_path="../../PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_1.9x2.5_remap_c050602.nc"
 
     g_font = 0.02
-    g_level=850
+    g_level=1000
   
     g_latN=30
     g_latS=-30
@@ -252,7 +252,7 @@ begin
  
 
   g_fig_name="../fig/global-850uv-pr-had-"+g_season
-  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("x11",g_fig_name)  ; open a ps file
   gsn_define_colormap(wks,"precip_diff_12lev")
   res@gsnCenterString="850UV & Pr Diff (ER_CTRL-ER_E20C)"
 

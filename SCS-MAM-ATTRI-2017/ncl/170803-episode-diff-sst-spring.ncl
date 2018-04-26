@@ -34,7 +34,7 @@ begin
     ;Define parameters
     g_var_name = "r"
 ;    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/noaa_er_sst-185401-201305.nc"
-     g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST_sst_1870-2016.nc"
+     g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST/HadISST_sst.nc"
 
     g_font = 0.02
     g_season="MAM" 
@@ -66,7 +66,7 @@ begin
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("x11",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -110,7 +110,7 @@ begin
   res@gsnStringFontHeightF = g_font
 
   ;res@gsnMaximize      = True       ; fill up the page
-  res@gsnAddCyclic   = False
+  res@gsnAddCyclic   = True 
   res@gsnPaperOrientation = "portrait"
   ;res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
