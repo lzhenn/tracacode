@@ -44,7 +44,7 @@ begin
     g_strt_yyyymm=190101       
     g_end_yyyymm=201012
 
-    g_font = 0.025
+    g_font = 0.02
 
     g_fig_name    =   "../../fig/Pr_cldc_timeseries_20R-anncyc"
     g_fig_rank    =   (/"","","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)"/)
@@ -124,20 +124,20 @@ begin
 
 ; res@vpXF      = 0.10        ; In page coordinates, where to start
 ; res@vpYF      = 0.75        ; the plot
- res@vpHeightF = 0.36        ; Changes the aspect ratio
- res@vpWidthF  = 0.8
+ res@vpHeightF = 0.3        ; Changes the aspect ratio
+ res@vpWidthF  = 0.75
  res@gsnMaximize = False 
  res@gsnStringFontHeightF = g_font
  res@tiYAxisFontHeightF = g_font
  res@tiXAxisFontHeightF = g_font
  res@tmXBLabelFontHeightF = 0.018
  res@tmYLLabelFontHeightF = g_font
-res@trXMinF   = 0        ; min value on y-axis
+ res@trXMinF   = 0        ; min value on y-axis
  res@trXMaxF   =  13        ; max value on y-axis
- res@trYMinF   = 0        ; min value on y-axis
+ res@trYMinF   = -10        ; min value on y-axis
  res@trYMaxF   =  25        ; max value on y-axis
  res@tmXTOn = False
-
+ res@gsnYRefLine           = 0.              ; reference line   
  res@tiYAxisString = "Change (%/100a)" ; y-axis label      
  res@tiXAxisString = "Season"
  res@gsnCenterString  = "Change relative to 1901-2010 Clim" ; title
@@ -155,7 +155,32 @@ res@trXMinF   = 0        ; min value on y-axis
  plot = gsn_csm_xy (wks,fspan(0.875,11.875,12),ntrend,res) 
  res@gsnXYBarChartColors = (/"blue"/)                  ; but tweaking where
  plot1 = gsn_csm_xy(wks,fspan(1.125,12.125,12),ntrend2,res)        ; Western
- frame(wks)
+;*********************************************
+; add legend polygons
+;*********************************************
+; text resources
+  txtres               = True
+  txtres@txFontHeightF = 0.015        ; font height
+  txtres@txJust        = "CenterLeft" ; align text to left
+
+  xpts = (/0.6,0.63,0.63,0.6,0.6/)
+  ypts = (/0.2,0.2,0.21,0.21,0.2/)+0.55
+
+  pgres                  = True
+  pgres@gsLineThicknessF = 2.0   ; make lines thicker
+  pgres@gsFillColor = "Red" 
+  gsn_polygon_ndc(wks,xpts,ypts,pgres)
+  gsn_polyline_ndc(wks,xpts,ypts,pgres)
+  gsn_text_ndc(wks,"Precipitation",.66,.215+0.54,txtres)
+
+  ypts = (/0.19,0.19,0.18,0.18,0.19/)+0.54
+  pgres@gsFillColor = "Blue"
+  gsn_polygon_ndc(wks,xpts,ypts,pgres)
+  gsn_polyline_ndc(wks,xpts,ypts,pgres)
+  gsn_text_ndc(wks,"Cloud Cover",.66,.175+0.55,txtres)
+ 
+
+frame(wks)
 end
 
 
