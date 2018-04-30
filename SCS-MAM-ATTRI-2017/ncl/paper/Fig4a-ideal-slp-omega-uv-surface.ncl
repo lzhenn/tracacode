@@ -34,66 +34,70 @@ begin
     g_var_name = (/"U","V"/)
     
     
-    ctrl_dir="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/SCS_ATTRI_20C-2018/pre/ctrl"    
+    ctrl_dir="/home/lzhenn/array/lzhenn/data/SCS_ATTRI_20C-2018/pre/ctrl"    
    
-    sen_dir="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/SCS_ATTRI_20C-2018/pre/sen"    
+    sen_dir="/home/lzhenn/array/lzhenn/data/SCS_ATTRI_20C-2018/pre/sen"    
 
 
     g_font = 0.02
     g_level=1000
   
-    g_latN=30
-    g_latS=-30
-    g_lonE=270
+    g_latN=20
+    g_latS=-20
+    g_lonE=180
     g_lonW=60
     g_season="MAM"
     g_skip_year=3
 
+
+    g_start=10
+    g_end=24
     ;Prepare the variables
     all_files = systemfunc ("ls "+ctrl_dir+"/*");
     ctrl_in     = addfiles (all_files, "r")   ; note the "s" of addfile
-    var1  =ctrl_in->U(:,0,:,:)
-    var2  =ctrl_in->V(:,0,:,:)
-    exit
-    var3  =ctrl_in->PRECC
-    var4 =ctrl_in->PRECL
+    var1  =ctrl_in[:]->U(g_start:g_end,29,:,:)
+    var2  =ctrl_in[:]->V(g_start:g_end,29,:,:)
+    var3  =ctrl_in[:]->OMEGA(g_start:g_end,18,:,:)
+    var4  =ctrl_in[:]->PSL(g_start:g_end,:,:)
+    printVarSummary(var4)
 
-    sen_in     = addfile (g_data_sen_path1, "r")   ; note the "s" of addfile
-    sen_var1  =sen_in->U
-    sen_in     = addfile (g_data_sen_path2, "r")   ; note the "s" of addfile
-    sen_var2  =sen_in->V
-    sen_in     = addfile (g_data_sen_path3, "r")   ; note the "s" of addfile
-    sen_var3  =sen_in->PRECC
-    sen_in     = addfile (g_data_sen_path4, "r")   ; note the "s" of addfile
-    sen_var4 =sen_in->PRECL
-    sen_var3=(sen_var3+sen_var4)*1000*86400
-
-    topo_in= addfile(g_topo_path,"r")
-    topo_var =topo_in->PHIS
-    topo_var =topo_var/10
-
+    all_files = systemfunc ("ls "+sen_dir+"/*");
+    sen_in     = addfiles (all_files, "r")   ; note the "s" of addfile
+    sen_var1  =sen_in[:]->U(g_start:g_end,29,:,:)
+    sen_var2  =sen_in[:]->V(g_start:g_end,29,:,:)
+    sen_var3  =sen_in[:]->OMEGA(g_start:g_end,18,:,:)
+    sen_var4  =sen_in[:]->PSL(g_start:g_end,:,:)
     
-    var1_clim=dim_avg_n_Wrap(month_to_season(var1(g_skip_year*12:12*12-1,:,:,:),g_season),0)
-    var2_clim=dim_avg_n_Wrap(month_to_season(var2(g_skip_year*12:12*12-1,:,:,:),g_season),0)
-    var3_clim=dim_avg_n_Wrap(month_to_season(var3(g_skip_year*12:12*12-1,:,:),g_season),0)
+    var1_clim=dim_avg_n_Wrap(var1,0)
+    var2_clim=dim_avg_n_Wrap(var2,0)
+    var3_clim=dim_avg_n_Wrap(var3,0)
+    var4_clim=dim_avg_n_Wrap(var4,0)
 
-    sen_var1_clim=dim_avg_n_Wrap(month_to_season(sen_var1(g_skip_year*12:12*12-1,:,:,:),g_season),0)
-    sen_var2_clim=dim_avg_n_Wrap(month_to_season(sen_var2(g_skip_year*12:12*12-1,:,:,:),g_season),0)
-    sen_var3_clim=dim_avg_n_Wrap(month_to_season(sen_var3(g_skip_year*12:12*12-1,:,:),g_season),0)
+    sen_var1_clim=dim_avg_n_Wrap(sen_var1,0)
+    sen_var2_clim=dim_avg_n_Wrap(sen_var2,0)
+    sen_var3_clim=dim_avg_n_Wrap(sen_var3,0)
+    sen_var4_clim=dim_avg_n_Wrap(sen_var4,0)
+
+
+
 
     diff_var1=var1_clim
     diff_var2=var2_clim
     diff_var3=var3_clim
+    diff_var4=var4_clim
     
-    diff_var1=var1_clim-sen_var1_clim
-    diff_var2=var2_clim-sen_var2_clim
-    diff_var3=var3_clim-sen_var3_clim
+    diff_var1=sen_var1_clim-var1_clim
+    diff_var2=sen_var2_clim-var2_clim
+    diff_var3=sen_var3_clim-var3_clim
+    diff_var4=sen_var4_clim-var4_clim
+
     ws = wind_speed(diff_var1, diff_var2)
     diff_var1=where(ws .gt. 0.5, diff_var1, diff_var1@_FillValue)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
+  wks = gsn_open_wks("x11","../../fig/paper/Fig4a-slp-w500-uvbot-ideal")  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -103,7 +107,7 @@ begin
 ;  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
-;  gsn_define_colormap(wks,"BlAqGrYeOrReVi200") ; choose a colormap 
+  gsn_define_colormap(wks,"BlAqGrWh2YeOrReVi22") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
@@ -132,9 +136,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -2.0        ; set min contour level
- res@cnMaxLevelValF        = 2.0         ; set max contour level
- res@cnLevelSpacingF       = 0.25          ; set contour interval
+ res@cnMinLevelValF        = -400        ; set min contour level
+ res@cnMaxLevelValF        = 400         ; set max contour level
+ res@cnLevelSpacingF       = 25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -199,23 +203,32 @@ begin
      
   res@gsnLeftString = ""
   res@gsnRightString = ""
+      
+      res3                  = True       ; use plot options
+      res3@cnFillOn         = False;True       ; Fill contours
+      res3@cnLinesOn        = True      ; turn off contour lines
+    ;for tp masking
+      res3@gsnFrame         = False
+      res3@gsnDraw  = False
+      res3@cnLineLabelsOn   = False      ; turn off contour line labels
+      res3@cnLineThicknessF = 3 
+      res3@cnInfoLabelOn = False
+     
+     
+      res3@cnLevelSelectionMode="ExplicitLevels"
+      res3@cnLevels = (/0.02,0.04,0.06,0.08,0.1/)
+      res3@cnLineColor      = "Red"
+      res3@gsnLeftString      = " "
+      res3@gsnRightString      = " "
 
-  res3                  = True       ; use plot options
-  res3@cnFillOn         = False;True       ; Fill contours
-  res3@cnLinesOn        = True      ; turn off contour lines
-;for tp masking
-  res3@gsnFrame         = False
-  res3@gsnDraw  = False
-  res3@cnLineLabelsOn   = False     ; turn off contour line labels
-  res3@cnLineThicknessF = 3
-  res3@cnLineColor      = "black"
-  res3@cnInfoLabelOn = False
- 
- 
-  res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/1500/)
-  res3@gsnLeftString      = " "
-  res3@gsnRightString      = " " 
+
+      plot_cn_pos = gsn_csm_contour(wks,diff_var3,res3)
+
+      res3@cnLevels = (/-0.02,-0.04,-0.06,-0.08,-0.1/)
+      res3@cnLineColor      = "Blue"
+      res3@cnLineDashPattern      = 1
+      
+      plot_cn_neg = gsn_csm_contour(wks,diff_var3,res3)
 
 
 
@@ -242,15 +255,14 @@ begin
  
 
   g_fig_name="../../fig/paper/Fig3c-1000uv-pr-had-"+g_season
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
-  gsn_define_colormap(wks,"precip_diff_12lev")
   res@gsnLeftString="(c) Pr & 1000UV diff (Had_CTRL-Had_E20C)"
   res@gsnRightString="mm/day"
-  plot_sh= gsn_csm_contour_map(wks,diff_var3,res) ; create a default plot
-  plot_cn= gsn_csm_contour(wks,topo_var,res3) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,diff_var4,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  plot_V = gsn_csm_vector(wks,diff_var1({g_level},:,:),diff_var2({g_level},:,:),vcres) 
+  plot_V = gsn_csm_vector(wks,diff_var1,diff_var2,vcres) 
   ;overlay(plot_sh,plot_cn)
+  overlay(plot_sh,plot_cn_pos)
+  overlay(plot_sh,plot_cn_neg)
   overlay(plot_sh,plot_V)
   draw(plot_sh)
   frame(wks)
