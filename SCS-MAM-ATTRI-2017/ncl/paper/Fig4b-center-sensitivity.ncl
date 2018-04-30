@@ -15,7 +15,12 @@ begin
 
   g_font=0.02
 
-  wks  = gsn_open_wks("x11","../fig/map_only_heating_center")      ; send graphics to PNG file
+  wks  = gsn_open_wks("png","../../fig/paper/Fig4e-all")      ; send graphics to PNG file
+  color_table="WhiteYellowOrangeRed"
+  gsn_define_colormap(wks,color_table) ; choose a colormap 
+  cmap = read_colormap_file(color_table)    ; returns 254 x 4 array
+  rgba = span_color_rgba(cmap,20)
+
 
   res                        = True         ; mods desired
   res@mpOceanFillColor       = "lightskyblue"            ; array index in color map
@@ -30,26 +35,49 @@ begin
   res@tmYLLabelFontHeightF = g_font
   res@tmXBLabelFontHeightF = g_font
  
-  res@gsnLeftString = "Array of Idealized Simulation Heating Centers"
+  res@lbLabelBarOn = True   ; turn off the label bar
+  res@lbOrientation          = "vertical"
+  res@lbLabelFontHeightF  = g_font              ; make labels smaller
 
-  polyres                   = True
-  polyres@gsMarkerIndex     = 13          ; polymarker style
-  polyres@gsMarkerSizeF     = 16.          ; polymarker size
-  polyres@gsMarkerThicknessF     = 3.          ; polymarker size
-  polyres@gsMarkerColor     = "black"          ; polymarker size
 
-  plot = gsn_csm_map(wks,res)        ; draw global map
+ plot = gsn_csm_map(wks,res)        ; draw global map
 
+
+  gsres=True
+  gsres@gsMarkerIndex=16
+  gsres@gsMarkerSizeF      = 0.018
+  gsres@gsMarkerThicknessF = 0.7
+  gsres_out=gsres
+  gsres_out@gsMarkerSizeF      = 0.022
+  gsres_out@gsMarkerColor="Black"
+  
+  
   lon0=90
   lat0=0
+  wind1=(/0.8,1.3,1.5, 1.6, 2.0/)
+  cn_level=0.1
   do ii=0,4
-    plot@$unique_string("fxxk ncl")$    = gsn_add_polymarker(wks,plot,lon0,lat0,polyres)
-    lon0=lon0+10
+      n_color=floattoint(floor(wind1(ii)/cn_level))
+      if n_color .gt. 19 then
+        n_color = 19
+      end if
+      gsres@gsMarkerColor      = rgba(n_color,:)
+      plot@$unique_string("fuck ncl")$ = gsn_add_polymarker(wks,plot,lon0,lat0,gsres_out)
+      plot@$unique_string("fuck ncl")$ = gsn_add_polymarker(wks,plot,lon0,lat0,gsres)
+      lon0=lon0+10
   end do
   lon0=110
   lat0=-10
+  wind1=(/0.05, 0.33, 1.5, 0.45, 0.1/)
   do ii=0,4
-    plot@$unique_string("fxxk ncl")$    = gsn_add_polymarker(wks,plot,lon0,lat0,polyres)
+      n_color=floattoint(floor(wind1(ii)/cn_level))
+      if n_color .gt. 20 then
+        n_color = 20
+      end if
+      print(n_color)
+      gsres@gsMarkerColor      = rgba(n_color,:)
+      plot@$unique_string("fuck ncl")$ = gsn_add_polymarker(wks,plot,lon0,lat0,gsres_out)
+      plot@$unique_string("fuck ncl")$ = gsn_add_polymarker(wks,plot,lon0,lat0,gsres)
     lat0=lat0+5
   end do
 

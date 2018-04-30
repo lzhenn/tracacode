@@ -34,9 +34,9 @@ begin
     g_var_name = (/"U","V"/)
     
     
-    ctrl_dir="/home/lzhenn/array/lzhenn/data/SCS_ATTRI_20C-2018/pre/ctrl"    
+    ctrl_dir="/users/yangsong3/L_Zealot/F/Ideal_phy/ctrl"    
    
-    sen_dir="/home/lzhenn/array/lzhenn/data/SCS_ATTRI_20C-2018/pre/sen"    
+    sen_dir="/users/yangsong3/L_Zealot/F/Ideal_phy/exe"    
 
 
     g_font = 0.02
@@ -51,7 +51,7 @@ begin
 
 
     g_start=10
-    g_end=24
+    g_end=89
     ;Prepare the variables
     all_files = systemfunc ("ls "+ctrl_dir+"/*");
     ctrl_in     = addfiles (all_files, "r")   ; note the "s" of addfile
@@ -61,7 +61,7 @@ begin
     var4  =ctrl_in[:]->PSL(g_start:g_end,:,:)
     printVarSummary(var4)
 
-    all_files = systemfunc ("ls "+sen_dir+"/*");
+    all_files := systemfunc ("ls "+sen_dir+"/*cam.h*");
     sen_in     = addfiles (all_files, "r")   ; note the "s" of addfile
     sen_var1  =sen_in[:]->U(g_start:g_end,29,:,:)
     sen_var2  =sen_in[:]->V(g_start:g_end,29,:,:)
@@ -97,7 +97,7 @@ begin
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("x11","../../fig/paper/Fig4a-slp-w500-uvbot-ideal")  ; open a ps file
+  wks = gsn_open_wks("png","../../fig/paper/Fig4a-slp-w500-uvbot-ideal")  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -136,8 +136,8 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -400        ; set min contour level
- res@cnMaxLevelValF        = 400         ; set max contour level
+ res@cnMinLevelValF        = -200        ; set min contour level
+ res@cnMaxLevelValF        = 200         ; set max contour level
  res@cnLevelSpacingF       = 25          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
@@ -216,7 +216,7 @@ begin
      
      
       res3@cnLevelSelectionMode="ExplicitLevels"
-      res3@cnLevels = (/0.02,0.04,0.06,0.08,0.1/)
+      res3@cnLevels = (/0.005, 0.01, 0.02,0.04,0.06/)
       res3@cnLineColor      = "Red"
       res3@gsnLeftString      = " "
       res3@gsnRightString      = " "
@@ -224,7 +224,7 @@ begin
 
       plot_cn_pos = gsn_csm_contour(wks,diff_var3,res3)
 
-      res3@cnLevels = (/-0.02,-0.04,-0.06,-0.08,-0.1/)
+      res3@cnLevels = - res3@cnLevels 
       res3@cnLineColor      = "Blue"
       res3@cnLineDashPattern      = 1
       
