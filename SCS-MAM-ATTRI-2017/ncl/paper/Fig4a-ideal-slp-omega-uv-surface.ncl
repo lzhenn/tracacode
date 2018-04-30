@@ -34,19 +34,10 @@ begin
     g_var_name = (/"U","V"/)
     
     
-    ctrl_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/ctrl-had"    
-    g_data_ctrl_path1 =ctrl_dir+"/as-bob-test.cam.h0.U.1-15.nc"
-    g_data_ctrl_path2 =ctrl_dir+"/as-bob-test.cam.h0.V.1-15.nc"
-    g_data_ctrl_path3 =ctrl_dir+"/as-bob-test.cam.h0.PRECC.1-15.nc"
-    g_data_ctrl_path4 =ctrl_dir+"/as-bob-test.cam.h0.PRECL.1-15.nc"
-    
-    sen_dir="/home/yangsong3/data/model/L_Zealot/POST_SCRATCH-2017/E20C-had"    
-    g_data_sen_path1 =sen_dir+"/as-bob-test.cam.h0.U.1-12.nc"
-    g_data_sen_path2 =sen_dir+"/as-bob-test.cam.h0.V.1-12.nc"
-    g_data_sen_path3 =sen_dir+"/as-bob-test.cam.h0.PRECC.1-12.nc"
-    g_data_sen_path4 =sen_dir+"/as-bob-test.cam.h0.PRECL.1-12.nc"
- 
-    g_topo_path="../../../PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_1.9x2.5_remap_c050602.nc"
+    ctrl_dir="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/SCS_ATTRI_20C-2018/pre/ctrl"    
+   
+    sen_dir="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/SCS_ATTRI_20C-2018/pre/sen"    
+
 
     g_font = 0.02
     g_level=1000
@@ -59,15 +50,13 @@ begin
     g_skip_year=3
 
     ;Prepare the variables
-    ctrl_in     = addfile (g_data_ctrl_path1, "r")   ; note the "s" of addfile
-    var1  =ctrl_in->U
-    ctrl_in     = addfile (g_data_ctrl_path2, "r")   ; note the "s" of addfile
-    var2  =ctrl_in->V
-    ctrl_in     = addfile (g_data_ctrl_path3, "r")   ; note the "s" of addfile
+    all_files = systemfunc ("ls "+ctrl_dir+"/*");
+    ctrl_in     = addfiles (all_files, "r")   ; note the "s" of addfile
+    var1  =ctrl_in->U(:,0,:,:)
+    var2  =ctrl_in->V(:,0,:,:)
+    exit
     var3  =ctrl_in->PRECC
-    ctrl_in     = addfile (g_data_ctrl_path4, "r")   ; note the "s" of addfile
     var4 =ctrl_in->PRECL
-    var3=(var3+var4)*1000*86400
 
     sen_in     = addfile (g_data_sen_path1, "r")   ; note the "s" of addfile
     sen_var1  =sen_in->U
