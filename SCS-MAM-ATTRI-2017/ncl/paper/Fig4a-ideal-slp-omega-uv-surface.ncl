@@ -40,7 +40,6 @@ begin
 
 
     g_font = 0.02
-    g_level=1000
   
     g_latN=20
     g_latS=-20
@@ -50,21 +49,21 @@ begin
     g_skip_year=3
 
 
-    g_start=10
-    g_end=89
+    g_start=0
+    g_end=179
     ;Prepare the variables
     all_files = systemfunc ("ls "+ctrl_dir+"/*");
     ctrl_in     = addfiles (all_files, "r")   ; note the "s" of addfile
-    var1  =ctrl_in[:]->U(g_start:g_end,29,:,:)
-    var2  =ctrl_in[:]->V(g_start:g_end,29,:,:)
+    var1  =ctrl_in[:]->U(g_start:g_end,27,:,:)
+    var2  =ctrl_in[:]->V(g_start:g_end,27,:,:)
     var3  =ctrl_in[:]->OMEGA(g_start:g_end,18,:,:)
     var4  =ctrl_in[:]->PSL(g_start:g_end,:,:)
-    printVarSummary(var4)
+    printVarSummary(var1)
 
     all_files := systemfunc ("ls "+sen_dir+"/*cam.h*");
     sen_in     = addfiles (all_files, "r")   ; note the "s" of addfile
-    sen_var1  =sen_in[:]->U(g_start:g_end,29,:,:)
-    sen_var2  =sen_in[:]->V(g_start:g_end,29,:,:)
+    sen_var1  =sen_in[:]->U(g_start:g_end,27,:,:)
+    sen_var2  =sen_in[:]->V(g_start:g_end,27,:,:)
     sen_var3  =sen_in[:]->OMEGA(g_start:g_end,18,:,:)
     sen_var4  =sen_in[:]->PSL(g_start:g_end,:,:)
     
@@ -107,7 +106,7 @@ begin
 ;  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
-  gsn_define_colormap(wks,"BlAqGrWh2YeOrReVi22") ; choose a colormap 
+  gsn_define_colormap(wks,"ViBlGrWhYeOrRe") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
@@ -136,9 +135,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -200        ; set min contour level
- res@cnMaxLevelValF        = 200         ; set max contour level
- res@cnLevelSpacingF       = 25          ; set contour interval
+ res@cnMinLevelValF        = -150        ; set min contour level
+ res@cnMaxLevelValF        = 150         ; set max contour level
+ res@cnLevelSpacingF       = 15          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
