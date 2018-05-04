@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=ENSO-REV-2018
+WORKNAME=CONV_MON_WKR-2018
 
 # Now to create the workspace
 mkdir $WORKNAME
