@@ -15,7 +15,7 @@ begin
 
   g_font=0.02
 
-  wks  = gsn_open_wks("png","../../fig/paper/Fig4e-all")      ; send graphics to PNG file
+  wks  = gsn_open_wks("eps","../../fig/paper/Fig4b-all")      ; send graphics to PNG file
   color_table="WhiteYellowOrangeRed"
   gsn_define_colormap(wks,color_table) ; choose a colormap 
   cmap = read_colormap_file(color_table)    ; returns 254 x 4 array
@@ -33,12 +33,10 @@ begin
   res@mpMinLatF              = -20
   res@mpMaxLatF              = 20
   res@tmYLLabelFontHeightF = g_font
-  res@tmXBLabelFontHeightF = g_font
- 
-  res@lbLabelBarOn = True   ; turn off the label bar
-  res@lbOrientation          = "vertical"
-  res@lbLabelFontHeightF  = g_font              ; make labels smaller
-
+  res@tmXBLabelFontHeightF = g_font 
+  res@gsnStringFontHeightF = g_font
+  res@gsnLeftString = "(b) Averaged Surf Wind"
+  res@gsnRightString = "m/s"
 
  plot = gsn_csm_map(wks,res)        ; draw global map
 

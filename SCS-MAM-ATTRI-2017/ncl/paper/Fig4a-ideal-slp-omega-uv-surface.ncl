@@ -49,7 +49,7 @@ begin
     g_skip_year=3
 
 
-    g_start=0
+    g_start=31
     g_end=179
     ;Prepare the variables
     all_files = systemfunc ("ls "+ctrl_dir+"/*");
@@ -96,7 +96,7 @@ begin
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("png","../../fig/paper/Fig4a-slp-w500-uvbot-ideal")  ; open a ps file
+  wks = gsn_open_wks("eps","../../fig/paper/Fig4x-label")  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -106,7 +106,7 @@ begin
 ;  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
-  gsn_define_colormap(wks,"ViBlGrWhYeOrRe") ; choose a colormap 
+  gsn_define_colormap(wks,"WhiteYellowOrangeRed") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
@@ -135,9 +135,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -150        ; set min contour level
- res@cnMaxLevelValF        = 150         ; set max contour level
- res@cnLevelSpacingF       = 15          ; set contour interval
+ res@cnMinLevelValF        = 0        ; set min contour level
+ res@cnMaxLevelValF        = 1         ; set max contour level
+ res@cnLevelSpacingF       = 0.1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -241,21 +241,21 @@ begin
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
   vcres@vcRefMagnitudeF         = 2.0             ; define vector ref mag
-  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+  vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.02
+  vcres@vcMinDistanceF          = 0.025
   vcres@vcRefAnnoString1  = "2 m/s"
   vcres@vcRefAnnoString2  = ""
-  vcres@vcRefAnnoFontHeightF = 0.015
+  vcres@vcRefAnnoFontHeightF = 0.012
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
-  vcres@vcLineArrowHeadMinSizeF   = 0.005
-  vcres@vcLineArrowHeadMaxSizeF   = 0.005
+  vcres@vcLineArrowHeadMinSizeF   = 0.008
+  vcres@vcLineArrowHeadMaxSizeF   = 0.008
  
 
-  g_fig_name="../../fig/paper/Fig3c-1000uv-pr-had-"+g_season
-  res@gsnLeftString="(c) Pr & 1000UV diff (Had_CTRL-Had_E20C)"
-  res@gsnRightString="mm/day"
+  g_fig_name="../../fig/paper/Fig3a-1000uv-pr-had-"+g_season
+  res@gsnLeftString="(a) Day 31-180 SLP, Omega, and Surf Wind"
+  print( wgt_areaave_Wrap(diff_var1({-5:5},{150:190}),1.0,1.0,0))
   plot_sh= gsn_csm_contour_map(wks,diff_var4,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
   plot_V = gsn_csm_vector(wks,diff_var1,diff_var2,vcres) 
