@@ -12,13 +12,12 @@
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
 # With only ensemble output in it
-PRE_DIR_ORG=/users/yangsong3/L_Zealot/F/AMIP_C5PM_TP_NUDG/post_data/
-
+PRE_DIR_ORG=/users/yangsong3/L_Zealot/F/aquac4/pro/
 
 # Names of 2D fields
 #FDNAME2D="(/\"FLUT\"/)" #often use
-#FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"TMQ\"/)" #often use
-FDNAME2D="(/\"PRECL\",\"PRECC\"/)" #often use
+FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"TMQ\"/)" #often use
+#FDNAME2D="(/\"PRECL\",\"PRECC\"/)" #often use
 
 # Names of 3D fields
 FDNAME3D="(/\"U\",\"V\",\"T\"/)" #often use
@@ -29,7 +28,7 @@ FDNAME3D="(/\"U\",\"V\",\"T\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
 
 # Process fig flag
-FLAG2D=0
+FLAG2D=1
 FLAG3D=1
 FLAG3DHY=0
 

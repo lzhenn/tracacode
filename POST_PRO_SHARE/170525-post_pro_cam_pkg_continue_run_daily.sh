@@ -34,7 +34,7 @@ FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\"/)" # hybrid coordinate
 
 # First year of the subset
-FRSTYEAR=6
+FRSTYEAR=20
 
 # Last year of the subset
 LSTYEAR=20
@@ -50,7 +50,7 @@ PLEV="(/1000,925,850,700,500,200/)"
 
 
 # Process flag
-FLAG_2D=1
+FLAG_2D=0
 FLAG_3D=1
 FLAG_3D_HY=0
 
