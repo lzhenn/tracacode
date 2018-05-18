@@ -33,84 +33,43 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-    g_data_path ="/home/yangsong3/data/observation/PRECPT/GPCC_precip.mon.total.05x05.v7.nc"
-    g_data_path1 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/uwnd.10m.mon.mean.nc"
-    g_data_path2 ="/home/yangsong3/L_Zealot/data-mirror/obv/20thCRV2/vwnd.10m.mon.mean.nc"
+    g_data_path1 ="/users/yangsong3/L_Zealot/F/aquac4/pro/clim/aquac4.cam.h1.ESM.clim.daily.PRECC.nc"
+    g_data_path2 ="/users/yangsong3/L_Zealot/F/aquac4/pro/clim/aquac4.cam.h1.ESM.clim.daily.PRECL.nc"
+    g_data_path3 ="/users/yangsong3/L_Zealot/F/aquac4/pro/clim/aquac4.cam.h1.ESM.clim.U.nc"
+    g_data_path4 ="/users/yangsong3/L_Zealot/F/aquac4/pro/clim/aquac4.cam.h1.ESM.clim.V.nc"
+ ;    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST/HadISST_sst.nc"
 
     g_font = 0.02
-    g_season="MAM" 
-    g_latS=-20.
-    g_latN=20.
-    g_lonW=60.
-    g_lonE=180.
+    g_latS=0.
+    g_latN=60.
+    g_lonW=70.
+    g_lonE=140.
     ; create an array of desired pressure levels:
-    g_fig_name = "../../fig/paper/Fig1b-land-uv-diff-prcc-station-1901-1930"
-    g_strt_yyyymm=190101
-    g_end_yyyymm=201012
-
-    ctrl_in1     = addfile (g_data_path, "r")   ; note the "s" of addfile
-    time := ctrl_in1->time
-    yyyymm :=floor( cd_calendar(time,-1))
-    istrt = ind(yyyymm .eq. g_strt_yyyymm)
-    ilast = ind(yyyymm .eq. g_end_yyyymm)
-    var1 = short2flt(ctrl_in1->p(istrt:ilast,:,:))
-    var1=var1(:,::-1,:)
-    var1&lat@units="degree_north"
-    ;var1=var1*86400
-    var4=ctrl_in1->s(istrt:ilast,:,:)
-    var4=var4(:,::-1,:)
-    var4&lat@units="degree_north"
-
-
-
+    g_fig_name = "../fig/aqua-pr-wind"
 
     ctrl_in1     = addfile (g_data_path1, "r")   ; note the "s" of addfile
-    var2 = short2flt(ctrl_in1->uwnd(istrt:ilast,:,:))
-    ctrl_in1     = addfile (g_data_path2, "r")   ; note the "s" of addfile
-    var3 = short2flt(ctrl_in1->vwnd(istrt:ilast,:,:))
+    var1 = ctrl_in1->PRECC
+    ctrl_in2     = addfile (g_data_path2, "r")   ; note the "s" of addfile
+    var2 = ctrl_in2->PRECL
+    var1= 86400*1000*(var1+var2)
+    clim_var1=dim_avg_n_Wrap(var1,0)
     
-    season_var1=month_to_season(var1,g_season)
-    season_var2=month_to_season(var2,g_season)
-    season_var3=month_to_season(var3,g_season)
-    
-    clim_var1_e=dim_avg_n_Wrap(season_var1(0:29,:,:),0)
-    clim_var2_e=dim_avg_n_Wrap(season_var2(0:29,:,:),0)
-    clim_var3_e=dim_avg_n_Wrap(season_var3(0:29,:,:),0)
-    
-    clim_var1_l=dim_avg_n_Wrap(season_var1(80:,:,:),0)
-    clim_var2_l=dim_avg_n_Wrap(season_var2(80:,:,:),0)
-    clim_var3_l=dim_avg_n_Wrap(season_var3(80:,:,:),0)
+    ctrl_in3     = addfile (g_data_path3, "r")   ; note the "s" of addfile
+    var3 = ctrl_in3->U(:,0,:,:)
+    ctrl_in4     = addfile (g_data_path4, "r")   ; note the "s" of addfile
+    var4 = ctrl_in4->V(:,0,:,:)
 
-    diff_var1=clim_var1_e
-    diff_var2=clim_var2_e
-    diff_var3=clim_var3_e
-
-    diff_var1=clim_var1_l-clim_var1_e
-    diff_var2=clim_var2_l-clim_var2_e
-    diff_var3=clim_var3_l-clim_var3_e
-    season_var4=month_to_season(var4,g_season)
-    clim_var4_e=dim_avg_n_Wrap(season_var4(0:29,:,:),0)
-    diff_var1=where(clim_var4_e .gt. 0,  diff_var1,diff_var1@_FillValue)
-    printVarSummary(diff_var1)
-
-
-     LAT=fspan(-90,90, 73)
-     LON=fspan(-180,180, 144)
-     opt = True
-     opt@critpc = 10                ; require only 50% of the values to be present 
-     diff_var1:= area_hi2lores_Wrap(diff_var1&lon,diff_var1&lat, diff_var1, True, 1,  LON, LAT, opt  )  ; (ntim,49,120)
-    print(avg(where(diff_var1({-15:15},{90:150}) .lt.0,diff_var1({-15:15},{90:150}),0)))
-    print(avg(where(diff_var1({-15:15},{90:150}) .gt.0,diff_var1({-15:15},{90:150}),0)))
+    clim_var3=dim_avg_n_Wrap(var3,0)
+    clim_var4=dim_avg_n_Wrap(var4,0)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("png",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
- gsn_define_colormap(wks,"precip_diff_12lev")
-; gsn_define_colormap(wks,"MPL_StepSeq")
-; gsn_define_colormap(wks,"WhiteYellowOrangeRed")
+
+    gsn_define_colormap(wks,"precip2_17lev")
   plot = new((/1/),graphic)
 
 ;-----------------------------------------------------------------------------
@@ -133,9 +92,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        =-30         ; set min contour level
- res@cnMaxLevelValF        =30        ; set max contour level
- res@cnLevelSpacingF       = 3          ; set contour interval
+ res@cnMinLevelValF        = 0         ; set min contour level
+ res@cnMaxLevelValF        = 20        ; set max contour level
+ res@cnLevelSpacingF       = 2          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -151,7 +110,7 @@ begin
   res@gsnStringFontHeightF = g_font
 
   ;res@gsnMaximize      = True       ; fill up the page
-  res@gsnAddCyclic   = False
+  res@gsnAddCyclic   = True 
   res@gsnPaperOrientation = "portrait"
   ;res@gsnContourZeroLineThicknessF = 2.  ;set thickness of zero
 
@@ -160,7 +119,8 @@ begin
   res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = g_font              ; make labels smaller
   res@lbLabelStride = 2 
-  res@cnFillMode           = "CellFill"
+
+
   res@mpFillOn   =False   ; turn off gray continents
   res@mpGeophysicalLineThicknessF = 2
   res@mpGeophysicalLineColor      = "black";"white" 
@@ -169,7 +129,7 @@ begin
   res@mpMinLatF  =g_latS
   res@mpMaxLonF  =g_lonE
   res@mpMinLonF  =g_lonW
-
+  res@mpCenterLonF=180
 ;  res@mpShapeMode = "FreeAspect" 
 
 ;  res@vpWidthF = 0.8
@@ -187,7 +147,7 @@ begin
   res@tmXBMode="Explicit"
  ; res@tmXBValues=ispan(g_lonW,g_lonE,30)
  ; res@tmXBLabels=ispan(g_lonW,g_lonE,30)+"E"
-  res@tmYLTickSpacingF = 10
+  res@tmYLTickSpacingF = 30
   res@tmXBLabelFontHeightF = g_font
 ; res@tmXBLabelFontAspectF = 1.6
   res@tmXBLabelFontThicknessF = 2.0
@@ -197,8 +157,8 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "(b) NOAA PRCC, 20CR 10m uv diff"
-  res@gsnRightString = "mm/mon"
+  res@gsnLeftString = "Aqua Planet Clim Pr and Surf Wind"
+  res@gsnRightString = "mm/day"
        
   vcres = True
   vcres@gsnDraw          = False           ; don't draw
@@ -209,11 +169,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 10.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.05            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.025
-  vcres@vcRefAnnoString1  = "3 m/s"
+  vcres@vcMinDistanceF          = 0.03
+  vcres@vcRefAnnoString1  = "10 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.012
  
@@ -223,10 +183,10 @@ begin
  
 
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,clim_var1,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
-  ;overlay(plot_sh,plot_V)
+  plot_V = gsn_csm_vector(wks,clim_var3,clim_var4,vcres) 
+  overlay(plot_sh,plot_V)
   draw(plot_sh)
   frame(wks)
 

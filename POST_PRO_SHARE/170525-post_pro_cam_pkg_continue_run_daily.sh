@@ -30,11 +30,11 @@ FDNAME2D="(/\"PRECC\",\"PRECL\",\"PSL\",\"TS\"/)" #often use
 FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"RELHUM\"/)" #often use
 #FDNAME3D_HY="(/\"RELHUM\"/)" #often use
-#FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" # hybrid coordinate
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\"/)" # hybrid coordinate
 
 # First year of the subset
-FRSTYEAR=20
+FRSTYEAR=6
 
 # Last year of the subset
 LSTYEAR=20
@@ -51,8 +51,8 @@ PLEV="(/1000,925,850,700,500,200/)"
 
 # Process flag
 FLAG_2D=0
-FLAG_3D=1
-FLAG_3D_HY=0
+FLAG_3D=0
+FLAG_3D_HY=1
 
 #-----------------------------------------------------------
 
