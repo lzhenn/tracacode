@@ -87,7 +87,8 @@ begin
     var1_season_seamean=runave_Wrap(var1_season_seamean,3,1)
     var1_sn_rm_searunmean=runave_Wrap(var1_season_seamean,11,0)
     var1_sn_rm_sealine=regline(ispan(g_strt_year,g_end_year,1),var1_season_seamean)
-    
+    print(var1_sn_rm_sealine)
+    exit
 	ctrl_file2   = g_data_path2
 	ctrl_in2     = addfile (ctrl_file2, "r")   ; note the "s" of addfile
     var2  =short2flt(ctrl_in2->tp)			; p for unify the var name

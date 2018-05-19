@@ -20,15 +20,15 @@ FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"TMQ\"/)" #often use
 #FDNAME2D="(/\"PRECL\",\"PRECC\"/)" #often use
 
 # Names of 3D fields
-FDNAME3D="(/\"U\",\"V\",\"T\"/)" #often use
+FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"V\",\"T\",\"OMEGA\",\"Q\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
 # Names of 3D HY fields
-#FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
+FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" # hybrid coordinate
 
 # Process fig flag
-FLAG2D=1
+FLAG2D=0
 FLAG3D=1
 FLAG3DHY=0
 

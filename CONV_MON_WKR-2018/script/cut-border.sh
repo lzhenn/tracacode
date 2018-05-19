@@ -1,12 +1,12 @@
 #!/bin/sh
 
-PREFIX=../fig/asym/pr-pt-asian
-I_END=73
+PREFIX=../fig/year10/aqua-psl-500z3
+I_END=59
 
 
 for((I=1;I<=$I_END;I++))
 do
-    TFSTMP=`printf "%.2d" $I`
+    TFSTMP=`printf "%.3d" $I`
     echo $TFSTMP
-    convert -trim -geometry 800x800 +repage -border 8 -bordercolor white -background white -flatten ${PREFIX}${TFSTMP}.png ${PREFIX}${TFSTMP}.png
+    convert -trim +repage -bordercolor white -background white -flatten ${PREFIX}${TFSTMP}.png ${PREFIX}${TFSTMP}.png
 done
