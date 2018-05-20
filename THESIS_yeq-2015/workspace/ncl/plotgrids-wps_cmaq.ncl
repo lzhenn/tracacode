@@ -13,7 +13,7 @@ begin
 
 ; We generate plots, but what kind do we prefer?
 ;  type = "x11"
- type = "eps"
+ type = "x11"
 ; type = "ps"
 ; type = "ncgm"
   wks = gsn_open_wks(type,"wps_show_dom4")
