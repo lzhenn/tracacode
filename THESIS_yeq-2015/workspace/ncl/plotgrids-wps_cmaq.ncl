@@ -29,8 +29,8 @@ begin
 
 ; Set some map information ; line and text information
   mpres = True
-  ;mpres@gsnDraw                 = True 
-  ;mpres@gsnFrame                = False
+  mpres@gsnDraw                 = False 
+  mpres@gsnFrame                = False
 
 
   mpres@mpFillOn = True
@@ -121,9 +121,32 @@ begin
   mpres@j_parent_start    = j_parent_start
   mpres@e_we              = e_we 
   mpres@e_sn              = e_sn
- 
-  mp = wrf_wps_dom (wks,mpres,lnres,txres)
 
+
+mpres@mpOutlineOn             = True  ; Use outlines from shapefile
+mpres@mpGeophysicalLineColor = "gray10"
+;mpres@cnFillDrawOrder         = "PreDraw"
+mpres@mpDataBaseVersion       = "MediumRes"
+mpres@mpDataSetName           = "Earth..4"
+mpres@mpAreaMaskingOn         = True
+mpres@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
+mpres@mpLandFillColor         = "white"
+mpres@mpInlandWaterFillColor  = "white"
+;>============================================================<
+;                      add China map
+;>------------------------------------------------------------<
+  cnres           = True
+  cnres@china     = True       ;draw china map or not
+  cnres@river     = False       ;draw changjiang&huanghe or not
+  cnres@province  = False       ;draw province boundary or notcnres@nanhai    = False       ;draw nanhai or not 
+  cnres@nanhai    = False       ;draw nanhai or not 
+  cnres@diqu      = False       ; draw diqujie or not
+
+
+
+
+  mp = wrf_wps_dom (wks,mpres,lnres,txres)
+  chinamap = add_china_map(wks,mp,cnres)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Now you can add some information to the plot. 
@@ -133,7 +156,7 @@ begin
   ;pmres@gsMarkerIndex = 16
   ;pmres@gsMarkerSizeF = 0.01
   ;gsn_polymarker(wks,mp,-77.26,38.56,pmres)
-
+  draw(mp)
   frame(wks)           ; lets frame the plot - do not delete
 
 end
