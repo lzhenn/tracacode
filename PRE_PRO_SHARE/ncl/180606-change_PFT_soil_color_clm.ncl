@@ -36,8 +36,8 @@ begin
 ;SCS-PhS region
     
 
-	latS    =   -60.0
-	latN    =   60.0
+	latS    =   -90.0
+	latN    =   90.0
     lonL    =   0
     lonR    =   360.
    
@@ -49,24 +49,24 @@ begin
 
     global_font = 0.025
     
-    pct_list=(/"PCT_LAKE", "PCT_WETLAND", "PCT_GLACIER", "PCT_URBAN"/)
+
 
 ;------------------Read clim sst-------------------------------
     ctrl_file1   = data_file_in
     ctrl_in1     = addfile (ctrl_file1, "r")   ; note the "s" of addfile
-    var1  = ctrl_in1->PCT_PFT			; p for unify the var name
-    var1_new=var1
-    var1!1="lat"
+    var1  = ctrl_in1->SOIL_COLOR			; p for unify the var name
+    var1!0="lat"
     var1&lat=fspan(-90,90,96)
     var1&lat@units="degrees_north"
-    var1!2="lon"
+    var1!1="lon"
     var1&lon=fspan(0,357.5,144)
     var1&lon@units="degrees_east"
+    var1_new=var1
+
 ;------------Operation--------------------
 
-    var1_pft=dim_sum_n_Wrap(var1_new, 0)
-    var1_new(0,:,:)=where(var1_pft .gt. 0.0, 100.0,0.0)
-    var1_new(1:,:,:)=0.0
+    var1_new=where(var1_new .gt. 0, 15,0)
+
 ; ==============================================================
 ; Mission 3. Set the figure parameters
 ; ==============================================================
@@ -156,8 +156,8 @@ begin
     ;  res@tmYRMinorOutwardLengthF = -0.
 
      ; now change the size of the tickmark labels
-    res@tmXBTickSpacingF = 20
-    res@tmYLTickSpacingF = 10
+    res@tmXBTickSpacingF = 60
+    res@tmYLTickSpacingF = 30
     ; res@tmXBLabelFontAspectF = 1.6
     res@tmXBLabelFontThicknessF = 2.0
     ; res@tmYLLabelFontAspectF = 1.3
@@ -196,20 +196,21 @@ begin
 
 
    
-    res@cnFillPalette        = "WhBlGrYeRe"
+    res@cnFillPalette        = "radar_1"
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
     res@cnMinLevelValF        = 0          ; set min contour level
-    res@cnMaxLevelValF        = 100         ; set max contour level
-    res@cnLevelSpacingF       = 5          ; set contour interval
+    res@cnMaxLevelValF        = 20         ; set max contour level
+    res@cnLevelSpacingF       = 1          ; set contour interval
     res@cnFillMode            = "CellFill"
-    res@gsnLeftString = "original bare ground"
+    res@gsnLeftString = "original soil color"
 
 
-    plot(0) = gsn_csm_contour_map_ce(wks,var1(0,:,:),res) ; create a default plot
-    res@gsnLeftString = "changed bare ground"
-    plot(1) = gsn_csm_contour_map_ce(wks,var1_new(0,:,:),res) ; create a default plot
+    plot(0) = gsn_csm_contour_map_ce(wks,var1,res) ; create a default plot
+    res@gsnLeftString = "changed soil color"
+    plot(1) = gsn_csm_contour_map_ce(wks,var1_new,res) ; create a default plot
 
     gsn_panel(wks,plot,(/2,1/),False)
+exit
 ; ==============================================================
 ; Mission 4. Output sst forcing file
 ; ==============================================================
@@ -223,10 +224,5 @@ begin
 
 
 	ncdf     = addfile(data_file_out ,"w")  ; open output netCDF file
-    do ii=0, dimsizes(pct_list)-1
-        var2  = ctrl_in1->$pct_list(ii)$			; p for unify the var name
-	    var1_new(0,:,:)=where((var2 .gt. 0.0) .and. (var1_new(0,:,:) .gt. 0.0), var1_new(0,:,:)-var2, var1_new(0,:,:))
-    end do
 	ncdf->PCT_PFT=var1_new
-
 end
