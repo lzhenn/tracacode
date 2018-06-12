@@ -7,7 +7,7 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 ; ================================================;
 begin
-  f         = addfile("/users/yangsong3/L_Zealot/B/B20f19-topo/exe/B20f19-topo.pop.h.0060-04.nc","r")
+  f         = addfile("/users/yangsong3/L_Zealot/B/B20f19-realworld/exe/B20f19-realworld.pop.h.0021-04.nc","r")
 
   t         = f->TEMP
 
@@ -28,8 +28,8 @@ begin
   res@cnFillPalette        = cmap(8:94,:)         ; set color map
   res@cnLinesOn            = False                ; turn off contour lines
   res@cnLineLabelsOn       = False                ; turn off contour line labels
-  res@mpMaxLatF=-60
-  res@gsnPolar = "SH"
+  res@mpMinLatF=60
+  res@gsnPolar = "NH"
   plot = gsn_csm_contour_map_polar(wks,t(0,0,:,:),res)  
   polyres                   = True
   polyres@gsMarkerIndex     = 1          ; polymarker style
@@ -41,7 +41,7 @@ begin
 dims=dimsizes(lat2d)
 do ii=0,dims(0)-1
     do jj=0,dims(1)-1
-        if (lat2d(ii,jj) .lt. -60) then
+        if (lat2d(ii,jj) .gt. 60) then
             plot@$unique_string("fxxk ncl")$    = gsn_add_polymarker(wks,plot,lon2d(ii,jj),lat2d(ii,jj),polyres)
         end if
     end do
