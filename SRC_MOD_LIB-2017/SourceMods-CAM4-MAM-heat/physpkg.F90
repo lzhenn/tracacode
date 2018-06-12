@@ -1747,6 +1747,7 @@ subroutine tphysbc (ztodt,               &
 
 
 
+    !*** LZN MOD START: Define Variables
     real ::  heat_mar(26)=(/1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00&
     ,1.00 ,1.15 ,1.28 ,1.29 ,1.26 ,1.24 ,1.23 ,1.21 ,1.20 ,1.20 ,1.17 ,1.08&
     ,1.04 ,1.00 ,1.00 ,1.00 ,1.00 ,1.00/)
@@ -1762,6 +1763,7 @@ subroutine tphysbc (ztodt,               &
     integer  :: j
     integer pos_lat, pos_lon 
     integer, parameter :: day_rank(12)=(/31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365/)
+    !*** LZN MOD END: Define Variables
 
 
     logical   :: lq(pcnst)
@@ -1937,6 +1939,7 @@ subroutine tphysbc (ztodt,               &
          state,   ptend, cam_in%landfrac, pbuf) 
     call t_stopf('convect_deep_tend')
 
+    !*** LZN MOD START: Convective Heating Force Modification 
     calday = get_curr_calday();
     !Below to get out which month we are in
     do j = 1,12
@@ -1966,6 +1969,7 @@ subroutine tphysbc (ztodt,               &
     end do
          
     call outfld('PTENDT', ptend%s, pcols, lchnk)
+    !*** LZN MOD END: Convective Heating Force Modification 
 
 
 
