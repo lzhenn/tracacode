@@ -20,19 +20,17 @@
 ;*************************************************************
 
 begin
-    data_file_in   =   "/users/yangsong3/CESM/input/atm/cam/ocnfrac/domain.camocn.1.9x2.5_gx1v6_090403.nc"
-    latlon_in="/users/yangsong3/L_Zealot/B/B20f19-realworld/exe/B20f19-realworld.pop.h.0021-04.nc"
-    latlonf=addfile(latlon_in,"r") 
-    dataf=addfile(data_file_in,"r") 
-    lat2d     = latlonf->TLAT
-    lon2d     = latlonf->TLONG
-    idx       = dataf->frac
+    data_file_in   =   "/users/yangsong3/CESM/input/lnd/clm2/rtmdata/rdirc_0.5x0.5_simyr2000_slpmxvl_c120717.nc"
+    dataf=addfile(data_file_in,"r")
+    lat2d     = dataf->yc
+    lon2d     = dataf->xc
+    idx       = dataf->RTM_FLOW_DIRECTION
     printMinMax(idx,0)
-   ; idx@lat2d=lat2d
-   ; idx@lon2d=lon2d
+    idx@lat2d=lat2d
+    idx@lon2d=lon2d
   
   
-  wks  = gsn_open_wks("x11","../fig/pop-domain")            ; send graphics to PNG file
+  wks  = gsn_open_wks("x11","../fig/rof-domain")            ; send graphics to PNG file
   cmap = read_colormap_file("BlAqGrYeOrRe")       ; read color data
   res                      = True                 ; plot mods desired
   res@gsnDraw              = False                ; don't draw yet

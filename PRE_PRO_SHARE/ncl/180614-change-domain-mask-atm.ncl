@@ -41,8 +41,8 @@ begin
     lonL    =   0
     lonR    =   360.
    
-    data_file_in   =   "/users/yangsong3/CESM/input/share/domains/domain.lnd.fv1.9x2.5_gx1v6.090206.nc"
-    data_file_out   =   "/users/yangsong3/CESM/input/share/domains/domain.lnd.fv1.9x2.5_gx1v6.aqua.180614.nc"
+    data_file_in   =   "/users/yangsong3/CESM/input/atm/cam/ocnfrac/domain.camocn.1.9x2.5_gx1v6_090403.nc"
+    data_file_out   =   "/users/yangsong3/CESM/input/atm/cam/ocnfrac/domain.camocn.1.9x2.5_gx1v6_aqua_180614.nc"
     
 
 ;------------------Read clim sst-------------------------------
@@ -50,8 +50,8 @@ begin
     var1  = ctrl_in1->mask			; p for unify the var name
     var2  = ctrl_in1->frac			; p for unify the var name
 
-    var1=0
-    var2=0.0
+    var1=1
+    var2=1.0
     print("*************")
 
   ncdf     = addfile(data_file_out ,"w")  ; open output netCDF file

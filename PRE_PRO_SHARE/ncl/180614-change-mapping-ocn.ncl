@@ -19,35 +19,45 @@
 ;   2015-01-18  Create
 ;*************************************************************
 
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/shea_util.ncl"
 begin
-    data_file_in   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_PHC2_jan_ic_gx1v6_20090205.ieeer8"
-    data_file_out   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_pure_aqua_polar_PHC2_jan_ic_gx1v6_20180613.ieeer8"
+
+
+;================================================
+;Variables List:
+;   var1--------------CAM used sst
+;   index1------------TCP index
+;   index2------------NINO3 index
+;================================================
+
+;SCS-PhS region
     
+
+	latS    =   -90.0
+	latN    =   90.0
+    lonL    =   0
+    lonR    =   360.
+   
+    data_file_in   =   "/users/yangsong3/CESM/input/share/scripgrids/gx1v6_090205.nc"
+    data_file_out   =   "/users/yangsong3/CESM/input/share/scripgrids/gx1v6_aqua_polar_180614.nc"
     latlon_in="/users/yangsong3/L_Zealot/B/B20f19-realworld/exe/B20f19-realworld.pop.h.0021-04.nc"
     latlonf=addfile(latlon_in,"r") 
     lat2d     = latlonf->TLAT
     lon2d     = latlonf->TLONG
-    setfileoption("bin","ReadByteOrder","BigEndian")
-    tracer = fbindirread (data_file_in, 0, -1, "double")
-    tracer:=reshape(tracer,(/2,60,384,320/))
-    tracer@lat2d=lat2d
-    tracer@lon2d=lon2d
-    tracer@_FillValue=-99
+   
 
-    tracer(:,25:,:,:)=-99.0
-    tracer_zonal_mean=dim_avg_n_Wrap(tracer,3)
-    tracer=(/conform(tracer,tracer_zonal_mean,(/0,1,2/))/)
-    
-    tracer(:,:,0:1,:)=-99.0
-    tracer(:,5:,2,:)=-99.0
-    tracer(:,10:,3,:)=-99.0
-    tracer(:,18:,4,:)=-99.0
-
-    tracer(:,:,382:383,:)=-99.0
-    tracer(:,5:,381,:)=-99.0
-    tracer(:,10:,380,:)=-99.0
-    tracer(:,18:,379,:)=-99.0
-
+;------------------Read clim sst-------------------------------
+    ctrl_in1     = addfile (data_file_in, "r")   ; note the "s" of addfile
+    idx  = ctrl_in1->grid_imask			; p for unify the var name
+    idx:=reshape(idx, (/384,320/))
+    ;idx@lat2d=lat2d
+    ;idx@lon2d=lon2d
+    idx=1
+    idx(0:1,:)=0 
+    idx(382:383,:)=0 
     wks  = gsn_open_wks("x11","../fig/pop-tracer")            ; send graphics to PNG file
     cmap = read_colormap_file("BlAqGrYeOrRe")       ; read color data
     res                      = True                 ; plot mods desired
@@ -59,12 +69,12 @@ begin
     res@cnFillMode           = "CellFill"
     res@gsnLeftString = "PURE_AQUA SURF T"
     res@gsnRightString = "degC"
-    plot = gsn_csm_contour_map(wks,tracer(0,0,:,:),res)  
+    plot = gsn_csm_contour_map(wks,idx,res)  
     draw(plot)
     frame(wks)
 
-    sys=systemfunc("rm "+data_file_out)
-    setfileoption("bin","WriteByteOrder","BigEndian")
-    fbindirwrite (data_file_out, tracer)
-
+    printVarSummary(idx)
+    idx:=reshape(idx, (/122880/))
+    ncdf     = addfile(data_file_out ,"w")  ; open output netCDF file
+    ncdf->grid_imask=idx
 end

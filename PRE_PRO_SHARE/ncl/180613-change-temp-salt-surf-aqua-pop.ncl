@@ -21,7 +21,7 @@
 
 begin
     data_file_in   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_PHC2_jan_ic_gx1v6_20090205.ieeer8"
-    data_file_out   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_surf_aqua_PHC2_jan_ic_gx1v6_20180613.ieeer8"
+    data_file_out   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_surf_aqua_polar_PHC2_jan_ic_gx1v6_20180613.ieeer8"
     
     latlon_in="/users/yangsong3/L_Zealot/B/B20f19-realworld/exe/B20f19-realworld.pop.h.0021-04.nc"
     latlonf=addfile(latlon_in,"r") 
@@ -43,7 +43,8 @@ begin
     opt       = 0                ; not used
 
     poisson_grid_fill( tracer(:,0,:,:), is_cyclic, guess, nscan, eps, relc, opt) 
-
+    tracer(:,:,0:1,:)=-99
+    tracer(:,:,382:383,:)=-99
 
     wks  = gsn_open_wks("x11","../fig/pop-tracer")            ; send graphics to PNG file
     cmap = read_colormap_file("BlAqGrYeOrRe")       ; read color data
@@ -60,8 +61,8 @@ begin
     draw(plot)
     frame(wks)
 
-;    sys=systemfunc("rm "+data_file_out)
-;    setfileoption("bin","WriteByteOrder","BigEndian")
-;    fbindirwrite (data_file_out, tracer)
+    sys=systemfunc("rm "+data_file_out)
+    setfileoption("bin","WriteByteOrder","BigEndian")
+    fbindirwrite (data_file_out, tracer)
 
 end
