@@ -1,22 +1,42 @@
-;================================================;
-;  Popgrid_1.ncl
-;================================================;
+;*************************************************************
+;Aim: Cal MAM detrended T2m standard deviation
 ;
-; These files are loaded by default in NCL V6.2.0 and newer
-; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"   
-; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
-; ================================================;
-begin
-  case="surf-aqua"
-  f         = addfile("/users/yangsong3/L_Zealot/B/B20f19-"+case+"/exe/B20f19-"+case+".pop.h.0001-07.nc","r")
+;Mission:
+;   1. Read data from NCEP-DOE data
+;   2. Post-post process
+;   3. Output to yearly files
+;                       Zhenning Li
+;                       2015-05-05
+;Last Edited:
+;   2015-03-01  Create
+;   2015-03-03  Change to fit HEAT Experiment
+;   2015-04-05  Change to fit Team Server
+;   2015-04-08  Change to fit ECMWF MONLTM MEAN 
+;   2015-04-18  Change to caculate Q1
+;   2015-04-18  Change to caculate daily Q1 in NCEP-DOE
+;   2015-12-01  Change to fit T2M
+;*************************************************************
 
-  t         = f->TEMP
-  t =t *86400
-  lat2d     = f->TLAT
-  lon2d     = f->TLONG
-  t@lat2d=lat2d
-  t@lon2d=lon2d
- printVarSummary(lat2d)
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCL_SELFLIB/file_io.ncl"
+
+begin
+
+
+;======================================================
+;Variables List:
+;	t2m--------------Air Temperature (K, TLL)
+;======================================================
+
+  case="surf-aqua"
+  ctrl_in         = addfile("/users/yangsong3/L_Zealot/B/B20f19-"+case+"/exe/B20f19-"+case+".cam.h0.0005-07.nc","r")
+
+
+;global variables
+    ;Define parameters
+    var1 = ctrl_in->TSMN
 ;=================================================;
 ; Create plot
 ;=================================================;
@@ -31,7 +51,7 @@ begin
   res@cnLineLabelsOn       = False                ; turn off contour line labels
   ;res@mpMinLatF=60
   res@gsnPolar = "NH"
-  plot = gsn_csm_contour_map_polar(wks,t(0,0,:,:),res)  
+  plot = gsn_csm_contour_map_polar(wks,var1(0,:,:),res)  
   polyres                   = True
   polyres@gsMarkerIndex     = 1          ; polymarker style
 ;  polyres@gsMarkerSizeF     = 1.          ; polymarker size
@@ -39,14 +59,6 @@ begin
   polyres@gsMarkerColor     = "black"          ; polymarker size
 
 
-dims=dimsizes(lat2d)
-do ii=0,dims(0)-1
-    do jj=0,dims(1)-1
-        if (lat2d(ii,jj) .gt. 60) then
-;            plot@$unique_string("fxxk ncl")$    = gsn_add_polymarker(wks,plot,lon2d(ii,jj),lat2d(ii,jj),polyres)
-        end if
-    end do
-end do
 ;************************************
 ; create overlays of both lat/lon contours
 ; and add to the map plot
@@ -54,5 +66,5 @@ end do
 ; now we draw the whole thing and advance the frame.
   draw(plot)
   frame(wks)
-  end
+end
 
