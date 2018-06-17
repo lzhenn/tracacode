@@ -7,11 +7,10 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 ; ================================================;
 begin
-  case="surf-aqua"
-  f         = addfile("/users/yangsong3/L_Zealot/B/B20f19-"+case+"/exe/B20f19-"+case+".pop.h.0001-07.nc","r")
+  case="pure-aqua"
+  f         = addfile("/users/yangsong3/L_Zealot/B/B20f19-"+case+"/exe/B20f19-"+case+".pop.h.0001-03.nc","r")
 
   t         = f->TEMP
-  t =t *86400
   lat2d     = f->TLAT
   lon2d     = f->TLONG
   t@lat2d=lat2d
@@ -29,8 +28,8 @@ begin
   res@cnFillPalette        = cmap(8:94,:)         ; set color map
   res@cnLinesOn            = False                ; turn off contour lines
   res@cnLineLabelsOn       = False                ; turn off contour line labels
-  ;res@mpMinLatF=60
-  res@gsnPolar = "NH"
+  res@mpMaxLatF=-60
+  res@gsnPolar = "SH"
   plot = gsn_csm_contour_map_polar(wks,t(0,0,:,:),res)  
   polyres                   = True
   polyres@gsMarkerIndex     = 1          ; polymarker style

@@ -30,8 +30,8 @@ begin
 ;	t2m--------------Air Temperature (K, TLL)
 ;======================================================
 
-  case="surf-aqua"
-  ctrl_in         = addfile("/users/yangsong3/L_Zealot/B/B20f19-"+case+"/exe/B20f19-"+case+".cam.h0.0005-07.nc","r")
+  case="pure-aqua"
+  ctrl_in         = addfile("/users/yangsong3/L_Zealot/B/B20f19-"+case+"/exe/B20f19-"+case+".cam.h0.0001-03.nc","r")
 
 
 ;global variables
@@ -50,7 +50,7 @@ begin
   res@cnLinesOn            = False                ; turn off contour lines
   res@cnLineLabelsOn       = False                ; turn off contour line labels
   ;res@mpMinLatF=60
-  res@gsnPolar = "NH"
+  res@gsnPolar = "SH"
   plot = gsn_csm_contour_map_polar(wks,var1(0,:,:),res)  
   polyres                   = True
   polyres@gsMarkerIndex     = 1          ; polymarker style
