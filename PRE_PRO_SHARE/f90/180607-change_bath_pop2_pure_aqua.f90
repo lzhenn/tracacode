@@ -13,16 +13,14 @@ program change_bathymetry
     read(fin, rec=1) bath 
     close(fin)
    
-    bath=25
+    bath=49
     bath0=reshape(bath,(/320,384/))
     bath0(:,1:2)=0
-    bath0(:,3)=5
-    bath0(:,4)=10
-    bath0(:,5)=18
     bath0(:,383:384)=0
-    bath0(:,382)=5
-    bath0(:,381)=10
-    bath0(:,380)=18
+    do ii=1,48
+        bath0(:,ii+2)=ii
+        bath0(:,383-ii)=ii
+    end do
     open(unit=fout, file=outname, form="unformatted", access="direct", action="write", recl=nlen, convert="big_endian")
     write(fout, rec=1) bath0
     close(fout)
