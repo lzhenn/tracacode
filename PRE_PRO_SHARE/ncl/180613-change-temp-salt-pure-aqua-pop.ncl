@@ -34,16 +34,16 @@ begin
     tracer@lon2d=lon2d
     tracer@_FillValue=-99
 
-    tracer(:,49:,:,:)=-99.0
+    tracer(:,1:,:,:)=-99.0
     tracer_zonal_mean=dim_avg_n_Wrap(tracer,3)
     tracer=(/conform(tracer,tracer_zonal_mean,(/0,1,2/))/)
    
     tracer(:,:,0:1,:)=-99.0
     tracer(:,:,382:383,:)=-99.0
-    do ii=1,48
-        tracer(:,ii:,ii+1,:)=-99.0
-        tracer(:,ii:,382-ii,:)=-99.0
-    end do
+    ;do ii=1,10
+    ;    tracer(:,ii:,3*ii-1:3*ii+1,:)=-99.0
+    ;    tracer(:,ii:,382-(3*ii):382-(3*ii-2),:)=-99.0
+    ;end do
     
     wks  = gsn_open_wks("x11","../fig/pop-tracer")            ; send graphics to PNG file
     cmap = read_colormap_file("BlAqGrYeOrRe")       ; read color data
