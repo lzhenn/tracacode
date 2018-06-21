@@ -14,17 +14,17 @@ program change_bathymetry
     close(fin)
     
     do ii = 1, nlen
-        if (bath(ii)<27) then
-            bath(ii)=27
+        if (bath(ii)<10) then
+            bath(ii)=10
         end if
     end do
     bath0=reshape(bath,(/320,384/))
     bath0(:,1:2)=0
     bath0(:,383:384)=0
-    do ii=1,26
-        bath0(:,ii+2)=ii
-        bath0(:,383-ii)=ii
-    end do
+    !do ii=1,26
+    !    bath0(:,ii+2)=ii
+    !    bath0(:,383-ii)=ii
+    !end do
 
     open(unit=fout, file=outname, form="unformatted", access="direct", action="write", recl=nlen, convert="big_endian")
     write(fout, rec=1) bath0
