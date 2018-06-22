@@ -42,7 +42,7 @@ begin
     relc      = 0.6              ; relaxation coefficient
     opt       = 0                ; not used
 
-    poisson_grid_fill( tracer(:,0:9,:,:), is_cyclic, guess, nscan, eps, relc, opt) 
+    poisson_grid_fill( tracer(:,0:26,:,:), is_cyclic, guess, nscan, eps, relc, opt) 
     tracer(:,:,0:1,:)=-99
     tracer(:,:,382:383,:)=-99
     ;do ii=1,26
@@ -63,7 +63,7 @@ begin
     ;res@cnFillMode           = "CellFill"
     res@gsnLeftString = "SURF_AQUA SURF T"
     res@gsnRightString = "degC"
-    plot = gsn_csm_contour_map(wks,tracer(0,8,:,:),res)  
+    plot = gsn_csm_contour_map(wks,tracer(0,26,:,:),res)  
     draw(plot)
     frame(wks)
 

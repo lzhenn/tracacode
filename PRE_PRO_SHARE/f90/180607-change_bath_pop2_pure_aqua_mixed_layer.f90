@@ -14,8 +14,8 @@ program change_bathymetry
     close(fin)
     
     do ii = 1, nlen
-        if (bath(ii)<10) then
-            bath(ii)=10
+        if (bath(ii)<27) then
+            bath(ii)=27
         end if
     end do
     bath0=reshape(bath,(/320,384/))
