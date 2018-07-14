@@ -11,19 +11,17 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    lat0=37.40
-    lon0=121.56
+    lat0=23.20
+    lon0=123.25
  
-    wrfout_path="/home/lzhenn/array/lzhenn/WRFV3/run/wrfout_d03*"
+    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/caserun/wrfout_d03*"
     g_font=0.015
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
    
 	all_files = systemfunc ("ls "+wrfout_path)
-    ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
-	setfileoption("nc","SuppressClose",False) ; close too many files
-	ListSetType (ctrl_in, "cat")             ; concatenate or "merge" (default)
+    ctrl_in      = addfile (all_files, "r")   ; note the "s" of addfile
     
     time0 = wrf_user_getvar(ctrl_in,"Times", -1)
     xtime = wrf_times_c( time0, 1 ) 
@@ -135,7 +133,7 @@ res@gsnRightString = "mm/3hr"
   polymaxres@gsMarkerColor     = "red"          ; polymarker size
   polymaxres@gsMarkerThicknessF     = 5.          ; polymarker size
 
-res = wrf_map_resources(ctrl_in[0],res)
+res = wrf_map_resources(ctrl_in,res)
 
 time_frame = 3
 do while(time_frame .lt. lentime-1)
