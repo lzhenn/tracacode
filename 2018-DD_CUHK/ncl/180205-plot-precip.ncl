@@ -12,7 +12,7 @@ begin
 ; open file and read in data
 ;************************************************
     lat0=23.20
-    lon0=123.25
+    lon0=113.25
  
     wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/caserun/wrfout_d03*"
     g_font=0.015
@@ -135,7 +135,7 @@ res@gsnRightString = "mm/3hr"
 
 res = wrf_map_resources(ctrl_in,res)
 
-time_frame = 3
+time_frame = 2 
 do while(time_frame .lt. lentime-1)
     ;---Set map resources based on projection on WRF output file
 
