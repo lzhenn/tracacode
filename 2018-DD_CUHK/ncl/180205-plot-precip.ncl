@@ -14,14 +14,14 @@ begin
     lat0=23.20
     lon0=113.25
  
-    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/caserun/wrfout_d03*"
+    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/wrfout_d03*"
     g_font=0.015
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
    
 	all_files = systemfunc ("ls "+wrfout_path)
-    ctrl_in      = addfile (all_files, "r")   ; note the "s" of addfile
+    ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
     
     time0 = wrf_user_getvar(ctrl_in,"Times", -1)
     xtime = wrf_times_c( time0, 1 ) 
@@ -133,9 +133,9 @@ res@gsnRightString = "mm/3hr"
   polymaxres@gsMarkerColor     = "red"          ; polymarker size
   polymaxres@gsMarkerThicknessF     = 5.          ; polymarker size
 
-res = wrf_map_resources(ctrl_in,res)
+res = wrf_map_resources(ctrl_in[0],res)
 
-time_frame = 2 
+time_frame = 3 
 do while(time_frame .lt. lentime-1)
     ;---Set map resources based on projection on WRF output file
 

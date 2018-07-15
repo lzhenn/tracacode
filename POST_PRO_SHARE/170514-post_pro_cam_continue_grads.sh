@@ -10,19 +10,19 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/users/yangsong3/L_Zealot/F/WZQ-TP-2017/pre-cool/\"
+PRE_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/REAL_WORLD_SCON/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/users/yangsong3/L_Zealot/F/WZQ-TP-2017/post/\"
+PRO_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/REAL_WORLD_SCON/pro/\"
 
 # Case name
-CASENAME=\"WZQ-TP-2017\"
+CASENAME=\"B20f19-realworld-no-orb\"
 
 
 # Names of 2D fields
-#FDNAME2D="(/\"PRECT\",\"FLUT\"/)" #often use
-FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\"/)" #often use
+#FDNAME2D="(/\"FSNT\",\"FLNT\"/)" #often use
+FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"FSNT\",\"FLNT\"/)" #often use
 
 #ctrl-ersst-81-10/ Names of 3D fields
 #FDNAME3D="(/\"U\",\"V\"/)" #often use
@@ -45,7 +45,7 @@ PLEV="(/1000,925,850,700,600,500,400,300,200,100/)"
 FRSTYEAR=1
 
 # Last year of the subset
-LSTYEAR=25
+LSTYEAR=100
 
 # Process fig flag
 FLAG2D=1
