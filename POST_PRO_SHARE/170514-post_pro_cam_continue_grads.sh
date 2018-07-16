@@ -10,14 +10,14 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/REAL_WORLD_SCON/\"
+PRE_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/MX_AQUAP_SCYC/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/REAL_WORLD_SCON/pro/\"
+PRO_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/MX_AQUAP_SCYC/pro/\"
 
 # Case name
-CASENAME=\"B20f19-realworld-no-orb\"
+CASENAME=\"B20f19-pure-aqua\"
 
 
 # Names of 2D fields
