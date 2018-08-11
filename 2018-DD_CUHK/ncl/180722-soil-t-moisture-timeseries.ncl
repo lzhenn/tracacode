@@ -28,9 +28,9 @@ begin
     ; home
     lat0=23.20
     lon0=113.25
-    wrfout_path="/home/lzhenn/array/lzhenn/data/18-DD_CUHK/spinup/wrfout_d03*"
+    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/clim/wrfout_d03*"
 
-    g_fig_name="../fig/soil-temp-humid"
+    g_fig_name="../fig/soil-temp-humid-clim"
     g_font=0.012
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \

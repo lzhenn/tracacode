@@ -14,7 +14,7 @@ begin
     lat0=23.20
     lon0=113.25
  
-    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/wrfout_d03*"
+    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/caserun/climspin/wrfout_d03*"
     g_font=0.015
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
@@ -145,7 +145,7 @@ do while(time_frame .lt. lentime-1)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/precip_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/precip_climspin_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"precip2_17lev")
     res@gsnLeftString="3hr Precipitation @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map

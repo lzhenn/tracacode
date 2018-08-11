@@ -15,8 +15,7 @@ begin
     lon0=121.56
  
     wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/clim/wrfout_d03_2000-06-06_00:00:00"
-   ; wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/2018/wrfout_d03_2018-06-06_00:00:00"
-    ;wrfout_path="/home/lzhenn/array/lzhenn/data/18-DD_CUHK/process/wrfout_d03_2018-06-06_00:00:00"
+    ;wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/2018/wrfout_d03_2018-06-06_00:00:00"
     g_font=0.015
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
@@ -43,10 +42,10 @@ begin
     print(date_str)
 
     lentime=dimsizes(xtime)
-  	ctrl_var1_0  = wrf_user_getvar(ctrl_in,"TSLB", -1)  
+  	ctrl_var1_0  = wrf_user_getvar(ctrl_in,"T2", -1)  
 	ctrl_land  = wrf_user_getvar(ctrl_in,"XLAND", 0)  
 
-    ctrl_var1 =(/ctrl_var1_0(:,0,:,:) - 273.15/)
+    ctrl_var1 =(/ctrl_var1_0 - 273.15/)
 
  
     
@@ -154,10 +153,9 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    ;wks = gsn_open_wks(wks_type,"../fig/T5cm_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
-    wks = gsn_open_wks(wks_type,"../fig/T5cm_clim_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/Air_T2m_clim_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"nice_gfdl")
-    res@gsnLeftString="5cm Temp @ "+date_str(time_frame)
+    res@gsnLeftString="2m Air Temp  @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
     chinamap = add_china_map(wks,plot,cnres)

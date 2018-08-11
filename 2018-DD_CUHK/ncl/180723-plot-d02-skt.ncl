@@ -14,7 +14,7 @@ begin
     lat0=37.40
     lon0=121.56
  
-    wrfout_path="/home/lzhenn/array/lzhenn/data/18-DD_CUHK/process/wrfout_d03_2018-06-06_00:00:00"
+    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/2018/wrfrst_d03_2018-06-06_00:00:00"
     g_font=0.015
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
@@ -39,7 +39,6 @@ begin
 
     date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iH", hour) 
     print(date_str)
-    exit
 
     lentime=dimsizes(xtime)
   	ctrl_var1_0  = wrf_user_getvar(ctrl_in,"TSK", -1)  
