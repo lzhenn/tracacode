@@ -28,27 +28,52 @@ begin
     ; home
     lat0=23.20
     lon0=113.25
-    wrfout_path="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/clim/wrfout_d03*"
+    wrfout_path1="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/clim/wrfout_d03*"
+    wrfout_path2="/users/yangsong3/L_Zealot/wrf/WRFV3/run/precon/2018/wrfout_d03*"
 
     g_fig_name="../fig/soil-temp-humid-clim"
     g_font=0.012
-    
+   
+    latSn=15
+    latNn=74
+    lonWn=54
+    lonEn=125
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
 
-	all_files = systemfunc ("ls "+wrfout_path)
+	all_files = systemfunc ("ls "+wrfout_path1)
     ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
 	setfileoption("nc","SuppressClose",False) ; close too many files
 	ListSetType (ctrl_in, "cat")             ; concatenate or "merge" (default)
+    
+    lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
+    lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
+
+	all_files = systemfunc ("ls "+wrfout_path2)
+    sen_in      = addfiles (all_files, "r")   ; note the "s" of addfile
 
 	ctrl_var1_0  = wrf_user_getvar(ctrl_in,"TSK", -1)  
 	ctrl_var2  = wrf_user_getvar(ctrl_in,"TSLB", -1)  
     
+    sen_var1_0  = wrf_user_getvar(sen_in,"TSK", -1)  
+	sen_var2  = wrf_user_getvar(sen_in,"TSLB", -1)  
+    
 
     ctrl_var1 =(/ctrl_var1_0 - 273.15/)
     ctrl_var2 =ctrl_var2 - 273.15
-    data_var2_series= wgt_areaave_Wrap(ctrl_var2(:,:,:,:),1.0,1.0,0)
-    printVarSummary(ctrl_var2)
+    data_var2_series= wgt_areaave_Wrap(ctrl_var2(:,:,latSn:latNn,lonWn:lonEn),1.0,1.0,0)
+ 
+    sen_var1 =(/sen_var1_0 - 273.15/)
+    sen_var2 =sen_var2 - 273.15
+    sen_var2_series= wgt_areaave_Wrap(sen_var2(:,:,latSn:latNn,lonWn:lonEn),1.0,1.0,0)
+
+    ctrl_var1_series=wgt_areaave_Wrap(ctrl_var1(:,latSn:latNn,lonWn:lonEn),1.0,1.0,0)
+    printVarSummary(ctrl_var1_series)
+    printVarSummary(data_var2_series)
+    sen_var1_series=wgt_areaave_Wrap(sen_var1(:,latSn:latNn,lonWn:lonEn),1.0,1.0,0)
+   
+   
+   
     time0 = wrf_user_getvar(ctrl_in,"Times", -1)
     xtime = wrf_times_c( time0, 1 ) 
     xtime = xtime+8 
@@ -66,9 +91,7 @@ begin
 
 
     lentime=dimsizes(xtime)
-    lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
-    lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
-    ctrl_var1@lat2d = lat2d
+        ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
     point=getind_latlon2d(lat2d,lon2d,lat0,lon0)
     cor_x=point(0,0)
@@ -79,7 +102,7 @@ begin
 
   
 	
-	wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
+	wks = gsn_open_wks("pdf",g_fig_name)       ; open file to plot 
 
 
     ;************************************************ 
@@ -95,11 +118,11 @@ begin
     res@vpXF     = 0.15
 
     res@vpWidthF = 0.8
-    res@vpHeightF= 0.2
+    res@vpHeightF= 0.25
 
 
-    res@trYMinF            = min(data_var2_series)-2                ; Y axis limits
-    res@trYMaxF            = max(data_var2_series)+2
+    res@trYMinF            = 18; min(data_var2_series)-2                ; Y axis limits
+    res@trYMaxF            = max(ctrl_var1_series)+2
     res@tmXBOn = True 
     res@tmXBMinorOn = False
     res@tmXTOn = False
@@ -109,9 +132,9 @@ begin
     res@tiYAxisFontHeightF=g_font
     res@tiYAxisString = "Soil Temp (degC)"
     res@xyMonoLineColor    = False             ; want colored lines
-    res@xyLineColors       = (/"red","blue","black","darkgreen"/) ; colors chosen
-    res@xyLineThicknesses    = (/2.0,2.0,2.0,2.0,2.0/)      ; line thicknesses
-    res@xyDashPatterns   = (/0.,1.,2.,3.,1./)      ; make all lines solid
+    res@xyLineColors       = (/"blue","darkgreen","red","blue","darkgreen","red"/) ; colors chosen
+    res@xyLineThicknesses    = (/2.0,2.0,2.0,2.0,2.0,2.0/)      ; line thicknesses
+    res@xyDashPatterns   = (/0.,0.,0.,2.,2.,2./)      ; make all lines solid
     res@tmYLMinorOn = False
     res@tmYLMajorLengthF = 0.0
     res@tmYRMinorOn = False
@@ -133,6 +156,12 @@ begin
     resR@xyLineColors:="darkgreen"
     resR@tiYAxisString="SOIL-TEMP (degC)"
     data_var2_trans=data_var2_series(soil_layers_stag|:,Time|:)
+    sen_var2_trans=sen_var2_series(soil_layers_stag|:,Time|:)
+    data_var2_trans(2,:)=(/ctrl_var1_series/)
+    data_var2_trans:=data_var2_trans(0:2,:)
+
+    sen_var2_trans(2,:)=(/sen_var1_series/)
+    data_var2_trans:=array_append_record(data_var2_trans,sen_var2_trans(0:2,:),0)
     plot(0)  = gsn_csm_xy (wks, ispan(0,lentime-1,1), data_var2_trans,res)   ; create plot
     
     res_line=True
