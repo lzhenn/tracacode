@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=CONV_MON_WKR-2018
+WORKNAME=1808-ITMM-GRIB-FORTRAN
 
 # Now to create the workspace
 mkdir $WORKNAME
