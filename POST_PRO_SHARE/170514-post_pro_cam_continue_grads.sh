@@ -10,14 +10,14 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/REAL_WORLD_SCYC/\"
+PRE_DIR=\"/home/yangsong3/data/model/CESM_CTRL/F2000_F19_CAM4_CTRL/pre/\"
 #PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
 
 # Path of the post processed data
-PRO_DIR=\"/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/REAL_WORLD_SCYC/pro/\"
+PRO_DIR=\"/home/yangsong3/data/model/CESM_CTRL/F2000_F19_CAM4_CTRL/pro/\"
 
 # Case name
-CASENAME=\"B20f19-realworld\"
+CASENAME=\"CTRL\"
 
 
 # Names of 2D fields
@@ -26,7 +26,8 @@ FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"FSNT\",\"FLNT\"/)" #often use
 
 #ctrl-ersst-81-10/ Names of 3D fields
 #FDNAME3D="(/\"U\",\"V\"/)" #often use
-FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
+FDNAME3D="(/\"V\"/)" #often use
+#FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
 #FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
 # Names of 3D HY fields
@@ -38,17 +39,18 @@ LAYERS=26
 
 # Output specific pressure layers
 # CAUTION: Do not INSERT species between element!
-PLEV="(/1000,925,850,700,600,500,400,300,200,100/)"
+PLEV="(/250/)"
+#PLEV="(/1000,925,850,700,600,500,400,300,200,100/)"
 #PLEV="(/500,300,200/)"
 
 # First year of the subset
 FRSTYEAR=1
 
 # Last year of the subset
-LSTYEAR=100
+LSTYEAR=110
 
 # Process fig flag
-FLAG2D=1
+FLAG2D=0
 FLAG3D=1
 FLAG3DHY=0
 
