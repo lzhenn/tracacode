@@ -11,7 +11,7 @@ begin
 ;
 
 ; We generate plots, but what kind do we prefer?
- type = "png"
+ type = "x11"
 ; type = "pdf"
 ; type = "ps"
 ; type = "ncgm"
