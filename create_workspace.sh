@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=1808-ITMM-GRIB-FORTRAN
+WORKNAME=1809-ANTARCTICA
 
 # Now to create the workspace
 mkdir $WORKNAME
