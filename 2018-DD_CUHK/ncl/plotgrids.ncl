@@ -18,7 +18,7 @@ begin
   wks = gsn_open_wks(type,"../fig/wps_show_dom")
 
 ; read the following namelist file
-  filename = "../config/namelist.wps"
+  filename = "/users/yangsong3/L_Zealot/wrf/WPS/namelist.wps"
 
 
 ; Set the colors to be used
