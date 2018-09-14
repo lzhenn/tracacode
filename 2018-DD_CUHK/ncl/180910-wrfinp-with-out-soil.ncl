@@ -11,8 +11,8 @@ begin
     varlist=(/"TSK", "TMN","TSLB","SMOIS","SH2O","SMCREL"/)
     
     do ii=0,dimsizes(domainlist)-1
-        sample_in=addfile(indir+"2018/wrfout_"+domainlist(ii)+"_2018-06-06_00:00:00","r")
-        sample_out=addfile(outdir+"hwspin/wrfinput_"+domainlist(ii),"w")
+        sample_in=addfile(indir+"2018-no-urban/wrfout_"+domainlist(ii)+"_2018-06-06_00:00:00","r")
+        sample_out=addfile(outdir+"no-urb/wrfinput_"+domainlist(ii),"w")
         do kk=0, dimsizes(varlist)-1
             print("var $"+varlist(kk)+"$ @ "+domainlist(ii)+" ("+tostring(kk+1)+"/"+dimsizes(varlist)+")")
             var_sample:=sample_in->$varlist(kk)$
