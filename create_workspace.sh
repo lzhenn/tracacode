@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=1809-ANTARCTICA
+WORKNAME=1810-ENSO-BIAS
 
 # Now to create the workspace
 mkdir $WORKNAME
