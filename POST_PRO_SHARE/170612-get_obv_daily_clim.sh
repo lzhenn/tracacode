@@ -16,7 +16,7 @@ PRE_DIR=\"/home/yangsong3/zwx/sst_pop/\"
 
 PRO_DIR=\"/home/yangsong3/zwx/\"
 
-FDNAME=\"TEMP\" #often use
+FDNAME=\"SST\" #often use
 
 #-----------------------------------------------------------
 

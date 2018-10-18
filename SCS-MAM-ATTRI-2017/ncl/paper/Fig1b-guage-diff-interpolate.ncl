@@ -124,18 +124,18 @@ begin
 
 ;  res@mpLandFillColor       = "gray"            ; set land to be gray
 
-;  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-;  res@cnLevels = (/-5,-4.5,-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5/)
+  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+  res@cnLevels = (/-2.0, -1.0, -0.5, -0.1, 0, 0.1, 0.5, 1.0, 2.0/)
 ;   res@cnLevels = ispan(0,60,10)
 ;  res@cnFillColors =(/-1,20,47,57,94,127,152/)
 ;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
 ;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
- res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        =-30         ; set min contour level
- res@cnMaxLevelValF        =30        ; set max contour level
- res@cnLevelSpacingF       = 3          ; set contour interval
+; res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+; res@cnMinLevelValF        =-30         ; set min contour level
+; res@cnMaxLevelValF        =30        ; set max contour level
+; res@cnLevelSpacingF       = 3          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -197,8 +197,8 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "(b) NOAA PRCC, 20CR 10m uv diff"
-  res@gsnRightString = "mm/mon"
+  res@gsnLeftString = "(b) NOAA PRCC diff"
+  res@gsnRightString = "mm/day"
        
   vcres = True
   vcres@gsnDraw          = False           ; don't draw
@@ -222,10 +222,10 @@ begin
   vcres@vcLineArrowHeadMaxSizeF   = 0.008
  
 
-
+  diff_var1=diff_var1/30
   plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
-  plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
+  ;plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
   ;overlay(plot_sh,plot_V)
   draw(plot_sh)
   frame(wks)

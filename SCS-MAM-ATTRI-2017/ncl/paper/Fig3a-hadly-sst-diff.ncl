@@ -33,8 +33,8 @@ begin
 ;global variables
     ;Define parameters
     g_var_name = "r"
-    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/noaa_er_sst-185401-201305.nc"
- ;    g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST/HadISST_sst.nc"
+   ; g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/noaa_er_sst-185401-201305.nc"
+     g_data_path ="/home/yangsong3/L_Zealot/data-mirror/obv/SST/HadISST/HadISST_sst.nc"
 
     g_font = 0.02
     g_season="MAM" 
@@ -43,7 +43,7 @@ begin
     g_lonW=90.
     g_lonE=270.
     ; create an array of desired pressure levels:
-    g_fig_name = "../../fig/paper/Fig3b-ersst-diff"
+    g_fig_name = "../../fig/paper/Fig3a-hadisst-diff"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -157,8 +157,8 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "(b) ERSST diff between 1981-2010 and 1901-1930"
-  res@gsnRightString = "degC"
+  res@gsnLeftString = "(a) HadISST diff between 1981-2010 and 1901-1930"
+  res@gsnRightString = "~S~o~N~C"
        
   vcres = True
   vcres@gsnDraw          = False           ; don't draw

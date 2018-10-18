@@ -158,7 +158,7 @@ begin
 ;-----------------------------------------------------------------------------
      
   res@gsnLeftString = "(b) ERSST diff between 1981-2010 and 1901-1930"
-  res@gsnRightString = "degC"
+  res@gsnRightString = "~S~o~N~C"
        
   vcres = True
   vcres@gsnDraw          = False           ; don't draw
