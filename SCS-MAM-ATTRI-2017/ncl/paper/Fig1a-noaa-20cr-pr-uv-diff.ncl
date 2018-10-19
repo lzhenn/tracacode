@@ -39,10 +39,10 @@ begin
 
     g_font = 0.02
     g_season="MAM" 
-    g_latS=-20.
-    g_latN=20.
+    g_latS=-30.
+    g_latN=30.
     g_lonW=60.
-    g_lonE=180.
+    g_lonE=270.
     ; create an array of desired pressure levels:
     g_fig_name = "../../fig/paper/Fig1a-noaa-pr-diff"
     g_strt_yyyymm=190101
@@ -86,7 +86,7 @@ begin
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+  wks = gsn_open_wks("x11",g_fig_name)  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
  gsn_define_colormap(wks,"precip_diff_12lev")
@@ -177,7 +177,7 @@ begin
 ; res@tmYLLabelFontQuality =
 ;-----------------------------------------------------------------------------
      
-  res@gsnLeftString = "(a) NOAA 20CR pr, 10m uv diff"
+  res@gsnLeftString = "(a) NOAA 20CR Pr, 10m UV diff"
   res@gsnRightString = "mm/day"
        
   vcres = True
