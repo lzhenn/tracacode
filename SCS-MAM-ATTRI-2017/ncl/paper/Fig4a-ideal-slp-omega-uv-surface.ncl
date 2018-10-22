@@ -49,8 +49,8 @@ begin
     g_skip_year=3
 
 
-    g_start=31
-    g_end=179
+    g_start=61
+    g_end=210
     ;Prepare the variables
     all_files = systemfunc ("ls "+ctrl_dir+"/*");
     ctrl_in     = addfiles (all_files, "r")   ; note the "s" of addfile
@@ -96,7 +96,7 @@ begin
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
 
-  wks = gsn_open_wks("eps","../../fig/paper/Fig4x-label")  ; open a ps file
+  wks = gsn_open_wks("eps","../../fig/paper/FigR-label")  ; open a ps file
 ;  wks = gsn_open_wks("pdf","up_T_surface_cte_mean_250-400hPa")  ; open a ps file
 ;  wks = gsn_open_wks("x11","diabatic_heat_250-500hPa")  ; open a ps file
 
@@ -106,7 +106,7 @@ begin
 ;  plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
-  gsn_define_colormap(wks,"WhiteYellowOrangeRed") ; choose a colormap 
+  gsn_define_colormap(wks,"ViBlGrWhYeOrRe") ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;   gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
@@ -135,9 +135,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = 0        ; set min contour level
- res@cnMaxLevelValF        = 1         ; set max contour level
- res@cnLevelSpacingF       = 0.1          ; set contour interval
+ res@cnMinLevelValF        = -150        ; set min contour level
+ res@cnMaxLevelValF        = 150         ; set max contour level
+ res@cnLevelSpacingF       = 15          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
