@@ -21,16 +21,16 @@
 
 begin
     data_file_in   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_PHC2_jan_ic_gx1v6_20090205.ieeer8"
-    data_file_out   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_deep_aqua_polar_mixed_layer_PHC2_jan_ic_gx1v6_20180613.ieeer8"
+    data_file_out   =   "/users/yangsong3/CESM/input/ocn/pop/gx1v6/ic/ts_deep_aqua_polar_PHC2_jan_ic_gx1v6_20181108.ieeer8"
     
-    latlon_in="/users/yangsong3/L_Zealot/B/B20f19-realworld/exe/B20f19-realworld.pop.h.0021-04.nc"
+    latlon_in="/users/yangsong3/L_Zealot/B/B20f19-pure-aqua/exe/B20f19-pure-aqua.pop.h.0095-11.nc"
     latlonf=addfile(latlon_in,"r") 
     lat2d     = latlonf->TLAT
     lon2d     = latlonf->TLONG
     setfileoption("bin","ReadByteOrder","BigEndian")
     tracer = fbindirread (data_file_in, 0, -1, "double")
     tracer:=reshape(tracer,(/2,60,384,320/))
-    print(tracer(1,0,49,:))
+    print(tracer(1,0,48,:))
     tracer@lat2d=lat2d
     tracer@lon2d=lon2d
     tracer@_FillValue=-99
@@ -42,7 +42,7 @@ begin
     relc      = 0.6              ; relaxation coefficient
     opt       = 0                ; not used
 
-    poisson_grid_fill( tracer(:,0:49,:,:), is_cyclic, guess, nscan, eps, relc, opt) 
+    poisson_grid_fill( tracer(:,0:48,:,:), is_cyclic, guess, nscan, eps, relc, opt) 
     tracer(:,:,0:1,:)=-99
     tracer(:,:,382:383,:)=-99
     ;do ii=1,26
@@ -63,7 +63,7 @@ begin
     ;res@cnFillMode           = "CellFill"
     res@gsnLeftString = "SURF_AQUA SURF T"
     res@gsnRightString = "degC"
-    plot = gsn_csm_contour_map(wks,tracer(0,26,:,:),res)  
+    plot = gsn_csm_contour_map(wks,tracer(0,45,:,:),res)  
     draw(plot)
     frame(wks)
 
