@@ -18,9 +18,9 @@ begin
   wks  = gsn_open_wks("x11","../fig/map_only_satelite_project")      ; send graphics to PNG file
 
   res                        = True         ; mods desired
-  res@mpOceanFillColor       = "blue"            ; array index in color map
-  res@mpLandFillColor        = "lightyellow4"          ; for land, ocean, and inland h20
-  res@mpInlandWaterFillColor = "cyan"
+  res@mpOceanFillColor       = "royalblue3"            ; array index in color map
+  res@mpLandFillColor        = "deepskyblue3"          ; for land, ocean, and inland h20
+  res@mpInlandWaterFillColor = "deepskyblue3"
   res@gsnFrame = False
   res@gsnDraw = False
 ;  res@mpMinLonF              = 60
