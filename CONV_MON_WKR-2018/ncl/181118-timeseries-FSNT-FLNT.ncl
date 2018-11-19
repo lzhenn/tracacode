@@ -21,156 +21,117 @@
 ;***********************************************
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 begin
-    g_fig_name="../fig/FSNT_FLNT"
+    g_fig_name="../fig/ts_FSNT_FLNT"
     g_font=0.015
-    
+   
+    g_fig_title="TOA Radiative Budget"
+    g_vars=(/"FSNT","FLNT"/)
+    g_path="/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/" 
     g_path_names=(/"MX_AQUAP_SCYC","SF_AQUAP_SCYC","NO_TOPO_SCYC", "REAL_WORLD_SCYC"/)
+    g_case_names=(/"B20f19-pure-aqua","B20f19-surf-aqua","B20f19-topo","B20f19-realworld"/)
+    g_fig_names=(/"MX_AQUA","SF_AQUA","NO_TOPO", "REAL_WORLD"/)
+    n_cases=4
+     
+    data2      = new((/n_cases,100/),float)
+    rad    = 4.0*atan(1.0)/180.0
+    do ii=0, n_cases-1
+        ctrl_in      = addfile (g_path+g_path_names(ii)+"/pro/"+g_case_names(ii)+".cam.h0."+g_vars(0)+".1-100.nc", "r")   ; note the "s" of addfile
+        var1:=ctrl_in->$g_vars(0)$
+        ctrl_in      = addfile (g_path+g_path_names(ii)+"/pro/"+g_case_names(ii)+".cam.h0."+g_vars(1)+".1-100.nc", "r")   ; note the "s" of addfile
+        var2=ctrl_in->$g_vars(1)$
+        var1=var1-var2
+        var1:=month_to_annual(var1,1)
+        printVarSummary(var1)
+        clat= cos(var1&lat*rad)
+        var1_aavg=runave_Wrap(wgt_areaave_Wrap(var1, clat, 1.0, 1),3,0 )
+        data2(ii,:)=(/var1_aavg/)
+    end do
+          
+;**********************************************************************************************
+;MISSION.3      Display timeseries 
+;**********************************************************************************************
 
-    all_files = systemfunc ("ls "+wrfout_path)
-    ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
-	setfileoption("nc","SuppressClose",False) ; close too many files
-	ListSetType (ctrl_in, "cat")             ; concatenate or "merge" (default)
 
-	ctrl_var3  = wrf_user_getvar(ctrl_in,"rh", -1)  
-    ctrl_var1  = wrf_user_getvar(ctrl_in,"ua", -1)  
-	ctrl_var2  = wrf_user_getvar(ctrl_in,"va", -1)  
+
+    ;************************************************ 
+    ; plotting parameters
+    ;************************************************
+    wks   = gsn_open_wks ("pdf",g_fig_name)                 ; open workstation
+
+    res               = True                    ; plot mods desired
+
+    plot = new((/1/),graphic)
+    res@gsnFrame         = False
+    res@gsnDraw  = False
+             
+    res@vpXF     = 0.15
+
+    res@vpWidthF = 0.8
+    res@vpHeightF= 0.25
+
+
+    ;res@trYMinF            = 0.9*min(var1_season_scmean)                ; Y axis limits
+    ;res@trYMaxF            = 1.1*max(var1_season_scmean)
+
+    ;res@trYMinF            = 3.5                ; Y axis limits
+    ;res@trYMaxF            = 6.5
+    res@gsnCenterString = g_fig_title
+    res@gsnLeftString = ""
+    res@gsnRightString = "W/m~S~2"
+    res@trXMinF  = 0                   ; min value on x-axis
+    res@trXMaxF  = dimsizes(var1_aavg)-1                   ; max value on x-axis
+    res@tmXBMode      = "Explicit" ; Define own tick mark labels.
+    res@tiYAxisString = "FSNT-FLNT"
+    res@tmXBValues = ispan(0,dimsizes(var1_aavg)-1,10) ;interval
+    res@tmXBLabels = ispan(0,100,10)         ;tick label
+    res@xyMonoLineColor    = False             ; want colored lines
+    res@xyLineColors       = (/"blue","deepskyblue","brown","darkgreen"/) ; colors chosen
+    res@xyLineThicknesses    = (/2.0,2.0,2.0,2.0/)      ; line thicknesses
+    res@xyDashPatterns   = (/0.,0.,0.,0./)      ; make all lines solid
+    res@tmXBMajorThicknessF = 4.0
+    res@tmYLMajorThicknessF = 4.0
+    res@tmXBMinorThicknessF = 3.0
+    res@tmYLMinorThicknessF = 3.0
+    res@tmBorderThicknessF = 3.0
+    res@tmXBLabelFontHeightF =0.022
+    res@tmYLLabelFontHeightF = 0.022
+    ; Note that a colon is the default function code. We recommend
+    ; setting default code to be a tilde (~) in your .hluresfile.
+    ; See: http://www.ncl.ucar.edu/Document/Graphics/hlures.shtml
+
+    plot(0)  = gsn_csm_xy (wks,ispan(0,dimsizes(var1_aavg)-1,1),data2,res)   ; create plot
+    ;---------------------------Add plot legend-----------------------------------
+    res_lines                   = True                  ; polyline mods desired
+    res_lines@gsLineDashPattern = 0.                    ; solid line
+    res_lines@gsLineThicknessF  = 2.                    ; line thicker
+
+    res_text                    = True                  ; text mods desired
+    res_text@txFontHeightF      = 0.015                 ; change text size
+    res_text@txJust             = "CenterLeft"          ; text justification
+
+    res_lines@gsLineColor       = "blue"
+    yy = (/7.0,7.0/)
+    xx = (/70,75/)
+    text_pos = 76
+    dum11 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
+    dum12 = gsn_add_text(wks,plot(0),"MX_AQUA",text_pos,yy(0),res_text); add text
+
+    yy=yy-1.0
+    res_lines@gsLineColor       = "deepskyblue"
+    dum21 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
+    dum22 = gsn_add_text(wks,plot(0),"SF_AQUA",text_pos,yy(0),res_text); add text
+    
+    yy=yy-1.0
+    res_lines@gsLineColor       = "brown"
+    dum31 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
+    dum32 = gsn_add_text(wks,plot(0),"NO_TOPO",text_pos,yy(0),res_text); add text
+    
+    yy=yy-1.0
+    res_lines@gsLineColor       = "darkgreen"
+    dum41 = gsn_add_polyline(wks,plot(0),xx,yy,res_lines)              ; add polyline
+    dum42 = gsn_add_text(wks,plot(0),"REAL_WORLD",text_pos,yy(0),res_text); add text
     
 
-    time0 = wrf_user_getvar(ctrl_in,"Times", -1)
-    xtime = wrf_times_c( time0, 1 ) 
-    xtime = xtime+8 
-
-    lc_date=cd_calendar(xtime, 0)
-    year   = tointeger(lc_date(:,0))    ; Convert to integer for
-    month  = tointeger(lc_date(:,1))    ; use sprinti 
-    day    = tointeger(lc_date(:,2))
-    hour   = tointeger(lc_date(:,3))
-    minute = tointeger(lc_date(:,4))
-    second = lc_date(:,5)
-
-    date_str = month_abbr(month(4::12))+sprinti(" %0.2i~C~", day(4::12)) + sprinti("%0.2iH", hour(4::12)) 
-              
-
-
-    lentime=dimsizes(xtime)
-    lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
-    lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
-    z   = wrf_user_getvar(ctrl_in,"pressure",1)  ; On half (mass) levels
-    ctrl_var1@lat2d = lat2d
-    ctrl_var1@lon2d = lon2d
-    ctrl_var2@lat2d = lat2d
-    ctrl_var2@lon2d = lon2d
-    point=getind_latlon2d(lat2d,lon2d,lat0,lon0)
-    cor_x=point(0,0)
-    cor_y=point(0,1)
-
-
-    ctrl_var1 := ctrl_var1(:,:,cor_x,cor_y)
-    ctrl_var2 := ctrl_var2(:,:,cor_x,cor_y)
-    ctrl_var3 := ctrl_var3(:,:,cor_x,cor_y)
-    zin = z(:,cor_x, cor_y)
-    z_raob = fspan(200.0,1000.0,17)    ; height in radiosonde
-    z_raob@_FillValue = -999. ; missing value
-    linlog = 2  
-    ctrl_var1 := transpose(int2p_Wrap(zin, ctrl_var1, z_raob, linlog))
-    ctrl_var2 := transpose(int2p_Wrap(zin, ctrl_var2, z_raob, linlog))
-    ctrl_var3 := transpose(int2p_Wrap(zin, ctrl_var3, z_raob, linlog))
-    ctrl_var1@_FillValue = -999.0
-    ;ctrl_var1(:,::3) =ctrl_var1@_FillValue
-;***********************************************
-;  open a workstation and define colormap using rgb triplets
-;***********************************************
-  wks = gsn_open_wks("png",g_fig_name) ; send graphics to PNG file
-;***********************************************
-; Create a different resource list for each of the 5 plots
-;***********************************************
-  rh_res      = True
-  uv_res      = True
-;***********************************************
-; Here are the resources that rh_res, temp_res, and uv_res share.
-;***********************************************
-  rh_res@trYReverse   = True     ; Reverse the Y values.
-  rh_res@gsnDraw      = False    ; Don't draw individual plot.
-  rh_res@gsnFrame     = False    ; Don't advance frame.
-  rh_res@vpXF         = 0.15     ; x location
-  rh_res@vpWidthF     = 0.8      ; width
-  rh_res@vpHeightF    = 0.40     ; height
-
-  rh_res@gsnStringFontHeightF = g_font 
-  uv_res              = rh_res
-  rh_res@lbLabelFontHeightF  = g_font              ; make labels smaller
-;***********************************************
-; Relative humidity only resources
-;***********************************************
-  rh_res@cnFillOn          = True               ; turns on color fill
-  rh_res@cnFillPalette     = read_colormap_file("MPL_BrBG")             ; set color map
-  rh_res@cnLinesOn   = False
-  rh_res@cnLineLabelsOn    = False               ; no contour labels
-  rh_res@cnLineLabelPerimOn = False
-  rh_res@cnFillMode           = "CellFill" ; Raster Mode
-  rh_res@tiYAxisString     = "Pressure (hPa)"    ; Y axes label.
-  rh_res@tiYAxisFontHeightF = g_font
-  rh_res@lbLabelBarOn = True   ; turn off the label bar
-  rh_res@lbOrientation          = "vertical"
-  rh_res@gsnRightString = "" 
-  rh_res@gsnMaximize          = True
-  rh_res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-  rh_res@cnLevels = ispan(0,100,5) 
-  rh_res@gsnLeftString = "Relative Humidity & Wind Profile"
-; y-left axis changes
-  rh_res@tmYLMode       = "Explicit" ; Define own tick mark labels.
-  rh_res@tmYLValues     = (/1000, 950, 900, 850, 800, 700, 600, 500, 400, 300, 200/)     ; location of explicit labels
-  rh_res@tmYLLabels     =(/1000, 950, 900, 850, 800, 700, 600, 500, 400, 300, 200/) 
-  rh_res@tmYLMajorLengthF = 0.0
-  rh_res@tmYLMinorOn    = False            ; No Y-left minor tick marks.
-
-; x-bottom axis changes
-  rh_res@tmXBMode       = "Explicit" ; Define own tick mark labels.
-  rh_res@tmXBValues=ispan(4, lentime-1,12)
-  rh_res@tmXBLabels=date_str
-  rh_res@tmXBMajorLengthF = 0.0
-  rh_res@tmXBLabelFontHeightF = g_font
-  rh_res@tmYLLabelFontHeightF = g_font
-
-  rh_res@tmXBMinorOn          = False          ; No minor tick marks.
-;***********************************************
-; wind barb only resources
-;***********************************************
-;  uv_res@vfXArray            = taus       ; Define X/Y axes values that
-;  uv_res@vfYArray            = levels     ; all three data fields are on
-  uv_res@vcRefAnnoOn         = False      ; turns off the ref vector
-  uv_res@vcRefMagnitudeF         = 5.                ; make vectors larger
-  uv_res@vcRefLengthF            = 0.015              ; ref vec length
-  uv_res@vcMinDistanceF          = 0.03              ; thin out windbarbs
-  uv_res@vcWindBarbLineThicknessF = 3.
-  ;resv@vcWindBarbColor = "grey50"
-  uv_res@vcWindBarbTickLengthF   = 0.6                ; length of the barb tick
-  uv_res@vcWindBarbTickSpacingF  = 0.25                ; distance between ticks
-  uv_res@gsnLeftString = ""
-  uv_res@gsnRightString = ""
-  uv_res@vcGlyphStyle        = "WindBarb" ; turn on windbarbs
-  uv_res@vcMonoWindBarbColor = True       ; to color the windbarbs with
-                                          ; respect to speed use False
-  uv_res@vcMapDirection = False			      ; needed to disassociate the coordinate plane from the wind barbs
-  rhfill    = gsn_csm_contour(wks,ctrl_var3,rh_res)
-  uvbarb = gsn_csm_vector(wks, ctrl_var1, ctrl_var2, uv_res)
-  res_line=True
-  res_line@gsLineDashPattern=1.
-  do ii=0, lentime-1
-    if mod(ii-4, 24) .eq. 0 then 
-      str=unique_string("")
-      rhfill@$str$=gsn_add_polyline(wks,rhfill,(/ii,ii/),(/200, 1000/),res_line)
-    end if
-  end do
-
-
-
-
-;  windlayer = gsn_vector(wks,ctrl_var1,ctrl_var2,uv_res)
-;********************************************************
-; three of the above plots become one overlay plot
-;********************************************************
-  overlay(rhfill, uvbarb)  ; result is windlayer over the other two
-  draw(rhfill)               ; draw this overlay result
-  frame(wks)                 ; finally advance the frame once all on page
+    draw(plot)
+    frame(wks)
 end
