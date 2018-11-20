@@ -21,11 +21,11 @@
 ;***********************************************
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 begin
-    g_fig_name="../fig/ts_FSNT_FLNT"
+    g_fig_name="../fig/ts_TS"
     g_font=0.015
    
-    g_fig_title="TOA Radiative Budget"
-    g_vars=(/"FSNT","FLNT"/)
+    g_fig_title="Surface Temperature"
+    g_vars=(/"TS","PRECL"/)
     g_path="/home/lzhenn/array/lzhenn/data/CONV_MON_WRK-2018/" 
     g_path_names=(/"MX_AQUAP_SCYC","SF_AQUAP_SCYC","NO_TOPO_SCYC", "REAL_WORLD_SCYC"/)
     g_case_names=(/"B20f19-pure-aqua","B20f19-surf-aqua","B20f19-topo","B20f19-realworld"/)
@@ -39,8 +39,10 @@ begin
         var1:=ctrl_in->$g_vars(0)$
         ctrl_in      = addfile (g_path+g_path_names(ii)+"/pro/"+g_case_names(ii)+".cam.h0."+g_vars(1)+".1-100.nc", "r")   ; note the "s" of addfile
         var2=ctrl_in->$g_vars(1)$
-        var1=var1-var2
+        ;var1=var1+var2
+        ;var1=var1*86400*1000*365
         var1:=month_to_annual(var1,1)
+        var1=var1-273.15
         printVarSummary(var1)
         clat= cos(var1&lat*rad)
         var1_aavg=runave_Wrap(wgt_areaave_Wrap(var1, clat, 1.0, 1),3,0 )
@@ -77,13 +79,13 @@ begin
     ;res@trYMaxF            = 6.5
     res@gsnCenterString = g_fig_title
     res@gsnLeftString = ""
-    res@gsnRightString = "W/m~S~2"
-    res@tmXBOn=False
-    res@tmXTOn=False
+    res@gsnRightString = "~S~o~N~C"
     res@trXMinF  = 0                   ; min value on x-axis
     res@trXMaxF  = dimsizes(var1_aavg)-1                   ; max value on x-axis
     res@tmXBMode      = "Explicit" ; Define own tick mark labels.
-    res@tiYAxisString = "FSNT-FLNT"
+    res@tiYAxisString = "TS"
+    res@tmXTOn=False
+    res@tmXBOn=False
     res@tmXBValues = ispan(0,dimsizes(var1_aavg)-1,10) ;interval
     res@tmXBLabels = ispan(0,100,10)         ;tick label
     res@xyMonoLineColor    = False             ; want colored lines
