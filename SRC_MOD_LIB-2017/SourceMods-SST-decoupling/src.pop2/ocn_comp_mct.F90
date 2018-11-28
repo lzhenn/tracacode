@@ -1712,7 +1712,7 @@ contains
    io_temp, io_ce
    type (io_dim) :: &
    t_dim, i_dim, j_dim, k_dim
-   namelist /ptempf_forcing_nml/ ptempf_file_name, ptempf_file_fmt
+   namelist /forcing_pt_interior_nml/ ptempf_file_name, ptempf_file_fmt
    
    allocate(TEMP_DATA(nx_block, ny_block, decoupling_days, max_blocks_clinic))
    allocate(WGT_DATA(nx_block, ny_block, decoupling_days, max_blocks_clinic))
@@ -1728,7 +1728,7 @@ contains
          nml_error =  1
       endif
       do while (nml_error > 0)
-         read(nml_in, nml=ptempf_forcing_nml,iostat=nml_error)
+         read(nml_in, nml=forcing_pt_interior_nml,iostat=nml_error)
       end do 
       if (nml_error == 0) close(nml_in)
    end if
