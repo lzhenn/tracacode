@@ -54,7 +54,7 @@ ptempf_file_fmt        = 'nc'
 ```
 * Sample of the nudging_ptemp.nc
 
-```json
+```
 netcdf nudging_ptemp {
 dimensions:
     nlat = 384 ;
