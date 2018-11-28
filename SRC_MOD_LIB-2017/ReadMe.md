@@ -52,6 +52,40 @@ Default: 'nc'
 ptempf_file_name       = '$PATH_TO_YOUR_DATA/nudging_ptemp.nc'
 ptempf_file_fmt        = 'nc'
 ```
+* Sample of the nudging_ptemp.nc
+
+```json
+netcdf nudging_ptemp {
+dimensions:
+    nlat = 384 ;
+    nlon = 320 ;
+    time = 365 ;
+variables:
+    double TLONG(nlat, nlon) ;
+        TLONG:missing_value = 9.96920996838687e+36 ;
+        TLONG:units = "degrees_east" ;
+        TLONG:long_name = "array of t-grid longitudes" ;
+        TLONG:_FillValue = 9.96920996838687e+36 ;
+    double TLAT(nlat, nlon) ;
+        TLAT:missing_value = 9.96920996838687e+36 ;
+        TLAT:units = "degrees_north" ;
+        TLAT:long_name = "array of t-grid latitudes" ;
+        TLAT:_FillValue = 9.96920996838687e+36 ;
+    float TEMP_365(time, nlat, nlon) ;
+        TEMP_365:grid_loc = "3111" ;
+        TEMP_365:coordinates = "TLONG TLAT" ;
+        TEMP_365:units = "degC" ;
+        TEMP_365:long_name = "Surface Potential Temperature" ;
+        TEMP_365:_FillValue = 9.96921e+36f ;
+    int time(time) ;
+    float WGT_365(time, nlat, nlon) ;
+        WGT_365:grid_loc = "3111" ;
+        WGT_365:coordinates = "TLONG TLAT" ;
+        WGT_365:units = "1" ;
+        WGT_365:long_name = "Nudging Coefficients" ;
+        WGT_365:_FillValue = 9.96921e+36f ;
+}
+```
 
 LZN
 
