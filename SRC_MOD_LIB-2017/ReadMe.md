@@ -21,16 +21,38 @@ Remove the vertical diffusion (turbulance) caused heating to the atmosphere over
 Partially decoupling the Air-sea interaction by fixing the SST values to the prescribed SST datasets.
 
 * Please use 'LZN' (no apostrophe) to lock the code modification segmentation.
-* Set proper namelist variable in pop2_in **Note that ./$CASE.run operation will overwrite the pop2_in namelist file, please specify the variable and **submit the task manually**.
+* Need to register new namelist variables in `$CESM_ROOT/models/ocn/pop2/bld/namelist_files/namelist_definition_pop2.xml`, just copy the following code to the end of the xml file.
+```xml
+<entry 
+id="ptempf_file_name"
+type="char*256"
+category="forcing"
+group="forcing_pt_interior_nml" >
+File containing forcing potential temperature data 
 
-``` fortran
-&ptempf_forcing_nml
-ptempf_file_name       = '$PATH_TO_YOUR_DATA/nudging_ptemp.nc'
-ptempf_file_fmt        = 'nc'
-/
+Default: ''
+</entry>
+
+<entry 
+id="ptempf_file_fmt"
+type="char*256"
+category="forcing"
+group="forcing_pt_interior_nml"
+valid_values="bin,nc" >
+potential temperature forcing file format (binary or netCDF).
+
+Valid Values: 'bin', 'nc'
+Default: 'nc'
+</entry>
 ```
 
+* Set proper namelist variable in user_nl_pop2.
+
+``` fortran
+ptempf_file_name       = '$PATH_TO_YOUR_DATA/nudging_ptemp.nc'
+ptempf_file_fmt        = 'nc'
+```
 
 LZN
 
-Last Updated: Jan 30, 2018
+Last Updated: Nov 28, 2018
