@@ -696,7 +696,7 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
 
 
 
-    !*** LZN MOD START: infld UV Field
+    !*** LZN MOD START: infld flux Field
     forc_loc="/users/yangsong3/zwx/CESM/heatforc.nc"
     call cam_pio_openfile(fh_forc, forc_loc, 0)
     do nm=1, 12 
@@ -712,7 +712,8 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
         call infld('FLDSF', fh_forc, 'lon', 'lat', 1, pcols,   begchunk, endchunk, &
              lwdf(:,:,nm), found, grid_map='PHYS', timelevel=nm)
     end do
-    !*** LZN MOD END: infld UV Field
+
+    !*** LZN MOD END: infld flux Field
     
     !-----------------------------------------------------------------------
 
@@ -1489,37 +1490,27 @@ subroutine tphysac (ztodt,   cam_in,  &
     
         calday = get_curr_calday()
 
-        G0=2.0      !amplification factor: 1.0 means after the whole month, the
-                    !accumulated forcing reach the magnitude from the input data
-                    !, here we use 2.0 to asure the monthly-mean reach the magnitude
-                    !of the input
-
-        !Below to get out which month (j) we are in
         do j = 1,12
             if (calday < day_rank(j)+1) then
                 exit
             end if
         end do
-        if (j>1) then
-            ! forcing coefficient from Feb to Dec
-            G0=G0*1.0/(86400*day_rank(j)-day_rank(j-1))    
-        else
-            ! forcing coefficient in Jan
-            G0=G0*1.0/(86400*day_rank(j))    ! forcing coefficient 
-        end if
-        cam_in%shf=cam_in%shf+G0*shff(:,lchnk,j)
-
+       
+        cam_in%shf=cam_in%shf+shff(:,lchnk,j) ! heat flux correction
+        
         ! Below to output debug info
-        stat_lat=state%lat(1)*180.0/3.1415926
-        stat_lon=state%lon(1)*180.0/3.1415926
         if ((calday-floor(calday))<0.01) then 
-            ! EA Test
-            if ((abs(stat_lon-80.0)<0.5).and. &
-            (abs(stat_lat-30.0)<0.5)) then
-                write(iulog,"(A30,F8.2,A5,F6.2,A5,F6.2,A15,F6.2,A15,F6.2)")  "LZN MOD FLAG: Calday:",calday,&
-                "Lat:",stat_lat,"Lon:",stat_lon," camin%shf=", cam_in%shf(1)," shff=", G0*shff(1,lchnk,j)
-            end if
+            do i=1,ncol ! cols in chunk
+                stat_lat=state%lat(i)*180.0/3.1415926
+                stat_lon=state%lon(i)*180.0/3.1415926
+                if ((abs(stat_lon-275.0)<1.5).and. &
+                (abs(stat_lat-0.0)<1.0)) then
+                    write(iulog,"(A20,F8.2,A5,F6.2,A5,F6.2,A15,F6.2,A15,F6.2)")  "LZN MOD FLAG: Calday:",calday,&
+                    "Lat:",stat_lat,"Lon:",stat_lon," camin%shf=", cam_in%shf(i)," shff=", shff(i,lchnk,j)
+                end if
+            end do
         end if
+
         !*** LZN MOD END: change shortwave and longwave to the model state
 
 
@@ -2276,40 +2267,28 @@ subroutine tphysbc (ztodt,               &
     
     calday = get_curr_calday()
 
-    G0=2.0      !amplification factor: 1.0 means after the whole month, the
-                !accumulated forcing reach the magnitude from the input data
-                !, here we use 2.0 to asure the monthly-mean reach the magnitude
-                !of the input
-
     !Below to get out which month (j) we are in
     do j = 1,12
         if (calday < day_rank(j)+1) then
             exit
         end if
     end do
-    if (j>1) then
-        ! forcing coefficient from Feb to Dec
-        G0=G0*1.0/(86400*day_rank(j)-day_rank(j-1))    
-    else
-        ! forcing coefficient in Jan
-        G0=G0*1.0/(86400*day_rank(j))    ! forcing coefficient 
-    end if
-    cam_out%netsw=cam_out%netsw+G0*swnf(:,lchnk,j)
-    cam_out%flwds=cam_out%flwds+G0*lwdf(:,lchnk,j)
-
     
-   
+    ! radiation flux correction
+    cam_out%netsw=cam_out%netsw+swnf(:,lchnk,j)
+    cam_out%flwds=cam_out%flwds+lwdf(:,lchnk,j)
+
     ! Below to output debug info
-    stat_lat=state%lat(1)*180.0/3.1415926
-    stat_lon=state%lon(1)*180.0/3.1415926
     if ((calday-floor(calday))<0.01) then 
-        ! EA Test
-        if ((abs(stat_lon-80.0)<0.5).and. &
-        (abs(stat_lat-30.0)<0.5)) then
-            write(iulog,"(A30,F8.2,A5,F6.2,A5,F6.2,A15,F6.2,A15,F6.2,A5,F8.6,A15,F6.2,A15,F12.1)")  "LZN MOD FLAG: Calday:",calday,&
-            "Lat:",stat_lat,"Lon:",stat_lon," camout%netsw=", cam_out%netsw(1)," swnf=", G0*swnf(1,lchnk,j),&
-            "G0=",G0,"camout%flwds=",cam_out%netsw(1),"lwdf=",G0*lwdf(1,lchnk,j)
-        end if
+        do i=1,ncol ! cols in chunk
+            stat_lat=state%lat(i)*180.0/3.1415926
+            stat_lon=state%lon(i)*180.0/3.1415926
+            if ((abs(stat_lon-275.0)<1.5).and. &
+            (abs(stat_lat-0.0)<1.0)) then
+                write(iulog,"(A20,F8.2,A5,F6.2,A5,F6.2,A15,F6.2,A15,F6.2)")  "LZN MOD FLAG: Calday:",calday,&
+                "Lat:",stat_lat,"Lon:",stat_lon," camout%netsw=", cam_out%netsw(i)," swnf=", swnf(i,lchnk,j)
+            end if
+        end do
     end if
    !*** LZN MOD END: change shortwave and longwave to the model state
 
