@@ -1,6 +1,16 @@
 This folder archives all source code modifications to CESM1.2 (or other models in the future) that I have implemented during my research.
 
+
 **Please use keyword "MOD" to lock the modification parts.**
+
+### Content
+    * [SourceMods-CAM4-MAM-heat](#SourceMods-CAM4-MAM-heat)
+    * [SourceMods-Nudging](#SourceMods-Nudging)
+    * [SourceMods-ideal-folding-heat](#SourceMods-ideal-folding-heat)
+    * [SourceMods-mod_canopyNgrd_albd](#SourceMods-mod_canopyNgrd_albd)
+    * [SourceMods-shf](#SourceMods-shf)
+    * [SourceMods-SST-decoupling](#SourceMods-SST-decoupling)
+    * [SourceMods-heatflux-correction](#SourceMods-heatflux-correction)
 
 ### SourceMods-CAM4-MAM-heat
 Intensify/Suppress convective heating rate (J/kg/s) over a certain region/time, a detailed introduction can be found in the Methods section in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4962042/ 
