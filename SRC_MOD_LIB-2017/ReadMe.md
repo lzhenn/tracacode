@@ -21,7 +21,11 @@ Remove the vertical diffusion (turbulance) caused heating to the atmosphere over
 Partially decoupling the Air-sea interaction by fixing the SST values to the prescribed SST datasets.
 
 * Please use 'LZN' (no apostrophe) to lock the code modification segmentation.
-* Need to register new namelist variables in `$CESM_ROOT/models/ocn/pop2/bld/namelist_files/namelist_definition_pop2.xml`, just copy the following code to the end of the xml file.
+
+* Need to register new namelist group in  `$CCSMROOT/models/ocn/pop2/bld/build-namelist`, just add `ptempf_file_nml` in **L1776**, the @group name writing section.
+
+* Need to register new namelist variables in `$CCSMROOT/models/ocn/pop2/bld/namelist_files/namelist_definition_pop2.xml`, just copy the following code to the end of the xml file.
+
 ```xml
 <entry 
 id="ptempf_file_name"

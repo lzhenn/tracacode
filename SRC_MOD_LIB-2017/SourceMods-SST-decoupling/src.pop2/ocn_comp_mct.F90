@@ -326,21 +326,21 @@ contains
       call shr_cal_date2ymd(start_ymd,start_year,start_month,start_day)
 
       if (iyear0 /= start_year) then
-	 if(master_task == my_task)   then
+     if(master_task == my_task)   then
             call document ('ocn_init_mct', 'iyear0     ', iyear0)
             call document ('ocn_init_mct', 'start_year ', start_year)
          endif
          call exit_POP(sigAbort,' iyear0 does not match start_year')
       end if
       if (imonth0 /= start_month) then
-	 if(master_task == my_task)   then
+     if(master_task == my_task)   then
             call document ('ocn_init_mct', 'imonth0     ', imonth0)
             call document ('ocn_init_mct', 'start_month ', start_month)
          endif
          call exit_POP(sigAbort,' imonth0 does not match start_year')
       end if
       if (iday0 /= start_day) then
-	 if(master_task == my_task)   then
+     if(master_task == my_task)   then
             call document ('ocn_init_mct', 'iday0     ', iday0)
             call document ('ocn_init_mct', 'start_day ', start_day)
          endif
@@ -362,7 +362,7 @@ contains
 
    call t_startf ('pop_mct_init')
 
-   call ocn_SetGSMap_mct( mpicom_o, OCNID, GSMap_o ) 	
+   call ocn_SetGSMap_mct( mpicom_o, OCNID, GSMap_o )    
    lsize = mct_gsMap_lsize(gsMap_o, mpicom_o)
 
    ! Initialize mct ocn domain (needs ocn initialization info)
@@ -435,7 +435,7 @@ contains
    call seq_infodata_PutData( infodata, &
         ocn_nx = nx_global , ocn_ny = ny_global)
    call seq_infodata_PutData( infodata, &
-	ocn_prognostic=.true., ocnrof_prognostic=.true.)
+    ocn_prognostic=.true., ocnrof_prognostic=.true.)
 
 !----------------------------------------------------------------------------
 !
@@ -1701,7 +1701,7 @@ contains
 ! ***LZN: MOD START***
  subroutine ptempforcing_read
    integer (i4) ::  nml_error
-   integer (i4) :: decoupling_days=30
+   integer (i4) :: decoupling_days=365
 
    character (char_len) :: &
    ptempf_file_name, &
@@ -1712,7 +1712,7 @@ contains
    io_temp, io_ce
    type (io_dim) :: &
    t_dim, i_dim, j_dim, k_dim
-   namelist /forcing_pt_interior_nml/ ptempf_file_name, ptempf_file_fmt
+   namelist /ptempf_file_nml/ ptempf_file_name, ptempf_file_fmt
    
    allocate(TEMP_DATA(nx_block, ny_block, decoupling_days, max_blocks_clinic))
    allocate(WGT_DATA(nx_block, ny_block, decoupling_days, max_blocks_clinic))
@@ -1728,7 +1728,7 @@ contains
          nml_error =  1
       endif
       do while (nml_error > 0)
-         read(nml_in, nml=forcing_pt_interior_nml,iostat=nml_error)
+         read(nml_in, nml=ptempf_file_nml,iostat=nml_error)
       end do 
       if (nml_error == 0) close(nml_in)
    end if
@@ -1746,7 +1746,7 @@ contains
    j_dim = construct_io_dim('j',ny_global)
    t_dim = construct_io_dim('time',decoupling_days)
 
-   io_temp = construct_io_field('TEMP',dim1=i_dim,dim2=j_dim,dim3=t_dim,&
+   io_temp = construct_io_field('TEMP_365',dim1=i_dim,dim2=j_dim,dim3=t_dim,&
                long_name='Potential Temperature', units='degC', grid_loc='3111',&
                field_loc = field_loc_center, &
                field_type = field_type_scalar, r3d_array = TEMP_DATA)
@@ -1771,15 +1771,15 @@ contains
  subroutine ptempforcing_fix
     integer (int_kind) ::  iblock
     ! debug info
-    write(stdout,*) iday_of_year, TEMP_DATA(50,50,iday_of_year,:) 
+    !write(stdout,*) iday_of_year, TEMP_DATA(50,50,iday_of_year,1) 
 
 
     ! Operation: override the runtime tracer(temp)
     !$OMP PARALLEL DO PRIVATE(iblock)
     do iblock = 1, nblocks_clinic
-       TRACER(:,:,1,1,curtime,iblock) =  &
-       TEMP_DATA(:,:,iday_of_year,iblock)*WGT_DATA(:,:,iday_of_year, iblock)+ &
-       TRACER(:,:,1,1,curtime,iblock)*(1-WGT_DATA(:,:,iday_of_year, iblock))
+        TRACER(:,:,1,1,curtime,iblock) =  &
+        (TEMP_DATA(:,:,iday_of_year,iblock)*WGT_DATA(:,:,iday_of_year, iblock)- &
+        TRACER(:,:,1,1,curtime,iblock)*(1-WGT_DATA(:,:,iday_of_year, iblock)))
     end do
     !$OMP END PARALLEL DO
  end subroutine ptempforcing_fix
