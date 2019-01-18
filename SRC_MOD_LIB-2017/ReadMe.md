@@ -31,7 +31,7 @@ Partially decoupling the Air-sea interaction by fixing the SST values to the pre
 id="ptempf_file_name"
 type="char*256"
 category="forcing"
-group="forcing_pt_interior_nml" >
+group="ptempf_file_nml" >
 File containing forcing potential temperature data 
 
 Default: ''
@@ -41,7 +41,7 @@ Default: ''
 id="ptempf_file_fmt"
 type="char*256"
 category="forcing"
-group="forcing_pt_interior_nml"
+group="ptempf_file_nml"
 valid_values="bin,nc" >
 potential temperature forcing file format (binary or netCDF).
 
