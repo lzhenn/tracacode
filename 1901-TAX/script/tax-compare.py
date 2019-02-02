@@ -63,15 +63,23 @@ def mainfunc():
         cash_all=cash_all+disconted_cash_flow(tax_all, 23, r)
         cash_old_list[idx]=cash_all
         
-    print(cash_new_list)
-    print(cash_old_list)
+    print(cash_new_list-cash_old_list)
 
-    ax = plt.subplot(111)
-    plt.plot(cash_old_list, '-', color='gray', alpha=0.8, label='Old Tax System')
+    plt.subplot(211)
+    plt.plot(stipend_list, cash_old_list, '-', color='gray', alpha=0.8, label='Old Tax System')
     plt.title('Cash Now')
-    plt.plot(cash_new_list, '-', color='blue', label='New Tax System')
-    plt.grid(True)
+    plt.plot(stipend_list, cash_new_list, '-', color='blue', label='New Tax System')
+    plt.ylabel('cash now')
     plt.legend(loc='best', ncol=2 )
+    plt.grid(True)
+    
+    plt.subplot(212)
+    plt.plot(stipend_list, cash_new_list-cash_old_list, '-.', color='red', label='New Minus Old')
+    plt.xlabel('stipend per month')
+    plt.ylabel('cash now')
+    plt.grid(True)
+    plt.legend(loc='best', ncol=1 )
+    
     plt.savefig('../fig/cash_now.png')
 
 if __name__ == '__main__':

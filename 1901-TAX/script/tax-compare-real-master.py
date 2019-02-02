@@ -36,8 +36,8 @@ def disconted_cash_flow(cash_advance, t, r):
 def mainfunc():
 
     r=56.54/10000.0
-    #stipend_list=[800,1000,1200,1500,2000]
-    stipend_list=[2000,2500,3000,4000,5000]
+    stipend_list=[800,1000,1200,1500,2000]
+    #stipend_list=[2000,2500,3000,4000,5000]
     #stipend_list=[800,1000,1200]
     
     cash_list_new=[]
@@ -78,24 +78,22 @@ def mainfunc():
         cash_list_new.append(cash_list_new[-1])
         cash_list_old.append(cash_list_old[-1])
     cash_list_new[-1]=cash_list_new[-1]+disconted_cash_flow(tax_all_new, (len(stipend_list)-1)*12+11, r)
-    print(np.array(cash_list_new)-np.array(cash_list_old))
 
     plt.subplot(211)
     plt.plot(cash_list_old, '-', color='gray', alpha=0.8, label='Old Tax System')
-    plt.title('Cash Now')
+    plt.title('Cash Now (Sudent B)')
     plt.plot(cash_list_new, '-', color='blue', label='New Tax System')
-    plt.ylabel('cash now')
+    plt.ylabel('accumulated cash now')
     plt.legend(loc='best', ncol=2 )
     plt.grid(True)
     
     plt.subplot(212)
-    plt.plot(stipend_list, cash_new_list-cash_old_list, '-.', color='red', label='New Minus Old')
-    plt.xlabel('stipend per month')
-    plt.ylabel('cash now')
+    plt.plot(np.array(cash_list_new)-np.array(cash_list_old), '-.', color='red', label='New Minus Old')
+    plt.xlabel('month')
     plt.grid(True)
     plt.legend(loc='best', ncol=1 )
  
-    plt.savefig('../fig/cash_timeseries.png')
+    plt.savefig('../fig/cash_timeseriesB.png')
 
 if __name__ == '__main__':
         mainfunc()
