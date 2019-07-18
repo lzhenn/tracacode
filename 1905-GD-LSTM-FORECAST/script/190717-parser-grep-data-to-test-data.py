@@ -55,8 +55,19 @@ def main():
     sample_pt=pt[pt.year >= start_year]
     df0=reform_df(sample_pt)
     df0, df0_season= dcomp_seasonality(df0)
+    print(df0_season.loc[731])
     print(df0)
-    
+
+    # normalize the dataset
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    dataset = scaler.fit_transform(dataset)
+
+
+    # split into train and test sets
+    train_size = int(len(dataset) * 0.67)
+    test_size = len(dataset) - train_size
+    train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]  
+
     plt.plot(df0['avg_temp'])
     plt.show()
     savefig('../fig/test.png')
@@ -76,6 +87,21 @@ def dcomp_seasonality(df):
     df_season=df.groupby('aux').mean()
     df = df.groupby('aux').transform(lambda x: x-x.mean())
     return df, df_season
+
+# X is the number of passengers at a given time (t) and Y is the number of passengers at the next time (t + 1).
+
+# convert an array of values into a dataset matrix
+def create_dataset(dataset, look_back=1):
+    dataX, dataY = [], []
+    for i in range(len(dataset)-look_back-1):
+        a = dataset[i:(i+look_back), 0]
+        dataX.append(a)
+        dataY.append(dataset[i + look_back, 0])
+    return numpy.array(dataX), numpy.array(dataY)
+
+# fix random seed for reproducibility
+numpy.random.seed(7)
+
 
 
 
