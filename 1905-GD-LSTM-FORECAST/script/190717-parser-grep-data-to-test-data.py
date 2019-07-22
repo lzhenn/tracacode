@@ -23,6 +23,10 @@ from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 
+# fix random seed for reproducibility
+np.random.seed(7)
+
+
 #-------------------------------------
 # Function Definition Part
 #-------------------------------------
@@ -55,12 +59,10 @@ def main():
     sample_pt=pt[pt.year >= start_year]
     df0=reform_df(sample_pt)
     df0, df0_season= dcomp_seasonality(df0)
-    print(df0_season.loc[731])
-    
-    dataset = df0.values
+    dataset = df0['avg_temp'].values.reshape(-1,1)
     
     print(dataset)
-    exit()
+    
     # normalize the dataset
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset = scaler.fit_transform(dataset)
@@ -76,15 +78,15 @@ def main():
     testX, testY = create_dataset(test, look_back)
 
     # reshape input to be [samples, time steps, features]
-    trainX = numpy.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
-    testX = numpy.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
+    trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
+    testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
 
     # create and fit the LSTM network
     model = Sequential()
     model.add(LSTM(4, input_shape=(1, look_back)))
     model.add(Dense(1))
     model.compile(loss='mean_squared_error', optimizer='adam')
-    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+    model.fit(trainX, trainY, epochs=10, batch_size=1, verbose=2)
    
     # make predictions
     trainPredict = model.predict(trainX)
@@ -101,13 +103,13 @@ def main():
     print('Test Score: %.2f RMSE' % (testScore))
     
     # shift train predictions for plotting
-    trainPredictPlot = numpy.empty_like(dataset)
-    trainPredictPlot[:, :] = numpy.nan
+    trainPredictPlot = np.empty_like(dataset)
+    trainPredictPlot[:, :] = np.nan
     trainPredictPlot[look_back:len(trainPredict)+look_back, :] = trainPredict
 
     # shift test predictions for plotting
-    testPredictPlot = numpy.empty_like(dataset)
-    testPredictPlot[:, :] = numpy.nan
+    testPredictPlot = np.empty_like(dataset)
+    testPredictPlot[:, :] = np.nan
     testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :] = testPredict
 
     # plot baseline and predictions
@@ -115,12 +117,8 @@ def main():
     plt.plot(trainPredictPlot)
     plt.plot(testPredictPlot)
     plt.show()
- 
-    plt.plot(df0['avg_temp'])
-    plt.show()
     savefig('../fig/test.png')
     
-    exit()
 
 def reform_df(pt):
     start_time=str(pt.iloc[0]['year'])+'-'+str(pt.iloc[0]['mon'])+'-'+str(pt.iloc[0]['day'])
@@ -145,10 +143,7 @@ def create_dataset(dataset, look_back=1):
         a = dataset[i:(i+look_back), 0]
         dataX.append(a)
         dataY.append(dataset[i + look_back, 0])
-    return numpy.array(dataX), numpy.array(dataY)
-
-# fix random seed for reproducibility
-numpy.random.seed(7)
+    return np.array(dataX), np.array(dataY)
 
 
 
