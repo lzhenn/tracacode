@@ -42,6 +42,7 @@ def main():
     pt=pd.read_csv(in_dir+'idx1.txt', sep='\s+', header=7, names=['year','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec', 'avg', 'rmean-5yr'], index_col='year')
     pt=pt.drop(['avg','rmean-5yr'], axis=1)
     df = pd.DataFrame(pt.stack().values, index=date_range, columns=['idx1'])# pd.stack() will convert row-arranged data into column-arranged data
+    df.index.name='time'
     df = df.to_period()
 
     for idx in range(2,75): 
@@ -49,7 +50,7 @@ def main():
         pt=pt.drop(['avg','rmean-5yr'], axis=1)
         df['idx'+str(idx)] =pt.stack().values
 
-    print(df.replace(999, np.nan))
+    df=df.replace(999, np.nan)
     df.to_csv(out_dir)
 if __name__ == "__main__":
     main()
