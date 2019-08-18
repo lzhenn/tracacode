@@ -38,14 +38,26 @@ def main():
     df_tmp_features=pd.read_csv(in_dir+'possible_features.csv',index_col='time',parse_dates=True)
     df_label=pd.read_csv(in_dir+'label.csv',index_col='time')
     
-    df_feature=pd.DataFrame()
+    df_feature0=pd.DataFrame()
     ii = 0
     for break_p in start_years[:-1]:
         ii = ii+1
         df_sample=df_tmp_features[df_tmp_features.index.year>=break_p]
         df_sample=df_sample[df_sample.index.year<start_years[ii]]
-        df_feature=pd.concat([df_feature, dcomp_seasonality(df_sample)])
-    df_feature=df_feature.dropna(axis=1, how='any')
+        df_feature0=pd.concat([df_feature0, dcomp_seasonality(df_sample)])
+    df_feature0=df_feature0.dropna(axis=1, how='any')
+    df_feature=df_feature0.iloc[:-12,:]
+    for ii in range(1,12):
+        df_tmp=df_feature0.iloc[ii:(-12+ii),:]
+        df_tmp.index=df_feature.index
+        tmp_list=[]
+        for itm in df_tmp.columns.values:
+            tmp_list.append(itm+'lag1')
+        df_tmp.columns.values=tmp_list
+        df_feature=pd.concat([df_feature, df_tmp])    
+    print(df_feature)
+    exit()
+
     X = np.array(df_feature.values)
     df_tmp_label=pd.read_csv(in_dir+'label.csv', index_col='time', parse_dates=True)
     Y = np.array(df_tmp_label['avg_temp'].values)
