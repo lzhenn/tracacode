@@ -50,8 +50,7 @@ def main():
     sample_pt1=sample_pt1[sample_pt1.year < start_years[2]]
     sample_pt2=sample_pt[sample_pt.year >= start_years[2]]
     df0=combine_mon_anom(sample_pt0, sample_pt1, sample_pt2)
-    data = df0*0.1
-    data.to_csv(out_dir)
+    df0[df0.index.year<2017].to_csv(out_dir)
 
 def combine_mon_anom(*args):
     df=pd.DataFrame()
@@ -67,13 +66,16 @@ def reform_df(pt):
     start_time=str(pt.iloc[0]['year'])+'-'+str(pt.iloc[0]['mon'])+'-'+str(pt.iloc[0]['day'])
     end_time=str(pt.iloc[-1]['year'])+'-'+str(pt.iloc[-1]['mon'])+'-'+str(pt.iloc[-1]['day'])
     date_range = pd.date_range(start=start_time, end=end_time)
-    df =pd.DataFrame(pt.loc[:,['avg_temp', 'max_temp', 'min_temp']].values, index=date_range, columns=['avg_temp', 'max_temp', 'min_temp'])
+    df =pd.DataFrame(pt.loc[:,['avg_temp', 'max_temp', 'min_temp']].values, index=date_range, columns=[ 'avg_temp', 'max_temp', 'min_temp'])
+    df.index.set_names('time', inplace=True)
     return df
 
    
 def dcomp_seasonality(df):
     df_season = df.groupby(df.index.month).mean() # climatological seasonal cycle
-    df = df.groupby(df.index.month).transform(lambda x: x-x.mean()) # calculate monthly anomaly
+    print(df)
+    df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())) # calculate monthly anomaly
+    #df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())/x.std()) # calculate monthly anomaly
     return df, df_season
 
 
