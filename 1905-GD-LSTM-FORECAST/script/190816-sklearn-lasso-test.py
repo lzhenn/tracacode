@@ -41,7 +41,7 @@ def main():
     lag_step=12
 
     # magic_alpha from lassoCV results
-    magic_alpha=0.802779265085
+    #magic_alpha=0.802779265085
     #magic_alpha=1.0
     #magic_alpha=1.07682989906 train_data
 
@@ -72,8 +72,8 @@ def main():
     Y = Y[lag_step:]
     
     (n_samples, n_features)=X.shape
-    X_train=X[:int(0.75*n_samples),-80:]
-    X_test=X[int(0.75*n_samples):,-80:]
+    X_train=X[:int(0.75*n_samples),:]
+    X_test=X[int(0.75*n_samples):,:]
 
     Y_train=Y[:int(0.75*n_samples)]
     Y_test=Y[int(0.75*n_samples):]   
@@ -84,7 +84,7 @@ def main():
     print('best alpha:', magic_alpha)
     # above for lassocv
 
-    lasso_model=Lasso(max_iter=1000, alpha=magic_alpha)
+    lasso_model=Lasso( alpha=magic_alpha)
     lasso_model.fit(X_train, Y_train)
 
     w=lasso_model.coef_
