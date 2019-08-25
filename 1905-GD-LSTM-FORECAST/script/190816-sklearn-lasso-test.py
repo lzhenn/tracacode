@@ -35,10 +35,9 @@ def main():
     end_year=2016
 
 
-    # N features used in the lasso model
-    n_relavant_features=25
-
+    train_size=0.8
     lag_step=12
+
 
     # magic_alpha from lassoCV results
     #magic_alpha=0.802779265085
@@ -49,7 +48,11 @@ def main():
     df_label            =   pd.read_csv(in_dir+'label.csv',index_col='time')
         
     df_nino             =   load_nino34_data('/home/lzhenn/array2/lzhenn/osci_idx/detrend.nino34.ascii', start_years[0], end_year)
-    nino_lag=construct_lag_array1d(df_nino, lag_step)
+    nino_lag, col_nino_list=construct_lag_array1d(df_nino, lag_step, 'nino34')
+    
+    print(len(col_nino_list))
+    print(nino_lag.shape)
+
     #df_feature0=pd.DataFrame()
     #ii = 0
     # concat anomalies based on breaking points in the station record ? need it?
@@ -63,23 +66,30 @@ def main():
     df_feature0=df_feature0.dropna(axis=1, how='any')
     df_feature0=df_feature0[df_feature0.index.year>=start_years[0]]
     X0= np.array(df_feature0.values) 
-    X=construct_lag_array2d(df_feature0, lag_step)
+    X, col_list_X=construct_lag_array2d(df_feature0, lag_step)
+    print(len(col_list_X))
+    print(X.shape)
 
     df_tmp_label=pd.read_csv(in_dir+'label.csv', index_col='time', parse_dates=True)
     Y = np.array(df_tmp_label['avg_temp'].values)
-    Y_lag=construct_lag_array1d(df_tmp_label['avg_temp'], lag_step) 
-   
+    Y_lag, col_list_lagY=construct_lag_array1d(df_tmp_label['avg_temp'], lag_step, 'Y') 
+    print(len(col_list_lagY))
+    print(Y_lag.shape)
+
     
     X = np.concatenate((X, nino_lag,Y_lag),axis=1)
-
+    col_list_X.extend(col_nino_list)
+    col_list_X.extend(col_list_lagY)
+    print(len(col_list_X))
+    print(X.shape)
     Y = Y[lag_step:]
     
     (n_samples, n_features)=X.shape
-    X_train=X[:int(0.67*n_samples),:]
-    X_test=X[int(0.67*n_samples):,:]
+    X_train=X[:int(train_size*n_samples),:]
+    X_test=X[int(train_size*n_samples):,:]
 
-    Y_train=Y[:int(0.67*n_samples)]
-    Y_test=Y[int(0.67*n_samples):]   
+    Y_train=Y[:int(train_size*n_samples)]
+    Y_test=Y[int(train_size*n_samples):]   
     
     # below for lassocv
     lassocv_model=LassoCV(cv=10).fit(X_train,Y_train)
@@ -92,8 +102,11 @@ def main():
 
     w=lasso_model.coef_
     b=lasso_model.intercept_
-
-    print('w: ', w[w>0], 'n(w):',len(w[w>0]))
+    features=np.where(w>0)[0]
+    print('w: ', w[w>0])
+    for itm in features:
+        print(itm)
+        print(str(round(w[itm],4))+'x'+col_list_X[int(itm)])
     print('b: ', b)
 
 # make predictions
@@ -122,19 +135,25 @@ def construct_lag_array2d(df, lag_step):
         construct lag array 2d (n features x m samples)
         from -lag_step to -1
     """
+    org_col_list=df.columns.values.tolist()
+    col_list=[itm+'_lag1' for itm in org_col_list]
     X_all = np.array(df.values)
     X=X_all[:-lag_step,:]    
     for ii in range(1, lag_step):
         X_tmp=X_all[ii:(-lag_step+ii),:]
         X=np.concatenate((X,X_tmp),1)
-    return X
+        new_list=[itm+'_lag'+str(ii+1) for itm in org_col_list]
+        col_list.extend(new_list)
+    return X, col_list
 
-def construct_lag_array1d(df, lag_step):
+def construct_lag_array1d(df, lag_step,array_name):
     """
         construct lag array 1d (1 feature and m samples)
         from -lag_step to -1
     """
-
+    org_col_list=list(array_name)
+    col_list=[array_name+'_lag1']
+    
     X_all = np.array(df.values)
     X=X_all[:-lag_step]
     X=X[:,np.newaxis]
@@ -142,7 +161,9 @@ def construct_lag_array1d(df, lag_step):
         X_tmp=X_all[ii:(-lag_step+ii)]
         X_tmp=X_tmp[:,np.newaxis]
         X=np.concatenate((X,X_tmp),axis=1)
-    return X
+        new_list=[array_name+'_lag'+str(ii+1)]
+        col_list.extend(new_list)
+    return X, col_list
 
 
 def dcomp_seasonality(df, std_flag):
