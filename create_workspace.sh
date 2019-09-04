@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=1810-ENSO-BIAS
+WORKNAME=1909-CZS-DCPL
 
 # Now to create the workspace
 mkdir $WORKNAME
