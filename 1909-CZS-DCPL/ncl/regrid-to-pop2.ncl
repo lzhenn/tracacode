@@ -6,7 +6,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/popRemap.ncl"
 begin
 
     ;forcing in
-    forc_dir="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/1909-CZS-DCPL/Forcing_SETIO.nc"
+    forc_dir="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/1909-CZS-DCPL/Forcing_SWTIO.nc"
     forc_SST = addfile(forc_dir, "r")
     sst=forc_SST->sst
     dims=dimsizes(sst)
