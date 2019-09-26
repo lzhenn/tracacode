@@ -49,9 +49,13 @@ def main():
     pt=pd.read_csv(in_dir+sta_num+var_name+'.txt', sep='\s+', header=None, names=['station', 'lat', 'lon', 'alt', 'year', 'mon', 'day', 'avg_temp', 'max_temp', 'min_temp', 'avg_code', 'max_code', 'min_code'])
     sample_pt=pt[pt.year >= start_years[0]]
     sample_pt=reform_df(sample_pt)
+    
     clim_df=cal_climatology(sample_pt, clim_range)
     print(clim_df)
-    print(sample_pt.groupby(sample_pt.index.month).apply(lambda x: x-clim_df)) # calculate monthly anomaly
+    sample_pt=sample_pt.resample('M').mean()
+    for name, group in sample_pt.groupby(sample_pt.index.month):
+        print(name)
+        print(group)
     exit()
     df0=combine_mon_anom(sample_pt0, sample_pt1, sample_pt2)
     df0[df0.index.year<2017].to_csv(out_dir)
@@ -59,7 +63,7 @@ def main():
 
 def cal_climatology(df, clim_range):
     clim_df=df[(df.index.year>=clim_range[0]) & (df.index.year<=clim_range[1])]
-    clim_df_season = df.groupby(df.index.month).mean() # climatological seasonal cycle
+    clim_df_season = clim_df.groupby(clim_df.index.month).mean() # climatological seasonal cycle
     return clim_df_season
 
 
@@ -75,6 +79,11 @@ def combine_mon_anom(*args):
     return df
 
 def reform_df(pt):
+    """
+    reform df style:
+    time             avg_temp  max_temp  min_temp
+    2018-07-23       270       320       250
+    """
     start_time=str(pt.iloc[0]['year'])+'-'+str(pt.iloc[0]['mon'])+'-'+str(pt.iloc[0]['day'])
     end_time=str(pt.iloc[-1]['year'])+'-'+str(pt.iloc[-1]['mon'])+'-'+str(pt.iloc[-1]['day'])
     date_range = pd.date_range(start=start_time, end=end_time)
