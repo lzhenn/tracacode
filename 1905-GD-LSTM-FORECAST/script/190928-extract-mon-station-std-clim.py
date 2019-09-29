@@ -28,7 +28,7 @@ def main():
     in_dir='/disk/hq247/yhuangci/lzhenn/data/station/post/'
 
     # Output File
-    out_dir='../testdata/label.csv'
+    out_dir='../testdata/'
 
     # Start Year 
     start_years=[1957, 1996, 2011]
@@ -45,23 +45,27 @@ def main():
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
+    fs_handl=os.walk(in_dir) 
+    for path,dir_list,file_list in fs_handl:  
+        for file_name in file_list:  
+            infile=os.path.join(path, file_name)
+            print('parser '+file_name)
+            pt=pd.read_csv(infile, sep='\s+', header=None, names=['station', 'lat', 'lon', 'alt', 'year', 'month', 'day', 'avg_temp', 'max_temp', 'min_temp', 'avg_code', 'max_code', 'min_code'])
+            sample_pt=pt[pt.year >= start_years[0]]
+            sample_pt=reform_df(sample_pt)
     
-    pt=pd.read_csv(in_dir+sta_num+var_name+'.txt', sep='\s+', header=None, names=['station', 'lat', 'lon', 'alt', 'year', 'mon', 'day', 'avg_temp', 'max_temp', 'min_temp', 'avg_code', 'max_code', 'min_code'])
-    sample_pt=pt[pt.year >= start_years[0]]
-    sample_pt=reform_df(sample_pt)
-    
-    clim_df=cal_climatology(sample_pt, clim_range)
-    sample_pt=sample_pt.resample('M').mean()
-    
-    # below for calculate monthly dmean values
-    ii=0
-    fn_pt=pd.DataFrame()
-    for name, group in  sample_pt.groupby(sample_pt.index.month):   # group by month
-        fn_pt=pd.concat([fn_pt, group.apply(lambda x: x-clim_df.iloc[ii,:], axis=1)])
-        ii=ii+1
-    print(fn_pt.sort_values(by='time'))
-    exit()
-    
+            clim_df=cal_climatology(sample_pt, clim_range)
+            
+            # below for calculate monthly dmean values
+            sample_pt=sample_pt.resample('M').mean()
+            ii=0
+            fn_pt=pd.DataFrame()
+            for name, group in  sample_pt.groupby(sample_pt.index.month):   # group by month
+                fn_pt=pd.concat([fn_pt, group.apply(lambda x: x-clim_df.iloc[ii,:], axis=1)])
+                ii=ii+1
+            print('write '+out_dir+'label_'+file_name)
+            fn_pt.sort_values(by='time').to_csv(out_dir+'label_'+file_name)
+    exit() 
     df0=combine_mon_anom(sample_pt0, sample_pt1, sample_pt2)
     df0[df0.index.year<2017].to_csv(out_dir)
     
@@ -89,10 +93,8 @@ def reform_df(pt):
     time             avg_temp  max_temp  min_temp
     2018-07-23       270       320       250
     """
-    start_time=str(pt.iloc[0]['year'])+'-'+str(pt.iloc[0]['mon'])+'-'+str(pt.iloc[0]['day'])
-    end_time=str(pt.iloc[-1]['year'])+'-'+str(pt.iloc[-1]['mon'])+'-'+str(pt.iloc[-1]['day'])
-    date_range = pd.date_range(start=start_time, end=end_time)
-    df =pd.DataFrame(pt.loc[:,['avg_temp', 'max_temp', 'min_temp']].values, index=date_range, columns=[ 'avg_temp', 'max_temp', 'min_temp'])
+    date_range=pd.to_datetime(pt.loc[:,['year','month','day']])
+    df =pd.DataFrame(pt.loc[:,['avg_temp', 'max_temp', 'min_temp']].values, index=date_range, columns=['avg_temp', 'max_temp', 'min_temp'])
     df.index.set_names('time', inplace=True)
     return df
 
