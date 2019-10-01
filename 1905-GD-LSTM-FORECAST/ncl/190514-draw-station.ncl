@@ -11,31 +11,15 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
-;================================================
-;Variables List:
-;	var1--------------CO2
-;	var2--------------CH4
-;	var3--------------N2O
-;	var4--------------f11
-;	var5--------------f12
-;================================================
-
-
 
 begin
     
-    ;grid file
-    grid_fn="/home/yangsong3/L_Zealot/data-mirror/data-model/L_Zealot/HKUST_yeq-2016/gridsys/GRIDCRO2D_3km"
-    
-    ;Resident time file
-    data_file_name1=""
    
-
     ;Fig name
-    g_fig_name="../fig/exposure"
+    g_fig_name="../fig/anom_sign_score"
     
     ;Fig title
-    fig_title="Population Exposure (kpop*hr)"
+    fig_title="Pc Score"
 
     ;
     g_font=0.02
