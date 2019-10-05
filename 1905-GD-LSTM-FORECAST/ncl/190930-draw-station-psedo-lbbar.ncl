@@ -16,7 +16,7 @@ begin
     
    
     ;Fig name
-    g_fig_name="../fig/anom_pc_score"
+    g_fig_name="../fig/anom_pc_score_psedo"
     
     ;Fig title
     fig_title="Pc Score on Test Set (2008-2016)"
@@ -51,7 +51,6 @@ plot = new((/1/),graphic)
 ;color table
 color_table="radar"
 
-gsn_define_colormap(wks,color_table) ; choose a colormap 
 ;   gsn_define_colormap(wks,"Rainbow") ; choose a colormap
 ;gsn_define_colormap(wks,"BlGrYeOrReVi200") ; choose a colormap
 ;  gsn_define_colormap(wks,"precip4_diff_19lev")
@@ -68,66 +67,47 @@ rgb_all=new((/cn_levels+1,4/),"float")
 rgb_all(0,:)=(/0.5,0.5,0.5,1.0/)
 rgb_all(1:,:)=(/rgba/)
 
+;gsn_define_colormap(wks,rgb_all) ; choose a colormap 
+res                  = True       ; use plot options
 
-  res                  = True       ; use plot options
+  res@cnFillOn             = True               ; turn on color for contours
+  res@cnLinesOn            = False              ; turn off contour lines
+  res@cnLineLabelsOn       = False              ; turn off contour line labels
 
-  res@gsnFrame         = False
-  res@gsnDraw  = False
-  res@gsnLeftString =  fig_title
-  ;res@gsnCenterString = "PM2.5_diff(no-gz_test)"
-  res@gsnRightString = ""
-  res@gsnStringFontHeightF = g_font
-  res@gsnMaximize      = True       ; fill up the page
-  ;res@gsnAddCyclic   = True;False
-  res@gsnPaperOrientation = "portrait"
+
+
+;  i = NhlNewColor(wks,0.341,0.,0.533)              ; add gray to colormap
+;  j = NhlNewColor(wks,1,0.,0.)
+;  res@mpLandFillColor       = "gray"            ; set land to be gray
+
+;  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+;  res@cnLevels = (/-5,-4.5,-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5/)
+;   res@cnLevels = ispan(0,60,10)
+;  res@cnFillColors =(/-1,20,47,57,94,127,152/)
+;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+;    res@cnLevels =    (/-0.8,-0.4,-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0/)
+;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
+
+ res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+ res@cnMinLevelValF        = 0.5          ; set min contour level
+ res@cnMaxLevelValF        = 0.95          ; set max contour level
+ res@cnLevelSpacingF       = 0.05         ; set contour interval
+ res@cnFillColors=rgb_all
+ res@gsnSpreadColors      = True               ; use full color map
   
-  ;res@cnFillMode           = "CellFill" ; Raster Mode
+  res@lbLabelBarOn = True   ; turn off the label bar
+  res@lbOrientation          = "vertical"
+  res@lbLabelFontHeightF  = g_font              ; make labels smaller
+  res@lbLabelStride = 1
 
+  psedo=new((/50,50/), "float")
+  psedo=0.4
+  psedo(0,:)=fspan(0.45,1.0,50)
+
+  plot = gsn_csm_contour(wks,psedo,res) ; dim1 = 0 for lvl = 0
  
 
-  res@mpMinLatF            = 16        ; zoom in on map
-  res@mpMaxLatF            = 27
-  res@mpMinLonF            = 104
-  res@mpMaxLonF            = 118
-  
-;  res@mpMinLatF            = 21       ; zoom in on map
-;  res@mpMaxLatF            = 23
-;  res@mpMinLonF            = 113
-;  res@mpMaxLonF            = 115
-
-
-
-  res@mpGeophysicalLineThicknessF = 2.0 ;costal line thick
-  res@tmXBTickSpacingF = 4.0
-  res@tmYLTickSpacingF = 2.0
-
-res@tmXBLabelFontHeightF =g_font
-res@tmYLLabelFontHeightF = g_font
-res@gsnStringFontHeightF = g_font
-res@tiMainFontHeightF= g_font
-;res@lbLabelFontHeightF = 0.02
-;res@pmLabelBarOrthogonalPosF = .12           ; move label bar down
-res@tmXBMajorThicknessF = 2.0
-res@tmYLMajorThicknessF = 2.0
-res@tmXBMinorThicknessF = 2.0
-res@tmYLMinorThicknessF = 2.0
-res@tmBorderThicknessF = 2.0
-res@tmYLMajorLengthF = 0.002
-
-
-res@mpFillOn                = True
-res@mpOutlineOn             = False  ; Use outlines from shapefile
-res@mpDataBaseVersion       = "MediumRes"
-res@mpDataSetName           = "Earth..4"
-res@mpAreaMaskingOn         = True
-res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
-res@mpLandFillColor         = "white"
-res@mpInlandWaterFillColor  = "white"
-;res@mpOceanFillColor        = "white"
-;res@mpOutlineBoundarySets   = "NoBoundaries"
-
-  plot = gsn_csm_map(wks,res) ; dim1 = 0 for lvl = 0
- 
+ exit
 ;>============================================================<
 ;                      add China map
 ;>------------------------------------------------------------<

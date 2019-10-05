@@ -7,6 +7,7 @@
 #
 
 import os
+import json
 import numpy as np
 import pandas as pd
 import datetime
@@ -21,35 +22,43 @@ def main():
 # User Defined Part
 #----------------------------------------------------
 
-    # region list 
-    region_list=['广东', '广西', '海南']
+    # Result Input File
+    result_in_file='../testdata/result_08-16.json'
 
-    # Catagory Input File
-    cat_in_file='/disk/hq247/yhuangci/lzhenn/data/station/station.txt'
-    
-    # Raw Input File
-    raw_in_dir='/disk/hq247/yhuangci/lzhenn/data/station/raw/'
+    # South China Input
+    sta_file='../testdata/south_china_station.csv'
 
-    # Out Dir
-    post_our_dir='/disk/hq247/yhuangci/lzhenn/data/station/post/'
+
+    # Out File
+    out_file='../testdata/south_china_result.csv'
 
     # Least Start Year 
     start_year=1979
     
     # End Year
-    end_year=2018
+    end_year=2016
 
     # Var Name 
-    var_name='PRE' 
+    var_name='TEM' 
 
 #----------------------------------------------------
 # Main function
 #----------------------------------------------------
     
-    pt=pd.read_csv(cat_in_file, sep='\s+', header=None, skiprows=1, index_col=0, 
-            names=['sta_num','sta_name','province','lat','lon','alt','start_year','start_mon', 'end_year','end_mon', 'missing'])
-    #pt[pt['province'].isin(region_list)].to_csv('../testdata/south_china.csv')
-    #exit()
+    sta_pt=pd.read_csv(sta_file,  index_col=0)
+    with open(result_in_file) as f:
+        result_dic=json.load(f)
+    sta_pt=sta_pt.loc[:,['lat','lon','alt']]
+    sta_pt['sign_score']=np.nan
+    for key, value in result_dic.items():
+        try:
+            sta_pt.at[int(key),'sign_score']=value['sign_score']
+        except:
+            print(key, ' not exist!')
+            continue
+    print(sta_pt)
+    sta_pt.to_csv(out_file, sep=' ')
+    exit()
     for idx in pt[pt['province'].isin(region_list)].index:
         print(idx)
         content=os.popen('grep ' + str(idx) + ' ' + raw_in_dir+var_name+'/*')
