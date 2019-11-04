@@ -18,6 +18,7 @@ begin
     ;File IO
     pdata_fn     = "/home/lzhenn/array2/data/ERA5/monthly/surface/"  ; open output netCDF file
     all_files = systemfunc("ls "+pdata_fn+"sfc*199*.nc "+ pdata_fn+"sfc*200*.nc "+pdata_fn+"sfc2010*.nc "+pdata_fn+"sfc198[1-9]*.nc")
+    print(all_files)
     ctrl_in = addfiles(all_files ,"r")  ; open output netCDF file
     ListSetType(ctrl_in, "join")
     var1    = ctrl_in[:]->2T_GDS0_SFC
