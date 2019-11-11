@@ -150,6 +150,7 @@ def main():
             trainPredict = lasso_model.predict(X_train)
             testPredict = lasso_model.predict(X_test)
             
+            direction_matrix=(((Y_train>0) & (trainPredict>0)) | ((Y_train<0) & (trainPredict<0)))
             direction_score=(sum((Y_test>0)*(testPredict>0))+sum((Y_test<0)*(testPredict<0)))/Y_test.shape[0]
             print('****sign direction score:', direction_score)
             result_dic[sta_num]={
@@ -158,14 +159,14 @@ def main():
                 'w_idx':                features.tolist(),
                 'w_name':               [col_list_X[itm] for itm in features],
                 'b':                    b,
-                'sign_score':           direction_score
+                'sign_matrix':           direction_matrix.tolist()
                 }
                 
             #break
     
     print(result_dic)
     
-    with open('../testdata/result.json', 'w') as f:
+    with open('../testdata/result_81-07.json', 'w') as f:
         json.dump(result_dic,f)
 
 
