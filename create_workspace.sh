@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=1909-CZS-DCPL
+WORKNAME=1911-yeq-HALOGEN
 
 # Now to create the workspace
 mkdir $WORKNAME
