@@ -43,32 +43,38 @@ def heatmap(data, row_labels, col_labels, ax=None,
     **kwargs
         All other arguments are forwarded to `imshow`.
     """
-
     if not ax:
         ax = plt.gca()
 
     # Plot the heatmap
     im = ax.imshow(data, **kwargs)
 
+    plt.xlabel('Features',fontsize=MIDFONT)
+    plt.ylabel('Stations',fontsize=MIDFONT)
+    plt.xticks(fontsize=SMFONT)
+    plt.yticks(fontsize=SMFONT)
+    plt.title("Standardized partial regression weight square", fontsize=BIGFONT)
 
-
-    return im    
     # Create colorbar
-    cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
-    cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom", fontsize=20)
-    cbar.ax.tick_params(labelsize=20)
+    cbar = ax.figure.colorbar(im, ax=ax, orientation='horizontal', **cbar_kw)
+    #cbar.ax.set_ylabel(cbarlabel, rotation=0, va="bottom", fontsize=20)
+    cbar.ax.tick_params(labelsize=SMFONT)
     '''
     # We want to show all ticks...
     ax.set_xticks(np.arange(data.shape[1]))
     ax.set_yticks(np.arange(data.shape[0]))
+    '''
+    
     # ... and label them with the respective list entries.
-    ax.set_xticklabels(col_labels, fontsize=12)
-    ax.set_yticklabels(row_labels, fontsize=12)
+    #ax.set_xticklabels(col_labels, fontsize=12)
+    #ax.set_yticklabels(row_labels, fontsize=12)
 
+
+    #ax.set_yticklabels(fontsize=16)
+    '''
     # Let the horizontal axes labeling appear on top.
     ax.tick_params(top=True, bottom=False,
                    labeltop=True, labelbottom=False)
-
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=-60, ha="right",
              rotation_mode="anchor")
@@ -82,6 +88,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
     ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
     ax.tick_params(which="minor", bottom=False, left=False)
     '''
+    #return im
     return im, cbar
 
 # def
@@ -153,6 +160,10 @@ def main():
 #----------------------------------------------------
 # User Defined Part
 #----------------------------------------------------
+    BIGFONT=22
+    MIDFONT=18
+    SMFONT=16
+
 
     # Result Input File
     result_in_file='../testdata/result.json'
@@ -201,11 +212,35 @@ def main():
             ista=ista+1
         except:
             continue
-    data=abs(data)
-    print(data)
-
-    fig, ax = plt.subplots()
+    data=data*data
+    fctr_sum=np.sum(data, axis=1)
+    sort_arr=np.argsort(fctr_sum)
+    sort_arr=sort_arr[::-1]
+    features=[features[itm] for itm in sort_arr]
+    fctr_sum.sort()
+    fctr_sum=fctr_sum[::-1]
+    #print(features)
+    #print(fctr_sum)
     
+    fig, ax = plt.subplots()
+    line=ax.stem(np.linspace(1, 287, num=287),fctr_sum)
+    
+    ax.set_yscale('log')
+    plt.xlabel('Features',fontsize=BIGFONT)
+    plt.ylabel('Accum Var',fontsize=BIGFONT)
+    plt.xticks(fontsize=MIDFONT)
+    plt.yticks(fontsize=MIDFONT)
+    plt.title("Accumulated partial regression weight square", fontsize=BIGFONT)
+
+
+    
+    
+    plt.show()
+    exit()
+    # select the largest contributed features
+    
+    
+    #reset new colormap
     viridis = matplotlib.cm.get_cmap('YlGn', 256)
     newcolors = viridis(np.linspace(0, 1, 256))
     white = np.array([1, 1, 1, 1])
@@ -213,8 +248,9 @@ def main():
     newcmp = matplotlib.colors.ListedColormap(newcolors)
 
     
-    im = heatmap(data.transpose(),  stas, features, ax=ax,
-                   cmap=newcmp, cbarlabel="norm weight squre")
+    fig, ax = plt.subplots()
+    im, cbar = heatmap(data.transpose(),  stas, features, ax=ax,
+                   cmap=newcmp, cbarlabel="")
     
     #texts = annotate_heatmap(im, valfmt="{x:.4f}")
 
