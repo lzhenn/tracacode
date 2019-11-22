@@ -19,7 +19,7 @@ begin
     g_fig_name="../fig/anom_pc_score"
     
     ;Fig title
-    fig_title="Pc Score on Test Set (2008-2016)"
+    fig_title="Winning Ratio on Test Set (2008-2016)"
 
     ;Font size
     g_font=0.02
@@ -43,7 +43,7 @@ begin
 
     print("nstations="+n_sta)
 ;**********************************************************************************************
-    wks = gsn_open_wks("eps",g_fig_name)       ; open file to plot 
+    wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
 ;-----------------------------------------------------------------------------
 
 plot = new((/1/),graphic)
@@ -154,6 +154,7 @@ res@mpInlandWaterFillColor  = "white"
     if n_color .lt. 0.0 then
         n_color = 0
     end if
+    print("ncolor="+n_color)
     gsres@gsMarkerColor      = rgb_all(n_color,:)
     
     lon_int=floor(rec(ii,2)/100.0)

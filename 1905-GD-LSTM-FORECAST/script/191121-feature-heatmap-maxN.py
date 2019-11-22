@@ -53,29 +53,26 @@ def heatmap(data, row_labels, col_labels, ax=None,
     # Plot the heatmap
     im = ax.imshow(data, **kwargs)
 
-    plt.xlabel('Features',fontsize=MIDFONT)
-    plt.ylabel('Stations',fontsize=MIDFONT)
+    plt.ylabel('Features',fontsize=MIDFONT)
+    plt.xlabel('Stations',fontsize=MIDFONT)
     plt.xticks(fontsize=SMFONT)
     plt.yticks(fontsize=SMFONT)
-    plt.title("Standardized partial regression weight square", fontsize=BIGFONT)
+    #plt.title("Standardized partial regression weight square", fontsize=BIGFONT)
 
     # Create colorbar
-    cbar = ax.figure.colorbar(im, ax=ax, orientation='horizontal', **cbar_kw)
+    cbar = ax.figure.colorbar(im, ax=ax, orientation='vertical', **cbar_kw)
     #cbar.ax.set_ylabel(cbarlabel, rotation=0, va="bottom", fontsize=20)
     cbar.ax.tick_params(labelsize=SMFONT)
-    '''
     # We want to show all ticks...
     ax.set_xticks(np.arange(data.shape[1]))
     ax.set_yticks(np.arange(data.shape[0]))
-    '''
     
     # ... and label them with the respective list entries.
-    #ax.set_xticklabels(col_labels, fontsize=12)
-    #ax.set_yticklabels(row_labels, fontsize=12)
+    ax.set_xticklabels(col_labels, fontsize=12)
+    ax.set_yticklabels(row_labels, fontsize=12)
 
 
     #ax.set_yticklabels(fontsize=16)
-    '''
     # Let the horizontal axes labeling appear on top.
     ax.tick_params(top=True, bottom=False,
                    labeltop=True, labelbottom=False)
@@ -91,7 +88,6 @@ def heatmap(data, row_labels, col_labels, ax=None,
     ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
     ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
     ax.tick_params(which="minor", bottom=False, left=False)
-    '''
     #return im
     return im, cbar
 
@@ -193,10 +189,6 @@ def main():
     #features.sort()
     print(len(features))
     nfea=len(features)
-
-    print(features)
-    print(stas)
-    
     data=np.zeros((nfea, nsta))
 
 
@@ -219,23 +211,24 @@ def main():
     features=[features[itm] for itm in sort_arr]
     fctr_sum.sort()
     fctr_sum=fctr_sum[::-1]
-    print(features)
-    print(fctr_sum)
-    fig, ax = plt.
-    exit()
-    # select the largest contributed features
+    data0=np.copy(data[0:18,:])
+    ii=0
+    for itm in sort_arr[0:18]:
+        data0[ii,:]=data[itm,:]
+        print(data0[ii,0:10],'--',data[itm,0:10])
+        ii=ii+1
+    print(data0[0:2,0:10])
     
-    
+    fig, ax = plt.subplots()
     #reset new colormap
     viridis = matplotlib.cm.get_cmap('YlGn', 256)
     newcolors = viridis(np.linspace(0, 1, 256))
     white = np.array([1, 1, 1, 1])
     newcolors[0, :] = white
     newcmp = matplotlib.colors.ListedColormap(newcolors)
-
     
-    fig, ax = plt.subplots()
-    im, cbar = heatmap(data.transpose(),  stas, features, ax=ax,
+
+    im, cbar = heatmap(data0, features[0:18], stas, ax=ax,
                    cmap=newcmp, cbarlabel="")
     
     #texts = annotate_heatmap(im, valfmt="{x:.4f}")
