@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LassoCV, Lasso
 import matplotlib
-matplotlib.use('Agg') 
+#matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import datetime
 from matplotlib.pyplot import savefig
@@ -24,7 +24,7 @@ from matplotlib.pyplot import savefig
 #----------------------------------------------------
 def main():
     # Station Number
-    tgt_sta_num='59287'
+    tgt_sta_num='59985'
 
     # Label File
     label_dir='../testdata/label/'
@@ -41,7 +41,7 @@ def main():
     end_year=2016
 
     # Model Parameter
-    train_size=0.75
+    train_size=0.67
     lag_step=24
 
     # define label start time according to lag step
@@ -74,10 +74,11 @@ def main():
     X, col_list_X=construct_lag_array2d(df_feature0, lag_step)
 
     # concatenate
-    X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag,X),axis=1)
+    #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag,X),axis=1)
+    X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag),axis=1)
     col_list_X_features=cpc_aao_list
     col_list_X_features.extend(cpc_prim_list)
-    col_list_X_features.extend(col_list_X)
+    #col_list_X_features.extend(col_list_X)
 
     # verify
     print(len(col_list_X_features))
@@ -91,6 +92,8 @@ def main():
         for file_name in file_list:  
             sta_num=file_name[6:11]
             print('processing ', sta_num)
+            if not(sta_num==tgt_sta_num):
+                continue
             result_dic[sta_num]={}
             col_list_X=col_list_X_features.copy()
             
@@ -162,19 +165,26 @@ def main():
                 }
                 
             #break
-    
+            BIGFONT=22
+            MIDFONT=18
+            SMFONT=16
+            fig, ax = plt.subplots()
+            plt.plot(Y_test/np.std(Y_test), label='Obv', color='blue')
+            plt.plot(testPredict/np.std(testPredict), label='Fcst', color='red')
+            plt.legend(loc='best', fontsize=SMFONT)
+            plt.xlabel('Timeframe',fontsize=SMFONT)
+            plt.ylabel('Deviation',fontsize=SMFONT)
+            plt.xticks(fontsize=SMFONT)
+            plt.yticks(fontsize=SMFONT)
+            
+            plt.title("Station: "+str(sta_num), fontsize=BIGFONT)
+            fig.tight_layout()
+            plt.show()
+            #savefig('../fig/lasso_'+str(sta_num)+'.png')
+
+   
     print(result_dic)
     
-    with open('../testdata/result.json', 'w') as f:
-        json.dump(result_dic,f)
-
-
-    plt.figure(figsize=(12, 8))
-    plt.plot(Y_test, label='value', color='blue')
-    plt.plot(testPredict, label='fit_value', color='red')
-    plt.legend(loc='best')
-    plt.show()
-    savefig('../fig/lasso_test.png')
 
 def load_cpc_idx(path_cpc_idx, yr_start, yr_end):
     df_cpc_idx_raw=pd.read_csv(path_cpc_idx, sep='\s+')
