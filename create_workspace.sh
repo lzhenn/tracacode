@@ -9,12 +9,12 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=1911-yeq-HALOGEN
+WORKNAME=1911-COAWST
 
 # Now to create the workspace
 mkdir $WORKNAME
 cd $WORKNAME
-mkdir data ncl fig
+mkdir data ncl fig script
 cd data
 mkdir model obv
 cd model
