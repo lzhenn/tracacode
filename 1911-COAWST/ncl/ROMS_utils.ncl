@@ -132,15 +132,10 @@ end if
 return(uvrot)
 end
 ;------------------------------------------------------------------------------
-undef("roms_3d_interp")
-function roms_3d_interp( file_handle, var:string, \
-rec:integer, z:numeric )
+undef("roms_get_depth")
+function roms_get_depth(file_handle)
 ;*************************************************************************
-; slice=roms_3d_interp(file_handle,"temp",record,-10)
-; interpolates from file_handle variable "temp" for time record at -10m depth
-; if record is -1 than I have no time, i.e. pure 3D (like in avg file)
-; if inside file_handle I can find zeta it will be used in depth calculation
-; otherwise it is assumed zero. Depth constants are must.
+; height=roms_get_depth(file_handle)
 ;*************************************************************************
 local h, Cs_r, hc, Sc_r, zeta, depth, \
 hinv, N, cff, cffr, x, y, yi, vtransform
@@ -161,37 +156,6 @@ if(typeof(file_handle).eq."file") then
     return
   end if
 end if
-
-
-if (rec.eq.-1) then
-    if(ISFILE) then
-        vin = nc_file->$var$(0,:,:,:)
-    else
-        vin = file_handle[:]->$var$
-    end if
-else
-    if(ISFILE) then
-                vin = nc_file->$var$(rec,:,:,:)
-        else
-                vin = file_handle[:]->$var$(rec,:,:,:)
-        end if
-end if
-; chech if it is defined on "u" coords and transfer it on the "rho"
-if(var.eq."u") then
-    vin_rho=u2rho(vin)
-    delete(vin)
-    vin=vin_rho
-    delete(vin_rho)
-end if
-
-; chech if it is defined on "v" coords and transfer it on the "rho"
-if(var.eq."v") then
-    vin_rho=v2rho(vin)
-    delete(vin)
-    vin=vin_rho
-    delete(vin_rho)
-end if
-
 if(isfilevar(nc_file,"h"))
     h = nc_file->h
 else
@@ -228,12 +192,14 @@ else
     return
 end if
 
-zeta=new(dimsizes(h),typeof(h))
+;zeta=new(dimsizes(h),typeof(h))
 zeta=0
 
 ; have all I need for depth calculation
-dims=dimsizes(vin)
-depth=new(dims,typeof(vin))
+dims_xy=dimsizes(h)
+dims_z=dimsizes(Sc_r)
+dims=(/dims_z,dims_xy(0),dims_xy(1)/)
+depth=new(dims,typeof(h))
 hinv=1./h
 N=dims(0)
 if (vtransform.eq.2)
@@ -250,19 +216,7 @@ if (vtransform.eq.2)
     depth(k,:,:)=doubletofloat(cffr+Cs_r(k)*h + zeta*(1+(cffr+Cs_r(k)*h)*hinv))
  end do
  end if
- print(depth)
- out=new(dimsizes(h),typeof(vin))
- do i=0,dims(1)-1
-  do j=0,dims(2)-1
-    x=depth(:,i,j)
-    y=vin(:,i,j)
-    yi=linint1(x,y,False,z,0);
-    if(.not.all(ismissing(yi)))
-    out(i,j)=yi;
-    end if
-   end do
- end do
-return(out)
+ return(depth)
 end
 ;------------------------------------------------------------------------------
 undef("add_2d")

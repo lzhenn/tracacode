@@ -44,7 +44,7 @@ begin
    latlonin= addfile("../data/1911-COAWST/joe_tc_ctrl/wrfout_d01.nc","r")
    lon2d = latlonin->XLONG(0,:,:)
    lat2d = latlonin->XLAT(0,:,:)
-   out   = roms_3d_interp(his,variable,rec,depth)
+   depth   = roms_get_depth(his)
 
   print("Done with roms_3d_interp")
   out@lat2d = lat2d
