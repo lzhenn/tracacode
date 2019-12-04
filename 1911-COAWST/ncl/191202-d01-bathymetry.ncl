@@ -23,54 +23,24 @@ begin
 ; User settings
 ;***********************************************
    casename="sen"
-   fhis    = "../data/1911-COAWST/joe_tc_"+casename+"/ocean_joe_tcs_his.nc"
-   finit    = "../data/1911-COAWST/joe_tc_"+casename+"/joe_tc_ocean_init.nc"
-                     
+   bath_dir    = "../data/1911-COAWST/joe_tc_"+casename+"/ocean_avg.nc"
+   g_font=0.02
 
 ;***********************************************
 ; Read file date and use ROMS_utils.ncl
 ;***********************************************
 
 
-   init =  addfile(finit, "r")
-   var = init->temp(0,:,:,:)
-   dims=dimsizes(var)
-   dim_x=dims(2)
-   dim_z=dims(0)
-
-
-   his   =  addfile (fhis,"r")
-
+   fbath=  addfile(bath_dir, "r")
+   var = fbath->h
    latlonin= addfile("../data/1911-COAWST/joe_tc_ctrl/wrfout_d01.nc","r")
    lon2d = latlonin->XLONG(0,:,:)
    lat2d = latlonin->XLAT(0,:,:)
-   depth   = roms_get_depth(his)
 
-   depth@lat2d = lat2d
-   depth@lon2d = lon2d
+   var@lat2d = lat2d
+   var@lon2d = lon2d
 
 
-; interp var(z,x) cross_section
-    nbins=100
-    dh=min(depth)/nbins
-    print(dh)
-    var_int=new((/nbins,dim_x/),typeof(var))
-    var_int@_FillValue=-999
-    var_int=-999
-    var_int!0="depth"
-    depth_array=fspan(min(depth),0,nbins)
-    var_int&depth=depth_array(::-1)
-    var_int!1="lon"
-    var_int&lon=lon2d(0,:)
-    do zz=0, nbins-1
-        do ii=0,dim_x-1
-            x=depth(:,0,ii)
-            y=var(:,0,ii)
-            if zz*dh .gt. min(x) then
-                var_int(zz,ii)=tofloat(ftcurv(x,y,zz*dh))
-            end if
-        end do
-   end do
 ;************************************************
 ; create plot
 ;************************************************
@@ -78,46 +48,63 @@ begin
   ;wks_type@wkWidth = 800 
   ;wks_type@wkHeight= 800 
   ;wks_type@wkOrientation = "Portrait"
-   wks  = gsn_open_wks (wks_type, "../fig/roms_depth_temp")         ; open workstation
-    gsn_define_colormap(wks,"BlAqGrYeOrReVi200")
+   wks  = gsn_open_wks (wks_type, "../fig/roms_spatial_depth")         ; open workstation
+  gsn_define_colormap(wks,"MPL_YlGnBu")
 ;---Set plotting parameters
+   res                   = True              ; plot mods desired
+;---Resources for filled contour plot
+  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+  res@cnMinLevelValF        = 0.          ; set min contour level
+  res@cnMaxLevelValF        = 1000.          ; set max contour level
+  res@cnLevelSpacingF       = 10.          ; set contour interval
+  
+  
+  res@gsnMaximize          = True
+  res@gsnFrame = False
+  res@gsnDraw = False
+  res@cnFillOn             = True  
+  res@cnLinesOn            = False
+  ;res@cnLevelSpacingF      = 2.           ; NCL chose 4.0
+  res@lbOrientation        = "Vertical"
 
- res                   = True                      ; plot mods desired
- res@gsnFrame          = False                      ; don't advance frame yet
- res@gsnDraw          = False                      ; don't advance frame yet
- res@xyLineThicknessF = (/  1.0/)          ; make second line thicker
- res@xyLineColor      = (/"gray30"/)          ; change line color
- res@xyDashPattern = 0
-; plot  = gsn_csm_xy (wks,lon2d(0,:),depth(:,0,:),res) ; create plot
- 
- res@gsnYRefLine=-1000.0
- res@gsnYRefLineColor      = "transparent"
- res@gsnAboveYRefLineColor = (/"gray60"/)
- res@gsnLeftString="ROMS Init Temp Profile"
- plot_xy  = gsn_csm_xy (wks,lon2d(0,:),depth(0,0,:),res) ; create plot
- 
- res_fill=True
- res_fill@cnFillOn=True
- res_fill@cnLinesOn=False
- res_fill@cnLineLabelsOn=False
- res_fill@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res_fill@cnMinLevelValF        = 18         ; set min contour level
- res_fill@cnMaxLevelValF        = 32          ; set max contour level
- res_fill@cnLevelSpacingF       = 0.5          ; set contour interval
- res_fill@gsnSpreadColors      = True
- res_fill@lbLabelBarOn = True 
- res_fill@lbOrientation="Vertical"
+;---Necessary for contours to be overlaid correctly on WRF projection
+  res@tfDoNDCOverlay       = True
+  res@gsnAddCyclic         = False
+  res@cnFillMode           = "CellFill" ; Raster Mode
+  res@gsnSpreadColors      = True               ; use full color map
+  res@gsnRightString = ""
+  res@gsnStringFontHeightF = g_font 
+  res@gsnMaximize      = True       ; fill up the page
+  res@gsnPaperOrientation = "portrait"
 
- res_fill@tmYLMode          = "Explicit"                ; explicit labels
- res_fill@tmYLValues        = (/-10, -50, -100, -200, -300, -400, -500,-600, -700, -800, -900, -1000/)
- res_fill@tmYLLabels        = ""+res_fill@tmYLValues         ; make strings
- res_fill@trXMaxF = max(lon2d(0,:))
- res_fill@trXMinF = min(lon2d(0,:))
- res_fill@tmXBTickSpacingF =5
- res_fill@tiYAxisString = "Depth (m)"
+  res@lbLabelBarOn = True   ; turn off the label bar
+  res@lbOrientation          = "vertical"
+  res@lbLabelStride = 5
+  res@lbLabelFontHeightF  = 0.02              ; make labels smaller
+  res@tmYLMajorLengthF = 0.01
+  res@tmXBMajorLengthF = 0.01
+  res@tmXBLabelFontHeightF = g_font
+  res@tmYLLabelFontHeightF = g_font
+  
+  res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
+  res@mpGridLineDashPattern  = 2                ; Dashed lines
+  res@mpGridSpacingF         = 5.
+  res@mpGridLineThicknessF   = 2.
+;  res@mpGridLineColor        = "Gray30"
 
- plot_sh = gsn_csm_contour(wks,var_int,res_fill)
- overlay(plot_sh,plot_xy)
+
+res@mpOutlineOn             = False  ; Use outlines from shapefile
+res@cnFillDrawOrder         = "PreDraw"
+;res@mpDataBaseVersion       = "MediumRes"
+;res@mpDataSetName           = "Earth..4"
+;res@mpAreaMaskingOn         = True
+;res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
+;res@mpLandFillColor         = "white"
+;res@mpInlandWaterFillColor  = "white"
+
+
+ res = wrf_map_resources(latlonin,res)
+ plot_sh = gsn_csm_contour_map(wks,var,res)
 
  draw(plot_sh)
  frame(wks)

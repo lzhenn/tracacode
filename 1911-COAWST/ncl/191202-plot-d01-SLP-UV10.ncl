@@ -11,7 +11,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="ctrl" 
+    casename="sen" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
     g_font=0.015
     
