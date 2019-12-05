@@ -6,14 +6,13 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
-load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 begin
 ;************************************************
 ; open file and read in data
 ;************************************************
     casename="sen" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
-    g_font=0.015
+    g_font=0.02
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
@@ -26,6 +25,10 @@ begin
     dim_t=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
+    
+    ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
+	ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
+    
 
     ; parser time
     time0 = wrf_user_getvar(ctrl_in,"Times", -1)
@@ -62,16 +65,12 @@ begin
         print(rec_tc(0,tt)+" "+rec_tc(1,tt)+" "+min(tmp1D))
     end do
     
-    exit
-    point=getind_latlon2d(lat2d,lon2d,lat0,lon0)
-    cor_x=point(0,0)
-    cor_y=point(0,1)
-   res                   = True              ; plot mods desired
+  res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -35.          ; set min contour level
-  res@cnMaxLevelValF        = 45.          ; set max contour level
-  res@cnLevelSpacingF       = 1.          ; set contour interval
+  res@cnMinLevelValF        = 920.          ; set min contour level
+  res@cnMaxLevelValF        = 1000.          ; set max contour level
+  res@cnLevelSpacingF       = 10.          ; set contour interval
   
   res@gsnMaximize          = True
   res@gsnFrame = False
@@ -86,11 +85,10 @@ begin
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "degC"
+  res@gsnRightString = "hPa"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
-  res@cnFillMode           = "CellFill" ; Raster Mode
 
   res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
@@ -102,30 +100,12 @@ begin
   res@tmYLLabelFontHeightF = g_font
   res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
   res@mpGridLineDashPattern  = 2                ; Dashed lines
-  res@mpGridSpacingF         = 4.0 
+  res@mpGridSpacingF         = 5.0 
   res@mpGridLineThicknessF   = 2.0
 ;  res@mpGridLineColor        = "Gray30"
 
 
-res@mpOutlineOn             = True  ; Use outlines from shapefile
-res@mpGeophysicalLineColor = "gray10"
-;res@cnFillDrawOrder         = "PreDraw"
-res@mpDataBaseVersion       = "MediumRes"
-res@mpDataSetName           = "Earth..4"
-res@mpAreaMaskingOn         = True
-res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
-res@mpLandFillColor         = "white"
-res@mpInlandWaterFillColor  = "white"
-;>============================================================<
-;                      add China map
-;>------------------------------------------------------------<
-  cnres           = True
-  cnres@china     = False       ;draw china map or not
-  cnres@river     = False       ;draw changjiang&huanghe or not
-  cnres@province  = True       ;draw province boundary or notcnres@nanhai    = False       ;draw nanhai or not 
-  cnres@nanhai    = False       ;draw nanhai or not 
-  cnres@diqu      = False       ; draw diqujie or not
-
+  res@mpOutlineOn             = True  ; Use outlines from shapefile
   polyres                   = True
   polyres@gsMarkerIndex     = 14          ; polymarker style
   polyres@gsMarkerSizeF     = 11.          ; polymarker size
@@ -142,40 +122,61 @@ res@mpInlandWaterFillColor  = "white"
   polymaxres@gsMarkerIndex     = 5          ; polymarker style
   polymaxres@gsMarkerColor     = "black"          ; polymarker size
   polymaxres@gsMarkerThicknessF     = 5.          ; polymarker size
+  
+  resv                         = True               ; plot mods desired
+  resv@vcGlyphStyle            = "WindBarb"         ; choose wind barbs
+;  resv@lbOrientation           = "vertical"         ; vertical label bar
+  resv@gsnDraw = False
+  resv@gsnFrame = False
+  resv@vcRefMagnitudeF         = 5.                ; make vectors larger
+  resv@vcRefLengthF            = 0.015              ; ref vec length
+  resv@vcMinDistanceF          = 0.03              ; thin out windbarbs
+  resv@vcWindBarbLineThicknessF = 3.
+  resv@vcWindBarbColor = "grey50"
+  resv@vcWindBarbTickLengthF   = 0.5                ; length of the barb tick
+  resv@vcWindBarbTickSpacingF  = 0.3                ; distance between ticks
+  resv@vcRefAnnoOn             = False              ; turn off ref wind barb
+  resv@gsnLeftString = ""
+  resv@gsnRightString= ""
+  resv@gsnAddCyclic            = False              ; regional data
 
-res = wrf_map_resources(ctrl_in[0],res)
+
+res = wrf_map_resources(ctrl_in,res)
 
 time_frame = 0
-do while(time_frame .lt. lentime-1)
+do while(time_frame .lt. lentime)
     ;---Set map resources based on projection on WRF output file
 
     ;************************************************
     ; create plot
     ;************************************************
+    
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/d01_T2m_"+sprinti("%0.3iH", 3*time_frame))      ; send graphics to PNG file
-    gsn_define_colormap(wks,"precip2_17lev")
-    res@gsnLeftString="T2m @ "+date_str(time_frame)
+    wks = gsn_open_wks(wks_type,"../fig/d01_SLP_Wind10m_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
+    gsn_define_colormap(wks,"wind_17lev")
+    gsn_reverse_colormap(wks)
+    res@gsnLeftString="SLP & 10mUV @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
-    chinamap = add_china_map(wks,plot,cnres)
-    dum1    = gsn_add_polymarker(wks,plot,lon0,lat0,polyres)
+    plotv = gsn_csm_vector(wks, ctrl_var2(time_frame,:,:),ctrl_var3(time_frame,:,:), resv)
+    dum1    = gsn_add_polymarker(wks,plot,rec_tc(1,time_frame),rec_tc(0,time_frame),polyres)
 
-    dims=dimsizes(ctrl_var1(time_frame,:,:))
-    var1D=ndtooned(ctrl_var1(time_frame,:,:))
-    max_value=max(var1D)
-    inds = ind_resolve(maxind (var1D), dims)    ; convert 1D array back to 2D 
-    ilat = inds(0,0)        ; select the latitude index where the X array is at its' maximum  
-    ilon = inds(0,1)        ; select the longitude index where the X array is at its' maximum
+    ;dims=dimsizes(windspeed(time_frame,:,:))
+    ;var1D=ndtooned(windspeed(time_frame,:,:))
+    ;max_value=max(var1D)
+    ;inds = ind_resolve(maxind (var1D), dims)    ; convert 1D array back to 2D 
+    ;ilat = inds(0,0)        ; select the latitude index where the X array is at its' maximum  
+    ;ilon = inds(0,1)        ; select the longitude index where the X array is at its' maximum
 
-    dum2    = gsn_add_text(wks,plot,sprintf("T2m@Home: %3.1fdegC~C~", ctrl_var1(time_frame, cor_x, cor_y))+\ 
-              sprintf("Max T2m: %3.1fdegC@(",ctrl_var1(time_frame, ilat, ilon))+\
-              sprintf("%5.2fE, ", lon2d(ilat, ilon))+sprintf("%5.2fN)", lat2d(ilat, ilon)),tlon,tlat,tres)
-    dummax    = gsn_add_polymarker(wks,plot,lon2d(ilat, ilon),lat2d(ilat, ilon),polymaxres)
+    ;dum2    = gsn_add_text(wks,plot,sprintf("Wind10m@Home: %3.1fm/s~C~", windspeed(time_frame, cor_x, cor_y))+sprintf("Max 10m Wind: %3.1fm/s@(",windspeed(time_frame, ilat, ilon))+sprintf("%5.2fE, ", lon2d(ilat, ilon))+sprintf("%5.2fN)", lat2d(ilat, ilon)),tlon,tlat,tres)
+    ;dummax    = gsn_add_polymarker(wks,plot,lon2d(ilat, ilon),lat2d(ilat, ilon),polymaxres)
+    overlay(plot, plotv)
     draw(plot)
     frame(wks)
     time_frame=time_frame+1
+    ;delete(wks)
+    ;break
 end do
 end
