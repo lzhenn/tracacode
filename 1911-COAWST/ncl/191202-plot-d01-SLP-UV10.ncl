@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="sen" 
+    casename="ctrl" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
     g_font=0.02
     
@@ -26,8 +26,8 @@ begin
     dim_y=dims(1)
     dim_x=dims(2)
     
-    ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
-	ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
+    ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
+	;ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
     
 
     ; parser time
@@ -108,21 +108,22 @@ begin
   res@mpOutlineOn             = True  ; Use outlines from shapefile
   polyres                   = True
   polyres@gsMarkerIndex     = 14          ; polymarker style
-  polyres@gsMarkerSizeF     = 11.          ; polymarker size
+  polyres@gsMarkerSizeF     = 12.          ; polymarker size
   polyres@gsMarkerThicknessF     = 3.          ; polymarker size
-  polyres@gsMarkerColor     = "Red"          ; polymarker size
+  polyres@gsMarkerColor     = "Black"          ; polymarker size
+
+  ;---Resources for the polyline
+  pres                  = True           ; polyline mods desired
+  pres@gsLineThicknessF = 3.0            ; line thickness   
+  pres@gsLineColor      = "blue"         ; color of lines
+
 
   tres  = True
-  tres@txFontHeightF = 0.012 
+  tres@txFontHeightF = 0.015
   tres@txJust="TopLeft"
-  tlat=15.0
-  tlon=85.0
-
-  polymaxres=polyres
-  polymaxres@gsMarkerIndex     = 5          ; polymarker style
-  polymaxres@gsMarkerColor     = "black"          ; polymarker size
-  polymaxres@gsMarkerThicknessF     = 5.          ; polymarker size
-  
+  tlat=13.0
+  tlon=-33.0
+ 
   resv                         = True               ; plot mods desired
   resv@vcGlyphStyle            = "WindBarb"         ; choose wind barbs
 ;  resv@lbOrientation           = "vertical"         ; vertical label bar
@@ -143,6 +144,7 @@ begin
 
 res = wrf_map_resources(ctrl_in,res)
 
+
 time_frame = 0
 do while(time_frame .lt. lentime)
     ;---Set map resources based on projection on WRF output file
@@ -154,25 +156,21 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/d01_SLP_Wind10m_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SLP_Wind10m_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
     res@gsnLeftString="SLP & 10mUV @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
-    plotv = gsn_csm_vector(wks, ctrl_var2(time_frame,:,:),ctrl_var3(time_frame,:,:), resv)
+  
+    ; center
     dum1    = gsn_add_polymarker(wks,plot,rec_tc(1,time_frame),rec_tc(0,time_frame),polyres)
+    dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa", rec_tc(2, time_frame)),tlon,tlat,tres)
+    if (time_frame .gt. 0) then
+        dum_track=gsn_add_polyline(wks,plot, rec_tc(1, 0:time_frame) , rec_tc(0,0:time_frame),pres)
+    end if
 
-    ;dims=dimsizes(windspeed(time_frame,:,:))
-    ;var1D=ndtooned(windspeed(time_frame,:,:))
-    ;max_value=max(var1D)
-    ;inds = ind_resolve(maxind (var1D), dims)    ; convert 1D array back to 2D 
-    ;ilat = inds(0,0)        ; select the latitude index where the X array is at its' maximum  
-    ;ilon = inds(0,1)        ; select the longitude index where the X array is at its' maximum
-
-    ;dum2    = gsn_add_text(wks,plot,sprintf("Wind10m@Home: %3.1fm/s~C~", windspeed(time_frame, cor_x, cor_y))+sprintf("Max 10m Wind: %3.1fm/s@(",windspeed(time_frame, ilat, ilon))+sprintf("%5.2fE, ", lon2d(ilat, ilon))+sprintf("%5.2fN)", lat2d(ilat, ilon)),tlon,tlat,tres)
-    ;dummax    = gsn_add_polymarker(wks,plot,lon2d(ilat, ilon),lat2d(ilat, ilon),polymaxres)
-    overlay(plot, plotv)
+    ;overlay(plot, plotv)
     draw(plot)
     frame(wks)
     time_frame=time_frame+1
