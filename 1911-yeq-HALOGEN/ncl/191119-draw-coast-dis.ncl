@@ -29,13 +29,22 @@ begin
 
     g_font=0.025
     
+    lonC=90.0
+    latC=33.0
+    
     ;grid file
     grid_fn="/disk/hq247/yhuangci/resource/map_info/research_domains/27km/GRIDCRO2D.27km"
     latlon_in   =  addfile(grid_fn,"r")
     lat2d = latlon_in->LAT(0,0,:,:)
     lon2d = latlon_in->LON(0,0,:,:)
-    
-    
+    th    = latlon_in->HT(0,0,:,:) 
+    th@lat2d=lat2d
+    th@lon2d=lon2d
+    point=getind_latlon2d(lat2d,lon2d,latC,lonC)
+    cor_x=point(0,1)
+    cor_y=point(0,0)
+
+
     ;Number of points
     coast_hdl=addfile(coast_fn, "r")
     dis_coast=coast_hdl->dis_to_coast
@@ -161,20 +170,34 @@ res@mpDataSetName           = "Earth..4"
 ;res@mpOceanFillColor        = "white"
 ;res@mpOutlineBoundarySets   = "NoBoundaries"
 
-  plot = gsn_csm_contour_map(wks,var1,res) ; dim1 = 0 for lvl = 0
+  res3                  = True       ; use plot options
+  res3@cnFillOn         = False;True       ; Fill contours
+  res3@cnLinesOn        = True      ; turn off contour lines
+;for tp masking
+  res3@gsnFrame         = False
+  res3@gsnDraw  = False
+  res3@cnLineLabelsOn   = False      ; turn off contour line labels
+  res3@cnLineThicknessF = 3
+  res3@cnLineColor      = "black"
+  res3@cnInfoLabelOn = False
  
-;>============================================================<
-;                      add China map
-;>------------------------------------------------------------<
-  cnres           = True
-  cnres@china     = False       ;draw china map or not
-  cnres@river     = False       ;draw changjiang&huanghe or not
-  cnres@province  = True       ;draw province boundary or notcnres@nanhai    = False       ;draw nanhai or not 
-  cnres@nanhai    = False       ;draw nanhai or not 
-  cnres@diqu      = False       ; draw diqujie or not
+ 
+  res3@cnLevelSelectionMode="ExplicitLevels"
+  res3@cnLevels = (/ 3000./)
+  res3@gsnLeftString      = " "
+  res3@gsnRightString      = " "
+   
 
-;  chinamap = add_china_map(wks,plot,cnres)
+  plot = gsn_csm_contour_map(wks,var1,res) ; dim1 = 0 for lvl = 0
+  plotc= gsn_csm_contour(wks,th,res3) 
+ ;---Resources for the polyline
+  pres                  = True           ; polyline mods desired
+  pres@gsLineThicknessF = 3.0            ; line thickness   
+  pres@gsLineColor      = "blue"         ; color of lines
+
   
+  dum_track=gsn_add_polyline(wks,plot, lon2d(cor_y,:), lat2d(cor_y,:),pres)
+  overlay(plot,plotc)
   draw(plot)
   frame(wks)
 end
