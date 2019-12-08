@@ -27,7 +27,7 @@ begin
     ;Fig title
     fig_title="Distance to the Nearest Coast"
 
-    g_font=0.025
+    g_font=0.02
     
     lonC=90.0
     latC=33.0
@@ -56,7 +56,7 @@ begin
 ;**********************************************************************************************
 ;MISSION.4		Display 
 ;**********************************************************************************************
-    wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
+    wks = gsn_open_wks("eps",g_fig_name)       ; open file to plot 
 ;-----------------------------------------------------------------------------
 
 plot = new((/1/),graphic)
@@ -105,7 +105,7 @@ plot = new((/1/),graphic)
 
   res@gsnFrame         = False
   res@gsnDraw  = False
-   res@cnFillMode           = "CellFill"
+  ;res@cnFillMode           = "CellFill"
   res@gsnSpreadColors      = True               ; use full color map
   res@gsnSpreadColorStart  = 57               ; start at color 17
   res@gsnSpreadColorEnd    = 200                ; end at color 200
@@ -113,7 +113,7 @@ plot = new((/1/),graphic)
 ;  res@gsnPanelLabelBar    = True   ;Turn on panel labelbar
   res@gsnLeftString = fig_title 
   ;res@gsnCenterString = "PM2.5_diff(no-gz_test)"
-  res@gsnRightString = ""
+  res@gsnRightString = "km"
   res@gsnStringFontHeightF = 0.03
   res@gsnMaximize      = True       ; fill up the page
   ;res@gsnAddCyclic   = True;False
@@ -124,8 +124,8 @@ plot = new((/1/),graphic)
 
   res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
-  res@lbLabelFontHeightF  = 0.02              ; make labels smaller
-  ;res@lbLabelStride = 1
+  res@lbLabelFontHeightF  = 0.015              ; make labels smaller
+  ;res@lbLabelStride = 7 
 
 
   ;res@mpMinLatF            = 23       ; zoom in on map
@@ -152,6 +152,7 @@ res@tiMainFontHeightF= g_font
 ;res@pmLabelBarOrthogonalPosF = .12           ; move label bar down
 res@tmXBMajorThicknessF = 2.0
 res@tmYLMajorThicknessF = 2.0
+res@tmXBMinorOn = False
 res@tmXBMinorThicknessF = 2.0
 res@tmYLMinorThicknessF = 2.0
 res@tmBorderThicknessF = 2.0
@@ -159,10 +160,10 @@ res@tmYLMajorLengthF = 0.002
 
 
 ;res@mpFillOn                = True
-res@mpOutlineOn             = False  ; Use outlines from shapefile
+;res@mpOutlineOn             = False  ; Use outlines from shapefile
 ;res@cnFillDrawOrder         = "PreDraw"
-res@mpDataBaseVersion       = "MediumRes"
-res@mpDataSetName           = "Earth..4"
+;res@mpDataBaseVersion       = "MediumRes"
+;res@mpDataSetName           = "Earth..4"
 ;res@mpAreaMaskingOn         = True
 ;res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
 ;res@mpLandFillColor         = "white"
