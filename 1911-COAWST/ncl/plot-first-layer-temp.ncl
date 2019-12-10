@@ -11,17 +11,17 @@ begin
 ; open file and read in data
 ;************************************************
     casename="ctrl" 
-    wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
+    ocean_path="../data/1911-COAWST/joe_tc_"+casename+"/ocean_joe_tcs_his.nc"
     tc_track_path="../data/1911-COAWST/joe_tc_"+casename+"/tc_pos_slp.txt"
     g_font=0.02
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
    
-    ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
+    ctrl_in      = addfile (ocean_path, "r")   ; note the "s" of addfile
     
-    ; get slp
-  	ctrl_var1  = wrf_user_getvar(ctrl_in,"SST", -1)  
+    ; get temp first layer
+  	ctrl_var1  = wrf_user_getvar(ctrl_in,"temp", -1)  
     dims=dimsizes(ctrl_var1)
     dim_t=dims(0)
     dim_y=dims(1)
