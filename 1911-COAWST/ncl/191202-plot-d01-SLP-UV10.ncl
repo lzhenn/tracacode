@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="ctrl" 
+    casename="sen" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
     g_font=0.02
     
@@ -156,10 +156,10 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SLP_Wind10m_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SLP_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
-    res@gsnLeftString="SLP & 10mUV @ "+date_str(time_frame)
+    res@gsnLeftString="SLP @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   

@@ -10,9 +10,8 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="sen" 
+    casename="ctrl" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
-    tc_track_path="../data/1911-COAWST/joe_tc_"+casename+"/tc_pos_slp.txt"
     g_font=0.02
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
@@ -21,12 +20,13 @@ begin
     ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
     
     ; get slp
-  	ctrl_var1  = wrf_user_getvar(ctrl_in,"SST", -1)  
+  	ctrl_var1  = wrf_user_getvar(ctrl_in,"U10", -1)  
+  	ctrl_var2  = wrf_user_getvar(ctrl_in,"V10", -1)  
     dims=dimsizes(ctrl_var1)
     dim_t=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
-    
+    ws=wind_speed(ctrl_var1, ctrl_var2)
     ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
 	;ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
     
@@ -51,18 +51,27 @@ begin
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
-    ctrl_var1=(/ctrl_var1-273.15/)   
-    ctrl_var1(0,0,:)=(/ctrl_var1(0,0,:)+1e-2/)
-    ; lets find the TC center!
-
-    rec_tc = asciiread(tc_track_path,(/dim_t,3/),"float"); (0)--lat, (1)--lon, (2)--slp
     
-    res                   = True              ; plot mods desired
+    ; lets find the TC center!
+    rec_tc=new((/3,dim_t/), typeof(ctrl_var1)) ; (0)--lat, (1)--lon, (2)--slp
+    do tt = 0, dim_t-1
+        tmp1D      = ndtooned(ws(tt,:,:))
+        indices  = ind_resolve(maxind(tmp1D),(/dim_y,dim_x/))
+        id_y=indices(0,0)
+        id_x=indices(0,1)
+        rec_tc(0,tt)=lat2d(id_y,id_x)
+        rec_tc(1,tt)=lon2d(id_y,id_x)
+        rec_tc(2,tt)=max(tmp1D)
+        ;print("lat: "+rec_tc(0,tt)+" lon: "+rec_tc(1,tt)+" minSLP= "+min(tmp1D))
+        print(rec_tc(0,tt)+" "+rec_tc(1,tt)+" "+max(tmp1D))
+    end do
+    exit
+  res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 22.          ; set min contour level
-  res@cnMaxLevelValF        = 30.          ; set max contour level
-  res@cnLevelSpacingF       = 0.5          ; set contour interval
+  res@cnMinLevelValF        = 920.          ; set min contour level
+  res@cnMaxLevelValF        = 1000.          ; set max contour level
+  res@cnLevelSpacingF       = 10.          ; set contour interval
   
   res@gsnMaximize          = True
   res@gsnFrame = False
@@ -77,7 +86,7 @@ begin
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "degC"
+  res@gsnRightString = "hPa"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
@@ -87,7 +96,7 @@ begin
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  res@lbLabelStride = 2  
+  ;res@lbLabelStride = 1  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
   res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
@@ -148,25 +157,18 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SST_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
-
-    res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 22.          ; set min contour level
-  res@cnMaxLevelValF        = 30.          ; set max contour level
-  res@cnLevelSpacingF       = 0.5          ; set contour interval
-  
-
-;  gsn_define_colormap(wks,"BlAqGrYeOrRe")
-;    gsn_reverse_colormap(wks)
-    res@gsnLeftString="SST @ "+date_str(time_frame)+" 000+"+sprinti("%0.3iH", time_frame)
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SLP_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
+    gsn_define_colormap(wks,"wind_17lev")
+    gsn_reverse_colormap(wks)
+    res@gsnLeftString="SLP @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
     ; center
-    dum1    = gsn_add_polymarker(wks,plot,rec_tc(time_frame,1),rec_tc(time_frame,0),polyres)
-    ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f degC", rec_tc(2, time_frame)),tlon,tlat,tres)
+    dum1    = gsn_add_polymarker(wks,plot,rec_tc(1,time_frame),rec_tc(0,time_frame),polyres)
+    dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa", rec_tc(2, time_frame)),tlon,tlat,tres)
     if (time_frame .gt. 0) then
-        dum_track=gsn_add_polyline(wks,plot, rec_tc(0:time_frame,1) , rec_tc(0:time_frame,0),pres)
+        dum_track=gsn_add_polyline(wks,plot, rec_tc(1, 0:time_frame) , rec_tc(0,0:time_frame),pres)
     end if
 
     ;overlay(plot, plotv)
@@ -174,5 +176,6 @@ do while(time_frame .lt. lentime)
     frame(wks)
     time_frame=time_frame+1
     ;delete(wks)
+    ;break
 end do
 end

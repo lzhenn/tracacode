@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="sen" 
+    casename="ctrl" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
     tc_track_path="../data/1911-COAWST/joe_tc_"+casename+"/tc_pos_slp.txt"
     g_font=0.02
@@ -21,7 +21,8 @@ begin
     ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
     
     ; get slp
-  	ctrl_var1  = wrf_user_getvar(ctrl_in,"SST", -1)  
+  	ctrl_var1  = wrf_user_getvar(ctrl_in,"U10", -1)  
+  	ctrl_var2  = wrf_user_getvar(ctrl_in,"V10", -1)  
     dims=dimsizes(ctrl_var1)
     dim_t=dims(0)
     dim_y=dims(1)
@@ -51,8 +52,7 @@ begin
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
-    ctrl_var1=(/ctrl_var1-273.15/)   
-    ctrl_var1(0,0,:)=(/ctrl_var1(0,0,:)+1e-2/)
+    windspeed=wind_speed(ctrl_var1, ctrl_var2)
     ; lets find the TC center!
 
     rec_tc = asciiread(tc_track_path,(/dim_t,3/),"float"); (0)--lat, (1)--lon, (2)--slp
@@ -60,9 +60,9 @@ begin
     res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 22.          ; set min contour level
-  res@cnMaxLevelValF        = 30.          ; set max contour level
-  res@cnLevelSpacingF       = 0.5          ; set contour interval
+  res@cnMinLevelValF        = 5.          ; set min contour level
+  res@cnMaxLevelValF        = 20.          ; set max contour level
+  res@cnLevelSpacingF       = 1.          ; set contour interval
   
   res@gsnMaximize          = True
   res@gsnFrame = False
@@ -77,7 +77,7 @@ begin
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "degC"
+  res@gsnRightString = "m/s"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
@@ -148,31 +148,28 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SST_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
-
-    res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 22.          ; set min contour level
-  res@cnMaxLevelValF        = 30.          ; set max contour level
-  res@cnLevelSpacingF       = 0.5          ; set contour interval
-  
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_Wind10m_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrRe")
 ;    gsn_reverse_colormap(wks)
-    res@gsnLeftString="SST @ "+date_str(time_frame)+" 000+"+sprinti("%0.3iH", time_frame)
+    gsn_define_colormap(wks,"wind_17lev")
+    res@gsnLeftString="10m Wind @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
-    plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
-  
+    plot = gsn_csm_contour_map(wks,windspeed(time_frame,:,:),res)
+    plotv = gsn_csm_vector(wks, ctrl_var1(time_frame,:,:),ctrl_var2(time_frame,:,:), resv)
+    
     ; center
     dum1    = gsn_add_polymarker(wks,plot,rec_tc(time_frame,1),rec_tc(time_frame,0),polyres)
-    ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f degC", rec_tc(2, time_frame)),tlon,tlat,tres)
+    ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa", rec_tc(2, time_frame)),tlon,tlat,tres)
     if (time_frame .gt. 0) then
         dum_track=gsn_add_polyline(wks,plot, rec_tc(0:time_frame,1) , rec_tc(0:time_frame,0),pres)
     end if
 
-    ;overlay(plot, plotv)
+    overlay(plot, plotv)
     draw(plot)
     frame(wks)
     time_frame=time_frame+1
+    break
     ;delete(wks)
 end do
 end
