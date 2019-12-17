@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="sen" 
+    casename="ctrl" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
     g_font=0.02
     
@@ -64,11 +64,10 @@ begin
         ;print("lat: "+rec_tc(0,tt)+" lon: "+rec_tc(1,tt)+" minSLP= "+min(tmp1D))
         print(rec_tc(0,tt)+" "+rec_tc(1,tt)+" "+min(tmp1D))
     end do
-    
   res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 920.          ; set min contour level
+  res@cnMinLevelValF        = 900.          ; set min contour level
   res@cnMaxLevelValF        = 1000.          ; set max contour level
   res@cnLevelSpacingF       = 10.          ; set contour interval
   

@@ -13,4 +13,4 @@ do
 done
 
 convert -delay ${FRAME_DT} ${PREFIX}noborder_* result.gif
-convert result.gif -fuzz 10% -layers Optimize result.gif
+convert result.gif -fuzz 5% -layers Optimize result.gif

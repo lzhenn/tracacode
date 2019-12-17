@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="sen" 
+    casename="ctrl" 
     wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
     tc_track_path="../data/1911-COAWST/joe_tc_"+casename+"/tc_pos_slp.txt"
     g_font=0.02

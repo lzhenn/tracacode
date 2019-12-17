@@ -66,10 +66,6 @@ begin
     res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -4.          ; set min contour level
-  res@cnMaxLevelValF        = 4.          ; set max contour level
-  res@cnLevelSpacingF       = 0.5          ; set contour interval
-  
   res@gsnMaximize          = True
   res@gsnFrame = False
   res@gsnDraw = False
@@ -93,7 +89,7 @@ begin
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  res@lbLabelStride = 2  
+  res@lbLabelStride = 4  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
   res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
@@ -157,14 +153,14 @@ do while(time_frame .lt. lentime)
     wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SST_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
 
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -4.          ; set min contour level
-  res@cnMaxLevelValF        = 4.          ; set max contour level
+  res@cnMinLevelValF        = -8.          ; set min contour level
+  res@cnMaxLevelValF        = 8.          ; set max contour level
   res@cnLevelSpacingF       = 0.5          ; set contour interval
   
 
-  gsn_define_colormap(wks,"hotcolr_19lev")
+  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
 ;    gsn_reverse_colormap(wks)
-    res@gsnLeftString="SST @ "+date_str(time_frame)+" 000+"+sprinti("%0.3iH", time_frame)
+    res@gsnLeftString="SST departure @ "+date_str(time_frame)+" 000+"+sprinti("%0.3iH", time_frame)
     ;---Call plotting routine which draws contours over a map
     ctrl_var1(time_frame,:,:)=ctrl_var1(time_frame,:,:)-wgt_areaave_Wrap(ctrl_var1(time_frame,:,:),1.0,1.0,0)
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
