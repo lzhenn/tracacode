@@ -128,10 +128,8 @@ do while(time_frame .lt. dim_t)
     wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_HWave_"+sprinti("%0.3iH", 6*time_frame))      ; send graphics to PNG file
 
     gsn_define_colormap(wks,"wind_17lev")
-    res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-    res@cnMinLevelValF        = 0.          ; set min contour level
-    res@cnMaxLevelValF        = 15.          ; set max contour level
-    res@cnLevelSpacingF       = 1.          ; set contour interval
+    res@cnLevelSelectionMode  = "ExplicitLevels" ; set manual contour levels
+    res@cnLevels=(/1,2,3,4,5,6,7,8,9,10,12,14,16,20/)
    
 
 ;  gsn_define_colormap(wks,"BlAqGrYeOrRe")

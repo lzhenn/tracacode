@@ -1,7 +1,7 @@
 
-PREFIX=ctrl_d01_SST_
-STEP_H=1
-TOTAL_STEP=120
+PREFIX=sen_d01_HWave_
+STEP_H=6
+TOTAL_STEP=20
 FRAME_DT=$(expr 15 \* ${STEP_H})
 
 for((I=0;I<=${TOTAL_STEP};I++))
