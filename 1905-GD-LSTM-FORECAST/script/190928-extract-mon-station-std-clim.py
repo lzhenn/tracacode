@@ -50,8 +50,8 @@ def main():
         for file_name in file_list:  
             infile=os.path.join(path, file_name)
             print('parser '+file_name)
-            pt=pd.read_csv(infile, sep='\s+', header=None, names=['station', 'lat', 'lon', 'alt', 'year', 'month', 'day', 'avg_temp', 'max_temp', 'min_temp', 'avg_code', 'max_code', 'min_code'])
-            sample_pt=pt[pt.year >= start_years[0]]
+            sample_pt=pd.read_csv(infile, sep='\s+', header=None, names=['station', 'lat', 'lon', 'alt', 'year', 'month', 'day', 'avg_temp', 'max_temp', 'min_temp', 'avg_code', 'max_code', 'min_code'])
+            #sample_pt=pt[pt.year >= start_years[0]]
             sample_pt=reform_df(sample_pt)
     
             clim_df=cal_climatology(sample_pt, clim_range)
@@ -67,7 +67,8 @@ def main():
             fn_pt.sort_values(by='time').to_csv(out_dir+'label_'+file_name)
     exit() 
     df0=combine_mon_anom(sample_pt0, sample_pt1, sample_pt2)
-    df0[df0.index.year<2017].to_csv(out_dir)
+    df0.to_csv(out_dir)
+    #df0[df0.index.year<2017].to_csv(out_dir)
     
 
 def cal_climatology(df, clim_range):
