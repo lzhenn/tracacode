@@ -20,7 +20,7 @@ begin
     var:=wgt_areaave(var,1.0,1.0,0)
     var_clim:=wgt_areaave(var_clim,1.0,1.0,0)
     do ii = 0,11
-    ;    var(ii::12) = (/var(ii::12)-var_clim(ii)/)
+        var(ii::12) = (/var(ii::12)-var_clim(ii)/)
     end do
-    print(var_clim)
+    print(var)
 end
