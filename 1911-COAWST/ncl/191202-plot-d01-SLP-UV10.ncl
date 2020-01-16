@@ -10,8 +10,8 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="ctrl" 
-    wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
+    casename="sandy-wrfonly" 
+    wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01.nc"
     g_font=0.02
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
@@ -155,7 +155,7 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SLP_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/sandy/"+casename+"_d01_SLP_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
     res@gsnLeftString="SLP @ "+date_str(time_frame)
