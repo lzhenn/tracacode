@@ -10,36 +10,35 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    
-    plat=20.5386 
-    plon=-34.9329
-    
-    
-    casename="ctrl" 
-    ocean_path="../data/1911-COAWST/joe_tc_"+casename+"/ocean_joe_tcs_his.nc"
-    wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
-    tc_track_path="../data/1911-COAWST/joe_tc_"+casename+"/tc_pos_slp.txt"
+    casename="sandy" 
+    wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d02.nc"
+    tc_track_path="../data/1911-COAWST/"+casename+"/sandy.cpl.trck"
     g_font=0.02
     
+
+    ; get in ibtrck data
+    tck_file="../data/1911-COAWST/sandy/sandy.obv.trck.simu_p"
+    tc_loc  =   asciiread(tck_file,(/18,2/),"float") ; (n,0)--lat (n,1)--lon
+    dims=dimsizes(tc_loc) 
+    dim_tc=dims(0)
+ 
+
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
-    ocn_in = addfile(ocean_path, "r")
-  	mask_var1  = ocn_in->temp(1,20,:,:)
-    
+   
     ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
     
     ; get slp
-  	ctrl_var1  = wrf_user_getvar(ctrl_in,"SST", -1)  
-    printVarSummary(ctrl_var1)
-   
-    ctrl_var1@_FillValue=-999
-    ctrl_var1=where(ctrl_var1 .eq. 273.15, ctrl_var1@_FillValue, ctrl_var1)
-    dims=dimsizes(ctrl_var1)
+    ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
+    ctrl_var2  = wrf_user_getvar(ctrl_in,"RAINNC", -1)  
+    ctrl_var1  = (ctrl_var1+ctrl_var2)
+ 
+    dims:=dimsizes(ctrl_var1)
     dim_t=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
     
-        ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
+    ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
 	;ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
     
 
@@ -55,29 +54,32 @@ begin
     minute = tointeger(lc_date(:,4))
     second = lc_date(:,5)
 
-    date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) 
+    date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
     lentime=dimsizes(xtime)
+    ctrl_var1(1:lentime-1,:,:)=ctrl_var1(1:lentime-1,:,:)-ctrl_var1(0:lentime-2,:,:)
 
+    rec_tc = asciiread(tc_track_path,(/lentime,3/),"float"); (0)--lat, (1)--lon, (2)--slp
     ; parser lat lon
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
-    ctrl_var1=(/ctrl_var1-273.15/)   
+    ;ctrl_var1=(/ctrl_var1-273.15/)   
     ctrl_var1(0,0,:)=(/ctrl_var1(0,0,:)+1e-2/)
     ; lets find the TC center!
-    point=getind_latlon2d(lat2d,lon2d,plat,plon)
-    cor_x=point(0,0)
-    cor_y=point(0,1)
-    psst=ctrl_var1(:,cor_x,cor_y)
-    print(psst)
-    exit
-    
+
     rec_tc = asciiread(tc_track_path,(/dim_t,3/),"float"); (0)--lat, (1)--lon, (2)--slp
+ 
+    ; get in wrf only tc data
+    wrf_tc = asciiread("../data/1911-COAWST/sandy/sandy.wrf.trck",(/dim_t,3/),"float"); (0)--lat, (1)--lon, (2)--slp
     
-    res                   = True              ; plot mods desired
+
+res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
-  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+  
+  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+  res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
+   
   res@gsnMaximize          = True
   res@gsnFrame = False
   res@gsnDraw = False
@@ -91,7 +93,7 @@ begin
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "degC"
+  res@gsnRightString = "mm/hr"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
@@ -101,7 +103,7 @@ begin
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  res@lbLabelStride = 4  
+  res@lbLabelStride = 2  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
   res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
@@ -112,6 +114,16 @@ begin
 
 
   res@mpOutlineOn             = True  ; Use outlines from shapefile
+  
+  res@mpOutlineBoundarySets = "National" ;Turns on country boundaries.
+  res@mpGeophysicalLineColor = "gray30"
+  ;pres@cnFillDrawOrder         = "PreDraw"
+  res@mpGeophysicalLineThicknessF=2.0
+  res@mpOutlineBoundarySets     = "GeophysicalAndUSStates"; turn on states
+  res@mpDataBaseVersion         = "MediumRes"             ; select database
+  res@mpDataSetName             = "Earth..2"
+
+  
   polyres                   = True
   polyres@gsMarkerIndex     = 14          ; polymarker style
   polyres@gsMarkerSizeF     = 12.          ; polymarker size
@@ -121,7 +133,11 @@ begin
   ;---Resources for the polyline
   pres                  = True           ; polyline mods desired
   pres@gsLineThicknessF = 3.0            ; line thickness   
-  pres@gsLineColor      = "blue"         ; color of lines
+  pres@gsLineColor      = "red"         ; color of lines
+  
+  pres_wrf=pres
+  pres_wrf@gsLineColor="blue"
+
 
 
   tres  = True
@@ -130,22 +146,10 @@ begin
   tlat=13.0
   tlon=-33.0
  
-  resv                         = True               ; plot mods desired
-  resv@vcGlyphStyle            = "WindBarb"         ; choose wind barbs
-;  resv@lbOrientation           = "vertical"         ; vertical label bar
-  resv@gsnDraw = False
-  resv@gsnFrame = False
-  resv@vcRefMagnitudeF         = 5.                ; make vectors larger
-  resv@vcRefLengthF            = 0.015              ; ref vec length
-  resv@vcMinDistanceF          = 0.03              ; thin out windbarbs
-  resv@vcWindBarbLineThicknessF = 3.
-  resv@vcWindBarbColor = "grey50"
-  resv@vcWindBarbTickLengthF   = 0.5                ; length of the barb tick
-  resv@vcWindBarbTickSpacingF  = 0.3                ; distance between ticks
-  resv@vcRefAnnoOn             = False              ; turn off ref wind barb
-  resv@gsnLeftString = ""
-  resv@gsnRightString= ""
-  resv@gsnAddCyclic            = False              ; regional data
+  obv_polyres=polyres
+  obv_polyres@gsMarkerIndex     = 16          ; polymarker style
+  obv_polyres@gsMarkerSizeF     = 9.          ; polymarker size
+
 
 
 res = wrf_map_resources(ctrl_in,res)
@@ -162,19 +166,14 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SST_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
-
-    res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -8.          ; set min contour level
-  res@cnMaxLevelValF        = 8.          ; set max contour level
-  res@cnLevelSpacingF       = 0.5          ; set contour interval
-  
-
-  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
-;    gsn_reverse_colormap(wks)
-    res@gsnLeftString="SST departure @ "+date_str(time_frame)+" 000+"+sprinti("%0.3iH", time_frame)
+    wks = gsn_open_wks(wks_type,"../fig/sandy/"+casename+"_d02_precip_"+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
+    
+    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+    res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
+   
+    gsn_define_colormap(wks,"precip2_17lev")
+    res@gsnLeftString="half-hr precip @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
-    ctrl_var1(time_frame,:,:)=ctrl_var1(time_frame,:,:)-wgt_areaave_Wrap(ctrl_var1(time_frame,:,:),1.0,1.0,0)
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
     ; center
@@ -183,6 +182,27 @@ do while(time_frame .lt. lentime)
     if (time_frame .gt. 0) then
         dum_track=gsn_add_polyline(wks,plot, rec_tc(0:time_frame,1) , rec_tc(0:time_frame,0),pres)
     end if
+    
+    ;Obv Track
+    res_lines=True
+    res_lines@gsLineColor       = "black"
+    res_lines@gsLineDashPattern = 0.
+    res_lines@gsLineThicknessF  = 3.                    ; line thicker
+    
+    yy := tc_loc(:,1) 
+    xx := tc_loc(:,0) 
+    obv_track=gsn_add_polyline(wks,plot,yy,xx,res_lines)              ; N
+
+    do ii =0, dim_tc-1
+        dum1@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
+    end do
+
+    ; wrf only track
+    yy := wrf_tc(:,1) 
+    xx := wrf_tc(:,0) 
+    wrf_track=gsn_add_polyline(wks,plot,yy,xx,pres_wrf)              ; N
+
+
 
     ;overlay(plot, plotv)
     draw(plot)

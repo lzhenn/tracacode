@@ -1,6 +1,6 @@
 
-PREFIX=sandy_d01_SLP_
-TOTAL_STEP=97
+PREFIX=sandy_d02_precip_
+TOTAL_STEP=72
 FRAME_DT=15
 for((I=0;I<=${TOTAL_STEP};I++))
 do
@@ -10,4 +10,4 @@ do
 done
 
 convert -delay ${FRAME_DT} ${PREFIX}noborder_* result.gif
-convert result.gif -fuzz 5% -layers Optimize result.gif
+#convert result.gif -fuzz 5% -layers Optimize result.gif

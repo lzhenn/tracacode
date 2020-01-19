@@ -10,37 +10,35 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    
-    plat=20.5386 
-    plon=-34.9329
-    
-    
-    casename="ctrl" 
-    ocean_path="../data/1911-COAWST/joe_tc_"+casename+"/ocean_joe_tcs_his.nc"
-    wrfout_path="../data/1911-COAWST/joe_tc_"+casename+"/wrfout_d01.nc"
-    tc_track_path="../data/1911-COAWST/joe_tc_"+casename+"/tc_pos_slp.txt"
+    casename="sandy" 
+    wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01.nc"
+    tc_track_path="../data/1911-COAWST/"+casename+"/sandy.cpl.trck"
     g_font=0.02
     
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
-    ocn_in = addfile(ocean_path, "r")
-  	mask_var1  = ocn_in->temp(1,20,:,:)
-    
-    ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
-    
-    ; get slp
-  	ctrl_var1  = wrf_user_getvar(ctrl_in,"SST", -1)  
-    printVarSummary(ctrl_var1)
    
-    ctrl_var1@_FillValue=-999
-    ctrl_var1=where(ctrl_var1 .eq. 273.15, ctrl_var1@_FillValue, ctrl_var1)
-    dims=dimsizes(ctrl_var1)
+    ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
+   
+     ; get in ibtrck data
+    tck_file="../data/1911-COAWST/sandy/sandy.obv.trck.simu_p"
+    tc_loc  =   asciiread(tck_file,(/18,2/),"float") ; (n,0)--lat (n,1)--lon
+    dims=dimsizes(tc_loc) 
+    dim_tc=dims(0)
+    
+
+    ; get sst
+  	ctrl_var1  = wrf_user_getvar(ctrl_in,"SST", -1)  
+    dims:=dimsizes(ctrl_var1)
     dim_t=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
     
-        ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
+    ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
 	;ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
+    
+    ; get in wrf only tc data
+    wrf_tc = asciiread("../data/1911-COAWST/sandy/sandy.wrf.trck",(/dim_t,3/),"float"); (0)--lat, (1)--lon, (2)--slp
     
 
     ; parser time
@@ -55,7 +53,7 @@ begin
     minute = tointeger(lc_date(:,4))
     second = lc_date(:,5)
 
-    date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) 
+    date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
     lentime=dimsizes(xtime)
 
     ; parser lat lon
@@ -66,18 +64,25 @@ begin
     ctrl_var1=(/ctrl_var1-273.15/)   
     ctrl_var1(0,0,:)=(/ctrl_var1(0,0,:)+1e-2/)
     ; lets find the TC center!
-    point=getind_latlon2d(lat2d,lon2d,plat,plon)
-    cor_x=point(0,0)
-    cor_y=point(0,1)
-    psst=ctrl_var1(:,cor_x,cor_y)
-    print(psst)
-    exit
-    
+
     rec_tc = asciiread(tc_track_path,(/dim_t,3/),"float"); (0)--lat, (1)--lon, (2)--slp
-    
+   
+    ; Ocean grid file
+    ocn_in     = addfile("../data/1911-COAWST/sandy/Sandy_ocean_avg.nc", "r")
+    lon2d_roms=ocn_in->lon_rho
+    lat2d_roms=ocn_in->lat_rho
+
+    dimz=dimsizes(lat2d_roms)
+ 
+
+
     res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+  res@cnMinLevelValF        = 22.          ; set min contour level
+  res@cnMaxLevelValF        = 30.          ; set max contour level
+  res@cnLevelSpacingF       = 0.5          ; set contour interval
+  
   res@gsnMaximize          = True
   res@gsnFrame = False
   res@gsnDraw = False
@@ -101,7 +106,7 @@ begin
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  res@lbLabelStride = 4  
+  res@lbLabelStride = 2  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
   res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
@@ -109,7 +114,7 @@ begin
   res@mpGridSpacingF         = 5.0 
   res@mpGridLineThicknessF   = 2.0
 ;  res@mpGridLineColor        = "Gray30"
-
+  res@cnFillDrawOrder         = "PreDraw"
 
   res@mpOutlineOn             = True  ; Use outlines from shapefile
   polyres                   = True
@@ -121,7 +126,7 @@ begin
   ;---Resources for the polyline
   pres                  = True           ; polyline mods desired
   pres@gsLineThicknessF = 3.0            ; line thickness   
-  pres@gsLineColor      = "blue"         ; color of lines
+  pres@gsLineColor      = "red"         ; color of lines
 
 
   tres  = True
@@ -150,6 +155,22 @@ begin
 
 res = wrf_map_resources(ctrl_in,res)
 
+  obv_polyres=polyres
+  obv_polyres@gsMarkerIndex     = 16          ; polymarker style
+  obv_polyres@gsMarkerSizeF     = 9.          ; polymarker size
+
+
+x_max=dimz(0)-1
+y_max=dimz(1)-1
+yy_roms = (/lon2d_roms(0,0),lon2d_roms(0,y_max),lon2d_roms(x_max,y_max),lon2d_roms(x_max,0),lon2d_roms(0,0)/)
+xx_roms = (/lat2d_roms(0,0),lat2d_roms(0,y_max),lat2d_roms(x_max,y_max),lat2d_roms(x_max,0),lat2d_roms(0,0)/)
+
+;Outer Box
+    res_roms=True
+    res_roms@gsLineColor       = "black"
+    res_roms@gsLineDashPattern = 1.
+    res_roms@gsLineThicknessF  = 4.                    ; line thicker
+
 
 time_frame = 0
 do while(time_frame .lt. lentime)
@@ -162,19 +183,18 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"_d01_SST_"+sprinti("%0.3iH", time_frame))      ; send graphics to PNG file
 
+    wks = gsn_open_wks(wks_type,"../fig/sandy/"+casename+"_d01_SST_"+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -8.          ; set min contour level
-  res@cnMaxLevelValF        = 8.          ; set max contour level
-  res@cnLevelSpacingF       = 0.5          ; set contour interval
+    res@cnMinLevelValF        = 20.          ; set min contour level
+    res@cnMaxLevelValF        = 27.          ; set max contour level
+    res@cnLevelSpacingF       = 0.25          ; set contour interval
   
 
-  gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+;  gsn_define_colormap(wks,"BlAqGrYeOrRe")
 ;    gsn_reverse_colormap(wks)
-    res@gsnLeftString="SST departure @ "+date_str(time_frame)+" 000+"+sprinti("%0.3iH", time_frame)
+    res@gsnLeftString="SST @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
-    ctrl_var1(time_frame,:,:)=ctrl_var1(time_frame,:,:)-wgt_areaave_Wrap(ctrl_var1(time_frame,:,:),1.0,1.0,0)
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
     ; center
@@ -183,6 +203,22 @@ do while(time_frame .lt. lentime)
     if (time_frame .gt. 0) then
         dum_track=gsn_add_polyline(wks,plot, rec_tc(0:time_frame,1) , rec_tc(0:time_frame,0),pres)
     end if
+    
+    ;Obv Track
+    res_lines=True
+    res_lines@gsLineColor       = "black"
+    res_lines@gsLineDashPattern = 0.
+    res_lines@gsLineThicknessF  = 3.                    ; line thicker
+    
+    yy := tc_loc(:,1) 
+    xx := tc_loc(:,0) 
+    obv_track=gsn_add_polyline(wks,plot,yy,xx,res_lines)              ; N
+
+    do ii =0, dim_tc-1
+        dum1@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
+    end do
+    dum_roms =gsn_add_polyline(wks,plot,yy_roms,xx_roms,res_roms)              ; N
+ 
 
     ;overlay(plot, plotv)
     draw(plot)

@@ -29,6 +29,7 @@ begin
     lon2d=ocn_in->lon_rho
     lat2d=ocn_in->lat_rho
 
+    exit
     dimz=dimsizes(lat2d)
     
     ; Ocean grid file
