@@ -53,7 +53,7 @@ switch coordsys
       disp('  ''system''                   - initialize coordinate system\n');
    
    otherwise
-     k=strmatch(coordsys,lower(coords.name));
+     k=strcmp(coordsys,lower(coords.name));
      MAP_COORDS=mc_coords('parameters',coords.name{k});
    
 end   

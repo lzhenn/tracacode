@@ -27,6 +27,11 @@ function [X,Y,I]=m_ll2xy(varargin)
 global MAP_PROJECTION MAP_COORDS
 
 
+if isempty(MAP_PROJECTION)
+   disp('No Map Projection initialized - call M_PROJ first!');
+   return;
+end
+
 
 if nargin==0 || ischar(varargin{1})
   disp(' Usage');

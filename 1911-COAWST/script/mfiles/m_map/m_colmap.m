@@ -18,7 +18,9 @@ function cols=m_colmap(nme,m,ncol)
 %
 %   and M is the same length as the current figure's colormap. If no 
 %   figure exists, the length of the default colormap is used. The
-%   length can be explicitly specified with M_COLMAP(NAME,M)
+%   length can be explicitly specified with M_COLMAP(NAME,M).
+%
+%   M_COLMAP('demo') demonstrates the colormaps.
 %
 %   M_COLMAP(NAME,'step') returns a 256-color map in which colours are
 %   perceptually bunched into 16 separate colours. This is useful 
@@ -36,7 +38,7 @@ function cols=m_colmap(nme,m,ncol)
 %   implementation of colours described at http://colorbrewer2.org.
 %
 %   The land and gland colormaps are derived from the ETOPO1 water/land 
-%   colormap at soliton.vm.bytemark.co.uk/pub/cpt-city/ngdc/index.html
+%   colormap at http://soliton.vm.bytemark.co.uk/pub/cpt-city/ngdc/index.html
 %
 %   See also PARULA, HSV, HOT, PINK, FLAG, COLORMAP, RGBPLOT.
 
@@ -77,6 +79,9 @@ switch lower(nme(1:3))
         fprintf('   ''gland'' {,M|,''step''{,M}}\n');
         fprintf('   ''bland'' {,M|,''step''{,M}}\n');
         fprintf('   ''water'' {,M|,''step''{,M}}\n');
+    case 'dem'
+        colmap_demo;
+        return
     otherwise
      error(['map: ' mfilename ':invalidMapname'],...
             ' First argument must be an valid colormap name ');
@@ -1551,3 +1556,52 @@ switch nme
 
  
 end   
+
+function colmap_demo
+
+clf; 
+axp=[.1 .1 .2 .08];
+dx=[.29 0 0 0];
+dy=[0 .19 0 0];
+
+examples={...
+    0,4,'m_colmap(''jet'',256)',      {'Perceptually uniform jet replacement','with diverging luminance'}
+    1,4,'m_colmap(''blue'',256)',     'Good for bathymetry'
+    2,4,'m_colmap(''land'',256)',     'Land from coastal wetlands to mountains'
+    0,3,'m_colmap(''diverging'',256)',{'Currents, echo-sounder images','diverging luminance with a ''zero'''}
+    1,3,'m_colmap(''water'',256)',    'Another bathymetry map'
+    2,3,'m_colmap(''gland'',256)',    'Land with more green'
+    0,2,'m_colmap(''odv'',256)',      'Isoluminant (add your own shading)'
+    1,2,'m_colmap(''green'',256)',    'Chlorophyll? Land?'
+    2,2,'m_colmap(''bland'',256)',    'Land without green'
+    0,0,'m_colmap(''jet'',''step'',10)',{'Banded continuous map (256 colours)','sort of like contouring'}
+    1,0,'m_colmap(''jet'',10)',        'A few discrete steps (10 colours)'
+    2,0,'[m_colmap(''blues'',64);m_colmap(''gland'',128)]',{'Complex water + land example','must use ''caxis'' to get coastline correct'}
+    };
+
+
+for k=1:size(examples,1)
+    ax(k)=axes('pos',axp+dx*examples{k,1}+dy*examples{k,2});
+    imagesc(1:256);
+    set(gca,'ytick',[],'xtick',[]);%[1 64:64:256]);
+    eval(['colormap(ax(k),' examples{k,3} ');']);
+    title([char('a'+k-1) ') ' examples{k,3}],'interp','none');
+    xlabel(examples{k,4});
+end
+
+% print -dpng ./doc/exColmaps
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+

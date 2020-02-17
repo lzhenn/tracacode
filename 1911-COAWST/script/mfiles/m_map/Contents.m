@@ -1,5 +1,5 @@
 % M_Map - mapping toolbox (Author: rich@eos.ubc.ca)
-% Version 1.4j  May 2018
+% Version 1.4k  March 2019
 %
 % You have collected your data, loaded it into Matlab, analyzed 
 % everything to death, and now you want to make a simple map showing 
@@ -72,6 +72,7 @@
 %    m_contourf.m   - draws filled contours
 %    m_patch.m      - draws patch data
 %    m_pcolor.m     - draws pcolor data
+%    m_image.m      - draws image data
 %    m_streamline.m - draws streamlines
 %    m_scatter.m    - draws scatter plot
 %    m_annotation.m - annotation lines/boxes/text

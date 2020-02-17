@@ -142,15 +142,16 @@ else
     
     exactint=(gmax-gmin)/(gtick-1)*60; %interval in minutes
 
-    if strcmp(gtickstyle,'dm')
+    if strcmp(gtickstyle,'dm') || strcmp(gtickstyle,'da')
        % These are the intervals which we will allow (they are "nice" in the sense
        % that they come to various even multiples of minutes or degrees)
-       niceints=[0.1 0.2 0.25 0.5 ...
+       niceints=[0.01 0.02    0.05 ...
+                 0.1 0.2 0.25 0.5 ...
         	 1 2 3 4 5 6 10 12 15 20 30 ...
         	 60*[1 2 3 4 5 6 8 9 10 12 15 18 20 25 30 40 50 60 100 120 180]];
     elseif strcmp(gtickstyle,'dd')
        % these are decimal intervals
-       niceints=60*[1/500 1/400 1/250 1/200 1/100 ...
+       niceints=60*[1/1000 1/500 1/400 1/250 1/200 1/100 ...
 		     1/50 1/40 1/25 1/20 1/10 1/5 1/4 1/3 1/2 ...
 		     1 2 3 4 5 6 8 9 10 12 15 18 20 25 30 40 50 60 100 120 180];
     else
@@ -322,7 +323,7 @@ if isfinite(px(1)), MAP_VAR_LIST.lats(1)=-90; end
 if isfinite(px(2)), MAP_VAR_LIST.lats(2)= 90; end
 
 if any(isfinite(px))
-  MAP_VAR_LIST.longs=[-179.9 180]+exp(1); % we add a weird number (exp(1)) to get away from 
+  MAP_VAR_LIST.longs=[-179.99 180]+exp(1); % we add a weird number (exp(1)) to get away from 
                          % anything that might conceivably be desired as a 
                          % boundary - it makes grid generation easier.
                          % Also make the limits just a little less than 180, this

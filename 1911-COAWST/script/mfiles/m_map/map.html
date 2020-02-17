@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type"
  content="text/html; charset=iso-8859-1">
-  <meta name="generator" content="Bluefish 2.2.5" >
+  <meta name="generator" content="Bluefish 2.2.10-2" >
  
 <link rel="stylesheet" type="text/css" href="./doc/map.css">
  
@@ -29,10 +29,11 @@
  <li><a href="./map.html#relnotes">Release Notes</a></li>
  <li><a href="./mapug.html">Users Guide</a></li>
  <li><a href="./map.html#examples">Example Code<a></li>
+ <li><a href="./map.html#Citation">Citation<a></li>
  <li><a href="./map.html#ack">Acknowledgements</a></li>
 </ul>   
 
-<p class="menu"> Last changed 20/May/2018. Questions and comments to <a
+<p class="menu"> Last changed 19/Mar/2019. Questions and comments to <a
  href="mailto:rich@eos.ubc.ca">rich@eos.ubc.ca</a></p> 
   
   </div>
@@ -57,7 +58,7 @@ would...or you can invest in Matlab's own mapping toolbox (with a similarly stee
 
 
 
-<h2> Announcing M_Map v1.4j! <br> (released May/2018)</h2>
+<h2> Announcing M_Map v1.4k! <br> (released Mar/2019)</h2>
 
 
 
@@ -134,21 +135,25 @@ bathymetry databases.</li>
       <td align="center" valign="middle"><a href="#13._Blueocean"><img
  src="./doc/exblueocean.png" alt=""  width="125" class="click"> </a> 
       </td>
- <td align="center" valign="middle"><a href="#14._stepjet"><img
+ <td align="center" valign="middle"><a href="#13a._globall"><img src="././doc/new.gif" align="left"><img
+ src="./doc/extgloball.png" alt=""   width="125" class="click"> </a>  
+      </td>
+<td align="center" valign="middle"><a href="#14._stepjet"><img
  src="./doc/exstepjet.png" alt=""   width="125" class="click"> </a>  
       </td>
+     </tr>
+    <tr>
       <td align="center" valign="middle"><a href="#15._bathym"><img
  src="./doc/exbathym.png" alt=""   width="125" class="click"> </a> 
       </td>
-    </tr>
-    <tr>
-       <td align="center" valign="middle"><a href="#17._shaded2"><img src="././doc/new.gif" align="left"><img src="./doc/SouthChinaSea.png"
+      <td align="center" valign="middle"><a href="#17._shaded2"><img src="././doc/new.gif" align="left"><img src="./doc/SouthChinaSea.png"
  alt=""   width="125" class="click"></a></td>
      <td align="center" valign="middle"><a href="#18._shaded3"><img src="././doc/new.gif" align="left"><img src="./doc/VanHarb.png"
  alt=""   width="125" class="click"></a></td>
- <td></td>
    <td></td>
-  <td></td>
+    <td align="center" valign="middle"><a href="#21._colmaps"><img src="././doc/new.gif" align="left"><img src="./doc/exColmaps.png"
+ alt=""   width="125" class="click"></a></td>
+
    </tr>
     <tr>
       <td align="center" valign="middle"><a href="map.html#1._Global_SST"><img src="./doc/exsst.png"
@@ -176,8 +181,9 @@ bathymetry databases.</li>
  src="./doc/exSAR.png" alt=""   width="125" class="click"> </a>  </td>
     <td align="center" valign="middle"><a href="#16._shaded1"><img src="././doc/new.gif" align="left"><img src="./doc/shaded1.png"
  alt=""   width="125" class="click"></a></td>
-  
-  <td></td>
+      <td align="center" valign="middle"><a href="#17._goog"><img src="././doc/new.gif" align="left"><img src="./doc/exgoog.png"
+ alt=""   width="125" class="click"></a></td>
+   
    <td></td>
   
 
@@ -226,13 +232,20 @@ automatically adding names to your map), through its home page at
 <hr>
 <h2> <a name="relnotes"> Release Notes</a></h2>
 
-<p>New in release 1.4j (May/2018):<img src="././doc/new.gif" align="left"></p>
+<p>New in release 1.4k (Mar/2019):<img src="././doc/new.gif" align="left"></p>
+<ol>
+<li>Finally - a way to handle pixellated data with  <code>m_image</code>!</li>
+<li>Checked in Octave up to v4.4.1 </li>
+</ol>
+
+
+<p>New in release 1.4j (May/2018): </p>
 <ol>
 <li>Shaded relief mapping with <code>m_shadedrelief</code>.</li>
 <li>An independent grid for UTM maps with <code>m_utmgrid</code></li>
 </ol>
 
-<p>New in release 1.4i (Jan/2017): </p>
+<p>New in release 1.4i (Jan/2018): </p>
 <ol> 
 <li> Finally sorted out the major "2014b and later matlab graphics engine" related problems with <code>m_grid</code>, as well as many
 minor graphics improvements.
@@ -317,7 +330,7 @@ m_grid('linest','-','xticklabels',[],'yticklabels',[]);
 
 patch(.55*[-1 1 1 -1],.25*[-1 -1 1 1]-.55,'w'); 
 text(0,-.55,'M\_Map','fontsize',25,'color','b',...
-    'vertical','middle','horizontal','center');
+    'verticalalignment','middle','horizontalalignment','center');
 <!-- set(gcf,'units','inches','position',[2 2 3 3]);
 set(gcf,'paperposition',[3 3 3 3]); -->
  </pre>
@@ -351,7 +364,7 @@ m_coast('patch',[.7 .7 .7],'edgecolor','r');
 
 <pre>
 subplot(211);
-Slongs=[-100 0;-75 25;-5 45; 25 145;45 100;145 295;100 290];
+Slongs=[-100 0;-75 25;0 45; 25 145;45 100;145 295;100 295];
 Slats= [   8 80;-80  8;  8  80;-80   8; 8   80;-80   0; 0 80];
 for l=1:7
     m_proj('sinusoidal','long',Slongs(l,:),'lat',Slats(l,:));
@@ -363,6 +376,8 @@ xlabel('Interrupted Sinusoidal Projection of World Oceans');
 
 % In order to see all the maps we must undo the axis limits set by m_grid calls:
 set(gca,'xlimmode','auto','ylimmode','auto');
+
+
 subplot(212);
 Slongs=[-100 43;-75 20; 20 145;43 100;145 295;100 295];
 Slats= [&nbsp; 0&nbsp; 90;-90&nbsp; 0;-90&nbsp;&nbsp; 0; 0&nbsp; 90;-90&nbsp;&nbsp; 0;&nbsp; 0&nbsp; 90];
@@ -373,7 +388,10 @@ for l=1:6
     m_coast('patch',[.6 .6 .6]);
 end
 xlabel('Interrupted Mollweide Projection of World Oceans');
+
 set(gca,'xlimmode','auto','ylimmode','auto');
+
+
 </pre>
 <img src="././doc/exsinus.png" width=50%> 
 
@@ -420,16 +438,17 @@ m_grid('linestyle','none','box','fancy','tickdir','out');
 
 <pre>
 m_proj('lambert','lon',[-10 20],'lat',[33 48]); 
-[CS,CH]=m_tbase('contourf',[-5000:500:3000],'edgecolor','none');
-m_grid('linestyle','none','tickdir','out','linewidth',3);
 
-colormap([ m_colmap('blues',40); m_colmap('greens',24)]);
+[CS,CH]=m_etopo2('contourf',[-5000:500:0 250:250:3000],'edgecolor','none');
+ m_grid('linestyle','none','tickdir','out','linewidth',3);
+
+colormap([ m_colmap('blues',80); m_colmap('gland',48)]);
 brighten(.5);
 
 ax=m_contfbar(1,[.5 .8],CS,CH);
 title(ax,{'Level/m',''}); % Move up by inserting a blank line
 </pre>
-<img src="././doc/extbase.png" width=50%> 
+<img src="././doc/extbase.png" width=70%> 
 
 <h4><a name="8._Demonstration_of_fancy_vectors"></a> <a name="e8"></a>8. Demonstration of fancy vectors</h4>
 <pre>m_vec; % See code in m_vec.m for details</pre>
@@ -538,7 +557,7 @@ xlabel('1000km range rings from Bangkok');
 
     m_grid('linewi',2,'linest','none','tickdir','out','fontsize',12);
     title('Speckled Boundaries for nice B&amp;W presentation','fontsize',14);
-    m_text(-128,48,5,{'Pacific','Ocean'},'fontsize',18);
+    m_text(-128,48,{'Pacific','Ocean'},'fontsize',18);
 </pre>
 <img src="./doc/exspeckle.png" width=60%>
 
@@ -565,7 +584,49 @@ xlabel('1000km range rings from Bangkok');
     
 <img src="./doc/exblueocean.png" width=65%>
 
-<h4><a name="14._stepjet"></a> <a name="e14"></a>14. Stepped jet colormap</h4>
+<h4><a name="13a._globall"></a> <a name="e13a"></a>14. One Ocean Projection</h4>
+
+<pre>
+    %  This projection shows all the oceans connected to each other - the outside ring
+    %  is the Asian coastline (Thanks to M B-O for this idea)
+    % otherwise its just an example of different map types.
+    
+     m_proj('azimuthal equal-area','radius',156,'lat',-46,'long',-95,'rot',30);
+
+     ax1=subplot(2,2,1,'align');
+      m_coast('patch','r');
+      m_grid('xticklabel',[],'yticklabel',[],'linestyle','-','ytick',[-60:30:60]);
+        
+     ax2=subplot(2,2,2,'align');
+      m_elev('contourf',[-7000:1000:0 500:500:3000],'edgecolor','none');
+      colormap(ax2,[m_colmap('blues',70);m_colmap('gland',30)]);  
+      caxis(ax2,[-7000 3000]);       
+      m_grid('xticklabel',[],'yticklabel',[],'linestyle','-','ytick',[-60:30:60]);
+
+        
+     ax3=subplot(2,2,3,'align');
+      colormap(ax3,[m_colmap('blues',70);m_colmap('gland',30)]);  
+      caxis(ax3,[-7000 3000]);       
+      m_elev('image');
+      m_grid('xticklabel',[],'yticklabel',[],'linestyle','-','ytick',[-60:30:60]);
+
+        
+     ax4=subplot(2,2,4,'align');
+      colormap(ax4,[m_colmap('blues')]);  
+      caxis(ax4,[-8000 000]);       
+      m_elev('shadedrelief','gradient',.5);
+      m_coast('patch',[.7 .7 .7],'edgecolor','none');
+      m_grid('xticklabel',[],'yticklabel',[],'linestyle','-','ytick',[-60:30:60]);
+
+     ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0  1],'Box','off',...
+               'Visible','off','Units','normalized', 'clipping' , 'off');
+      text(0.5, 0.98,'This projection shows all oceans connected to each other',...
+               'horiz','center','fontsize',20);
+</pre>
+
+<img src="./doc/extgloball.png" width=85%>
+
+<h4><a name="14._stepjet"></a> <a name="e14"></a>15. Stepped jet colormap</h4>
 
 <pre>    
     % get delta-SA data from the TEOS-10 gsw atlas at 2500 dbar
@@ -581,10 +642,10 @@ xlabel('1000km range rings from Bangkok');
     ind=[31:361 1:30]; % Move left side to right
     dSA=dSA(:,ind);
     LT=LT(:,ind);
-    LG=LG(:,ind);LG(LG<30)=LG(LG<30)+360; %...and add 360 to some longitudes
+    LG=LG(:,ind);LG(LG>30)=LG(LG>30)-360; %...and subtract 360 to some longitudes
 
     clf;
-    m_proj('robinson','lon',[30 390]);
+    m_proj('robinson','lon',[-330 30]);
 
     m_pcolor(LG,LT,dSA*1000);
 
@@ -604,13 +665,12 @@ xlabel('1000km range rings from Bangkok');
  </pre>
 <img src="./doc/exstepjet.png"  width=65%>
 
-<h4><a name="15._bathym"></a> <a name="e15"></a>15. Bathymetry</h4>
+<h4><a name="15._bathym"></a> <a name="e15"></a>16. Bathymetry</h4>
 
 <pre> 
 load /ocean/rich/home/dens14/VENTS
 lp=load('/ocean/rich/home/dens14/Linep_201402');
-addpath /ocean/rich/home/matlab/cbrewer    % The colorbrewer (from MATLAB File Exchange)
-
+ 
 m_proj('lambert','long',[-160 -115],'lat',[32 60]);
 [CS,CH]=m_etopo2('contourf',[-7000:1000:-1000 -500 -200 0 ],'edgecolor','none');
 m_gshhs_f('patch',[.7 .7 .7],'edgecolor','none');
@@ -634,37 +694,38 @@ set(gcf,'color','w');  % otherwise 'print' turns lakes black
 
 
 
-<h4><a name="17._shaded2"></a> <a name="e16"></a>16. Shaded Relief (Example 1)</h4>
+<h4><a name="17._shaded2"></a> <a name="e16"></a>17. Shaded Relief (Example 1)</h4>
 <pre>
-[ELEV,LON,LAT]=m_etopo2([105 125 5 24]);
+m_proj('lambert','lat',[5 24],'long',[105 125]);
 
-m_proj('equidist','lat',[5 24],'long',[105 125],'sphere','sphere');
+set(gcf,'color','w')   % Set background colour before m_image call
 
 caxis([-6000 0]);
 colormap(flipud([flipud(m_colmap('blues',10));m_colmap('jet',118)]));
-m_shadedrelief(LON,LAT,ELEV,'gradientfactor',3);
-
+m_etopo2('shadedrelief','gradient',3);
+ 
 m_gshhs_i('patch',[.8 .8 .8]);
  
 m_grid('box','fancy');
 
-ax=m_contfbar(.97,[.5 .9],ELEV,[-6000:100:000],'edgecolor','none','endpiece','no');
+ax=m_contfbar(.97,[.5 .9],[-6000 0],[-6000:100:000],'edgecolor','none','endpiece','no');
 xlabel(ax,'meters','color','k');
 </pre>
 
 <img src="./doc/SouthChinaSea.png"  width=100%>
 
 
-<h4><a name="18._shaded3"></a> <a name="e16"></a>17. Shaded Relief (Example 2)</h4>
+<h4><a name="18._shaded3"></a> <a name="e16"></a>18. Shaded Relief (Example 2)</h4>
 <pre>
 m_proj('utm','ellipse','grs80','zone',10,'lat',[49+15.7/60 49+21/60],...
         'long',[-123-15/60 -123-3/60]);      
 
 % Uses multibeam bathymetry with 10m horizontal resolution
-
+% Already regularly gridded in UTM coords with vector x2/y2, and
+% matrix Z2.
 caxis([-150 0]);
 colormap([m_colmap('water',128)]);
-m_shadedrelief(x2,y2,-Z2,'lightangle',-45,'gradfactor',8,'coord','utm');
+m_shadedrelief(x2,y2,-Z2,'lightangle',-45,'gradient',8,'coord','z');
 
 % Add some contours
 hold on;
@@ -674,20 +735,37 @@ clabel(cs,h,'fontsize',6);
 hold off;
 
 % Land parts from a previously saved high-resolution coastline
+col=[255 214 140]/255; % CHS chart land colour
 
-m_usercoast('/ocean/rich/more/mmapbase/bcgeo/PNW.mat','patch',[255 251 71]/255);
-m_usercoast('/ocean/rich/more/mmapbase/bcgeo/PNWrivers.mat','patch',[255 251 71]/255);
+m_usercoast('/ocean/rich/more/mmapbase/bcgeo/PNW.mat','patch',col);
+m_usercoast('/ocean/rich/more/mmapbase/bcgeo/PNWrivers.mat','patch',col);
 
 % Lat/long AND a UTM grid
  
 m_grid('tickdir','out','fontsize',12,'linest','none','xaxisloc','top','yaxisloc','right');
-m_utmgrid('xcolor','b','ycolor','b','linest','-');
+m_utmgrid('xcolor','b','ycolor','b','linest','-'); 
 
 m_ruler([.5 .8],.9,'tickdir','out','ticklen',[.007 .007]);
 xlabel('Vancouver Harbour','color','k'); 
 </pre>
 
 <img src="./doc/VanHarb.png"  width=100%>
+
+<h4><a name="21._colmaps"></a>19. Colourmaps</h4>
+
+ <pre>
+ % This command generates the figure
+ % In each subplot title is the M_COLMAP call that 
+ % generated the colourmap displayed.
+ %
+ % Uses of these colourmaps can be seen
+ % in other maps in this gallery.
+
+ m_colmap demo
+
+</pre>
+
+<img src="./doc/exColmaps.png"  width=100%>
 
 
 <h2><a name="satellite_examples"></a>Examples of satellite data manipulation</h2>
@@ -1048,6 +1126,7 @@ m_pcolor(sublon,sublat,subf);shading flat;
 m_grid('box','fancy','tickdir','out');
 m_ruler(1.03,[.15 .5],'ticklen',[.01]);
 caxis([0 450]);
+colormap(gray);
 title(titlestr)
 </pre>
 
@@ -1103,7 +1182,48 @@ m_contfbar( [.3 .7],.98, Z',[-300:25:-25 2 50:50:200 300:100:1200 1210],...
 
 <img src="./doc/shaded1.png"  width=100%>
 
+<h4><a name="17._goog"></a>9.  Google Maps Static API</h4>
 
+
+<pre> 
+% Axis limits 
+lms=[ -123-[14 8]/60  49+[10 13.5]/60 ];   
+
+% plot_google_maps.m from the mathworks user contributed files database:
+% https://www.mathworks.com/matlabcentral/fileexchange/27627-zoharby-plot_google_map
+% accesses the static google maps map tiles, returning a lat/long gridded
+% image that is just bigger than the given limits.
+clf;
+axis(lms);
+[Glon,Glat,Gimg]=plot_google_map('maptype','satellite','refresh',0,'autoaxis',0);
+clf;
+
+% Now draw it!
+ 
+m_proj('utm','lat',lms(3:4),'lon',lms(1:2));
+m_image(Glon,Glat,Gimg); 
+m_grid('tickdir','out','box','fancy');
+m_ruler([.4 .9],1.05,6,'tickdir','in','ticklen',.01);
+</pre>
+
+<img src="./doc/exgoog.png"  width=100%>
+
+
+
+<hr>
+
+
+
+
+
+<h2> <a name="Citation"> Citation</a></h2>
+ <p> If you decide that M_Map made a significant contribution to a project, and you want  
+ acknowledge that contribution with a citation (thanks!), I recommend something like the following:</p>
+	<ul>
+	<li> <cite> Pawlowicz, R., 2019. "M_Map: A mapping package for MATLAB", version 1.4k, [Computer software], available 
+online at <a href="https://www.eoas.ubc.ca/~rich/map.html">www.eoas.ubc.ca/~rich/map.html</a>.</cite>
+  </li>
+</ul>
 <hr>
 
 <h2> <a name="ack"> Acknowledgements</a></h2>

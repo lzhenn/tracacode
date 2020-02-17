@@ -26,10 +26,11 @@
  <li>   <a href="./map.html#relnotes">Release Notes</a></li>
  <li>   <a href="./mapug.html">Users Guide</a></li>
  <li>   <a href="./map.html#examples">Example Code<a></li>
+ <li>   <a href="./map.html#Citation">Citation<a></li>
  <li>   <a href="./map.html#ack">Acknowledgements</a></li>
 </ul>
 
-<p class="menu"> Last changed 20/May/2018. Questions and comments to <a
+<p class="menu"> Last changed 20/Mar/2019. Questions and comments to <a
  href="mailto:rich@eos.ubc.ca">rich@eos.ubc.ca</a></p> 
  
     
@@ -77,15 +78,17 @@
   <ol>
     <li> <a href="#p5.1">Drawing lines, text,
 arrows, patches, hatches, speckles, and contours</a> </li>
-    <li><a href="#p5.2">Drawing images and p_color</a> </li>
-    <li><a href="#p5.2b">Drawing shaded relief maps</a><img align="left" src="./doc/new.gif"></li>
+    <li><a href="#p5.2">Drawing images and pcolor</a><img align="left" src="./doc/new.gif"> </li>
+    <li><a href="#p5.2b">Drawing shaded relief maps</a> </li>
     <li> <a href="#p5.3">Drawing tracklines</a></li>
     <li> <a href="#p5.4">Drawing range rings and geodesics</a></li>
     <li> <a href="#p5.5">Converting longitude/latitude to projection coordinates</a></li>
     <li> <a href="#p5.6">Converting projection to longitude/latitude coordinates </a></li>
     <li> <a href="#p5.7">Computing distances between points</a></li>
-    <li> <a href="#p5.8">Annotation</a><img align="left" src="./doc/new.gif"></li>
-  </ol>
+    <li> <a href="#p5.8">Annotation</a> </li>
+    <li> <a href="#p5.9">Colour and Colormaps</a><img align="left" src="./doc/new.gif"></li>
+   <li> <a href="#p5.10">Colourbars with Contourmaps</a></li> 
+   </ol>
   <li> <a href="#p6">More complex maps</a></li>
   <li> <a href="#p7">Removing features from a map</a></li>
   <li> <a href="#p8">Adding your own coastlines</a></li>
@@ -511,6 +514,10 @@ vertical (for tall thin maps). </p>
 
 <img src="./doc/exobl2.png" align="middle" width=30%>  
 
+<p>  <font color="red"> WARNING - at SOME times, for certain combinations of G1/G2 L1/L2 endpoints, the coastline mapping algorithms fail
+because of a numerical instability affecting the mapping of points on the opposite side of the world - you can see weird lines
+going across your map when you try to plot a coastline. The work-around for this is to alter the G1/G2 or L1/L2 slightly.
+ </font> </p>
 
     <h4><li> Transverse Mercator </li> </h4>
     
@@ -1020,10 +1027,11 @@ extending outwards from the ends of those lines. </p>
 is set to <code>'fancy'</code>, the <code>tickdir</code> specifies the form of the fancy
 outline box (their is the <code>'in'</code> version and the <code>'out'</code> version). </p>
 
-<p>  Axis labels can be produced either in decimal degrees (dd) or degrees-minutes (dm, default):</p>
+<p>  Axis labels can be produced either in decimal degrees (<code>'dd'</code>) or degrees-minutes (<code>'dm'</code>, default). The
+<code>'da'</code> option is an abbreviated degrees-minutes format without degree marks or the N/S/E/W letters appended:</p>
 
  <pre>
-  'tickstyle',( 'dd' | 'dm' )
+  'tickstyle',( 'dd' | 'da' |  'dm' )
   </pre>
   
 
@@ -1045,7 +1053,8 @@ outline box (their is the <code>'in'</code> version and the <code>'out'</code> v
   </pre>
   
 <p> specifies where the X-axis will be drawn, either at the bottom
-(southermost) end, at the top (northernmost) end, or in the middle, and</p>
+(southermost) end, at the top (northernmost) end, or in the middle (note - for southern hemisphere maps, especially
+those containing the south pole, setting this to <code>'top'</code> is recommended), and</p>
 
   <pre>
    'yaxisLocation',( 'left' | 'middle' | 'right' ) 
@@ -1054,9 +1063,11 @@ outline box (their is the <code>'in'</code> version and the <code>'out'</code> v
 (westernmostmost) end, at the right (easternmost) end, or in the
 middle.</p>
 
-<p>Note: if you are using the UTM< projection, and you want to have a grid with eastings and northings, call
-<code>m_utmgrid</code> which will draw a UTM grid, independent of the lat/long grid provided by a call
+<p>Note: if you are using the UTM projection, and you want to have a grid with eastings and northings, call
+<code>m_utmgrid</code> AFTER calling <code>m_grid</code>. This will draw a UTM grid, independent of the lat/long grid provided by a call
 to <code>m_grid</code>. Again, you can customize many aspects of the grid by setting appropriate properties.</p>
+
+        <img src="./doc/VanHarb.png" alt="" width=80%>
 
 
   <h3> <a name="p4.2"><li> Titles and x/ylabels </li></a></h3>
@@ -1226,47 +1237,73 @@ patches using:</p>
     <img src="./doc/exspeckle.png" width=50%>  
   
   
-  <h3><li><a name="p5.2"></a>Drawing images and p_color </li> </h3>
+  <h3><li><a name="p5.2"></a>Drawing images and pcolor </li> </h3>
   
-  
-  <p> <code>m_pcolor</code> is a drop-in replacement for <code>p_color,</code>
-&nbsp;but you must be careful with its use near map boundaries. Ideally
+  <p>Gridded data in matlab can be handled with either a)  <code>pcolor</code>, usually for small grids, whose vertices are
+  specified in matrices the same size as that of the data, and where you might want to shade across each
+  grid cell, or b) <code>image</code>, often for much larger pixellated datasets where each value will be mapped to a colour in
+  rectangular cells all of which are the same size. <code>pcolor</code> is often used for datasets that one might
+  also handle with <code>contour</code> or <code>contourf</code>, while <code>image</code> is used for
+  photographs and the like.</p>
+
+<ol>
+ <li>  
+    <p>In M_Map, if you have a georeferenced image in lat/long coordinates (i.e.
+each data row is along a line of constant latitude, each column a line
+of equal longitude), then you can use <code>m_image</code>. That is,
+<pre>
+m_image(LON,LAT,DATA)
+</pre>
+will accept data in which <code>LON</code> and <code>LAT</code> are either two-element vectors
+which give the coordinates of the first and last row or column, or are vectors the same size as the number of
+rows or columns of <code>DATA</code> (this is a little more flexible than <code>image</code> since it
+means that rows can be unequally spaced in longitude). The data matrix will be regridded into map coordinates and
+displayed using <code>image</code>. Generally this will be a good idea only when the data pixels are
+already too small to see (see <a href="./map.html#17._goog">this example</a>). Note that <code>DATA</code>
+can either by an NxM double precision floating point matrix (say, a bathymetry database), or an NxMx3 uint8 "truecolor"
+image (say, one derived from optical remote sensing).</p>
+
+It is also sometimes useful to use <code>m_image</code> solely to transform the data in an NxM array, 
+following it with a <code>m_shadedrelief</code> call to actually display the data
+<pre>
+[IM,X,Y]=m_image(LON,LAT,DATA);
+m_shadedrelief(X,Y,IM,'coords','map')
+</pre>
+
+Note that you should set the figure background colour (e.g.,  <code>set(gcf,'color','w')</code>) 
+before calling <code>m_image</code> because pixels that
+appear outside the map boundaries are set to that background colour - see <a href="./map.html#17._shaded2" >This example</a>
+
+</li>
+<img src="./doc/SouthChinaSea.png"  width=70%>
+
+<li>
+  <p> If your georeferenced image is in lat/long coordinates, but all points in a row do NOT have the latitude,
+    then use <code>m_pcolor</code> with <code>shading
+flat</code>. This is reasonably satisfactory (although it can be slow for
+large images), but you SHOULD offset your coordinates by
+one-half of the pixel spacing. This is because of the different
+behaviors of <code>pcolor</code> and <code>image</code> when given the same
+data. (see <a href="./map.html#7._SAR">this example</a>). </p> 
+    
+<p> Note:   you must be careful with <code>m_pcolor</code> near map boundaries. Ideally
 one would want data to extend up to (but not across) a map boundary
 (i.e. polygons are clipped). However, due to the way in which matlab
 handles surfaces this is not easily done. Instead - unless you are
 using a simple cylindrical or conic projection - you will probably get
 a ragged edge for the coloured surface.&nbsp;</p>
-
-  <p>There is no <code>m_image</code>. The <code>image()</code> function
-plots data in rectangular pixels only, and in general projected data
-will NOT appear as rectangular pixels. If you want to display a large
-pixel image on your map, there are several options:   </p>
-
-  <ol>
-    <li>If your georeferenced image is in lat/long coordinates (i.e.
-each data row is along a line of constant latitude, each column a line
-of equal longitude), then you can use <code>m_pcolor</code> with <code>shading
-flat</code>. This is reasonably satisfactory (although it can be slow for
-large images), but you SHOULD offset your coordinates by
-one-half of the pixel spacing. This is because of the different
-behaviors of <code>pcolor</code> and <code>image</code> when given the same
-data:</li>
-    
-    <ol>
-      <li><code>image</code> will center the   (i,j) pixel at the location of
+ 
+    <p>Also, be aware that <code>image</code> will center the   (i,j) pixel at the location of
 the (i,j)th entry of the X/Y matrices,as long as these matrices are regular in their spacing. If they
-are irregular, then pixels are spaced evenly between the 1st and last entries in the matrix.</li>
-      <li><code>p_color</code> with shading flat will draw a panel between
+are irregular, then pixels are spaced evenly between the 1st and last entries in the matrix. However
+   <code>p_color</code> with <code>shading flat</code> will draw a panel between
 the (i,j),(i+1,j),(i+1,j+1),(i,j+1) coordinates of the X/Y matrices
 with a color corresponding to the data value at (i,j). Thus everything
-will appear shifted by one half a pixel spacing.</li>
-    </ol>
+will appear shifted by one half a pixel spacing.   This can be avoided with  <code>shading interp</code>
+but then the computational time to create an image is greatly increased.
+     
 
-    <p>Satellite data from mid-latitudes is sometime amenable to this
-solution. See the <a href="./map.html#satellite_examples">examples of
-satellite data manipulation</a>. </p>
-
-    <li> If your figure has already been placed in some projection, and
+    <li> <p>If your figure has already been placed in some projection, and
 if you know the exact parameters of that projection, you can probably
 use a straight <code>image</code> call and then overplot an M_Map map. For example,
 polar satellite images are often given on  an equally-spaced grid in a polar stereographic projection.
@@ -1280,7 +1317,6 @@ this is working correctly. </p>
     </li>
   </ol>
   
-   
       <img src="./doc/exSAR.png" width=70%>  
  
    <h3> <a name="p5.2b"><li>Drawing shaded relief maps </li> </a></h3>
@@ -1306,24 +1342,27 @@ points are on a GRID in screen coordinates,  and the  spacing between points is 
 are a RECTANGLE. That is:  </p>
  
  <ol>
- <li> You should call <code>m_shadedrelief</code> only AFTER calls to <code>colormap</code> and <code>caxis</code>.</li> 
-<li> <code>m_shadedrelief</code> probably is most useful as a backdrop to maps with
+ <li> You should call <code>m_shadedrelief</code> only AFTER calls to <code>colormap</code> and <code>caxis</code>, because these are 
+ needed to determine the shading in the true-colour image.</li> 
+<li> <code>m_shadedrelief</code> most straightforward use is as a backdrop to maps with
 a rectangular outline box - either a cylindrical projection, or some
-other projection with <code>m_proj(...'rectbox','on') </code>.</li>
-<li>The simplest way of not running into problems is
+other projection with <code>m_proj(...'rectbox','on')</code>.
+The simplest way of not running into problems is
 <ol> 
 <li> if your elevation data is in LAT/LON coords, use  <code>m_proj('equidistant cylindrical',...)</code></li>
  <li> if your elevation data is in UTM coords (meters E/N), use  <code>m_proj('utm',...)</code></li>
- </ol>
+ </ol></li>
+ <li> Alternatively, you can use <code>m_shadedrelief</code> AFTER calling <code>m_image</code> 
+ (see <a href="p5.2">Section 5.2</a>); this can be done with ANY projection or outline box.
  </ol>
  
  
 <p><code>m_shadedrelief</code> accepts several options. The essence of the mapping is that slopes are calculated relative to a light source, 
 and then a shading function is applied:</p> 
  <pre>
-       Shading = clipval*tanh(slope/gradient_factor) 
+       Shading = clipval*tanh(slope/gradient) 
  </pre>
-<p> where the shading increases with slope angle, up until a limiting value of about <code>gradient_factor</code> degrees, after which
+<p> where the shading increases with slope angle, up until a limiting value of about <code>gradient</code> degrees, after which
 shading saturates. The saturated amount of shading is set by <code>clipval</code> which is between 0 and 1, where 0 means no shading 
 correction and 1 means shading to white or black.</p>
 
@@ -1331,7 +1370,11 @@ correction and 1 means shading to white or black.</p>
 
 <p> Finally, the slope calculation only works correctly if we know how to interpret x/y changes with Z changes. For UTM coordinate
 data, all 3 would be in meters. However, a lot of high-resolution data is provided in lat/long coordinates, and hence the x/y directions would have to be
-properly scaled. The <code>coords</code> option can let you specify which of the cases is in use.
+properly scaled. FInally, pixel locations may be in map coordinates.
+The <code>coords</code> option can let you specify which of the cases is in use.
+<pre>
+        'coo&lt;rds&gt;', ( 'g&lt;eographic&gt;'  |  'z'  |  'm&lt;ap&gt;' ) 
+</pre>
  
 <p> For more information, see <a href="map.html#16._shaded1" > this example</a>, <a href="map.html#17._shaded2" > this one</a>,
 or <a href="map.html#18._shaded3" > this one</a>.</p>
@@ -1542,6 +1585,138 @@ print
 </li>
 </ul>
 
+
+<h3> <a name="p5.9"><li> Colour and Colourmaps </li>  </a></h3>
+
+ <img src="./doc/exColmaps.png" width=100%> </a> 
+
+<p> The use of colour to show bathymetry/topography on a map, or values of other parameters displayed on a map,
+is often critical, and <code>m_colmap</code> contains
+a number of useful colourmaps to do this. These include several maps with good perceptual qualities, as well as a number which
+`look good' on geographic maps. You can generate the plot above, which gives examples of different calls, using:</p>
+
+<pre>m_colmap demo</pre>
+
+<p>What does it mean to have 'good perceptual qualities'? Nowadays most people know that
+Matlab's <code>jet</code> colormap has a number of shortcoming. In particular it is NOT PERCEPTUALLY UNIFORM - we
+can see fine details around the yellow colour band, but the wide range of blues are hard to separate. </p>
+
+<p>More modern colourmaps are designed to overcome this problem, by designing a 
+gradation in colour-space which looks uniform 
+to the human eye. One school of thought does away
+with colours altogether, in favour of what is essentially a PERCEPTUALLY UNIFORM single-colour scale that goes from 
+dark to light. Examples
+b and h above are this kind of colormap (adapted from the <a href="http://colorbrewer2.org">ColorBrewer</a>), but so is Matlab's <code>parula</code> (more or less), <code>hot</code> and
+<code> gray</code>. 
+These kinds of colourmap let us distinguish 2 levels: 'high' (light) and 'low' (dark). </p>
+
+<p> Such simple colourmaps are not helpful for data that has a +/- sign (e.g., current velocities), and so for this kind of
+data a DIVERGING
+colormap (like example d above) is often used. Diverging colourmaps let us distinguish 3 levels: 'negative','zero', and
+'positive'. They are also good for 'below-average', 'average', and 'above-average'.</p>
+
+<p> What if we want more gradations? There is no reason why we can't have the multiple colours of a JET-like colourmap, which makes
+it much easier to identify several levels within an image, once we design in a perceptually uniform luminance scale.
+Thus we can create a PERCEPTUALLY UNIFORM JET colourmap. Example a above shows a smooth version (taken from 
+the <a href="http://peterkovesi.com/projects/colourmaps/">
+CET Perceptually Uniform Colour Maps toolbox</a>), which shows about 5 different levels, but examples j and k also show versions with 
+an arbitrary (but small) number of distinct colours which are all, to the eye, about equally different to one another. </p>
+
+<p> Example j is useful for false-colour satellite imagery, where values are contaminated by noise. The idea of the gradual
+blurring at boundaries between colours is that it will de-emphasize speckles that would otherwise arise. </p>
+
+<p>Example k is useful for numerical models, or other data that is already smooth, so quantizing to a small number of levels
+will not be a problem. The sharp boundaries will then act a little like contours on the final image. </p>
+
+<p> Finally, <code>m_colmap</code> includes several specialized colormaps (examples c, f, i, and k) designed to show land; these are based on
+the ETOPO1 land colormap from the
+<a href="http://soliton.vm.bytemark.co.uk/pub/cpt-city/ngdc/index.html" >Cartographic Palette Archive</a>.</p>
+
+
+
+
+ 
+
+
+<h3> <a name="p5.10"><li> Colourbars with Contourmaps </li>  </a></h3>
+
+<p> Matlab has the <code>colorbar</code> command which can be used to add a scale to smoothly-plotted data (see Satellite
+examples <a href="./map.html#1._Global_SST">1</a>, <a href="./map.html#2._SSMI_Ice_cover" >2</a> or 
+<a href="./map.html#4._A_subset_of_a_global_dataset" >4</a>) It can also be useful if you try to simulate contours 
+used a stepped colourmap as in Example <a href="./map.html#14._stepjet">14</a>). 
+But if you are actually showing filled contours, the continuous set of colours in the default colormap 
+ does not correspond with the small number of
+discrete colours shown in the contourmap. This may be important in figures like Example <a href="./map.html#15._bathym">15</a>,
+<a href="./map.html#7._Lambert_Conformal_Projection_with_Med">7</a> or <a href="./map.html#16._shaded1">8</a>.</p>
+
+<p>For these latter situations use <code>m_contfbar</code>. Typical usage is</p>
+
+<pre>
+   m_contourf(LON,LAT,DATA,LEVELS);
+   m_contfbar(Xloc,Yloc,DATA,LEVELS);
+</pre>
+
+<p>or</p>
+ 
+<pre>
+   [CS,CH]=m_contourf(LON,LAT,DATA,LEVELS);
+   m_contfbar(Xloc,Yloc,CS,CH);
+</pre>
+
+or other calls that involve <code>contourf</code> like
+
+<pre>
+   [CS,CH]=m_etopo2('contourf',LEVELS);
+   m_contfbar(Xloc,Yloc,CS,CH);
+</pre>
+
+
+<p>where <code>Xloc=[X1,X2]</code> and <code>Yloc=Y</code> for a horizontal scale bar at normalized height <code>Y</code>, with
+sides at normalized x-locations <code>X1</code> and <code>X2</code> (normalized means between 0 and 1). For a vertical scale bar,
+<code>Xloc=X1</code> and <code>Yloc=[Y1,Y2]</code>. By using the same data and levels information, the scale bar shows the
+same levels as that of the filled contour image itself.</p>
+
+<p><code>m_contfbar</code> can also be used with <code>M_shadedrelief</code>:</p>
+
+<pre>
+   caxis([CMIN CMAX])
+   colormap(map)
+   m_shadedrelief(LON,LAT,DATA)
+   m_contfbar(Xloc,Yloc,DATA,LEVELS);
+</pre>
+<p>where you are free to choose the <code>LEVELS</code> as you wish.</p>
+
+
+<p>There are 4 additional parameter/value pairs that can be used to modify the appearance of the scale bar. First,
+the width of the bar can be set to 0.03 of the full axis width using:</p>
+
+<pre>
+   'axfrac',.03
+</pre>
+
+<p> and triangular endpieces (signifying data outside the region of the colour scale) can be added with</p>
+<pre>
+   'endpiece',[ 'yes' | 'no']
+</pre>
+
+<p>If you don't like having a black edging line between the colours, choose the <code>'none'</code> option:</p>
+
+<pre>
+   'edgecolor',[colorspec | 'none']
+</pre>
+
+<p>and finally, it is possible to set the <code>LEVELS</code> vector to have levels that are outside the range 
+of values in <code>DATA</code>. Do you want the scale bar show these levels, or to show only the 
+levels that match those in the range of <code>DATA</code>? Specify with:</p>
+<pre>
+   'levels',['set' (default) | 'match']
+</pre>
+
+ <img src="././doc/extbase.png" width=70%> 
+
+
+
+
 </ol>
 
 
@@ -1685,7 +1860,16 @@ Usually you will want to convert this data back to
 lat/long by a) calling <code>m_proj</code> with the specifications of that projection,   
 and b) calling <code>m_xy2ll</code> with the data you read in.</p>
 
-<p> If this is the case, first find the projection information which is usually provided somewhere - in a README, or (perhaps)
+<p>For data in UTM coordinates, this is particularly easy. For example, for data in an area around
+Vancouver, Canada, we are told the ellipse parameters (grs80) for a particular dataset, so:</p>
+<pre>
+m_proj('utm','ellipse','grs80','lat',[49+15.7/60 49+21/60],...
+        'long',[-123-15/60 -123-3/60]);      
+[LONG,LAT]=m_xy2ll(eastings,northings);
+</pre>
+
+
+<p> In other cases, first find the projection information which is usually provided somewhere - in a README, or (perhaps)
 a <code>.prj</code> file (this is especially true for shapefile information).
 Examine the  <code>.prj</code> text file.
 As an example, the <a href="https://pubs.er.usgs.gov/publication/ofr99369">Cascadia DEM</a>
@@ -1742,7 +1926,7 @@ m_proj('lambert','parallels',[41.5 50.5],'long',[-133 -116],...
  m_proj('lambert conformal','ellipsoid','grs80','par',[45.83333333333334 47.33333333333334],...
         'clong',-120.5,'false',[-120.5 45.33333333333334]);
 
-  [LAT,LONG]=m_xy2ll( (X-1640416.666666667)*0.3048006096012192,Y*0.3048006096012192);
+  [LONG,LAT]=m_xy2ll( (X-1640416.666666667)*0.3048006096012192,Y*0.3048006096012192);
  </pre>
 
 
@@ -1757,11 +1941,11 @@ Extractor</a>, but as of 2015 this web site has been decommissioned.  </p>
  
   <h3> <li> <a name="p8.4">  DCW political boundaries </a> </li></h3>
   
-  <h4> As of 2011 the DCW web site has been decommissioned. The following
+  <h5> As of 2011 the DCW web site has been decommissioned. The following
   information is retained for historical reasons only. New users see the next
-  section on shapefiles. </h4>
+  section on <a href="#p8.5"> Natural Earth. </a></h5>
   
-  <p> Files containing political boundaries for various countries and
+  <p style="color:lightgray;"> Files containing political boundaries for various countries and
 US states can be downloaded from <a href="http://www.maproom.psu.edu/dcw">
 http://www.maproom.psu.edu/dcw/</a>. Select an area and choose the
 "download points" option (rather than "download data"). Once downloaded to your
@@ -1773,7 +1957,7 @@ For example, if you downloaded various US states into a subdirectory
   m_plotbndry('states/arizona','color,'r')
   </pre>
 
-<p> would plot arizona on the current map.</p>
+<p style="color:lightgray;"> would plot arizona on the current map.</p>
 
   <h3> <a name="p8.5"><li>  </a>   <a href="http://www.naturalearthdata.com/">Natural Earth</a> Political Boundaries </li></h3>
   
@@ -2194,24 +2378,7 @@ version does not contain capabilities for different text properties).
 <h2> <a name="p11">11. Known Problems and Bugs </a> </h2>
 <p> </p>
 <ol>
-  <li><b>(Likely obsolete)</b>: Running M_Map with Matlab5.0 (Student versions?) can sometimes
-produce errors since 5.0 has various bugs and "features" that do not
-appear in later versions. One in particular has cropped up - the file <code>m_coast.mat</code>
-is sometimes not found when using <code>m_coast.m</code>. The easiest
-solution is to put <code>../m_map/private</code> into your path as
-well as <code>../m_map</code> (in later versions matlab can find the
-mat-file).
-    <p> </p>
-  </li>
-  <li> <b>(Likely obsolete)</b>: Running M_Map on a PC with Matlab5.1 can sometimes produce
-a lot of
-    <pre>&gt; Warning: Divide by zero.<br></pre>
-messages. This is due to a bug in Matlab (actually due to the compiler
-TMW used) that results in an incorrect warning flag being set when
-dividing some numbers by NaN. You can safely ignore these errors and
-wait for v5.2
-    <p> </p>
-  </li>
+  
   <li><b> Lakes come out black!</b> If plotted data is coloured white, the <code>print</code>   changes it to
 black in output figures.   In order to avoid this, set the figure
 background to white, i.e.
@@ -2264,28 +2431,34 @@ From their website: "<a href="http://www.gnu.org/software/octave/">GNU Octave</a
 primarily intended for numerical computations. [...] The Octave language is quite similar 
 to Matlab so that most programs are easily portable." </p>
 
-<p> M_Map currently runs under Octave. <code>m_demo</code> runs pretty much perfectly. However,
-there still may be features that either don't work, or don't work properly - let me know.</p>
+<p> M_Map currently runs under Octave...mostly. <code>m_demo</code> runs pretty much perfectly (depending on which version of
+Octave you are using). However,
+there are features that either don't work, or don't work properly. Unfortunately the rather obscure
+details of different functionalities that <code>M_Map</code> relies on can change from release to release; issues that
+ were "fixed"  may "break" in later releases. Feel free to contact me if you have problems; I may have solutions (or I may not).</p>
 
-<p> Note: since  "private" subdirectories
-are not implemented (as of Octave 3.8.3), you must add the <code>m_map/private</code> 
-subdirectory explicitly to the path:</p>
-<pre>
-addpath [whatever]/m_map 
-addpath [whatever]/m_map/private
-</pre>
 
-<p> Features that don't work, or don't work well when I last tested this under Octave 3.2.3, include:
+<p> Features that don't work, or don't work well when I last tested this under Octave 4.4.1, include:
 <ol>
-<li> The simple bathymetry called by <code>m_elev</code> comes from a built-in Matlab
-demo .mat file and this is not available in Octave (this isn't a bug, exactly). </li><br>
+<li> Everything seems to run fine as long as you are in the <code>m_map</code> home 
+directory, but Octave crashes for me if I try to run <code>m_map</code>
+from other directories, relying on the load path. </li><br>
+ 
+<li> <code>m_contourf</code>, which is really just a call to <code>contourf</code>, doesn't work correctly sometimes,
+because the Octave <code>contourf</code> does not handle <code>NaN</code>s properly, and  <code>NaN</code>s can appear if data fields extend
+beyond the map boundaries and must be clipped.  Even when it does work, 
+it can take a VEERRRYYY LOOOONNNNGG TIIIIMMMMEEEE to run. Staggeringly long, sometimes.</li><br>
+<li> Latitude and Longitude labels don't appear to rotate, even if you specify a rotation. </li><br>
+<li> X/YLabels don't appear  (they seem to be tied to the axes 'visible' property, which <code>M_Map</code> sets to 'off') </li><br>
+<li> <code>m_image</code> won't work for projections other than equidistant cylindrical.</li>
 </ol>
 
 <h2> <a name="p13">13. Changes since last release </a> </h2>
 <p> </p>
 <ol>
   <p> </p>
-  <li> <code>m_shadedrelief.m</code> and <code>m_utmgrid.m</code>
+  <li> <code>m_shadedrelief.m</code> changed and <code>m_image.m</code> added. Lots of small changes in an attempt
+  to improve Octave compatibility.
     <p> </p>
     <br>
  

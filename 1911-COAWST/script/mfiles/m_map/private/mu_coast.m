@@ -64,7 +64,7 @@ function [ncst,Area,k]=mu_coast(optn,varargin)
 %           Nov/17 - redid a lot of the gshhs-related stuff
 %
 % This software is provided "as is" without warranty of any kind. But
-% it's mine, so you can't sell it.
+% its mine, so you can't sell it.
 
 
 global MAP_PROJECTION MAP_VAR_LIST
@@ -108,8 +108,10 @@ switch optn(1)
     varargin(1)=[];
     k=[find(isnan(ncst(:,1)))];  % Get k
     Area=ones(size(k));          % Make dummy Area vector (all positive).
-  otherwise
-    load m_coasts
+    otherwise
+    currloc=mfilename('fullpath');  % Octave has problems finding the file 
+    load([currloc(1:end-8) 'm_coasts.mat']);
+    
 end
 
  
@@ -305,7 +307,7 @@ switch optn
               else
                   p_hand(i)=patch(xx,yy,varargin{2:end});
                   if ishandle(p_hand(i)),set(p_hand(i),'tag',[ get(p_hand(i),'tag') '_land']);end
-              end
+               end
 	  
 	     else  % speckle
             if ~strcmp(MAP_VAR_LIST.rectbox,'off')  % If we were clipping in
@@ -349,7 +351,7 @@ switch optn
   X(st(k))=NaN;
 
   p_hand=line(X,Y,varargin{:}); 
-
+ 
 end
 
 ncst=p_hand;

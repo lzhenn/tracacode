@@ -1,4 +1,4 @@
-function [fn]=updatclim_coawst_mw(T1, gn, clm, clmname, wdr, url)
+function [fn]=updatclim_coawst_mw_local(T1, gn, clm, clmname, wdr, url)
 % Modified by Brandy Armstrong January 2012 to use only NCTOOLBOX 
 % and Matlab builtin functions to read and write netcdf files
 % jcw Feb 2019 - only use matalb BI
@@ -13,20 +13,17 @@ function [fn]=updatclim_coawst_mw(T1, gn, clm, clmname, wdr, url)
 %
 %determine indices for time period of interpolation
 %
-disp('getting the number of time records ...');
-t0=datenum(1900,12,31); % tr0=datenum(1858,11,17);
-time=ncread(url,'MT')
-tg=time+t0
-tg2=julian(str2num(datestr(tg,'yyyy')),str2num(datestr(tg,'mm')),str2num(datestr(tg,'dd')),str2num(datestr(tg,'HH')))-2400001
-%
-% get user times
-%
-[junk,tid1,ib]=intersect(tg,floor(T1)) %modify to be nearest jcw 23Aug2014
-if isempty(tid1)
-  tid1=length(tg)
-end
-disp(tg2(tid1))
-exit
+
+day_of_year=day(T1,'dayofyear');
+url2d=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_00_2d.nc'];
+urlu=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_00_3zu.nc'];
+urlv=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_00_3zv.nc'];
+urls=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_00_3zs.nc'];
+urlt=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_00_3zt.nc'];
+
+tid1=ncread(url2d,'MT');
+tid1=tid1+15384; % shift to matlab modified julian date
+
 fn=[clmname];
 disp(['creating netcdf file ',fn]);
 create_roms_netcdf_clm_mwUL(fn,gn,1);% converted to BI functions
@@ -44,19 +41,18 @@ tz_levs=length(clm.z);
 X=repmat(clm.lon,1,length(clm.lat));
 Y=repmat(clm.lat,length(clm.lon),1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-disp(['Interpolating u for ',datestr(tg(tid1))]);
+disp(['Interpolating u for ',datestr(T1)]);
 ttu=1;
 clm.u=zeros([length(clm.z) size(gn.lon_rho)]);
 while ttu==1;
     try
-        tmpt=ncread(url,'u',[clm.ig0 clm.jg0 1 tid1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
+        tmpt=ncread(urlu,'u',[clm.ig0 clm.jg0 1 1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
         for k=1:tz_levs
             disp(['doing griddata u for HYCOM level ' num2str(k)]);
             tmp=double(squeeze(tmpt(:,:,k)));
             F = scatteredInterpolant(X(:),Y(:),tmp(:));
             cff = F(gn.lon_rho,gn.lat_rho);
             clm.u(k,:,:)=maplev(cff);
-            disp(length(clm.u))
         end
         ttu=0;
     catch
@@ -69,18 +65,15 @@ while ttu==1;
 end
 %== Vertical interpolation (t,s,u,v) from standard z-level to s-level
 u=roms_from_stdlev_mw(gn.lon_rho,gn.lat_rho,clm.z,clm.u,gn,'u',0);
-disp(max(u))
-disp(min(u))
-exit
 clm=rmfield(clm,'u');
 save u.mat u
 clear u;
-disp(['Interpolating v for ',datestr(tg(tid1))]);
+disp(['Interpolating v for ',datestr(T1)]);
 ttv=1;
 clm.v=zeros([length(clm.z) size(gn.lon_rho)]);
 while ttv==1;
     try
-        tmpt=ncread(url,'v',[clm.ig0 clm.jg0 1 tid1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
+        tmpt=ncread(urlv,'v',[clm.ig0 clm.jg0 1 1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
         for k=1:tz_levs
             disp(['doing griddata v for HYCOM level ' num2str(k)]);
             tmp=double(squeeze(tmpt(:,:,k)));
@@ -109,7 +102,7 @@ load u.mat; load v.mat
 disp('doing rotation to grid for u and v');
 uv=(u2rho_3d_mw(u)+sqrt(-1)*v2rho_3d_mw(v)).*theta;
 u=rho2u_3d_mw(real(uv)); v=rho2v_3d_mw(imag(uv));
-%disp(u(15,500:502,400:600))
+disp(u(15,500:502,400:600))
 clear uv
 %% == output
 RN=netcdf.open(fn,'NC_WRITE');
@@ -122,17 +115,17 @@ netcdf.putVar(RN,tempid,shiftdim(v,1));
 
 clear u; clear v;
 tempid=netcdf.inqVarID(RN,'ocean_time');
-netcdf.putVar(RN,tempid,tg2(tid1));
+netcdf.putVar(RN,tempid,tid1);
 tempid=netcdf.inqVarID(RN,'zeta_time');
-netcdf.putVar(RN,tempid,tg2(tid1));
+netcdf.putVar(RN,tempid,tid1);
 tempid=netcdf.inqVarID(RN,'v2d_time');
-netcdf.putVar(RN,tempid,tg2(tid1));
+netcdf.putVar(RN,tempid,tid1);
 tempid=netcdf.inqVarID(RN,'v3d_time');
-netcdf.putVar(RN,tempid,tg2(tid1));
+netcdf.putVar(RN,tempid,tid1);
 tempid=netcdf.inqVarID(RN,'salt_time');
-netcdf.putVar(RN,tempid,tg2(tid1));
+netcdf.putVar(RN,tempid,tid1);
 tempid=netcdf.inqVarID(RN,'temp_time');
-netcdf.putVar(RN,tempid,tg2(tid1));
+netcdf.putVar(RN,tempid,tid1);
 netcdf.close(RN);
 %%
 %== Depth averaging u, v to get Ubar
@@ -157,11 +150,11 @@ clear vbar
 clear uv
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% interpolate the zeta data
-disp(['Interpolating zeta for ',datestr(tg(tid1))]);
+disp(['Interpolating zeta for ',datestr(T1)]);
 ttz=1;
 while ttz==1;
     try
-        tmpt=ncread(url,'ssh',[clm.ig0 clm.jg0 tid1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 1 ] );
+        tmpt=ncread(url2d,'ssh',[clm.ig0 clm.jg0 1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 1 ] );
         tmp=double(squeeze(tmpt(:,:)));
         disp(['doing griddata zeta for HYCOM ']);
         F = scatteredInterpolant(X(:),Y(:),tmp(:));
@@ -186,12 +179,12 @@ netcdf.putVar(RN,tempid,zeta);
 netcdf.close(RN);
 clear zeta;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-disp(['Interpolating temp for ',datestr(tg(tid1))]);
+disp(['Interpolating temp for ',datestr(T1)]);
 ttt=1;
 clm.temp=zeros([length(clm.z) size(gn.lon_rho)]);
 while ttt==1;
     try
-        tmpt=ncread(url,'temperature',[clm.ig0 clm.jg0 1 tid1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
+        tmpt=ncread(urlt,'temperature',[clm.ig0 clm.jg0 1 1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
         for k=1:tz_levs
             disp(['doing griddata temp for HYCOM level ' num2str(k)]);
             tmp=double(squeeze(tmpt(:,:,k)));
@@ -225,12 +218,12 @@ clear temp;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-disp(['Interpolating salt for ',datestr(tg(tid1))]);
+disp(['Interpolating salt for ',datestr(T1)]);
 tts=1;
 clm.salt=zeros([length(clm.z) size(gn.lon_rho)]);
 while tts==1;
     try
-        tmpt=ncread(url,'salinity',[clm.ig0 clm.jg0 1 tid1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
+        tmpt=ncread(urls,'salinity',[clm.ig0 clm.jg0 1 1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
         for k=1:tz_levs
             disp(['doing griddata salt for HYCOM level ' num2str(k)]);
             tmp=double(squeeze(tmpt(:,:,k)));

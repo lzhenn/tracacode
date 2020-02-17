@@ -62,7 +62,8 @@ function h=m_gshhs(resolution,varargin)
 % 20/Jan/2008 - added borders and rivers from gshhs v1.10
 % 4/DEc/11 - isstr to ischar
 % Sep/14 - added hierarchy to borders
-
+% Aug/18 - fixed error that occurred when called m_gshhs_X with 'save'
+%          option (Thanks to H. Grant for pointing this out).
 
 
 % Root of directories where all the gshhs_X.b, wdb_borders-X.b and wdb_rivers_X.b
@@ -72,8 +73,8 @@ FILNAME='private/';
 
 %-------------don't change below here----------------------------
 
-res_list = char('c','l','i','h','f') ;
-typ_list=char('c','b','r');
+res_list = {'c','l','i','h','f'};
+typ_list={'c','b','r'};
 typ_names={'gshhs_','wdb_borders_','wdb_rivers_'};
 
 typ=1;
@@ -81,12 +82,12 @@ flaglim='9';
 
 if ischar(resolution)
  if length(resolution)>=2
-   typ = strmatch(lower(resolution(2)),typ_list);
+   typ = find(strcmpi(resolution(2),typ_list));
  end
  if length(resolution)>=3
    flaglim = resolution(3);
  end  
- resolution = strmatch(lower(resolution(1)),res_list);
+ resolution =  find(strcmpi(resolution(1),res_list));
 end
  
  
@@ -97,7 +98,7 @@ if isempty(typ) || typ<1 || typ> length(res_list)
   error('**Don''t recognize the specified type');
 end
   
-res_char = res_list(resolution) ;
+res_char = res_list{resolution} ;
 file     = [FILNAME,sprintf('%s%s.b',typ_names{typ},res_char)] ;
 tag_name = sprintf('m_%s%s',typ_names{typ},res_char) ;
 
@@ -110,7 +111,7 @@ m_coord('geographic');
 if length(varargin)>1 && strcmp(varargin{1},'save')
   [ncst,Area,k]=mu_coast(res_char,file);
   save(varargin{2},'ncst','k','Area');
-  h=[];
+  h=varargin{2};   % Error if you call m_gshhs_i with 'save' option - thanks HG, Aug/1/2018
 else
   h=mu_coast([res_char flaglim],file,varargin{:},'tag',tag_name);
 end

@@ -83,7 +83,7 @@ switch optn
     MAP_VAR_LIST.ulats = [40 44];
     MAP_VAR_LIST.zone = 0;		% will be computed if not there
     MAP_VAR_LIST.hemisphere = -1;
-    MAP_VAR_LIST.ellipsoid = 'normal';
+    MAP_VAR_LIST.ellipsoid = 'wgs84';
     MAP_VAR_LIST.rectbox='off';
     k=2;
 

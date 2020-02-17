@@ -59,7 +59,7 @@ else %Can't find binary file, load and process text file.
    end %if
    
    namein = fgetl(fid);
-   if ( ~findstr(lower(name),lower(namein)) ) %then
+   if ( ~strfind(lower(name),lower(namein)) ) %then
       fclose(fid);
       error(['File contains wrong state! ','Desired: ',name,' Found: ',namein]);
    end %if

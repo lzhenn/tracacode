@@ -46,6 +46,13 @@ function [xi,yi,x,y]=m_hatch(lon,lat,varargin)
 
 global MAP_PROJECTION
 
+
+if isempty(MAP_PROJECTION)
+   disp('No Map Projection initialized - call M_PROJ first!');
+   return;
+end
+
+
 styl='speckle';
 angle=7;
 step=1/2;

@@ -246,7 +246,6 @@ else
           data = squeeze(roms_stdlev(l,:,i,:));
           data = [data(1,:); data; data(Nz,:)];
           roms(l,:,i,:) = interp2(xa,za,data,x,z,'spline');
-          
         end
       end
       

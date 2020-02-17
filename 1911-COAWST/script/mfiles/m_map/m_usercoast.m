@@ -1,4 +1,4 @@
-function m_usercoast(varargin)
+function varargout=m_usercoast(varargin)
 % M_USERCOAST Add a coastline using a user-specified coastline file.
 %         M_USERCOAST(FILENAME) uses data previously extracted and stored
 %         in FILENAME to draw a coast.
@@ -19,5 +19,9 @@ function m_usercoast(varargin)
 % This software is provided "as is" without warranty of any kind. But
 % it's mine, so you can't sell it.
 
-mu_coast('user',varargin{:},'tag','m_usercoast');
+if nargout==3
+   [varargout{1},varargout{2},varargout{3}]=mu_coast('user',varargin{:},'tag','m_usercoast');
+else
+   mu_coast('user',varargin{:},'tag','m_usercoast');
+end
 

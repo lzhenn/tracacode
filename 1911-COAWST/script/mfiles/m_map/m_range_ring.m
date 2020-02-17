@@ -31,6 +31,13 @@ function h=m_range_ring(long,lat,range,varargin)
 
 global MAP_PROJECTION MAP_VAR_LIST
 
+
+if isempty(MAP_PROJECTION)
+  disp('No Map Projection initialized - call M_PROJ first!');
+  return;
+end
+
+
 pi180=pi/180;
 earth_radius=6378.137;
 n=72;

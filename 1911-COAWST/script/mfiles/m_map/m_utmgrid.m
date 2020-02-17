@@ -28,6 +28,9 @@ if isempty(MAP_PROJECTION)
 elseif ~strcmp(MAP_PROJECTION.name,'UTM')  
   disp('Not a UTM projection');
   return;
+elseif strcmp(MAP_VAR_LIST.ellipsoid,'normal')
+  disp('Cannot show UTM coordinates using the ``normal'' (earth radius=1) ellipsoid in the m_proj call');
+  return;
 end
   
 gcolor=get(gca,'gridcolor');

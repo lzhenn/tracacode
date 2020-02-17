@@ -114,6 +114,7 @@ switch optn
     end
     MAP_VAR_LIST.clong=NaN;
     MAP_VAR_LIST.rectbox='off';
+    MAP_VAR_LIST.ellipsoid='normal';
     MAP_VAR_LIST.aussiemode=false;
     k=2;longs_def=0;
     while k<length(varargin)
@@ -197,7 +198,7 @@ switch optn
           theta(notpoles)=theta(notpoles)+dt(notpoles);  % fixed May 2012
           dt=-(2*theta+sin(2*theta)-pi*sin(lat*pi180))./(1+cos(2*theta))/2;
           k=k+1;
- %% fprintf('%f %f\n',max(theta(:))/pi180,max(abs(dt(:))));
+ % fprintf('%f %f\n',max(theta(:))/pi180,max(abs(dt(:))));
         end
         if k==15, warning('Iterative coordinate conversion is not converging!'); end
         theta(notpoles)=theta(notpoles)+dt(notpoles);  % fixed May 2012

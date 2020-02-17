@@ -26,7 +26,7 @@ str_path='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/';
 
 
 % (1) Enter start date (T1) and number of days to get climatology data 
-T1 = datenum(2018,09,14,12,0,0); %start date
+T1 = datetime(2018,09,14,12,0,0); %start date
 %number of days and frequency to create climatology files for
 numdays = 5;
 dayFrequency = 1;
@@ -36,8 +36,6 @@ dayFrequency = 1;
 %url = 'http://tds.hycom.org/thredds/dodsC/GLBa0.08/expt_91.2';  
 url = '/users/b145872/project-dir/data/hycom/';
 
-strt_fn = 'archv.2018_257_00_3zs.nc';
-url_grid = url + strt_fn;
 % (3) Enter working directory (wdr)
 wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/';
 
@@ -59,11 +57,11 @@ tic
 
 % Call to get HYCOM indices for the defined ROMS grid
 disp('getting roms grid, hycom grid, and overlapping indices')
-[gn, clm]=get_ijrg(url_grid, modelgrid, theta_s, theta_b, Tcline, N, Vtransform, Vstretching);
+[gn, clm]=get_ijrg([url,'hycom.grid.nc'], modelgrid, theta_s, theta_b, Tcline, N, Vtransform, Vstretching);
 
 % Call to create the climatology (clm) file
 disp('going to create clm file')
-fn=updatclim_coawst_mw(T1, gn, clm, 'coawst_clm.nc', wdr, url)
+%fn=updatclim_coawst_mw_local(T1, gn, clm, 'coawst_clm.nc', wdr, url)
 
 % Call to create the boundary (bdy) file
 disp('going to create bndry file')
@@ -71,7 +69,7 @@ updatbdry_coawst_mw(fn, gn, 'coawst_bdy.nc', wdr)
 
 % Call to create the initial (ini) file
 disp('going to create init file')
-updatinit_coawst_mw_local(fn, gn, 'coawst_ini.nc', wdr, T1)
+updatinit_coawst_mw(fn, gn, 'coawst_ini.nc', wdr, datenum(T1))
 
 toc
 
@@ -88,7 +86,7 @@ if numdays>1
     end
     for it=dayFrequency:dayFrequency:numdays-1      %1st day already created, NEED to set number of days at top!
         fname=['coawst_clm_',datestr(T1+it,'yyyymmdd'),'.nc']
-        fn=updatclim_coawst_mw(T1+it,gn,clm,fname,wdr,url)
+        fn=updatclim_coawst_mw_local(T1+it,gn,clm,fname,wdr,url)
         fname=['coawst_bdy_',datestr(T1+it,'yyyymmdd'),'.nc'];
         updatbdry_coawst_mw(fn,gn,fname,wdr)
     end

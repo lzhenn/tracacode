@@ -24,6 +24,7 @@ function outval=m_proj(proj,varargin)
 %		to harden against error when no proj is set
 %             (fixes thanks to Lars Barring)
 % 18/Jan/18 - added output variable
+% 19/Feb/19 - added some error checking on lat/lon limits
 
 global MAP_PROJECTION MAP_VAR_LIST MAP_COORDS
 
@@ -91,6 +92,40 @@ switch proj
         
     eval([ projections(k).routine '(''initialize'',projections(k).name,varargin{:});']);
 
+    % Some error checking
+    if diff(MAP_VAR_LIST.lats)<=0.0001  % if you make this too small drawing ticks in m_grid can screw up
+        error(sprintf('Lower latitude (%.3f) is not < upper latitude (%.3f)',MAP_VAR_LIST.lats));
+        clear MAP_PROJECTION
+        return
+    end
+    if MAP_VAR_LIST.lats(1)<-90 || MAP_VAR_LIST.lats(2)>90 || any(isnan(MAP_VAR_LIST.lats))
+        error(sprintf('Latitude range (%.3f %.3f) is outside of known bounds of -90 to 90',MAP_VAR_LIST.lats));
+        clear MAP_PROJECTION
+        return
+    end
+    if diff(MAP_VAR_LIST.longs)<=0.0001
+        error(sprintf('Left longitude (%.3f) is not < right longitude (%.3f)',MAP_VAR_LIST.longs));
+        clear MAP_PROJECTION
+        return
+    end
+    if MAP_VAR_LIST.longs(1)<-540 || MAP_VAR_LIST.longs(2)>540 || any(isnan(MAP_VAR_LIST.longs))
+        error(sprintf('Longitude range (%.3f %.3f) is outside of known bounds of -540 to 540',MAP_VAR_LIST.longs));
+        clear MAP_PROJECTION
+        return
+    end
+    if diff(MAP_VAR_LIST.xlims)<=0
+        error('Map has zero width - check m_proj input parameters');
+        clear MAP_PROJECTION
+        return
+    end
+    if diff(MAP_VAR_LIST.ylims)<=0
+        error('Map has zero height - check m_proj input parameters');
+        clear MAP_PROJECTION
+        return
+    end
+    
+    
+    
     % With the projection store what coordinate system we are using to define it.
     if isempty(MAP_COORDS)
       m_coord('geographic');
@@ -146,10 +181,10 @@ function projections=m_getproj
 % Get all the projections
 
 lpath=which('m_proj');
-fslashes=findstr(lpath,'/');
-bslashes=findstr(lpath,'\');
-colons=findstr(lpath,':');
-closparantheses=findstr(lpath,']');
+fslashes=strfind(lpath,'/');
+bslashes=strfind(lpath,'\');
+colons=strfind(lpath,':');
+closparantheses=strfind(lpath,']');
 if ~isempty(fslashes)
   lpath=[ lpath(1:max(fslashes)) 'private/'];
 elseif ~isempty(bslashes)
@@ -175,7 +210,7 @@ end
 l=1;
 projections=[];
 for k=1:length(w)
- funname=w(k).name(1:(findstr(w(k).name,'.'))-1);
+ funname=w(k).name(1:(strfind(w(k).name,'.'))-1);
  projections(l).routine=funname;
  eval(['names= ' projections(l).routine '(''name'');']);
  for m=1:length(names)
@@ -192,7 +227,7 @@ function match=m_match(arg,varargin)
 
 % Rich Pawlowicz (rich@ocgy.ubc.ca) 2/Apr/1997
 
-match=strmatch(lower(arg),cellstr(lower(char(varargin))));
+match=find(strncmpi(deblank(arg),cellstr(char(varargin)),length(deblank(arg))));
 
 if length(match)>1
   error(['Projection ''' arg ''' not a unique specification']);

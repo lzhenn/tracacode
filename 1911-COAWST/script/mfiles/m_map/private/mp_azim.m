@@ -19,18 +19,18 @@ function [X,Y,vals,labI]=mp_azim(optn,varargin)
 %      Geol. Surv. Bull. 1532, 2nd Edition, USGPO, Washington D.C., 1983.
 %
 % These are azimuthal projections, best suited for circular areas. The
-% stereographic is commonlu used for polar regions.
+% stereographic is commonly used for polar regions.
 %   Stereographic  - conformal
 %   Orthographic   - neither conformal nor equal-area, but looks like globe
 %                    with viewpoint at infinity.
-%   Az Equal-area  - equal area, but not conformal (by Lambert)
-%   Az Equidistant - distance and direction from center are true 
+%   Azimuthal Equal-area  - equal area, but not conformal (by Lambert)
+%   Azimuthal Equidistant - distance and direction from center are true 
 %   Gnomonic       - all great circles are straight lines.
 %   Satellite      - a perspective view from a finite distance
 
 global MAP_PROJECTION MAP_VAR_LIST
 
-name={'Stereographic','Orthographic ','Azimuthal Equal-area','Azimuthal Equidistant','Gnomonic','Satellite'};
+name={'Stereographic','Orthographic','Azimuthal Equal-area','Azimuthal Equidistant','Gnomonic','Satellite'};
 
 pi180=pi/180;
 
@@ -66,6 +66,7 @@ switch optn
     MAP_VAR_LIST.rectbox='circle';
     MAP_VAR_LIST.uradius=90;
     MAP_VAR_LIST.rotang=0;
+    MAP_VAR_LIST.ellipsoid='normal';
     k=2;
     while k<length(varargin)
       switch varargin{k}(1:3)
@@ -224,14 +225,18 @@ switch optn
         c=2*atan(rho/2);
       case name(2)
         c=asin(rho);
+        c(abs(rho)>1.0)=NaN;  % points outside the map
       case name(3)
         c=2*asin(rho/2);
-      case name(4)
+         c(abs(rho)>2.0)=NaN;  % points outside the map
+     case name(4)
         c=rho;
       case name(5)
         c=atan(rho);
       case name(6)
-        c=asin((MAP_VAR_LIST.uradius+1)./sqrt(1+(MAP_VAR_LIST.uradius./rho).^2)) - atan(rho/MAP_VAR_LIST.uradius);
+        arg1=(MAP_VAR_LIST.uradius+1)./sqrt(1+(MAP_VAR_LIST.uradius./rho).^2);
+        c=asin(arg1) - atan(rho/MAP_VAR_LIST.uradius);
+        c(arg1>1.0)=NaN;
     end
     c(ir)=eps; % we offset this slightly so that the correct limit is achieved in the
                % division below:

@@ -29,6 +29,11 @@ function h=m_ruler(posx,posy,varargin)
 global MAP_PROJECTION
 
 
+if isempty(MAP_PROJECTION)
+   disp('No Map Projection initialized - call M_PROJ first!');
+   return;
+end
+
 
 
 nints=4;

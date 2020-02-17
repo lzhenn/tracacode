@@ -95,7 +95,14 @@ switch optn
          case 'par'
            MAP_VAR_LIST.parallels=varargin{k+1};
          case 'rec'
-           MAP_VAR_LIST.rectbox=varargin{k+1};
+             switch lower(varargin{k+1}(1:2))
+                 case {'on','bo'}
+                    MAP_VAR_LIST.rectbox='on';
+                 case 'of'
+                    MAP_VAR_LIST.rectbox='on';
+                 otherwise
+                     error(['m_proj: Unrecognized box option: ' varargin{k+1}]);
+             end
          case 'ell'
            MAP_VAR_LIST.ellipsoid=varargin{k+1};
          case 'ori'
@@ -117,7 +124,9 @@ switch optn
       else
          MAP_VAR_LIST.clong=MAP_VAR_LIST.origin(1);
       end 	 
-    elseif ~longs_def, MAP_VAR_LIST.ulongs=MAP_VAR_LIST.clong+[-180 180];  end
+    elseif  ~longs_def
+        MAP_VAR_LIST.ulongs=MAP_VAR_LIST.clong+[-180 180];  
+    end
     if isnan(MAP_VAR_LIST.parallels), MAP_VAR_LIST.parallels=mean(MAP_VAR_LIST.ulats)*[1 1]+diff(MAP_VAR_LIST.ulats)*[-1/6 1/6]; end % change default mar/2017
     if isnan(MAP_VAR_LIST.origin), MAP_VAR_LIST.origin=[MAP_VAR_LIST.clong mean(MAP_VAR_LIST.parallels)]; end
 
@@ -134,7 +143,7 @@ switch optn
       case name(1)
         if MAP_VAR_LIST.ellip(2)==0 % spherical
            MAP_VAR_LIST.n=sum(sin(MAP_VAR_LIST.rparallels))/2;
-           if MAP_VAR_LIST.n==0, 
+           if MAP_VAR_LIST.n==0
                error('Your parallels are equidistant from the equator - use a cylindrical projection!'); 
            end
            MAP_VAR_LIST.C=cos(MAP_VAR_LIST.rparallels(1)).^2+2*MAP_VAR_LIST.n*sin(MAP_VAR_LIST.rparallels(1));
@@ -243,14 +252,14 @@ switch optn
         [Y,X]=mu_util('clip',varargin{4},Y,MAP_VAR_LIST.ylims(1),Y<MAP_VAR_LIST.ylims(1),X);
         [Y,X]=mu_util('clip',varargin{4},Y,MAP_VAR_LIST.ylims(2),Y>MAP_VAR_LIST.ylims(2),X);
     end
-    if MAP_VAR_LIST.aussiemode, Y=-Y; X=-X; end;
+    if MAP_VAR_LIST.aussiemode, Y=-Y; X=-X; end
 
 
   case 'xy2ll'
 
     pi180=pi/180; 
     
-    if MAP_VAR_LIST.aussiemode, varargin{2}=-varargin{2}; varargin{1}=-varargin{1}; end;
+    if MAP_VAR_LIST.aussiemode, varargin{2}=-varargin{2}; varargin{1}=-varargin{1}; end
     switch MAP_PROJECTION.name
       case name(1)   
         rho=sqrt(varargin{1}.^2+(MAP_VAR_LIST.rho0-varargin{2}).^2);
@@ -268,6 +277,14 @@ switch optn
            end
 	       Y=Y/pi180; 
         end
+        % The pole is an arc in this projection, so for points inside that
+        % arc there is no inverse. If so, the math above can return complex
+        % values - instead set these to NaN
+        if ~isreal(Y)
+           Y(imag(Y)>1e-7)=NaN;
+           Y=real(Y); 
+        end
+        
       case name(2)
         rho=sign(MAP_VAR_LIST.n)*sqrt(varargin{1}.^2+(MAP_VAR_LIST.rho0-varargin{2}).^2);
         theta=atan(varargin{1}./(MAP_VAR_LIST.rho0-varargin{2}));
