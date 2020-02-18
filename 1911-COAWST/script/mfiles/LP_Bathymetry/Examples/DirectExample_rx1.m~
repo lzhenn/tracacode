@@ -1,0 +1,15 @@
+FileSave='GRID_ADRIA02';
+load(FileSave, 'mreza');
+
+ARVD.Vtransform=2;
+ARVD.Vstretching=1;
+ARVD.ThetaS=4;
+ARVD.ThetaB=0.35;
+ARVD.N=30;
+ARVD.hc=3;
+
+rx1max=6;
+
+disp('Using Bathymetry increasing method with rx1');
+RetBathy=GRID_SmoothPositive_ROMS_rx1(...
+    mreza.MSK_rho, mreza.SampledBathy, rx1max, ARVD);

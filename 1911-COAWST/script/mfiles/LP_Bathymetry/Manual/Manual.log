@@ -1,0 +1,262 @@
+This is pdfeTeX, Version 3.141592-1.21a-2.2 (Web2C 7.5.4) (format=latex 2008.5.20)  21 JUN 2009 10:46
+entering extended mode
+**Manual.tex
+(./Manual.tex
+LaTeX2e <2003/12/01>
+Babel <v3.8d> and hyphenation patterns for american, french, german, ngerman, b
+ahasa, basque, bulgarian, catalan, croatian, czech, danish, dutch, esperanto, e
+stonian, finnish, greek, icelandic, irish, italian, latin, magyar, norsk, polis
+h, portuges, romanian, russian, serbian, slovak, slovene, spanish, swedish, tur
+kish, ukrainian, nohyphenation, loaded.
+(/usr/share/texmf/tex/latex/base/article.cls
+Document Class: article 2004/02/16 v1.4f Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/size12.clo
+File: size12.clo 2004/02/16 v1.4f Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/share/texmf/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2001/10/25 v2.2f
+\@emptytoks=\toks14
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 132.
+)
+(/usr/share/texmf/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2000/07/18 v2.13 AMS math features
+\@mathmargin=\skip43
+
+For additional information on amsmath, use the `?' option.
+(/usr/share/texmf/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01
+
+(/usr/share/texmf/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks15
+\ex@=\dimen103
+))
+(/usr/share/texmf/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d
+\pmbraise@=\dimen104
+)
+(/usr/share/texmf/tex/latex/amsmath/amsopn.sty
+Package: amsopn 1999/12/14 v2.01 operator names
+)
+\inf@bad=\count87
+LaTeX Info: Redefining \frac on input line 211.
+\uproot@=\count88
+\leftroot@=\count89
+LaTeX Info: Redefining \overline on input line 307.
+\classnum@=\count90
+\DOTSCASE@=\count91
+LaTeX Info: Redefining \ldots on input line 379.
+LaTeX Info: Redefining \dots on input line 382.
+LaTeX Info: Redefining \cdots on input line 467.
+\Mathstrutbox@=\box26
+\strutbox@=\box27
+\big@size=\dimen105
+LaTeX Font Info:    Redeclaring font encoding OML on input line 567.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 568.
+\macc@depth=\count92
+\c@MaxMatrixCols=\count93
+\dotsspace@=\muskip10
+\c@parentequation=\count94
+\dspbrk@lvl=\count95
+\tag@help=\toks16
+\row@=\count96
+\column@=\count97
+\maxfields@=\count98
+\andhelp@=\toks17
+\eqnshift@=\dimen106
+\alignsep@=\dimen107
+\tagshift@=\dimen108
+\tagwidth@=\dimen109
+\totwidth@=\dimen110
+\lineht@=\dimen111
+\@envbody=\toks18
+\multlinegap=\skip44
+\multlinetaggap=\skip45
+\mathdisplay@stack=\toks19
+LaTeX Info: Redefining \[ on input line 2666.
+LaTeX Info: Redefining \] on input line 2667.
+)
+(/usr/share/texmf/tex/latex/base/latexsym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup6
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 47.
+)
+(/usr/share/texmf/tex/latex/graphics/epsfig.sty
+Package: epsfig 1999/02/16 v1.7a (e)psfig emulation (SPQR)
+
+(/usr/share/texmf/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks20
+)
+(/usr/share/texmf/tex/latex/graphics/graphics.sty
+Package: graphics 2001/07/07 v1.0n Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/share/texmf/tex/latex/graphics/graphics.cfg
+File: graphics.cfg 2005/02/03 v1.3 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: dvips.def on input line 80.
+
+(/usr/share/texmf/tex/latex/graphics/dvips.def
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+))
+\Gin@req@height=\dimen112
+\Gin@req@width=\dimen113
+)
+\epsfxsize=\dimen114
+\epsfysize=\dimen115
+)
+(/usr/share/texmf/tex/generic/epsf/epsf.tex
+This is `epsf.tex' v2.7k <10 July 1997>
+\epsffilein=\read1
+\epsfframemargin=\dimen116
+\epsfframethickness=\dimen117
+\epsfrsize=\dimen118
+\epsftmp=\dimen119
+\epsftsize=\dimen120
+\epsfxsize=\dimen121
+\epsfysize=\dimen122
+\pspoints=\dimen123
+\epsfnoopenhelp=\toks21
+) (/usr/share/texmf/tex/latex/url/url.sty
+\Urlmuskip=\muskip11
+Package: url 2004/03/15  ver 3.1  Verb mode for urls, etc.
+) (./Manual.aux)
+\openout1 = `Manual.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+\c@proposition=\count99
+\c@theorem=\count100
+\c@corollary=\count101
+\c@lemma=\count102
+\c@problem=\count103
+\c@conjecture=\count104
+\c@claim=\count105
+\c@remark=\count106
+\c@definition=\count107
+LaTeX Font Info:    Try loading font information for U+msa on input line 43.
+
+(/usr/share/texmf/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2002/01/19 v2.2g AMS font definitions
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 43.
+
+(/usr/share/texmf/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2002/01/19 v2.2g AMS font definitions
+)
+LaTeX Font Info:    Try loading font information for U+lasy on input line 43.
+
+(/usr/share/texmf/tex/latex/base/ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+)
+Overfull \hbox (7.8294pt too wide) in paragraph at lines 75--76
+\OT1/cmr/m/n/12 The source of the pro-gram is avail-able from $\OT1/cmss/m/n/12
+ http : / / www . liga . ens . fr / []dutour / Bathymetry /
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 78.
+
+LaTeX Font Info:    No file OMScmtt.fd. on input line 78.
+
+LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
+(Font)              using `OMS/cmsy/m/n' instead on input line 78.
+
+
+Overfull \hbox (9.33337pt too wide) in paragraph at lines 84--86
+\OT1/cmr/m/n/12 First of all, you need your bathymetry in the form of an ar-ray
+ of the form \OT1/cmtt/m/n/12 Hobs(eta[]rho,
+ []
+
+[1
+
+]
+Overfull \hbox (78.90526pt too wide) in paragraph at lines 159--159
+[]\OT1/cmtt/m/n/12 >> Hfilt=GRID_LinearProgrammingSmoothing_rx0_volume(MSK, Hob
+s, rx0max, AreaMatrix);[] 
+ []
+
+[2]
+Overfull \hbox (19.00496pt too wide) in paragraph at lines 252--252
+[]\OT1/cmr/bx/n/14.4 Using \OT1/cmtt/m/n/14.4 GRID[]LinearProgrammingSmoothing[
+]rx0[]blockconstraint 
+ []
+
+[3] [4]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 363.
+
+ (/usr/share/texmf/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 363.
+
+Overfull \hbox (0.4969pt too wide) in paragraph at lines 363--366
+[]\OT1/cmr/m/n/12 The smooth-ing with re-spect to $\OML/cmm/m/it/12 rx[]$ \OT1/
+cmr/m/n/12 is best done with \OT1/cmr/bx/n/12 GRID[]LinProgHeuristic
+ []
+
+
+Overfull \hbox (13.37491pt too wide) in paragraph at lines 366--372
+\OT1/cmr/m/n/12 ant of the Mar-t-inho Bat-teen [[]] is im-ple-mented in \OT1/cm
+tt/m/n/12 GRID[]SmoothPositive[]ROMS[]rx1
+ []
+
+
+Overfull \hbox (59.50179pt too wide) in paragraph at lines 383--399
+[]\OT1/cmr/m/n/12 If pre-serv-ing the vol-ume is im-por-tant, you can use the f
+unc-tion \OT1/cmtt/m/n/12 GRID[]PlusMinusScheme[]rx0\OT1/cmr/m/n/12 .
+ []
+
+
+Overfull \hbox (96.0736pt too wide) in paragraph at lines 383--399
+\OT1/cmr/m/n/12 It will al-ways pro-duce a larger per-tur-ba-tion than \OT1/cmt
+t/m/n/12 GRID[]LinearProgrammingSmoothing[]rx0[]volume
+ []
+
+[5] [6] (./Manual.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 1513 strings out of 94501
+ 17620 string characters out of 1176789
+ 68162 words of memory out of 1000000
+ 4673 multiletter control sequences out of 10000+50000
+ 14545 words of font info for 61 fonts, out of 500000 for 2000
+ 580 hyphenation exceptions out of 1000
+ 32i,11n,22p,219b,250s stack positions out of 1500i,500n,5000p,200000b,5000s
+
+Output written on Manual.dvi (6 pages, 13988 bytes).

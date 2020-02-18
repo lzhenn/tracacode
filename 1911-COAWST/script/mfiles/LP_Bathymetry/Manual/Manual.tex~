@@ -1,0 +1,460 @@
+\documentclass[12pt]{article}
+\usepackage{amsfonts, amsmath, latexsym, epsfig}
+\usepackage{epsf}
+\usepackage{url}
+\title{Manual of the matlab scripts of {\tt LP Bathymetry}}
+\topmargin=-0.5truein
+\oddsidemargin=0.25truein
+\evensidemargin=0.25truein
+\textwidth=6truein
+\textheight=9truein
+\urlstyle{sf}
+
+%\usepackage{vmargin}
+%\setpapersize{custom}{21cm}{29.7cm}
+%\setmarginsrb{1.7cm}{1cm}{1.7cm}{3.5cm}{0pt}{0pt}{0pt}{0pt}
+%marge gauche, marge haut, marge droite, marge bas.
+
+\author{Mathieu Dutout Sikiri\'c}
+
+
+
+\begin{document}
+\newcommand{\RR}{\ensuremath{\mathbb{R}}}
+\newcommand{\NN}{\ensuremath{\mathbb{N}}}
+\newcommand{\QQ}{\ensuremath{\mathbb{Q}}}
+\newcommand{\CC}{\ensuremath{\mathbb{C}}}
+\newcommand{\ZZ}{\ensuremath{\mathbb{Z}}}
+\newcommand{\TT}{\ensuremath{\mathbb{T}}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{problem}{Problem}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{claim}{Claim}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newcommand{\qed}{\hfill $\Box$ }
+\newcommand{\proof}{\noindent{\bf Proof.}\ \ }
+
+
+
+\maketitle
+
+
+You are preparing your model (grid, forcing files, tides, etc.)
+you run it and you experience blowup. One possible cause is that
+your roughness factor $rx_0$, i.e. the Beckman and Haidvogel number
+\begin{equation*}
+rx_0=\max_{e\equiv e'} \frac{|h(e) - h(e')|}{h(e)+h(e')}
+\end{equation*}
+is too large. A value of $rx_0=0.35$ is about maximum.
+Note that the relevant value is actually more the Haney number $rx_1$, 
+which depends on $rx_0$ and the chosen vertical stratification (\cite{haney}).
+(both $rx_0$ and $rx_1$ are shown up at the beginning of a ROMS run).
+
+In truth the ``true'' bathymetry, i.e. the one obtained by measurement
+and interpolation is going to have a high roughness factor. This leaves
+two methods for reducing it: increase the horizontal resolution and
+modify the bathymetry. Increasing the horizontal resolution comes at
+relatively high computational costs.
+
+The program exposed here is based on linear programming and 
+given a bathymetry $h^{real}$ and a fixed $r$,
+it finds the unique bathymetry $h^{filt}$ satisfying to
+\begin{equation*}
+\max_{e\equiv e'} \frac{|h^{filt}_e - h^{filt}_{e'}|}{h^{filt}_e+h^{filt}_{e'}}\leq r
+\end{equation*}
+and minimizing $\sum_e |h^{real}(e) - h^{filt}(e)|$.
+
+\section{Availability}
+
+The source of the program is available from \url{http://www.liga.ens.fr/~dutour/Bathymetry/index.html}
+
+The linear programs are solved by the program {\tt lpsolve} (see \cite{lpsolve} for the installation). Note that we do not use the mex facility but the standalone program.
+The scripts are {\tt matlab$^{\copyright}$} scripts and so you need to have {\tt matlab$^{\copyright}$} installed.
+
+
+
+\section{How to use it}
+
+First of all, you need your bathymetry in the form of an array of the
+form {\tt Hobs(eta\_rho, xi\_rho)} and a mask {\tt MSK(eta\_rho, xi\_rho)}.
+
+
+
+
+
+\subsection{Using {\tt GRID\_LinProgHeuristic}}
+
+The command to do the filtering is then
+\begin{verbatim}
+>> Hfielt=GRID_LinProgHeuristic(MSK, Hobs, rx0max);
+\end{verbatim}
+with
+\begin{enumerate}
+\item {\bf MSK(eta\_rho,xi\_rho)} the mask.
+\item {\bf Hobs(eta\_rho,xi\_rho)} the bathymetry.
+\item {\bf rx0max} the chosen maximal $rx_0$ factor.
+\end{enumerate}
+The program uses a divide and conqueer strategy for reducing the time of
+the run, that is it uses as subroutine {\bf GRID\_LinearProgrammingSmoothing\_rx0\_simple}, which may be used separately if desired.
+If some additional constraint are needed, have a look at 
+{\bf GRID\_LinearProgrammingSmoothing\_rx0}.
+
+
+
+%\subsection{Using {\tt GRID\_LinearProgrammingSmoothing\_rx0}}
+%
+%Suppose that you want at some point the bathymetry to only increase or
+%at other point to only decrease.
+%What you need to do is specify the array {\tt SignConst(eta\_rho, xi\_rho)}
+%with
+%
+%Also, you may want to specify the maximum value of the perturbation
+%at a given point. What you need to do is specify the array {\tt AmpConst(eta\_rho, xi\_rho)} with {\tt a=AmpConst(iEta, iXi)} being a constraint such that
+%{\tt |Hfilt(iEta,iXi)-Hobs(iEta, iXi)| $\leq$ a $\times$ Hobs(iEta, iXi)}.
+%
+%
+%The command to do the filtering is then
+%\begin{verbatim}
+%>> Hfilt=GRID_LinearProgrammingSmoothing_rx0(...
+%     MSK, Hobs, rx0max, SignConst, AmpConst);
+%>> Hfilt=GRID_LinearProgrammingSmoothing_rx0_simple(MSK, Hobs, rx0max);
+%\end{verbatim}
+%with
+%\begin{enumerate}
+%\item {\bf MSK(eta\_rho,xi\_rho)} the mask.
+%\item {\bf Hobs(eta\_rho,xi\_rho)} the bathymetry.
+%\item {\bf rx0max} the chosen maximal $rx_0$ factor.
+%\item {\bf SignConst(eta\_rho,xi\_rho)} the sign matrix
+%\begin{itemize}
+%\item {\tt SignConst(iEta, iXi)=1} if only bathymetry increase are allowed
+%at the point {\tt (iEta,iXi)}.
+%\item {\tt SignConst(iEta, iXi)=-1} if only bathymetry decrease are allowed
+%at the point {\tt (iEta,iXi)}.
+%\item {\tt SignConst(iEta, iXi)=0} if bathymetry is allowed to decrease and
+%increase at the point {\tt (iEta,iXi)}.
+%\end{itemize}
+%\item {\bf AmpConst(eta\_rho,xi\_rho)} for the maximal amplitude of perturbation.\\
+%We will have the relation
+%\begin{equation*}
+%|Hfilt(iEta,iXi)-Hobs(iEta, iXi)|\leq AmpConst(iEta,iXi) \times Hobs(iEta, iXi).
+%\end{equation*}
+%
+%\end{enumerate}
+
+
+
+
+\subsection{Using {\tt GRID\_LinearProgrammingSmoothing\_rx0\_volume}}
+
+If you want to preserve the total volume, then a variation of the
+above is:
+\begin{verbatim}
+>> Hfilt=GRID_LinearProgrammingSmoothing_rx0_volume(MSK, Hobs, rx0max, AreaMatrix);
+\end{verbatim}
+with
+\begin{enumerate}
+\item {\bf MSK(eta\_rho,xi\_rho)} the mask of the grid
+\item {\bf Hobs(eta\_rho,xi\_rho)} the observed bathymetry of the grid
+\item {\bf AreaMatrix(eta\_rho,xi\_rho)} the areas of the wet and land $\rho$-points of the grid.
+\item {\bf rx0max, rx1max} are roughness factors.
+\end{enumerate}
+
+
+
+
+
+
+\subsection{Using {\tt GRID\_LinProgSmoothVertVert\_rx0}}
+
+Sometimes, you want to smooth the bathymetry but preserve the
+total volume. 
+Here the method is significantly different: We increase the bathymetry
+at one cell $e$ by say, $\delta_{e,e'}$ and decrease it at an adjacent
+cell $e'$ by $\delta_{e,e'}$.
+We minimize the quantity
+\begin{equation*}
+\sum_{e\equiv e'} |\delta_{e,e'}|
+\end{equation*}
+This method obviously preserve the volume and tend to preserve the volume
+of structures like basin and seamounts.
+
+This method is used in the following way.
+\begin{verbatim}
+>> Hfilt=GRID_LinProgSmoothVertVert_rx0(MSK, Hobs, r);
+\end{verbatim}
+with $r$ the roughness factor you want to achieve.
+The problem of this method is its high computational cost since
+the number variable is higher.
+
+
+
+
+\subsection{Using {\tt GRID\_LinProgHeuristic\_rx0\_fixed}}
+
+This command corrects the bathymetry (if possible) and leaves the bathymetry of a set of points invariant
+\begin{verbatim}
+>> Hfilt=GRID_LinProgHeuristic_rx0_fixed(MSK, Hobs, PRS, r);
+Hfilt=
+\end{verbatim}
+with
+\begin{enumerate}
+\item {\bf MSK(eta\_rho,xi\_rho)} the mask of the grid.
+\item {\bf Hobs(eta\_rho,xi\_rho)} the original bathymetry of the grid.
+\item {\bf PRS(eta\_rho,xi\_rho)} the list of grid point for which
+we want to preserve the bathymetry
+(PRS(iEta, iXi) == 1 if we want to preserve it).
+\item {\bf rx0max} is the maximum $rx_0$ factor.
+\end{enumerate}
+The program uses a divide and conqueer strategy for reducing the time of
+the run, that is it uses as subroutine {\bf GRID\_LinearProgrammingSmoothing\_rx0\_fixed}, which may be used separately if desired.
+
+
+%\subsection{Using {\tt GRID\_LinearProgrammingSmoothing\_rx0\_fixed}}
+%This command uses linear programming for smoothing the bathymetry
+%but leaves a set of cells unchanged, which can be useful if for example
+%the boundary is to be preserved.
+%\begin{verbatim}
+%>> Hfilt=GRID_LinearProgrammingSmoothing_rx0_fixed(MSK, Hobs, PRS, rx0max);
+%\end{verbatim}
+%with
+%\begin{enumerate}
+%\item {\bf MSK(eta\_rho,xi\_rho)} the mask of the grid
+%\item {\bf Hobs(eta\_rho,xi\_rho)} the observed bathymetry of the grid
+%\item {\bf PRS(eta\_rho,xi\_rho)} the set of points preserved $1$ for preserved, $0$ for movable.
+%\item {\bf rx0max} the maximal roughness factor.
+%\end{enumerate}
+
+
+
+
+
+%\subsection{Using {\tt GRID\_LinProgHeuristic}}
+%
+%This command uses a splitting procedure to dramatically speed up the
+%smoothing.
+%\begin{verbatim}
+%>> Hfilt=GRID_LinProgHeuristic(MSK, Hobs, r);
+%\end{verbatim}
+%it should return the same result as {\rm GRID\_LinearProgrammingSmoothing\_rx0\_simple} but much faster.
+
+
+
+
+
+
+
+\subsection{Using {\tt GRID\_LinearProgrammingSmoothing\_rx0\_blockconstraint}}
+
+This command corrects the bathymetry (if possible) and returns a bathymetry satisfying a number of block condition:
+\begin{verbatim}
+>> Hfilt=GRID_LinearProgrammingSmoothing_rx0_blockconstraint(...
+     MSK, Hobs, r, ListVal, ListBlock);
+\end{verbatim}
+with
+\begin{enumerate}
+\item {\bf MSK(eta\_rho, xi\_rho)} the mask of the grid.
+\item {\bf Hobs(eta\_rho, xi\_rho)} the original bathymetry of the grid.
+\item {\bf ListVal(nbBlock,1)} the list of values of constraints.
+\item {\bf ListBlock(nbBlock,eta\_rho,xi\_rho)} the list of arrays of constraints. We should have for all $1\leq i\leq nbBlock$ the constraints
+\begin{equation*}
+\sum_{iEta, iXi} ListBlock(iEta, iXi) (h(iEta, iXi)- h^{obs}(iEta, iXi)) \leq ListVal(i,1)
+\end{equation*}
+
+
+\end{enumerate}
+
+
+\subsection{Using {\tt GRID\_SmoothPositive\_*}}
+This command makes the bathymetry correct by increasing it.
+\begin{verbatim}
+>> Hfilt=GRID_SmoothPositive_rx0(MSK, Hobs, rx0max);
+>> Hfilt=GRID_SmoothPositive_ROMS_rx1(...
+     MSK, Hobs, rx1max, ARVD);
+\end{verbatim}
+with
+\begin{enumerate}
+\item {\bf MSK(eta\_rho,xi\_rho)} the mask of the grid
+\item {\bf Hobs(eta\_rho,xi\_rho)} the observed bathymetry of the grid
+\item {\bf rx0max, rx1max} are roughness factors.
+\item {\bf ARVD} is the record of vertical parameterization the $S$-coordinates parameters.
+\begin{verbatim}
+  ARVD.Vtransform=2;
+  ARVD.Vstretching=1;
+  ARVD.ThetaS=4; % named THETA_S in the roms.in file
+  ARVD.ThetaB=0.35; % named THETA_B in the roms.in file
+  ARVD.hc=10; % named TCLINE in the roms.in file
+  ARVD.N=30;
+\end{verbatim}
+
+
+
+\end{enumerate}
+
+
+
+
+
+%\subsection{Using {\tt GRID\_SmoothNegative\_*}}
+%This command makes the bathymetry correct by lowering it.
+%\begin{verbatim}
+%>> Hfilt=GRID_SmoothNegative_rx0(MSK, Hobs, rx0max);
+%>> Hfilt=GRID_SmoothNegative_rx1(...
+%     MSK, Hobs, rx1max, Scoord, Ccoord, hc);
+%>> Hfilt=GRID_SmoothNegative_ROMS_rx1(...
+%     MSK, Hobs, rx1max, ThetaS, ThetaB, N, hc);
+%\end{verbatim}
+%with
+%\begin{enumerate}
+%\item {\bf MSK(eta\_rho,xi\_rho)} the mask of the grid
+%\item {\bf Hobs(eta\_rho,xi\_rho)} the observed bathymetry of the grid
+%\item {\bf rx0max, rx1max} are roughness factors.
+%\item {\bf Scoord, Ccoord, hc} are the $S$-coordinates parameters.
+%\item {\bf ThetaS, ThetaB, N, hc} are ROMS vertical parameters.
+%\end{enumerate}
+
+
+
+
+
+
+\subsection{Using {\tt GRID\_PlusMinusScheme\_rx0}}
+
+This command makes the bathymetry correct by doing a sequence
+of increase/decrease at adjacent cells (see \cite{conundrum}).
+\begin{verbatim}
+>> [RetBathy, HmodifVal]=GRID_PlusMinusScheme_rx0(...
+       MSK, Hobs, rx0max, AreaMatrix);
+\end{verbatim}
+with
+\begin{enumerate}
+\item {\bf MSK(eta\_rho,xi\_rho)} the mask of the grid
+\item {\bf Hobs(eta\_rho,xi\_rho)} the observed bathymetry of the grid
+\item {\bf AreaMatrix(eta\_rho,xi\_rho)} the areas of the wet and dry $\rho$-points.
+\item {\bf rx0max, rx1max} are roughness factors.
+\end{enumerate}
+
+
+
+\subsection{Using {\tt GRID\_LaplacianSelectSmooth\_rx0}}
+
+This command makes the bathymetry correct by doing an iterated
+sequence of laplacian filterings
+\begin{verbatim}
+>> Hfilt=GRID_LaplacianSelectSmooth_rx0(MSK, Hobs, rx0max);
+\end{verbatim}
+with
+\begin{enumerate}
+\item {\bf MSK(eta\_rho,xi\_rho)} the mask of the grid
+\item {\bf Hobs(eta\_rho,xi\_rho)} the observed bathymetry of the grid
+\item {\bf rx0max} the maximal roughness factor.
+\end{enumerate}
+
+
+
+\section{Notes and Recommendations}
+
+\begin{itemize}
+\item For a very fast solution, 
+I would recommend using {\tt GRID\_SmoothPositive}, which is a
+reimplementation of the method explained in \cite{martinho}.
+
+\item The smoothing with respect to $rx_0$ is best done with 
+{\bf GRID\_LinProgHeuristic} which uses a linear programming approach
+and should be fast even in very large and not pathological grids.
+\item The smoothing with respect to $rx_1$ is problematic 
+
+\item The function {\tt GRID\_LaplacianSelectSmooth} has several
+advantages over the function {\tt smth\_bath.m} of the ROMS matlab
+package:
+\begin{itemize}
+\item It respects the mask
+\item It is guaranteed to terminate
+\item It creates a perturbation to the bathymetry of smaller amplitude.
+\end{itemize}
+Still my recommendation is not to use Laplacian/Shapiro filtering
+as they produce worse solution than other methods and have a very
+tenuous justification as an adequate method.
+\item The function {\tt GRID\_PlusMinusScheme} will always produce
+a larger perturbation than {\tt GRID\_LinProgSmoothVertVert}.
+Its advantage however is in speed.
+\item If preserving volume is important, then you have two options:
+\begin{enumerate}
+\item Use {\tt GRID\_LinearProgrammingSmoothing\_volume}, which has
+a global preservation of the volume.
+\item Use {\tt GRID\_LinProgSmoothVertVert} or its variant 
+{\tt GRID\_PlusMinusScheme}, which preserve the volume locally.
+\end{enumerate}
+\item If there is some specific feature you want to preserve or some
+more specific request, then you may consider using 
+{\tt GRID\_LinearProgrammingSmoothing}, but you have to be careful
+with your requirement as there may be no solution at all.
+\end{itemize}
+
+
+
+
+\section{How does it work}
+
+Given $m$ vectors $v_i$ in $\RR^n$, $m$ reals $b_i$ and a vector $w$,
+a linear program is the following problem:
+\begin{equation*}
+\begin{array}{rcl}
+\mbox{{\bf maximize}} &\mbox{~~}& w^T x\\
+\mbox{{\bf subject to}} &\mbox{~~}& v_i^T x\geq b_i
+\end{array}
+\end{equation*}
+This kind of problems (\cite{chvatal}) have an extended history and theory.
+They have a unique solution and methods exist for solving them
+when $n$ and $m$ are of the order of million of variables.
+
+The game is then to transform the minimization problem,
+which is apparently not linear into one which is linear by adding some
+new variables. We used the {\tt lpsolve} program because it has a
+support for sparse matrices.
+
+
+
+\section{Last remarks}
+The computational time is roughly 5 minutes with a $60\times 160$ grid
+and it can reach several hours for a $160\times 360$ grid.
+This is an important cost but only a one time cost, since the grid is
+correct once and for all.
+
+
+
+
+If you have any questions, please drop me a line
+to {\tt mdsikir@irb.hr} and I will reply
+as much as I can.
+
+
+
+
+
+\begin{thebibliography}{WWw99}
+\bibitem[Ha91]{haney}
+R.L. Haney, {\em On the pressure gradient force over steep bathymetry in sigma coordinates ocean models}, Journal of Physical Oceanography {\bf 21} (1991) 610--619.
+
+%\bibitem[MeBl85]{mellor}
+%G.L. Mellor and A.F. Blumberg, {\em Modeling vertical horizontal diffusivities with the sigma coordinate system}, Monthly Weather Review {\bf 113} (1985) 1379--1383.
+
+
+\bibitem[Chv83]{chvatal}
+V.~Chv{\'a}tal, {\em Linear Programming}, W.H.~Freeman and Company, 1983.
+
+\bibitem[Mellor et al, 1994]{conundrum}
+G.L. Mellor, T. Ezer and L.-Y. Oey, {\em The pressure gradient conundrum of Sigma coordinate Ocean models}, Journal of atmospheric and oceanic technology {\bf 11} (1994) 1126--1134.
+
+\bibitem[Martinho et al, 2006]{martinho}
+A.S. Martinho and M.L. Batteen, {\em On reducing the slope parameter in terrain following numerical ocean models}, Ocean Modelling {\bf 13} (2006) 166--175.
+
+
+\bibitem[Lps]{lpsolve}
+P. Notebaert and K. Eikland, \url{http://lpsolve.sourceforge.net/5.5/}
+
+\end{thebibliography}
+\end{document}
