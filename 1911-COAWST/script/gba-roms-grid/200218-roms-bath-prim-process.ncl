@@ -3,31 +3,19 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 begin
     g_font=0.015
    
-    org_in      = addfile ("/users/b145872/project-dir/data/bath/ETOPO1_Ice_g_gmt4.grd.nc", "r")
-    bath=org_in->z
-    lon=org_in->x
-    lat=org_in->y
-    bath=-bath
-    bath!0="lat"
-    bath&lat=lat
-    bath!1="lon"
-    bath&lon=lon
     roms_grid_in=addfile("/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid.nc","w")
+    h=roms_grid_in->h
     lat_rho=roms_grid_in->lat_rho
     lon_rho=roms_grid_in->lon_rho
-    h=roms_grid_in->h
-
     dims=dimsizes(h)
     dim_x=dims(0)
     dim_y=dims(1)
+    
+    h=where(h .lt. 5, 5, h)
+    h=smth9_Wrap(h, 0.50, -0.25, False)
+    h=where(h .gt. 5000, 5000, h)
+    roms_grid_in->h=(/h/)
 
-    do ii = 0, dim_x-1
-        do jj = 0, dim_y-1
-            h(ii,jj)=(/bath({lat_rho(ii,jj)},{lon_rho(ii,jj)})/)
-        end do
-        print(""+ii+"/"+dim_x)
-    end do
-    roms_grid_in->h=h
     h@lat2d=lat_rho
     h@lon2d=lon_rho
     res=True

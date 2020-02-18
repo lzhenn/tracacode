@@ -37,7 +37,7 @@ url = 'http://tds.hycom.org/thredds/dodsC/GLBa0.08/expt_91.2';
 %url = '/users/b145872/project-dir/data/hycom/archv.2018_257_00_3zu.nc';  
 
 % (3) Enter working directory (wdr)
-wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/';
+wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-icbc/';
 
 % (4) Enter path and name of the ROMS grid
 modelgrid = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid.nc'

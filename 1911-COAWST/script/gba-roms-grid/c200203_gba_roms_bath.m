@@ -16,4 +16,4 @@ plot(lon,lat,'k')
 caxis([5 2500]); colorbar
 title('ROMS bathy')
 xlabel('longitude'); ylabel('latitiude')
-ncwrite('/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid_bath.nc','h',h);
+%ncwrite('/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid_bath.nc','h',h);

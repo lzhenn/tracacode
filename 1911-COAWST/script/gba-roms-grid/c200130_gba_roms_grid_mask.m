@@ -7,11 +7,11 @@ title('WRF LANDMASK grid, Lambert conformal proj')
 xlabel('longitude'); ylabel('latitiude')
 
 % pick connors, lat lon
-xl= 105; xr=127;
-yb= 10; yt= 26;
+xl= 106; xr=124;
+yb= 14; yt= 26;
 
 % pick numbers, roms nrow x ncol
-numx=1100; numy=800;
+numx=900; numy=600;
 
 
 % make matrix
@@ -21,11 +21,10 @@ lon=lon.';lat=lat.';
 plot(lon,lat,'k-')
 plot(lon',lat','k-')
 text(120,15,'- - - roms grid')
-
 % Call generic grid creation.
 roms_grid='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid.nc';
 rho.lat=lat; rho.lon=lon;
-rho.depth=zeros(size(rho.lon))+100; % for now just make zeros
+rho.depth=zeros(size(rho.lon)); % for now just make zeros
 rho.mask=zeros(size(rho.lon)); % for now just make zeros
 spherical='T';
 %projection='lambert conformal conic';
@@ -42,8 +41,18 @@ disp([' '])
 
 % ROMS grid masking
 % Start out with the WRF mask.
-F = scatteredInterpolant(double(XLONG_M(:)),double(XLAT_M(:)), double(1-LANDMASK(:)),'nearest');
+F = scatteredInterpolant(double(XLONG_M(:)),double(XLAT_M(:)), double(LANDMASK(:)),'nearest');
 roms_mask=F(lon,lat);
+
+roms_mask=bwareaopen(roms_mask,5); %erode small islands
+
+L=bwlabel(roms_mask);
+stats=regionprops(L,'Area');                    %Get every label's Area
+allArea=[stats.Area];               
+allArea=sort(allArea,'descend')                 %Print island Area
+
+roms_mask=1-roms_mask;   % reverse land-sea mask value in roms
+
 figure
 pcolorjw(lon,lat,roms_mask)
 title('ROMS 1-LANDMASK grid, Mercator proj')
@@ -60,4 +69,3 @@ ncwrite(roms_grid,'mask_u',double(u_mask));
 ncwrite(roms_grid,'mask_v',double(v_mask));
 ncwrite(roms_grid,'mask_psi',double(psi_mask));
 
-%editmask('Sandy_roms_grid.nc','coastline.mat');

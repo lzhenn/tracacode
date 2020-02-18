@@ -37,7 +37,7 @@ dayFrequency = 1;
 url = '/users/b145872/project-dir/data/hycom/';
 
 % (3) Enter working directory (wdr)
-wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/';
+wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-icbc/';
 
 % (4) Enter path and name of the ROMS grid
 modelgrid = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid.nc'
@@ -61,7 +61,7 @@ disp('getting roms grid, hycom grid, and overlapping indices')
 
 % Call to create the climatology (clm) file
 disp('going to create clm file')
-%fn=updatclim_coawst_mw_local(T1, gn, clm, 'coawst_clm.nc', wdr, url)
+fn=updatclim_coawst_mw_local(T1, gn, clm, 'coawst_clm.nc', wdr, url)
 
 % Call to create the boundary (bdy) file
 disp('going to create bndry file')
