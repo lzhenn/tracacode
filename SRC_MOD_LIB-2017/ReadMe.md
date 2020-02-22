@@ -1,7 +1,8 @@
-This folder archives all source code modifications to CESM1.2 (or other models in the future) that I have implemented during my research.
+This folder archives all source code modifications to CESM1.2 (or other models in the future) that I have conducted during research.
 
+**Please use keyword "MOD" or "LZN" to lock the modification parts.**
 
-**Please use keyword "MOD" to lock the modification parts.**
+Another repo, called [CESM CAM FORCING MODULE (CCFM)](https://github.com/Novarizark/cesm-cam-forcing-mod), archives source modification for CESM users using external forcing files to conduct sensitive experiments in the CAM workflow. This flexible architecture enables you to deploy the module to a series of different versions of CESM (with careful check), although the source code was developed based on CESM1.2.2. That module was general enough to be applicable in a wide variety of questions by modifying the model prognostic physical tendencies. The common module embedded into the CESM architecture is still in development. You could make your choice to use the following specific files (including applications requesting source mods in CLM or POP), or use the CCFM for the CAM-only source mod applications.
 
 ### Content
     
