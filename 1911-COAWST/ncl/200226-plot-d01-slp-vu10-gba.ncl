@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="mangkhut" 
+    casename="mangkhut-wrfonly" 
     wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01"
     g_font=0.02
     
