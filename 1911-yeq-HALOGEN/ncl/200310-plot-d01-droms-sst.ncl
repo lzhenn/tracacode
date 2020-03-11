@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="wrfonly" 
+    casename="cpl" 
     multi_in=True
     wrfout_path="/disk/v092.yhuangci/coawst/"+casename
     roms_path="/disk/v092.yhuangci/coawst/cpl/gba_ocean_avg.nc"

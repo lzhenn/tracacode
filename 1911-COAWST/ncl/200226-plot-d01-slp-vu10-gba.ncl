@@ -10,7 +10,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="mangkhut-wrfonly" 
+    casename="mangkhut" 
     wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01"
     g_font=0.02
     
@@ -34,9 +34,7 @@ begin
         dim_y=dims(1)
         dim_x=dims(2)
      
-        ; get in wrf only tc data
-        wrf_tc = asciiread("../data/1911-COAWST/sandy/sandy.wrf.trck",(/dim_t,3/),"float"); (0)--lat, (1)--lon, (2)--slp
-        
+       
         ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
         ;ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
         

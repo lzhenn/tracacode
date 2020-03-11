@@ -18,7 +18,7 @@ begin
                          "Oct","Nov","Dec"/)
    
     casename="mangkhut" 
-    
+    fig_prefix="droms_HWave_" 
     wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01"
     ocean_path="../data/1911-COAWST/"+casename+"/gba_ocean_his.nc"
     obv_tck_file="../data/1911-COAWST/"+casename+"/trck.cma.simple"
@@ -175,7 +175,7 @@ do while(time_frame .lt. dim_t)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/droms_HWave_"+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
     res@cnMinLevelValF        = 2.0          ; set min contour level
     res@cnMaxLevelValF        = 15          ; set max contour level
