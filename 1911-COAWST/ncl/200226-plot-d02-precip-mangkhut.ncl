@@ -12,6 +12,7 @@ begin
 ; open file and read in data
 ;************************************************
     casename="mangkhut" 
+    fig_prefix="d02_precip_"
     wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d02"
     g_font=0.02
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
@@ -175,7 +176,7 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+casename+"_d02_precip_"+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     
     res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
     res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
