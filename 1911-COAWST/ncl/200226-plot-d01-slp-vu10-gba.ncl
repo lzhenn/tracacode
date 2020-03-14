@@ -13,7 +13,7 @@ begin
     casename="mangkhut" 
     wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01"
     g_font=0.02
-    
+    fig_prefix="d01_SLP_"
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
 
@@ -75,7 +75,6 @@ begin
             print(rec_tc(0,tt)+" "+rec_tc(1,tt)+" "+min(tmp1D))
         end do
     end do
-    exit
     
   res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
@@ -178,7 +177,7 @@ begin
   resv@gsnAddCyclic            = False              ; regional data
 
 
-res = wrf_map_resources(ctrl_in,res)
+res = wrf_map_resources(ctrl_in[0],res)
 
 
 time_frame = 0
@@ -192,7 +191,7 @@ do while(time_frame .lt. lentime)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/sandy/"+casename+"_d01_SLP_"+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
     res@gsnLeftString="SLP @ "+date_str(time_frame)

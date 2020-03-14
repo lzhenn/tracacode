@@ -37,10 +37,9 @@ def main():
     
     df_obv=pd.read_csv(obv_path,parse_dates=True,index_col='time', sep='\s+', date_parser=dateparse)
     
-    print
-    print(df_obv)
     df_cpl=pd.read_csv(sen_path, sep='\s+')
     df_wrf=pd.read_csv(ctrl_path, sep='\s+')
+    print(df_cpl)
     df_cpl['time']=dti
     df_cpl.set_index('time', inplace=True, drop=True)
     

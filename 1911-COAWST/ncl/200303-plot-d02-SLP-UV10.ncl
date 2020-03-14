@@ -14,7 +14,7 @@ begin
     casename="mangkhut" 
     wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d02"
     g_font=0.02
-    
+    fig_prefix="d02_SLP_"
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
     ; get in ibtrck data
@@ -195,7 +195,7 @@ do while(time_frame .lt. lentime)
     print("lat: "+rec_tc(0,time_frame)+" lon: "+rec_tc(1,time_frame)+" minSLP= "+min(tmp1D))
 
    
-    wks = gsn_open_wks(wks_type,"../fig/mangkhut/"+casename+"_d02_SLP_"+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/mangkhut/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
     res@gsnLeftString="SLP @ "+date_str(time_frame)
