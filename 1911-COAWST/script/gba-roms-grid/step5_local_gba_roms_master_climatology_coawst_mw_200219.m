@@ -37,17 +37,17 @@ dayFrequency = 1;
 url = '/users/b145872/project-dir/data/hycom/';
 
 % (3) Enter working directory (wdr)
-wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-icbc-train/';
-swan_grid_dir='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/swan-grid-train/';
+wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-icbc-o32ly/';
+swan_grid_dir='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/swan-grid-o32ly/';
 
 % (4) Enter path and name of the ROMS grid
 modelgrid = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid_train.nc';
 
 % (5) Enter grid vertical coordinate parameters --These need to be consistent with the ROMS setup. 
-theta_s     =  5.0;
+theta_s     =  7.0;
 theta_b     =  0.4;
 Tcline      = 50.0;
-N           = 16;
+N           = 32;
 Vtransform  =  2;
 Vstretching =  4;
 
