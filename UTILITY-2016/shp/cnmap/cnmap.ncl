@@ -53,14 +53,24 @@ else
  plotcn3 = new(1,graphic,"No_FillValue")
 end if
 
-if (CNres@diqu) then
+if (CNres@city) then
   dqres=True
-  dqres@gsLineThicknessF = 0.5       
+  dqres@gsLineThicknessF = 1.0       
   dqres@gsLineColor = "black"
-  plotcn4 = gsn_add_shapefile_polylines(wks,plot,ShpDir+"diquJie_polyline.shp",dqres)
+  plotcn4 = gsn_add_shapefile_polylines(wks,plot,ShpDir+"gadm36_CHN_2.shp",dqres)
 else 
  plotcn4 = new(1,graphic,"No_FillValue")
 end if
+
+if (CNres@county) then
+  dqres=True
+  dqres@gsLineThicknessF = 0.3       
+  dqres@gsLineColor = "black"
+  plotcn99= gsn_add_shapefile_polylines(wks,plot,ShpDir+"county_2004.shp",dqres)
+else 
+ plotcn99 = new(1,graphic,"No_FillValue")
+end if
+
 
 
 if (CNres@nanhai) then
@@ -109,11 +119,11 @@ if (CNres@nanhai) then
 else 
  plotcn5 = new(1,graphic,"No_FillValue")
 end if
-
 pp1 = array_append_record (plotcn1,plotcn2,0)
 pp2 = array_append_record (pp1,plotcn3,0)
 pp3 = array_append_record (pp2,plotcn4,0)
 pp4 = array_append_record (pp3,plotcn5,0)
+pp4 := array_append_record (pp4,plotcn99,0)
 
 return(pp4)
 end
