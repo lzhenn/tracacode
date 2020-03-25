@@ -52,7 +52,9 @@ if (CNres@province) then
 else 
  plotcn3 = new(1,graphic,"No_FillValue")
 end if
-
+if (isatt(CNres,"diqu")) then
+    CNres@city=CNres@diqu
+end if
 if (CNres@city) then
   dqres=True
   dqres@gsLineThicknessF = 1.0       
@@ -62,7 +64,8 @@ else
  plotcn4 = new(1,graphic,"No_FillValue")
 end if
 
-if (CNres@county) then
+
+if (isatt(CNres,"county") .and. (CNres@county)) then
   dqres=True
   dqres@gsLineThicknessF = 0.3       
   dqres@gsLineColor = "black"
