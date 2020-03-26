@@ -165,7 +165,7 @@ res                   = True              ; plot mods desired
 res = wrf_map_resources(ctrl_in,res)
 
 
-time_frame = 36
+time_frame = 18 
 do while(time_frame .lt. lentime)
     ;---Set map resources based on projection on WRF output file
 

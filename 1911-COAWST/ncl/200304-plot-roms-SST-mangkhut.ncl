@@ -32,15 +32,16 @@ begin
     ocn_in     = addfile(ocean_path, "r")
     lon2d=ocn_in->lon_rho
     lat2d=ocn_in->lat_rho
-    
+    vert_ly=ocn_in->s_rho
+    zlays=dimsizes(vert_ly)
     ; get temp first layer
-  	ctrl_var1  = ocn_in->temp(:,15,:,:)
+  	ctrl_var1  = ocn_in->temp(:,zlays-1,:,:)
     printVarSummary(ctrl_var1)
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
     
     dims:=dimsizes(ctrl_var1)
-    dim_t=dims(0)
+    lentime_roms=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
     ; --------Ocean grid file
@@ -61,6 +62,7 @@ begin
     date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
     ;date_str:=date_str(::2) ; consisitent with the ocn output
     lentime_wrf=dimsizes(xtime)
+    
     ; ---------parser time from wrf
 
 
@@ -164,8 +166,11 @@ begin
 
 
 time_frame = 0
-ampf=1
-do while(time_frame .lt. dim_t)
+
+; ratio of wrf/roms output freq
+ampf=(lentime_wrf-1)/(lentime_roms-1)
+
+do while(time_frame .lt. lentime_roms)
     ;---Set map resources based on projection on WRF output file
 
     ;************************************************
@@ -175,7 +180,7 @@ do while(time_frame .lt. dim_t)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", ampf*time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
 
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
     res@cnMinLevelValF        = 25.          ; set min contour level
@@ -186,16 +191,19 @@ do while(time_frame .lt. dim_t)
 
     gsn_define_colormap(wks,"BlAqGrYeOrRe")
     ;gsn_reverse_colormap(wks)
-    res@gsnLeftString="SST @ "+date_str(time_frame*ampf)
+    res@gsnLeftString="SST @ "+date_str(time_frame*ampf) ; timestamp taken from wrf, so times ampf here
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
-    ; center
+    ; CPL center
     dum1    = gsn_add_polymarker(wks,plot,rec_tc(time_frame*ampf,1),rec_tc(time_frame*ampf,0),polyres)
     ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa", rec_tc(2, time_frame)),tlon,tlat,tres)
+    ; CPL Track
     if (time_frame .gt. 0) then
         dum_track=gsn_add_polyline(wks,plot, rec_tc(0:time_frame*ampf,1) , rec_tc(0:time_frame*ampf,0),pres)
     end if
+
+
     ;Obv Track
     res_lines=True
     res_lines@gsLineColor       = "black"
@@ -210,7 +218,7 @@ do while(time_frame .lt. dim_t)
         dum1@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
     end do
 
-    ; wrf only track
+    ; wrfonly track
     yy := wrf_tc(:,1) 
     xx := wrf_tc(:,0) 
     wrf_track=gsn_add_polyline(wks,plot,yy,xx,pres_wrf)              ; N

@@ -31,7 +31,7 @@ def main():
     sen_path='../data/1911-COAWST/'+casename+'/trck.cpl'
     ctrl_path='../data/1911-COAWST/'+casename+'-wrfonly/trck.wrf'
 
-    dti = pd.date_range('2018-09-14 12:00:00', periods=144, freq='30min')
+    dti = pd.date_range('2018-09-14 12:00:00', periods=72, freq='60min')
 
     dateparse = lambda x: pd.datetime.strptime(x, '%Y%m%d%H')
     

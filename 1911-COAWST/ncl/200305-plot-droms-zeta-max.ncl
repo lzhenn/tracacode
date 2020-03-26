@@ -33,7 +33,7 @@ begin
     lat2d=ocn_in->lat_rho
     
     ; get temp first layer
-  	ctrl_var1  = ocn_in->zeta(24:145,:,:)
+  	ctrl_var1  = ocn_in->zeta
     ctrl_var1_max=dim_max_n_Wrap( ctrl_var1,0) 
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
@@ -43,7 +43,6 @@ begin
     cor_x1=point(0,0)
     cor_y1=point(0,1)
     print(ctrl_var1_max(cor_x1-2:cor_x1+2, cor_y1-2:cor_y1+2))
-    exit
 
     dims:=dimsizes(ctrl_var1)
     dim_t=dims(0)

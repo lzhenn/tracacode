@@ -32,8 +32,11 @@ begin
     lon2d=ocn_in->lon_rho
     lat2d=ocn_in->lat_rho
     
+    vert_ly=ocn_in->s_rho
+    zlays=dimsizes(vert_ly)
+   
     ; get temp first layer
-  	ctrl_var1  = ocn_in->temp(0:145,15,:,:)
+  	ctrl_var1  = ocn_in->temp(:,zlays-1,:,:)
     printVarSummary(ctrl_var1)
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
@@ -41,12 +44,12 @@ begin
     r_mean=wgt_areaave_Wrap(ctrl_var1,1.0,1.0,0)
 
     dims:=dimsizes(ctrl_var1)
-    dim_t=dims(0)
+    lentime_roms=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
     ; --------Ocean grid file
     
-    do ii = 0, dim_t-1
+    do ii = 0, lentime_roms-1
         ctrl_var1(ii,:,:)=(/ctrl_var1(ii,:,:)-r_mean(ii)/)
     end do
     ; ---------parser time from wrf
@@ -168,8 +171,8 @@ begin
 
 
 time_frame = 0
-ampf=1
-do while(time_frame .lt. dim_t)
+ampf=(lentime_wrf-1)/(lentime_roms-1)
+do while(time_frame .lt. lentime_roms)
     ;---Set map resources based on projection on WRF output file
 
     ;************************************************
@@ -179,7 +182,7 @@ do while(time_frame .lt. dim_t)
     wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", ampf*time_frame))      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
 
     res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
     res@cnMinLevelValF        = -1.5          ; set min contour level
@@ -194,12 +197,14 @@ do while(time_frame .lt. dim_t)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
-    ; center
+    ; cpl center
     dum1    = gsn_add_polymarker(wks,plot,rec_tc(time_frame*ampf,1),rec_tc(time_frame*ampf,0),polyres)
     ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa", rec_tc(2, time_frame)),tlon,tlat,tres)
+    ; cpl track
     if (time_frame .gt. 0) then
         dum_track=gsn_add_polyline(wks,plot, rec_tc(0:time_frame*ampf,1) , rec_tc(0:time_frame*ampf,0),pres)
     end if
+
     ;Obv Track
     res_lines=True
     res_lines@gsLineColor       = "black"

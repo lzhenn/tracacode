@@ -6,62 +6,80 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
-load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    casename="mangkhut" 
-    wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d02"
+    casename="mangkhut-wrfonly" 
+    wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01"
     g_font=0.02
-    fig_prefix="d02_SLP_"
+    fig_prefix="d01_SLP_"
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
-    ; get in ibtrck data
-    tck_file="../data/1911-COAWST/"+casename+"/trck.cma.simple"
-    tc_loc  =   asciiread(tck_file,(/22,2/),"float") ; (n,0)--lat (n,1)--lon
-    dims=dimsizes(tc_loc) 
-    dim_tc=dims(0)
-    
-
 
 
     
     
     ; get wrf fully coupled nc data
-    ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
     
-    ; parser time
-    time0 = wrf_user_getvar(ctrl_in,"Times", -1)
-    xtime = wrf_times_c( time0, 1 ) 
-    ;xtime = xtime+8 
-    lc_date=cd_calendar(xtime, 0)
-    year   = tointeger(lc_date(:,0))    ; Convert to integer for
-    month  = tointeger(lc_date(:,1))    ; use sprinti 
-    day    = tointeger(lc_date(:,2))
-    hour   = tointeger(lc_date(:,3))
-    minute = tointeger(lc_date(:,4))
-    second = lc_date(:,5)
+    all_files=systemfunc("ls "+wrfout_path+"*")
+    ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
+    flen=dimsizes(all_files)
 
-    date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
-    lentime=dimsizes(xtime)
-
- 
-    ; get in wrf only tc data
-    wrf_tc = asciiread("../data/1911-COAWST/"+casename+"-wrfonly/trck.wrf",(/lentime,3/),"float"); (0)--lat, (1)--lon, (2)--slp
-    
-    
-    ; parser lat lon
-    lat2d = wrf_user_getvar(ctrl_in,"XLAT",  0)
-    lon2d = wrf_user_getvar(ctrl_in,"XLONG", 0)
-  
-    rec_tc=new((/3,lentime/), "float") ; (0)--lat, (1)--lon, (2)--slp
-    
+    do ii = 0, flen-1
+        ; get slp
+        ctrl_var1  := wrf_user_getvar(ctrl_in[ii],"slp", -1)  
+        dims:=dimsizes(ctrl_var1)
+        dim_t=dims(0)
+        dim_y=dims(1)
+        dim_x=dims(2)
+     
        
+        ;ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
+        ;ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
+        
+        
+        
+        ; parser time
+        time0 := wrf_user_getvar(ctrl_in,"Times", -1)
+        xtime := wrf_times_c( time0, 1 ) 
+        ;xtime = xtime+8 
+        lc_date:=cd_calendar(xtime, 0)
+        year   = tointeger(lc_date(:,0))    ; Convert to integer for
+        month  = tointeger(lc_date(:,1))    ; use sprinti 
+        day    = tointeger(lc_date(:,2))
+        hour   = tointeger(lc_date(:,3))
+        minute = tointeger(lc_date(:,4))
+        second = lc_date(:,5)
+
+        date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
+        lentime=dimsizes(xtime)
+
+        ; parser lat lon
+        lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
+        lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
+        ctrl_var1@lat2d = lat2d
+        ctrl_var1@lon2d = lon2d
+        
+        ; lets find the TC center!
+        rec_tc=new((/3,dim_t/), typeof(ctrl_var1)) ; (0)--lat, (1)--lon, (2)--slp
+        do tt = 0, dim_t-1
+            tmp1D      = ndtooned(ctrl_var1(tt,:,:))
+            indices  = ind_resolve(minind(tmp1D),(/dim_y,dim_x/))
+            id_y=indices(0,0)
+            id_x=indices(0,1)
+            rec_tc(0,tt)=lat2d(id_y,id_x)
+            rec_tc(1,tt)=lon2d(id_y,id_x)
+            rec_tc(2,tt)=min(tmp1D)
+            ;print("lat: "+rec_tc(0,tt)+" lon: "+rec_tc(1,tt)+" minSLP= "+min(tmp1D))
+            print(rec_tc(0,tt)+" "+rec_tc(1,tt)+" "+min(tmp1D))
+        end do
+    end do
+    
   res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 960.          ; set min contour level
+  res@cnMinLevelValF        = 940.          ; set min contour level
   res@cnMaxLevelValF        = 1000.          ; set max contour level
   res@cnLevelSpacingF      = 2.        
   
@@ -98,24 +116,23 @@ begin
 
 
   res@mpOutlineOn             = True  ; Use outlines from shapefile
-    res@mpGeophysicalLineColor = "gray10"
-    res@cnFillDrawOrder         = "PreDraw"
-    res@mpDataBaseVersion       = "MediumRes"
-    res@mpDataSetName           = "Earth..4"
-    res@mpAreaMaskingOn         = True
-    res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
-    res@mpLandFillColor         = "white"
-    res@mpInlandWaterFillColor  = "white"
-;>============================================================<
-;                      add China map
-;>------------------------------------------------------------<
-  cnres           = True
-  cnres@china     = False       ;draw china map or not
-  cnres@river     = False       ;draw changjiang&huanghe or not
-  cnres@province  = True       ;draw province boundary or notcnres@nanhai    = False       ;draw nanhai or not 
-  cnres@nanhai    = False       ;draw nanhai or not 
-  cnres@diqu      = False       ; draw diqujie or not
-
+  
+  res@mpGeophysicalLineColor      = "Black"
+  res@mpLimbLineColor             = "Black"
+  res@mpNationalLineColor         = "Black"
+  res@mpPerimLineColor            = "Black"
+  res@mpUSStateLineColor          = "Black"
+  ;res@mpOutlineOn             = True  ; Use outlines from shapefile
+  res@mpOutlineBoundarySets = "National" ;Turns on country boundaries.
+  res@mpGeophysicalLineColor = "gray30"
+  ;pres@cnFillDrawOrder         = "PreDraw"
+  res@mpGeophysicalLineThicknessF=2.0
+  res@mpOutlineBoundarySets     = "GeophysicalAndUSStates"; turn on states
+  res@mpDataBaseVersion         = "MediumRes"             ; select database
+  res@mpDataSetName             = "Earth..2"
+  ;res@mpLandFillColor         = "gray80"
+  ;res@mpOceanFillColor         = "Blue"
+  ;res@mpInlandWaterFillColor  = "Skyblue"
 
   
   polyres                   = True
@@ -139,8 +156,8 @@ begin
   tres  = True
   tres@txFontHeightF = 0.015
   tres@txJust="TopLeft"
-  tlat=18.0
-  tlon=110.0
+  tlat=13.0
+  tlon=-33.0
  
   resv                         = True               ; plot mods desired
   resv@vcGlyphStyle            = "WindBarb"         ; choose wind barbs
@@ -160,48 +177,26 @@ begin
   resv@gsnAddCyclic            = False              ; regional data
 
 
-    res = wrf_map_resources(ctrl_in,res)
+res = wrf_map_resources(ctrl_in[0],res)
 
 
-    time_frame = 18
-    wks_type="png"
-    wks_type@wkWidth=800
-    wks_type@wkHeight=800
-
-
-
+time_frame = 0
 do while(time_frame .lt. lentime)
     ;---Set map resources based on projection on WRF output file
 
     ;************************************************
     ; create plot
     ;************************************************
-   ; get slp
-  	ctrl_var1  = wrf_user_getvar(ctrl_in,"slp", time_frame)  
-    dims:=dimsizes(ctrl_var1)
-    dim_y=dims(0)
-    dim_x=dims(1)
     
-    ctrl_var1@lat2d = lat2d
-    ctrl_var1@lon2d = lon2d
- 
-    tmp1D      = ndtooned(ctrl_var1)
-    indices  = ind_resolve(minind(tmp1D),(/dim_y,dim_x/))
-    id_y=indices(0,0)
-    id_x=indices(0,1)
-    rec_tc(0,time_frame)=lat2d(id_y,id_x)
-    rec_tc(1,time_frame)=lon2d(id_y,id_x)
-    rec_tc(2,time_frame)=min(tmp1D)
-    print("lat: "+rec_tc(0,time_frame)+" lon: "+rec_tc(1,time_frame)+" minSLP= "+min(tmp1D))
-
-   
-    wks = gsn_open_wks(wks_type,"../fig/mangkhut/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
+    wks_type="png"
+    wks_type@wkWidth=800
+    wks_type@wkHeight=800
+    wks = gsn_open_wks(wks_type,"../fig/"+casename+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
     res@gsnLeftString="SLP @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
-    plot = gsn_csm_contour_map(wks,ctrl_var1,res)
-    chinamap = add_china_map(wks,plot,cnres)
+    plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
     ; center
     ;dum1    = gsn_add_polymarker(wks,plot,tc_loc(3,1),tc_loc(3,0),polyres)

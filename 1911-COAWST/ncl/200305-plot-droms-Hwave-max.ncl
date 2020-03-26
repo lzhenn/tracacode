@@ -33,15 +33,14 @@ begin
     lat2d=ocn_in->lat_rho
     
     ; get temp first layer
-  	ctrl_var1  = ocn_in->Hwave(0:145,:,:)
+  	ctrl_var1  = ocn_in->Hwave
     printVarSummary(ctrl_var1)
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
-    
     ctrl_var1_max=dim_max_n_Wrap( ctrl_var1,0) 
 
     dims:=dimsizes(ctrl_var1)
-    dim_t=dims(0)
+    lentime_roms=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
     ; --------Ocean grid file
