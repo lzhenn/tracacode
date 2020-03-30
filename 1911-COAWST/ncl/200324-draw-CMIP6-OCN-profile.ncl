@@ -38,24 +38,36 @@ begin
 ;================================================
 ;global variables
     ;Define parameters
-    g_data_path="../data/obv/"
-    g_in_files_cfsr="../data/obv/CFSR_HEAT/*grb2" ;cam5   
-    g_in_files=g_data_path+"NCEP_DOE/q1_monthly/q1.*.nc" ;monthly q1
+    data_path="/users/b145872/project-dir/data/CMIP6/"
+    g_hist_path=data_path+"thetao_Omon_CESM2_historical_r1i1p1f1_gr_185001-201412.nc"
+
+    g_exps=data_path+(/"thetao_Omon_CESM2_1pctCO2_r1i1p1f1_gr_010101-015012.nc",\
+            "thetao_Omon_CESM2_piControl_r1i1p1f1_gr_110001-120012.nc",\
+            "thetao_Omon_CESM2_ssp126_r1i1p1f1_gr_206501-210012.nc",\
+            "thetao_Omon_CESM2_ssp245_r1i1p1f1_gr_206501-210012.nc",\
+            "thetao_Omon_CESM2_ssp370_r1i1p1f1_gr_206501-210012.nc",\
+            "thetao_Omon_CESM2_ssp585_r1i1p1f1_gr_206501-210012.nc"/)
+    
+    g_expnames=(/"1pctCO2", "PICTRL", "SSP126", "SSP245", "SSP370", "SSP585"/)
+    
     g_latS=10.
     g_latN=20.
     g_lonW=110.
     g_lonE=130.
-; create an array of desired pressure levels:
-
         
-    g_font = 0.035
-    g_season = "JJA"
+    g_dep0=0
+    g_dep1=300
+
+; create an array of desired pressure levels:
+        
+    g_font = 0.025
+    g_season = "JAS"
     g_strt_mon = 198101
     g_lst_mon = 201012
-    g_fig_name    =   "../fig/"+g_strt_mon+"-"+g_lst_mon+"_LH_MAM_ltm_trend_Profile_ALL"
+    g_fig_name    =   "../fig/ocean_temp_profile_CMIP6"
     g_fig_rank    =   (/"(a)","(b)","(c)","(d)","(e)","(f)"/)
    ; g_fig_title   =   "1979-2014 "+(/"Mar","Apr","May","Jun","Jul","Aug"/)+" Latent Engery"
-    g_fig_title   = "ANN Mean LH & LH+trend Profile"
+    g_fig_title   = "Upper Ocean T Profile"
 
 ;*************************For F_Compset Ctrl***********************************
 
@@ -63,73 +75,39 @@ begin
 ; Mission 1. Open the file: Read only the user specified period
 ; ==============================================================
 
-    all_files = systemfunc ("ls "+g_in_files_cfsr)
-	ctrl_in1     = addfiles (all_files, "r")   ; note the "s" of addfile
-    
-    ListSetType (ctrl_in1, "join")             ; concatenate or "merge" (default)
-    ;var1  = ctrl_in1[0:35]->CNVHR_P8_L100_GLL0
-    var1  = ctrl_in1[:]->CNVHR_P8_L100_GLL0
-    var1!0="time"
-    var1!1="lev"
-    var1!2="lat"
-    var1!3="lon"
-
-    ; Read in NCEP-DOE Heating map
-    all_files2 = systemfunc ("ls "+g_in_files)
-	ctrl_in2     = addfiles (all_files2, "r")   ; note the "s" of addfile
-    
-    ListSetType (ctrl_in2, "cat")             ; concatenate or "merge" (default)
-    var2  = ctrl_in2[:]->q1
-    printVarSummary(var2)
-; ==============================================================
-; Mission 2. post-post process data to deserved results
-; ==============================================================
-
-    dvar1bar_dt      = var1(0,:,:,:) ; dvar1'dt of every indivadual month  
-    var1bar = month_to_season(var1,g_season)
-    var1bar!0="time" 
-    dimz = dimsizes(var1bar)
-    yr_length = dimz(0)
-
-    dvar1bar_dt = (/regCoef(ispan(0,yr_length-1,1), var1bar(lev|:,lat|:,lon|:,time|:))/)
-    dvar1bar_dt = yr_length*dvar1bar_dt
-
-    var1bar_clim = dim_avg_n_Wrap(var1bar,0)
-	var1bar_clim_area=wgt_areaave_Wrap(var1bar_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
+	ctrl_in1     = addfile (g_hist_path, "r")   ; note the "s" of addfile
    
-    dvar1bar_dt_clim_area=wgt_areaave_Wrap(dvar1bar_dt(:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-
-    dpcv_q=var1bar(:1,:,0,0)
-    dpcv_q(0,:)= (/var1bar_clim_area/)
-    dpcv_q(1,:)= dpcv_q(0,:)+(/dvar1bar_dt_clim_area/)
-    dpcv_q = where(dpcv_q .eq. 0, 0.000000000000001,dpcv_q)
-    print(dpcv_q(1,:)/dpcv_q(0,:))
-    print(dpcv_q&lev)
-
-
-    dvar2bar_dt      = var2(0,:,:,:) ; dvar1'dt of every indivadual month  
-    var2bar = month_to_season(var2,g_season)
-    var2bar!0="time"
-    dimz = dimsizes(var2bar)
-    yr_length = dimz(0)
+    time_hist    = ctrl_in1->time
+    yyyymm  = cd_calendar(time_hist,-1)
+    istrt   = ind(yyyymm .eq. g_strt_mon)
+    ilast   = ind(yyyymm .eq. g_lst_mon)
     
-    dvar2bar_dt = (/regCoef(ispan(0,yr_length-1,1), var2bar(lev|:,lat|:,lon|:,time|:))/)
-    dvar2bar_dt = yr_length*dvar2bar_dt
+    lvls = ctrl_in1->lev({g_dep0:g_dep1})
+    
+    var1  =ctrl_in1->thetao(istrt:ilast,{g_dep0:g_dep1},{g_latS:g_latN},{g_lonW:g_lonE})            ; p for unify the var name
+    clim_var1=dim_avg_n_Wrap(month_to_season(var1,g_season),0)
+    areamean_var1=wgt_areaave_Wrap(clim_var1,1.0,1.0,0)
+    
+    nExp=dimsizes(g_expnames)
+    arch_var1=var1(0:nExp,:,0,0)
+    arch_var1=0
+    arch_var1(0,:)=areamean_var1
+    
+    ;do iExp = 0, 0
+    do iExp = 0, nExp-1
+        fileIn  := addfile (g_exps(iExp), "r")   ; note the "s" of addfile
+        var1:=fileIn->thetao(:,{g_dep0:g_dep1},{g_latS:g_latN},{g_lonW:g_lonE})
+        clim_var1:=dim_avg_n_Wrap(month_to_season(var1,g_season),0)
+        areamean_var1:=wgt_areaave_Wrap(clim_var1,1.0,1.0,0)
+        arch_var1(iExp+1,:)=areamean_var1
+    end do
+    
+    print(arch_var1)
 
-    var2bar_clim = dim_avg_n_Wrap(var2bar,0)
-	var2bar_clim_area=wgt_areaave_Wrap(var2bar_clim(:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-   
-    dvar2bar_dt_clim_area=wgt_areaave_Wrap(dvar2bar_dt(:,{g_latS:g_latN},{g_lonW:g_lonE}),1.0,1.0,0)
-
-
-    ;Now Prepare for plot Form data
-    q1=var2bar(:1,:,0,0)
-    q1(0,:)= (/var2bar_clim_area/)
-    q1(1,:)= q1(0,:)+(/dvar2bar_dt_clim_area/)
-    ; ==============================================================
+; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
-    wks = gsn_open_wks("eps",g_fig_name)  ; open a ps file
+    wks = gsn_open_wks("x11",g_fig_name)  ; open a ps file
     
     resxy                   = True                      ; plot mods desired
     resxy@gsnDraw           = False
@@ -138,12 +116,12 @@ begin
 
    ; resxy@gsnXRefLine       = 0.0                       ; draw ref line
     resxy@trYReverse        = True                      ; reverse Y-axis
-    resxy@xyLineThicknesses = (/2.0,2.0/)           
-    resxy@xyLineColors      = (/"black","black"/)          ; change line colors
+    resxy@xyLineThicknesses = (/4.0,4.0,4.0,4.0,4.0,4.0,4.0/)
+    resxy@xyLineColors      = (/"black","green","gray50","blue","yellow","orange","red"/)          ; change line colors
     resxy@xyMonoDashPattern = False
-    resxy@xyDashPatterns    = (/0,1/)
+    resxy@xyDashPatterns    = 0
     resxy@trYMinF           = 0.0
-    resxy@trYMaxF           = 1000.0
+;    resxy@trYMaxF           = 1000.0
 
 
     ;resxy@pmLegendDisplayMode    = "Always"             ; turn on legend
@@ -160,8 +138,8 @@ begin
     ;resxy@gsnLeftString = "(c)"
 
 
-    resxy@trXMinF =  -1.  ; axis min
-    resxy@trXMaxF =  5.  ; axis min
+    resxy@trXMinF =  10.  ; axis min
+    resxy@trXMaxF =  35.  ; axis min
 
     ;resxy@xyMarkLineMode       = "MarkLines"  ; markers and lines
     ;resxy@xyMarkers            = (/16,16/)           ; filled dot
@@ -171,41 +149,8 @@ begin
 
 
     ; Plot Q1
-    plot  = gsn_csm_xy (wks,q1*86400,q1&lev,resxy) ; create plot
+    plot  = gsn_csm_xy (wks,arch_var1,lvls,resxy) ; create plot
 
-    ; Plot CFSR Deep Convection Heating
-    resxy@xyMarkLineMode       = "MarkLines"  ; markers and lines
-    resxy@xyMarkers            = (/16,16/)           ; filled dot
-    resxy@xyMarkerSizeF        = (/0.0135,0.0135/)
-    resxy@xyMarkerThicknessF   = (/0.6,0.6/)
-    resxy@xyMarkerColors       = (/"blue","blue"/)   
-
-    ;delete(resxy@xyLineColors)
-    delete(resxy@xyLineThicknesses)
-    ;delete(resxy@xyDashPatterns)
-    ;resxy@xyDashPatterns = (/2,2/)
-    resxy@xyLineColors      = (/"blue","blue"/) 
-    ;resxy@xyLineThicknesses = (/4.,4./)  
-
-    plot_deep  = gsn_csm_xy (wks,dpcv_q*86400,dpcv_q&lev/100,resxy) ; create plot
-
-
-    ; Plot CFSR Diabatic Heating
-    delete(resxy@xyMarkLineMode) 
-    delete(resxy@xyMarkers)      
-    delete(resxy@xyMarkerSizeF)  
-    delete(resxy@xyMarkerThicknessF)
-    delete(resxy@xyMarkerColor)
-
-    delete(resxy@xyLineThicknesses)
-    resxy@xyLineColors      = (/"red","red"/) 
-
-;    plot_diab  = gsn_csm_xy (wks,diab_q*86400,diab_q&lev/100,resxy) ; create plot
-
-
-
-    overlay(plot,plot_deep)
-;    overlay(plot,plot_diab)
 
     ;--------------------------------------------------------------------------
     res_lines                   = True                  ; polyline mods desired
