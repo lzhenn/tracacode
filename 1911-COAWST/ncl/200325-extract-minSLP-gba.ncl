@@ -13,7 +13,7 @@ begin
     casename="mangkhut-wrfonly" 
  ;   wrfout_path="../data/1911-COAWST/"+casename+"/wrfout_d01"
 ;    wrfout_path="/users/b145872/project-dir/app/WRF/run/wrfout_d01_2018-09-13_12:00:00"
-    wrfout_path="/users/b145872/project-dir/app/WRF/run/era5-icbc-0913-0914/wrfout_d01_2018-09-13_12:00:00"
+    wrfout_path="/users/b145872/project-dir/app/COAWST-sandy-wrf/WRF/run/wrfout_d01_2018-09-14_13:00:00"
     g_font=0.02
     fig_prefix="d01_SLP_"
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
