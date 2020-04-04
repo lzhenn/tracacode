@@ -12,7 +12,7 @@ begin
 ; open file and read in data
 ;************************************************
     casename="mangkhut" 
-    met_em_path="/users/b145872/project-dir/app/WRF/run/met_em.d01.2018-09-14_12:00:00.nc"
+    met_em_path="/users/b145872/project-dir/app/WPS/met_em.d01.2018-09-14_12:00:00.nc"
     fig_prefix="met_em_SLP_"
     g_font=0.02
     
@@ -186,7 +186,7 @@ do while(time_frame .lt. lentime)
     wks = gsn_open_wks(wks_type,"../fig/mangkhut/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
-    res@gsnLeftString="ERA5 SLP @ "+date_str(time_frame)
+    res@gsnLeftString="FNL0d25 SLP @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1,res)
     chinamap = add_china_map(wks,plot,cnres)
