@@ -26,7 +26,7 @@ str_path='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/';
 
 
 % (1) Enter start date (T1) and number of days to get climatology data 
-T1 = datetime(2018,09,14,12,0,0); %start date
+T1 = datetime(2018,09,13,12,0,0); %start date
 %number of days and frequency to create climatology files for
 numdays = 5;
 dayFrequency = 1;

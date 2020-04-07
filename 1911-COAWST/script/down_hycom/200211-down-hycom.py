@@ -28,10 +28,10 @@ def main():
     g_exp='GLBa'
     
     # init time
-    g_init_time='20180914'
+    g_init_time='20180913'
     
     # end time
-    g_end_time='20180918'
+    g_end_time='20180913'
     
     # output dir
     fout_dir='/users/b145872/project-dir/data/hycom'
@@ -68,7 +68,7 @@ def main():
             url=url_base+'/'+itm[0]+'/'+fn
             print(url)
             os.system('wget '+url+' -O'+' '+fout_dir+'/'+fn)
-            break
+            #break
         # next day
         curr_filetime=curr_filetime+file_time_delta
     
