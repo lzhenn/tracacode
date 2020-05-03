@@ -45,8 +45,10 @@ begin
     ep_strt=5
     ep_end=12
 
-    g_level=600
-    g_level0=1000
+    low_lvl_strt=925
+    low_lvl_end=800
+
+    up_lvl=500
 
  
     g_ctrl_datapath="/Users/zhenningli/data/CAL_SCSSM-2016/ensemble/ctrl/clim/"
@@ -56,14 +58,14 @@ begin
 
 
     ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.75-120.theta_es.nc", "r") 
-    ctrl_var1=ctrl_in1->theta_es(:,:,{g_level},:,:)
+    ctrl_var1=ctrl_in1->theta_es(:,:,{up_lvl},:,:)
     nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.75-120.theta_es.nc", "r") 
-    nudg_var1=nudg_in1->theta_es(:,:,{g_level},:,:)
+    nudg_var1=nudg_in1->theta_es(:,:,{up_lvl},:,:)
  
     ctrl_in1     = addfile(g_ctrl_datapath+g_ctrl_name+".cam.h1.ESM.75-120.theta_e.nc", "r") 
-    ctrl_var2=ctrl_in1->theta_e(:,:,{g_level0},:,:)
+    ctrl_var2=ctrl_in1->theta_e(:,:,{low_lvl_strt:low_lvl_end},:,:)
     nudg_in1     = addfile(g_nudg_datapath+g_nudg_name+".cam.h1.ESM.75-120.theta_e.nc", "r") 
-    nudg_var2=nudg_in1->theta_e(:,:,{g_level0},:,:)   
+    nudg_var2=nudg_in1->theta_e(:,:,{low_lvl_strt:low_lvl_end},:,:)   
     
     
     ctrl_var1=ctrl_var2-ctrl_var1
