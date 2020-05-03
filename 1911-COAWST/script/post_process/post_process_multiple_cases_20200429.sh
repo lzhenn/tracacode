@@ -1,0 +1,119 @@
+#!/bin/sh
+#-----------------------------------------------
+#    This is a shell script for configuring the
+# basic post processing tool for WRF model, 
+# targeting the tropical cyclone simulations. You 
+# should set the basic parameters as below. 
+# Good Luck!
+#               Last Modified on  Apr 06, 2020
+#               A L_Zealot Product
+#-----------------------------------------------
+
+# Path of the original data, without casename (the )
+# Caution: DO NOT DELETE \" IN STRING!
+PRE_DIR=/disk/v092.yhuangci/lzhenn/1911-COAWST
+
+# Fig dir root
+FIG_DIR_ROOT=/disk/hq247/yhuangci/lzhenn/project/1911-COAWST/fig
+
+# Ref Track
+TCK_OBV=cma.trck.mangkhut
+TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
+
+# Case name
+
+CASENAMES=( "ERA5_TY2001" "FNL0d25_WRF" "FNL1d_TY2001" "ERA5_WRF" "ERA5_C2008"\
+            "ERA5_WAOFF" "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL1d_WRF" )
+            
+            
+
+#CASENAMES=( "mangkhut-era-caulliez2008"  "mangkhut-era-wrfonly"\
+#            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
+
+# Number of Domains
+I_DOM_STRT=1
+I_DOM_END=2
+
+# Gif control parameters
+PREFIX_ARR=("d02_precip_" "droms_ssta_area_" "droms_sst_")
+STRT_F=18
+END_F=72
+FRAME_DT=30 # n/100 second
+
+
+
+# Registered Steps:
+
+# 0     step0_extract-tcInfo_200406.ncl
+# 1     step1_plot_SLP_UV10_200406.ncl
+#
+
+FLAG_ARRAY=(false false false false)
+
+COMP_ARRAY=(true false)
+# 0     comp1_tc-intensity-obv-200429.py
+
+COMP1_TSTRT=2018091500
+COMP1_TEND=2018091700
+
+echo "Stage1: Preprocessing..."
+#-----------------------------------------------------------
+
+for CASENAME in ${CASENAMES[@]}
+do
+    CASENAME_NCL=\"$CASENAME\"
+    
+    # Path of the post processed data
+    FIG_DIR=${FIG_DIR_ROOT}/${CASENAME}
+    mkdir $FIG_DIR
+    FIG_DIR_NCL=\"$FIG_DIR\"
+
+    CASE_DIR=$PRE_DIR/${CASENAME}
+    CASE_DIR_NCL=\"${CASE_DIR}\"
+
+    echo $CASE_DIR_NCL
+    # Step1: Rename the output files...
+    echo "Rename the output files..."
+
+    for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));  
+    do   
+        mv $CASE_DIR/wrfout_d0${I_DOM}* $CASE_DIR/wrfout_d0${I_DOM}
+    done  
+
+
+    # Step2: Extract minSLP file to locate the TC center info 
+    # file: trck.$casename.$<domain> e.g. trck.mangkhut.d01
+    # file style: (timestamp, lat, lon, minSLP, maxWS, uRadius, vRadius)
+
+    for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));  
+    do   
+        I_DOM_NCL=\"$I_DOM\"
+        echo "Stage2: Extract TC track, minSLP, and windspeed info..."
+        if [ ${FLAG_ARRAY[0]} == true ] ; then
+            ncl -nQ                             \
+                i_dom=$I_DOM_NCL                \
+                wrfout_path=$CASE_DIR_NCL       \
+                casename=$CASENAME_NCL          \
+                ./ncl/step0_extract-tcInfo_200406.ncl
+            echo "Stage2: Done."
+        fi
+        if [ ${FLAG_ARRAY[1]} == true ] ; then
+            echo "Stage3: Plot SLP per Frame..."
+            ncl -nQ                             \
+                i_dom=$I_DOM_NCL                \
+                wrfout_path=$CASE_DIR_NCL       \
+                casename=$CASENAME_NCL          \
+                fig_path=$FIG_DIR_NCL           \
+                trck_path=$TCK_NCL              \
+                ./ncl/step1_plot_SLP_UV10_200406.ncl
+            echo "Stage3: Done."
+        fi
+    done  
+done # done casenames loop
+
+if [ ${COMP_ARRAY[0]} == true ] ; then
+    echo "COMP1: Intensity"
+    python ./python/compare-tc-intensity-obv-200429.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
+        $COMP1_TSTRT $COMP1_TEND ${CASENAMES[*]}
+    echo "COMP1: Done"
+fi
