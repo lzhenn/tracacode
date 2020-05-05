@@ -1,13 +1,15 @@
 #!/bin/bash
 
 #PREFIX_ARR=("d02_SLP_" "droms_HWave_" "droms_ssta_area_" "droms_sst_")
-PREFIX_ARR=("d02_precip_" "droms_ssta_area_" "droms_sst_")
+
+#PREFIX_ARR=("d02_precip_" "droms_ssta_area_" "droms_sst_")
+PREFIX_ARR=("d02_SLP_UV10_")
 STRT_F=18
-END_F=72
+END_F=59
 FRAME_DT=30 # n/100 second
 
 N_FRM=$(( $END_F - $STRT_F ))
-cd ../fig/mangkhut
+cd ../../fig/ERA5_C2008 
 
 rm -f *noborder*
 

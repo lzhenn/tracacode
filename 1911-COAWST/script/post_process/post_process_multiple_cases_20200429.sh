@@ -50,10 +50,10 @@ FRAME_DT=30 # n/100 second
 
 FLAG_ARRAY=(false false false false)
 
-COMP_ARRAY=(true false)
+COMP_ARRAY=(0 1)
 # 0     comp1_tc-intensity-obv-200429.py
 
-COMP1_TSTRT=2018091500
+COMP1_TSTRT=2018091506
 COMP1_TEND=2018091700
 
 echo "Stage1: Preprocessing..."
@@ -111,9 +111,18 @@ do
     done  
 done # done casenames loop
 
-if [ ${COMP_ARRAY[0]} == true ] ; then
+if [ ${COMP_ARRAY[0]} == 1 ] ; then
+    
     echo "COMP1: Intensity"
     python ./python/compare-tc-intensity-obv-200429.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
         $COMP1_TSTRT $COMP1_TEND ${CASENAMES[*]}
     echo "COMP1: Done"
+
 fi
+if [ ${COMP_ARRAY[1]} == 1 ]; then
+    echo "COMP2: Wind Speed Intensity"
+    python ./python/compare-tc-intensity-ws-obv-200505.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
+        $COMP1_TSTRT $COMP1_TEND ${CASENAMES[*]}
+    echo "COMP2: Done"
+fi
+

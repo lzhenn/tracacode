@@ -37,15 +37,14 @@ begin
                          "Oct","Nov","Dec"/)
     ; get in ibtrck data
     ncol=6
-    
     tc_loc = readAsciiTable(trck_path,ncol,"float", 1) ; tc_loc(nrec, ncol) 
     
     dims=dimsizes(tc_loc) 
-    
     dim_tc=dims(0)
    
-    ; get wrf fully coupled nc data
-    ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
+    ; get wrf nc data
+    wrfout_fn=wrfout_path+"/wrfout_d0"+tostring(i_dom)
+    ctrl_in      = addfile (wrfout_fn, "r")   ; note the "s" of addfile
     
     ; parser time
     time0 = wrf_user_getvar(ctrl_in,"Times", -1)
@@ -63,21 +62,19 @@ begin
     lentime=dimsizes(xtime)
 
  
-    ; get in wrf only tc data
-    wrf_tc = asciiread("../data/1911-COAWST/"+casename+"-wrfonly/trck.wrf",(/lentime,3/),"float"); (0)--lat, (1)--lon, (2)--slp
-    
-    
+    ; get in wrf tc track data
+    ;0-timestamp 1-lat 2-lon 3-minSLP 4-maxWS 5-uRadius 6-vRadius
+    case_tc = asciiread(wrfout_path+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
+    case_tc:=transpose(case_tc)
     ; parser lat lon
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  0)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 0)
   
-    rec_tc=new((/3,lentime/), "float") ; (0)--lat, (1)--lon, (2)--slp
-    
        
   res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 960.          ; set min contour level
+  res@cnMinLevelValF        = 950.          ; set min contour level
   res@cnMaxLevelValF        = 1000.          ; set max contour level
   res@cnLevelSpacingF      = 2.        
   
@@ -100,8 +97,6 @@ begin
 
   res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
-  res@lbLabelFontHeightF  = 0.02              ; make labels smaller
-  res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
   ;res@lbLabelStride = 1  
   res@tmXBLabelFontHeightF = g_font
@@ -157,7 +152,7 @@ begin
   tres@txJust="TopLeft"
   tlat=18.0
   tlon=110.0
- 
+
   resv                         = True               ; plot mods desired
   resv@vcGlyphStyle            = "WindBarb"         ; choose wind barbs
 ;  resv@lbOrientation           = "vertical"         ; vertical label bar
@@ -198,56 +193,53 @@ do while(time_frame .lt. lentime)
     dim_y=dims(0)
     dim_x=dims(1)
     
+    dim_x=dims(1)
+    
     ctrl_var1@lat2d = lat2d
     ctrl_var1@lon2d = lon2d
  
-    tmp1D      = ndtooned(ctrl_var1)
-    indices  = ind_resolve(minind(tmp1D),(/dim_y,dim_x/))
-    id_y=indices(0,0)
-    id_x=indices(0,1)
-    rec_tc(0,time_frame)=lat2d(id_y,id_x)
-    rec_tc(1,time_frame)=lon2d(id_y,id_x)
-    rec_tc(2,time_frame)=min(tmp1D)
-    print("lat: "+rec_tc(0,time_frame)+" lon: "+rec_tc(1,time_frame)+" minSLP= "+min(tmp1D))
-
-   
-    wks = gsn_open_wks(wks_type,"../fig/mangkhut/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
+  	ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", time_frame)  
+  	ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", time_frame)  
+    ctrl_var2@lat2d = lat2d
+    ctrl_var2@lon2d = lon2d
+    ctrl_var3@lat2d = lat2d
+    ctrl_var3@lon2d = lon2d
+    wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     gsn_reverse_colormap(wks)
-    res@gsnLeftString="SLP @ "+date_str(time_frame)
+    res@gsnLeftString="SLP UV10 @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1,res)
+    plotv = gsn_csm_vector(wks, ctrl_var2,ctrl_var3, resv)
     chinamap = add_china_map(wks,plot,cnres)
   
     ; center
     ;dum1    = gsn_add_polymarker(wks,plot,tc_loc(3,1),tc_loc(3,0),polyres)
-    dum1    = gsn_add_polymarker(wks,plot,rec_tc(1,time_frame),rec_tc(0,time_frame),polyres)
-    dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa", rec_tc(2, time_frame)),tlon,tlat,tres)
-    if (time_frame .gt. 0) then
-        dum_track=gsn_add_polyline(wks,plot, rec_tc(1, 0:time_frame) , rec_tc(0,0:time_frame),pres)
+    no_tc_count=0 ; count no tc frames
+    if (case_tc(4, time_frame) .gt. 0) then
+        dum1    = gsn_add_polymarker(wks,plot,case_tc(2,time_frame),case_tc(1,time_frame),polyres)
+        dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa; ", case_tc(3, time_frame))+sprintf("maxWS: %2.1f m/s", case_tc(4, time_frame)), tlon, tlat,tres)
+        if (time_frame .gt. 0) then
+            dum_track=gsn_add_polyline(wks,plot, case_tc(2, no_tc_count:time_frame) , case_tc(1,no_tc_count:time_frame),pres)
+        end if
+    else
+        no_tc_count=no_tc_count+1
     end if
-
     ;Obv Track
     res_lines=True
     res_lines@gsLineColor       = "black"
     res_lines@gsLineDashPattern = 0.
     res_lines@gsLineThicknessF  = 3.                    ; line thicker
     
-    yy := tc_loc(:,1) 
-    xx := tc_loc(:,0) 
+    yy := tc_loc(:,3)/10 
+    xx := tc_loc(:,2)/10 
     obv_track=gsn_add_polyline(wks,plot,yy,xx,res_lines)              ; N
 
     do ii =0, dim_tc-1
         dum1@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
     end do
 
-    ; wrf only track
-    yy := wrf_tc(:,1) 
-    xx := wrf_tc(:,0) 
-    wrf_track=gsn_add_polyline(wks,plot,yy,xx,pres_wrf)              ; N
-
-
-    ;overlay(plot, plotv)
+    overlay(plot, plotv)
     draw(plot)
     frame(wks)
     time_frame=time_frame+1
