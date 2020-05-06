@@ -42,10 +42,11 @@ FRAME_DT=30 # n/100 second
 
 # 0     step0_extract-tcInfo_200406.ncl
 # 1     step1_plot_SLP_UV10_200406.ncl
+# 2     step2_plot_frame_rain_200506.ncl 
 #
 #
 
-FLAG_ARRAY=(0 1 0 0)
+FLAG_ARRAY=(0 0 1 0)
 
 
 
@@ -72,7 +73,7 @@ for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));
 do   
     I_DOM_NCL=\"$I_DOM\"
     if [ ${FLAG_ARRAY[0]} == 1 ] ; then
-    echo " Extract TC track, minSLP, and windspeed info..."
+        echo " Extract TC track, minSLP, and windspeed info..."
         ncl -nQ                             \
             i_dom=$I_DOM_NCL                \
             wrfout_path=$CASE_DIR_NCL       \
@@ -80,7 +81,7 @@ do
             ./ncl/step0_extract-tcInfo_200406.ncl
     fi
     if [ ${FLAG_ARRAY[1]} == 1 ] ; then
-    echo "D0"$I_DOM": plot_SLP_UV10_200406.ncl"
+        echo "D0"$I_DOM": plot_SLP_UV10_200406.ncl"
         ncl -nQ                             \
             i_dom=$I_DOM_NCL                \
             wrfout_path=$CASE_DIR_NCL       \
@@ -89,6 +90,18 @@ do
             trck_path=$TCK_NCL              \
             ./ncl/step1_plot_SLP_UV10_200406.ncl
     fi
+    if [ ${FLAG_ARRAY[2]} == 1 ] ; then
+        echo "D0"$I_DOM": plot_frame_rain_200506.ncl"
+        ncl -nQ                             \
+            i_dom=$I_DOM_NCL                \
+            wrfout_path=$CASE_DIR_NCL       \
+            casename=$CASENAME_NCL          \
+            fig_path=$FIG_DIR_NCL           \
+            trck_path=$TCK_NCL              \
+            ./ncl/step2_plot_frame_rain_200506.ncl
+    fi
+
+
 done  
 
 exit 0
