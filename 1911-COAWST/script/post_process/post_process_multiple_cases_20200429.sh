@@ -31,7 +31,7 @@ CASENAMES=( "ERA5_TY2001" "FNL0d25_WRF" "FNL1d_TY2001" "ERA5_WRF" "ERA5_C2008"\
 #            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
 
 # Number of Domains
-I_DOM_STRT=1
+I_DOM_STRT=2
 I_DOM_END=2
 
 # Gif control parameters
@@ -46,11 +46,12 @@ FRAME_DT=30 # n/100 second
 
 # 0     step0_extract-tcInfo_200406.ncl
 # 1     step1_plot_SLP_UV10_200406.ncl
+# 2     step2_plot_frame_rain_200506.ncl 
 #
 
-FLAG_ARRAY=(false false false false)
+FLAG_ARRAY=(0 0 1 0)
 
-COMP_ARRAY=(0 1)
+COMP_ARRAY=(0 0)
 # 0     comp1_tc-intensity-obv-200429.py
 
 COMP1_TSTRT=2018091506
@@ -89,7 +90,7 @@ do
     do   
         I_DOM_NCL=\"$I_DOM\"
         echo "Stage2: Extract TC track, minSLP, and windspeed info..."
-        if [ ${FLAG_ARRAY[0]} == true ] ; then
+        if [ ${FLAG_ARRAY[0]} == 1 ] ; then
             ncl -nQ                             \
                 i_dom=$I_DOM_NCL                \
                 wrfout_path=$CASE_DIR_NCL       \
@@ -97,7 +98,7 @@ do
                 ./ncl/step0_extract-tcInfo_200406.ncl
             echo "Stage2: Done."
         fi
-        if [ ${FLAG_ARRAY[1]} == true ] ; then
+        if [ ${FLAG_ARRAY[1]} == 1 ] ; then
             echo "Stage3: Plot SLP per Frame..."
             ncl -nQ                             \
                 i_dom=$I_DOM_NCL                \
@@ -107,6 +108,19 @@ do
                 trck_path=$TCK_NCL              \
                 ./ncl/step1_plot_SLP_UV10_200406.ncl
             echo "Stage3: Done."
+        fi
+
+        if [ ${FLAG_ARRAY[2]} == 1 ] ; then
+        echo "D0"$I_DOM": plot_frame_rain_200506.ncl"
+        ncl -nQ                             \
+            i_dom=$I_DOM_NCL                \
+            wrfout_path=$CASE_DIR_NCL       \
+            casename=$CASENAME_NCL          \
+            fig_path=$FIG_DIR_NCL           \
+            trck_path=$TCK_NCL              \
+            ./ncl/step2_opt_plot_box_comp_rain_200507.ncl 
+#            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
+#            ./ncl/step2_plot_frame_rain_200506.ncl
         fi
     done  
 done # done casenames loop

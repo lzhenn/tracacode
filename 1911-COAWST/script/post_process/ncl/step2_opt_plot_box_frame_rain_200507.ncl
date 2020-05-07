@@ -29,20 +29,21 @@ begin
         trck_path="/disk/v092.yhuangci/lzhenn/1911-COAWST/cma.trck.mangkhut"
     end if 
 
-    
-    
+
+    fig_prefix="d0"+tostring(i_dom)+"_precip_"
     g_font=0.02
-    fig_prefix="d0"+tostring(i_dom)+"_SLP_UV10_"
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
+    
     ; get in ibtrck data
     ncol=6
     tc_loc = readAsciiTable(trck_path,ncol,"float", 1) ; tc_loc(nrec, ncol) 
-    
     dims=dimsizes(tc_loc) 
     dim_tc=dims(0)
+ 
+
    
-    ; get wrf nc data
+   ; get wrf nc data
     wrfout_fn=wrfout_path+"/wrfout_d0"+tostring(i_dom)
     ctrl_in      = addfile (wrfout_fn, "r")   ; note the "s" of addfile
     
@@ -60,29 +61,49 @@ begin
 
     date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
     lentime=dimsizes(xtime)
-
- 
+   
     ; get in wrf tc track data
     ;0-timestamp 1-lat 2-lon 3-minSLP 4-maxWS 5-uRadius 6-vRadius
     case_tc = asciiread(wrfout_path+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
-    case_tc:=transpose(case_tc)
     ; parser lat lon
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  0)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 0)
   
-       
-  res                   = True              ; plot mods desired
+
+    ; get rain
+    ;ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
+    ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINNC", -1)  
+    ;ctrl_var1  = (ctrl_var1+ctrl_var2)
+ 
+    dims:=dimsizes(ctrl_var1)
+    dim_t=dims(0)
+    dim_y=dims(1)
+    dim_x=dims(2)
+    
+    ctrl_var1(1:lentime-1,:,:)=ctrl_var1(1:lentime-1,:,:)-ctrl_var1(0:lentime-2,:,:)
+
+    ; parser lat lon
+    lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
+    lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
+    ctrl_var1@lat2d = lat2d
+    ctrl_var1@lon2d = lon2d
+    ;ctrl_var1=(/ctrl_var1-273.15/)   
+    ctrl_var1(0,0,:)=(/ctrl_var1(0,0,:)+1e-2/)
+
+   
+
+res                   = True              ; plot mods desired
 ;---Resources for filled contour plot
-  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 950.          ; set min contour level
-  res@cnMaxLevelValF        = 1000.          ; set max contour level
-  res@cnLevelSpacingF      = 2.        
   
+  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+  res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
+   
   res@gsnMaximize          = True
   res@gsnFrame = False
   res@gsnDraw = False
   res@cnFillOn             = True  
   res@cnLinesOn            = False
+  res@cnLevelSpacingF      = 2.           ; NCL chose 4.0
   res@lbOrientation        = "Vertical"
 
 ;---Necessary for contours to be overlaid correctly on WRF projection
@@ -90,15 +111,17 @@ begin
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "hPa"
+  res@gsnRightString = "mm/hr"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
 
   res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
+  res@lbLabelFontHeightF  = 0.02              ; make labels smaller
+  res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  ;res@lbLabelStride = 1  
+  res@lbLabelStride = 2  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
   res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
@@ -107,16 +130,16 @@ begin
   res@mpGridLineThicknessF   = 2.0
   res@mpGridLineColor        = "Gray80"
 
-
   res@mpOutlineOn             = True  ; Use outlines from shapefile
-    res@mpGeophysicalLineColor = "gray10"
-    res@cnFillDrawOrder         = "PreDraw"
-    res@mpDataBaseVersion       = "MediumRes"
-    res@mpDataSetName           = "Earth..4"
-    res@mpAreaMaskingOn         = True
-    res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
-    res@mpLandFillColor         = "white"
-    res@mpInlandWaterFillColor  = "white"
+  res@mpGeophysicalLineColor = "gray10"
+  res@cnFillDrawOrder         = "PreDraw"
+  res@mpDataBaseVersion       = "MediumRes"
+  res@mpDataSetName           = "Earth..4"
+  res@mpAreaMaskingOn         = True
+  res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
+  res@mpLandFillColor         = "white"
+  res@mpInlandWaterFillColor  = "white"
+
 ;>============================================================<
 ;                      add China map
 ;>------------------------------------------------------------<
@@ -128,58 +151,51 @@ begin
   cnres@diqu      = False       ; draw diqujie or not
 
 
-  
+ 
+    
   polyres                   = True
   polyres@gsMarkerIndex     = 14          ; polymarker style
   polyres@gsMarkerSizeF     = 12.          ; polymarker size
   polyres@gsMarkerThicknessF     = 3.          ; polymarker size
   polyres@gsMarkerColor     = "Black"          ; polymarker size
 
-  obv_polyres=polyres
-  obv_polyres@gsMarkerIndex     = 16          ; polymarker style
-  obv_polyres@gsMarkerSizeF     = 9.          ; polymarker size
-
-
   ;---Resources for the polyline
   pres                  = True           ; polyline mods desired
   pres@gsLineThicknessF = 3.0            ; line thickness   
   pres@gsLineColor      = "red"         ; color of lines
+  
   pres_wrf=pres
   pres_wrf@gsLineColor="blue"
+
+
 
   tres  = True
   tres@txFontHeightF = 0.015
   tres@txJust="TopLeft"
   tlat=18.0
   tlon=110.0
-
-  resv                         = True               ; plot mods desired
-  resv@vcGlyphStyle            = "WindBarb"         ; choose wind barbs
-;  resv@lbOrientation           = "vertical"         ; vertical label bar
-  resv@gsnDraw = False
-  resv@gsnFrame = False
-  resv@vcRefMagnitudeF         = 5.                ; make vectors larger
-  resv@vcRefLengthF            = 0.015              ; ref vec length
-  resv@vcMinDistanceF          = 0.03              ; thin out windbarbs
-  resv@vcWindBarbLineThicknessF = 3.
-  resv@vcWindBarbColor = "grey50"
-  resv@vcWindBarbTickLengthF   = 0.5                ; length of the barb tick
-  resv@vcWindBarbTickSpacingF  = 0.3                ; distance between ticks
-  resv@vcRefAnnoOn             = False              ; turn off ref wind barb
-  resv@gsnLeftString = ""
-  resv@gsnRightString= ""
-  resv@gsnAddCyclic            = False              ; regional data
+ 
+  obv_polyres=polyres
+  obv_polyres@gsMarkerIndex     = 16          ; polymarker style
+  obv_polyres@gsMarkerSizeF     = 9.          ; polymarker size
 
 
-    res = wrf_map_resources(ctrl_in,res)
 
+res = wrf_map_resources(ctrl_in,res)
 
-    time_frame = 17
-    wks_type="png"
-    wks_type@wkWidth=800
-    wks_type@wkHeight=800
+time_frame=0
+wks_type="png"
+wks_type@wkWidth=800
+wks_type@wkHeight=800
 
-
+ ;Obv Track
+    res_lines=True
+    res_lines@gsLineColor       = "black"
+    res_lines@gsLineDashPattern = 0.
+    res_lines@gsLineThicknessF  = 3.                    ; line thicker
+    
+; tc box radius
+boxR=80
 
 do while(time_frame .lt. lentime)
     ;---Set map resources based on projection on WRF output file
@@ -187,63 +203,72 @@ do while(time_frame .lt. lentime)
     ;************************************************
     ; create plot
     ;************************************************
-   ; get slp
-  	ctrl_var1  = wrf_user_getvar(ctrl_in,"slp", time_frame)  
-    dims:=dimsizes(ctrl_var1)
-    dim_y=dims(0)
-    dim_x=dims(1)
     
-    dim_x=dims(1)
-    
-    ctrl_var1@lat2d = lat2d
-    ctrl_var1@lon2d = lon2d
- 
-  	ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", time_frame)  
-  	ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", time_frame)  
-    ctrl_var2@lat2d = lat2d
-    ctrl_var2@lon2d = lon2d
-    ctrl_var3@lat2d = lat2d
-    ctrl_var3@lon2d = lon2d
     wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
-    gsn_define_colormap(wks,"wind_17lev")
-    gsn_reverse_colormap(wks)
-    res@gsnLeftString="SLP UV10 @ "+date_str(time_frame)
+    
+    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+    res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
+   
+    gsn_define_colormap(wks,"precip2_17lev")
+    res@gsnLeftString="half-hr precip @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
-    plot = gsn_csm_contour_map(wks,ctrl_var1,res)
-    plotv = gsn_csm_vector(wks, ctrl_var2,ctrl_var3, resv)
-    chinamap = add_china_map(wks,plot,cnres)
+    plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
+    chinamap = add_china_map(wks,plot,cnres)
     ; center
-    ;dum1    = gsn_add_polymarker(wks,plot,tc_loc(3,1),tc_loc(3,0),polyres)
+    
     no_tc_count=0 ; count no tc frames
-    if (case_tc(4, time_frame) .gt. 0) then
-        dum1    = gsn_add_polymarker(wks,plot,case_tc(2,time_frame),case_tc(1,time_frame),polyres)
-        dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f hPa; ", case_tc(3, time_frame))+sprintf("maxWS: %2.1f m/s", case_tc(4, time_frame)), tlon, tlat,tres)
+    if (case_tc(time_frame,4) .gt. 0) then
+        tc_lon=case_tc(time_frame,2)
+        tc_lat=case_tc(time_frame,1)
+        
+        point=getind_latlon2d(lat2d,lon2d,tc_lat,tc_lon)
+        cor_x1=point(0,0)
+        cor_y1=point(0,1)
+        ; (0,0)->(0,1)->(1,1)->(1,0)        
+        box_x=(/cor_x1-boxR, cor_x1-boxR, cor_x1+boxR, cor_x1+boxR, cor_x1-boxR/)
+        box_y=(/cor_y1-boxR, cor_y1+boxR, cor_y1+boxR, cor_y1-boxR, cor_y1-boxR/)
+        do ii = 0,4
+            if box_x(ii) .lt.0 then
+                box_x(ii) = 0
+            else if box_x(ii) .gt. dim_x-1 then
+                box_x(ii) = dim_x-1
+            end if
+            end if
+            if box_y(ii) .lt.0 then
+                box_y(ii) = 0
+            else if box_y(ii) .gt. dim_y-1 then
+                box_y(ii) = dim_y-1
+            end if
+            end if
+        end do
+        dum1    = gsn_add_polymarker(wks,plot,tc_lon,tc_lat,polyres)
+
+        dum1@$unique_string("xx")$    = gsn_add_polyline(wks,plot,(/lon2d(box_x(0),box_y(0)),lon2d(box_x(1),box_y(1)),lon2d(box_x(2),box_y(2)),\
+            lon2d(box_x(3),box_y(3)),lon2d(box_x(4),box_y(4))/),(/lat2d(box_x(0),box_y(0)),\
+            lat2d(box_x(1),box_y(1)),lat2d(box_x(2),box_y(2)),lat2d(box_x(3),box_y(3)),lat2d(box_x(4),box_y(4))/),pres)
+
+        ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f degC", case_tc(2, time_frame)),tlon,tlat,tres)
         if (time_frame .gt. 0) then
-            dum_track=gsn_add_polyline(wks,plot, case_tc(2, no_tc_count:time_frame) , case_tc(1,no_tc_count:time_frame),pres)
+            dum_track=gsn_add_polyline(wks,plot, case_tc(no_tc_count:time_frame,2) , case_tc(no_tc_count:time_frame,1),pres)
         end if
     else
         no_tc_count=no_tc_count+1
     end if
-    ;Obv Track
-    res_lines=True
-    res_lines@gsLineColor       = "black"
-    res_lines@gsLineDashPattern = 0.
-    res_lines@gsLineThicknessF  = 3.                    ; line thicker
     
+   
     yy := tc_loc(:,3)/10 
     xx := tc_loc(:,2)/10 
     obv_track=gsn_add_polyline(wks,plot,yy,xx,res_lines)              ; N
 
     do ii =0, dim_tc-1
-        dum1@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
+        yy@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
     end do
-
-    overlay(plot, plotv)
+    
+    ;overlay(plot, plotv)
     draw(plot)
     frame(wks)
     time_frame=time_frame+1
     ;delete(wks)
-    ;break
 end do
 end

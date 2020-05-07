@@ -25,7 +25,7 @@ FIG_DIR=/disk/hq247/yhuangci/lzhenn/project/1911-COAWST/fig/${CASENAME}
 FIG_DIR_NCL=\"$FIG_DIR\"
 
 # Number of Domains
-I_DOM_STRT=1
+I_DOM_STRT=2
 I_DOM_END=2
 
 # Gif control parameters
@@ -46,7 +46,7 @@ FRAME_DT=30 # n/100 second
 #
 #
 
-FLAG_ARRAY=(0 0 1 0)
+FLAG_ARRAY=(0 1 0 0)
 
 
 
@@ -98,7 +98,9 @@ do
             casename=$CASENAME_NCL          \
             fig_path=$FIG_DIR_NCL           \
             trck_path=$TCK_NCL              \
-            ./ncl/step2_plot_frame_rain_200506.ncl
+            ./ncl/step2_opt_plot_box_comp_rain_200507.ncl 
+#            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
+#            ./ncl/step2_plot_frame_rain_200506.ncl
     fi
 
 
