@@ -22,11 +22,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%   START OF USER INPUT  %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-str_path='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/';
+str_path='/users/b145872/project-dir/app/COAWST-test/Projects/GBA_WRF_ROMS/';
 
 
 % (1) Enter start date (T1) and number of days to get climatology data 
-T1 = datetime(2018,09,13,12,0,0); %start date
+T1 = datetime(2018,09,14,12,0,0); %start date
 %number of days and frequency to create climatology files for
 numdays = 5;
 dayFrequency = 1;
@@ -37,7 +37,7 @@ dayFrequency = 1;
 url = '/users/b145872/project-dir/data/hycom/';
 
 % (3) Enter working directory (wdr)
-wdr = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-icbc-o32ly/';
+wdr = '/users/b145872/project-dir/app/COAWST-test/Projects/GBA/roms-icbc-o32ly/';
 swan_grid_dir='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/swan-grid-o32ly/';
 
 % (4) Enter path and name of the ROMS grid
