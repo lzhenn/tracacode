@@ -49,8 +49,8 @@ begin
         casename="mangkhut-wrfonly" 
     end if 
 
-    print("Stage2.0: >> [DEBUG] i_dom:"+tostring(i_dom)+" wrfout_path:"+wrfout_path+" casename:"+casename)
-    print("Stage2.1: >> Reading map data...")
+    print(">>STEP00: [DEBUG] i_dom:"+tostring(i_dom)+" wrfout_path:"+wrfout_path+" casename:"+casename)
+    print(">>STEP00: Reading map data...")
 ; get wrf fully coupled nc data
     all_files=systemfunc("ls "+wrfout_path+"/wrfout_d0"+i_dom+"*")
     ctrl_in      = addfiles (all_files, "r")   ; note the "s" of addfile
@@ -71,14 +71,14 @@ begin
         parent_tc = readAsciiTable(parent_tc_file,ncol,"double", 1) ; note the transpose of "new" function
     end if
 ; get slp
-    print("Stage2.2: >> Reading slp...")
+    print(">>STEP00: Reading slp...")
     ctrl_var1  := wrf_user_getvar(ctrl_in,"slp", -1)  
            
     dims:=dimsizes(ctrl_var1)
     dim_y=dims(1)
     dim_x=dims(2)
 
-    print("Stage2.3: >> Reading U10&V10...")
+    print(">>STEP00: Reading U10&V10...")
     ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
     ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
 
@@ -86,7 +86,7 @@ begin
 ; (0)--timestamp, (1)--lat, (2)--lon, (3)--slp, (4)--maxWind, (5)--uRadius, (6)--vRadius
     rec_tc=new((/7,lentime/), "string")
     
-    print("Stage2.4: >> Parsing...")
+    print(">>STEP00: Parsing...")
     do tt = 0, lentime-1
         tmp1D      = ndtooned(ctrl_var1(tt,:,:))
         indices  = ind_resolve(minind(tmp1D),(/dim_y,dim_x/))
@@ -132,7 +132,8 @@ begin
         rec_tc(5,tt)=sprintf("%5.2f", tc_eye_radius_from_uv(ctrl_var2(tt,:,:),lat2d,lon2d))
         rec_tc(6,tt)=sprintf("%5.2f", tc_eye_radius_from_uv(ctrl_var3(tt,:,:),lat2d,lon2d))
     end do
-
+    
+    print(">>STEP00: Output...")
     ;out put
     outf = wrfout_path+"/trck."+casename+".d0"+i_dom
     system("rm -f "+outf)   ; remove any pre-existing file

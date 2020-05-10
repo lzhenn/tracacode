@@ -17,7 +17,7 @@ PRE_DIR=/disk/v092.yhuangci/lzhenn/1911-COAWST/
 TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 
 # Case name
-CASENAME=ERA5_C2008
+CASENAME=ERA5_WRFROMS
 CASENAME_NCL=\"$CASENAME\"
 
 # Path of the post processed data
@@ -25,7 +25,7 @@ FIG_DIR=/disk/hq247/yhuangci/lzhenn/project/1911-COAWST/fig/${CASENAME}
 FIG_DIR_NCL=\"$FIG_DIR\"
 
 # Number of Domains
-I_DOM_STRT=2
+I_DOM_STRT=1
 I_DOM_END=2
 
 # Gif control parameters
@@ -46,17 +46,21 @@ FRAME_DT=30 # n/100 second
 #
 #
 
-FLAG_ARRAY=(0 1 0 0)
+FLAG_ARRAY=(1 1 0 0)
 
 
 
 #-----------------------------------------------------------
+
+# Path of the post processed data
+mkdir $FIG_DIR
+
 CASE_DIR=$PRE_DIR/${CASENAME}
 CASE_DIR_NCL=\"${CASE_DIR}\"
 
 echo $CASE_DIR_NCL
 # Step1: Rename the output files...
-echo "1: Rename the output files..."
+echo "MASTER: Rename the output files..."
 
 for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));  
 do   
@@ -68,12 +72,12 @@ done
 # file: trck.$casename.$<domain> e.g. trck.mangkhut.d01
 # file style: (timestamp, lat, lon, minSLP, maxWS, uRadius, vRadius)
 
-echo "2: Info extraction and plotting figure..."
+echo "MASTER: Info extraction and plotting figure..."
 for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));  
 do   
     I_DOM_NCL=\"$I_DOM\"
     if [ ${FLAG_ARRAY[0]} == 1 ] ; then
-        echo " Extract TC track, minSLP, and windspeed info..."
+        echo "MASTER: *STEP00* D0"${I_DOM}" Extract TC track, minSLP, and windspeed info..."
         ncl -nQ                             \
             i_dom=$I_DOM_NCL                \
             wrfout_path=$CASE_DIR_NCL       \
@@ -81,7 +85,7 @@ do
             ./ncl/step0_extract-tcInfo_200406.ncl
     fi
     if [ ${FLAG_ARRAY[1]} == 1 ] ; then
-        echo "D0"$I_DOM": plot_SLP_UV10_200406.ncl"
+        echo "MASTER: *STEP01* D0"$I_DOM": plot_SLP_UV10_200406.ncl"
         ncl -nQ                             \
             i_dom=$I_DOM_NCL                \
             wrfout_path=$CASE_DIR_NCL       \
@@ -91,7 +95,7 @@ do
             ./ncl/step1_plot_SLP_UV10_200406.ncl
     fi
     if [ ${FLAG_ARRAY[2]} == 1 ] ; then
-        echo "D0"$I_DOM": plot_frame_rain_200506.ncl"
+        echo "MASTER: *STEP02* D0"$I_DOM": plot_frame_rain_200506.ncl"
         ncl -nQ                             \
             i_dom=$I_DOM_NCL                \
             wrfout_path=$CASE_DIR_NCL       \
