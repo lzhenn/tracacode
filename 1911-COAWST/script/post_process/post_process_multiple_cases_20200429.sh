@@ -22,10 +22,11 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 
 # Case name
 
-CASENAMES=( "ERA5_TY2001" "FNL0d25_WRF" "FNL1d_TY2001" "ERA5_WRF" "ERA5_C2008"\
-            "ERA5_WAOFF" "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL1d_WRF" )
+CASENAMES=( "ERA5_TY2001"  "ERA5_WRF" "ERA5_C2008" "ERA5_WRFROMS" "ERA5_WAOFF" )
             
             
+#CASENAMES=( "ERA5_TY2001" "FNL0d25_WRF" "FNL1d_TY2001" "ERA5_WRF" "ERA5_C2008"\
+#            "ERA5_WAOFF" "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL1d_WRF" )
 
 #CASENAMES=( "mangkhut-era-caulliez2008"  "mangkhut-era-wrfonly"\
 #            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
@@ -140,3 +141,5 @@ if [ ${COMP_ARRAY[1]} == 1 ]; then
     echo "COMP2: Done"
 fi
 
+
+exit 0

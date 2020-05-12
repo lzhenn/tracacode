@@ -201,7 +201,7 @@ do while(time_frame .lt. lentime)
     res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
    
     gsn_define_colormap(wks,"precip2_17lev")
-    res@gsnLeftString="half-hr precip @ "+date_str(time_frame)
+    res@gsnLeftString="hourly precip @ "+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_contour_map(wks,ctrl_var1(time_frame,:,:),res)
   
