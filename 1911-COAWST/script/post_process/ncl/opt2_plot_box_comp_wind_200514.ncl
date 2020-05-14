@@ -6,6 +6,7 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
+load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 begin
 ;************************************************
 ; open file and read in data
@@ -27,10 +28,17 @@ begin
     if (.not. isvar("trck_path")) then 
         trck_path="/disk/v092.yhuangci/lzhenn/1911-COAWST/cma.trck.mangkhut"
     end if 
+    if (.not. isvar("comp1_tstrt")) then 
+        comp1_tstrt="2019091516"
+    end if 
+    if (.not. isvar("comp1_tend")) then 
+        comp1_tend="2019091602"
+    end if 
 
 
-    print(">>STEP02(opt): Composite "+casename+" in following boxes...") 
-    fig_prefix="d0"+tostring(i_dom)+"_precip_"
+
+
+    fig_prefix="d0"+tostring(i_dom)+"_UV10_"
     g_font=0.02
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
@@ -61,7 +69,12 @@ begin
 
     date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
     lentime=dimsizes(xtime)
-   
+
+    lc_date:=cd_calendar(xtime, -3)
+    istrt   = ind(lc_date .eq. toint(comp1_tstrt))
+    ilast   = ind(lc_date .eq. toint(comp1_tend))
+
+    
     ; get in wrf tc track data
     ;0-timestamp 1-lat 2-lon 3-minSLP 4-maxWS 5-uRadius 6-vRadius
     case_tc = asciiread(wrfout_path+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
@@ -72,38 +85,39 @@ begin
 
     ; get rain
     ;ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
-    ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINNC", -1)  
+  	ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
+  	ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
     ;ctrl_var1  = (ctrl_var1+ctrl_var2)
  
-    dims:=dimsizes(ctrl_var1)
+    dims:=dimsizes(ctrl_var2)
     dim_t=dims(0)
     dim_y=dims(1)
     dim_x=dims(2)
     
-    ctrl_var1(1:lentime-1,:,:)=ctrl_var1(1:lentime-1,:,:)-ctrl_var1(0:lentime-2,:,:)
-
     ; parser lat lon
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
-    ctrl_var1@lat2d = lat2d
-    ctrl_var1@lon2d = lon2d
+    ctrl_var2@lat2d = lat2d
+    ctrl_var2@lon2d = lon2d
+
+    ctrl_var3@lat2d = lat2d
+    ctrl_var3@lon2d = lon2d
     ;ctrl_var1=(/ctrl_var1-273.15/)   
-    ctrl_var1(0,0,:)=(/ctrl_var1(0,0,:)+1e-2/)
 
-   
-
-res                   = True              ; plot mods desired
+  res=True 
 ;---Resources for filled contour plot
+  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+  res@cnMinLevelValF        = 0.          ; set min contour level
+  res@cnMaxLevelValF        = 32.          ; set max contour level
+  res@cnLevelSpacingF       = 2          ; set contour interval
   
-  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-  res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
-   
+  
   res@gsnMaximize          = True
   res@gsnFrame = False
   res@gsnDraw = False
   res@cnFillOn             = True  
   res@cnLinesOn            = False
-  res@cnLevelSpacingF      = 2.           ; NCL chose 4.0
+  ;res@cnLevelSpacingF      = 2.           ; NCL chose 4.0
   res@lbOrientation        = "Vertical"
 
 ;---Necessary for contours to be overlaid correctly on WRF projection
@@ -111,34 +125,42 @@ res                   = True              ; plot mods desired
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "mm/hr"
+  res@gsnRightString = "%"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
+  res@cnFillMode           = "CellFill" ; Raster Mode
 
   res@lbLabelBarOn = True   ; turn off the label bar
   res@lbOrientation          = "vertical"
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  res@lbLabelStride = 2  
+  ;res@lbLabelStride = 1  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
-  res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
-  res@mpGridLineDashPattern  = 2                ; Dashed lines
-  res@mpGridSpacingF         = 5.0 
-  res@mpGridLineThicknessF   = 2.0
-  res@mpGridLineColor        = "Gray80"
 
-  res@mpOutlineOn             = True  ; Use outlines from shapefile
-  res@mpGeophysicalLineColor = "gray10"
-  res@cnFillDrawOrder         = "PreDraw"
-  res@mpDataBaseVersion       = "MediumRes"
-  res@mpDataSetName           = "Earth..4"
-  res@mpAreaMaskingOn         = True
-  res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
-  res@mpLandFillColor         = "white"
-  res@mpInlandWaterFillColor  = "white"
+
+  resv                         = True               ; plot mods desired
+  resv@vcGlyphStyle            = "WindBarb"         ; choose wind barbs
+;  resv@lbOrientation           = "vertical"         ; vertical label bar
+  resv@gsnDraw = False
+  resv@gsnFrame = False
+  resv@vcRefMagnitudeF         = 5.                ; make vectors larger
+  resv@vcRefLengthF            = 0.015              ; ref vec length
+  resv@vcMinDistanceF          = 0.03              ; thin out windbarbs
+  resv@vcWindBarbLineThicknessF = 3.
+  resv@vcWindBarbColor = "grey50"
+  resv@vcWindBarbTickLengthF   = 0.5                ; length of the barb tick
+  resv@vcWindBarbTickSpacingF  = 0.3                ; distance between ticks
+  resv@vcRefAnnoOn             = False              ; turn off ref wind barb
+  resv@gsnLeftString = ""
+  resv@gsnRightString= ""
+  resv@gsnAddCyclic            = False              ; regional data
+
+
+  
+  
   wks_type="png"
   wks_type@wkWidth=800
   wks_type@wkHeight=800
@@ -146,13 +168,12 @@ res                   = True              ; plot mods desired
 ; tc box radius
 boxR=80
 
-var_comp=ctrl_var1(0,0:2*boxR,0:2*boxR)
-var_comp=0
-lentime=37
-time_frame=27
-print(date_str(time_frame))
-print(date_str(lentime))
-do while(time_frame .lt. lentime)
+var_comp2=ctrl_var2(0,0:2*boxR,0:2*boxR)
+var_comp3=ctrl_var3(0,0:2*boxR,0:2*boxR)
+var_comp2=0
+var_comp3=0
+time_frame=istrt
+do while(time_frame .lt. ilast)
     ;---Set map resources based on projection on WRF output file
 
     ;************************************************
@@ -163,7 +184,7 @@ do while(time_frame .lt. lentime)
     
   
     gsn_define_colormap(wks,"precip2_17lev")
-    res@gsnLeftString=casename+" Comp Hourly Pr"
+    res@gsnLeftString=casename+" Comp"
     ;---Call plotting routine which draws contours over a map
     tc_lon=case_tc(time_frame,2)
     tc_lat=case_tc(time_frame,1)
@@ -174,13 +195,21 @@ do while(time_frame .lt. lentime)
     ; (0,0)->(0,1)->(1,1)->(1,0)        
     ;box_x=(/cor_x1-boxR, cor_x1-boxR, cor_x1+boxR, cor_x1+boxR, cor_x1-boxR/)
     ;box_y=(/cor_y1-boxR, cor_y1+boxR, cor_y1+boxR, cor_y1-boxR, cor_y1-boxR/)
-    var_comp=var_comp+ctrl_var1(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+
+    var_comp2=var_comp2+ctrl_var2(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+    var_comp3=var_comp3+ctrl_var3(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+
     time_frame=time_frame+1
 end do
-var_comp=var_comp/(lentime-27+1)
-res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
-plot = gsn_csm_contour(wks,var_comp,res)
+
+var_comp2=var_comp2/(ilast-istrt+1)
+var_comp3=var_comp3/(ilast-istrt+1)
+windspeed=wind_speed(var_comp2, var_comp3)
+mean_var=wgt_areaave_Wrap(windspeed,1.0,1.0,0)
+res@gsnRightString = sprintf(" Amean: %5.1f m/s", mean_var)
+plot = gsn_csm_contour(wks,windspeed,res)
+plotv = gsn_csm_vector(wks, var_comp2, var_comp3, resv)
+overlay(plot, plotv)
 draw(plot)
 frame(wks)
  

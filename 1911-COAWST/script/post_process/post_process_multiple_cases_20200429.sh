@@ -55,10 +55,10 @@ FLAG_ARRAY=(0 0 1 0)
 COMP_ARRAY=(0 0)
 # 0     comp1_tc-intensity-obv-200429.py
 
-COMP1_TSTRT=2018091506
-COMP1_TEND=2018091700
+COMP1_TSTRT=2018091516
+COMP1_TEND=2018091602
 
-echo "Stage1: Preprocessing..."
+echo "MASTER: Preprocessing..."
 #-----------------------------------------------------------
 
 for CASENAME in ${CASENAMES[@]}
@@ -75,7 +75,7 @@ do
 
     echo $CASE_DIR_NCL
     # Step1: Rename the output files...
-    echo "Rename the output files..."
+    echo "MASTER: Rename the output files..."
 
     for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));  
     do   
@@ -87,20 +87,20 @@ do
     # file: trck.$casename.$<domain> e.g. trck.mangkhut.d01
     # file style: (timestamp, lat, lon, minSLP, maxWS, uRadius, vRadius)
 
+    echo "MASTER: Info extraction and plotting figure..."
     for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));  
     do   
         I_DOM_NCL=\"$I_DOM\"
-        echo "Stage2: Extract TC track, minSLP, and windspeed info..."
         if [ ${FLAG_ARRAY[0]} == 1 ] ; then
+            echo "MASTER: *STEP00* D0"${I_DOM}" Extract TC track, minSLP, and windspeed info..."
             ncl -nQ                             \
                 i_dom=$I_DOM_NCL                \
                 wrfout_path=$CASE_DIR_NCL       \
                 casename=$CASENAME_NCL          \
                 ./ncl/step0_extract-tcInfo_200406.ncl
-            echo "Stage2: Done."
         fi
         if [ ${FLAG_ARRAY[1]} == 1 ] ; then
-            echo "Stage3: Plot SLP per Frame..."
+            echo "MASTER: *STEP01* D0"$I_DOM": plot_SLP_UV10_200406.ncl"
             ncl -nQ                             \
                 i_dom=$I_DOM_NCL                \
                 wrfout_path=$CASE_DIR_NCL       \
@@ -108,20 +108,22 @@ do
                 fig_path=$FIG_DIR_NCL           \
                 trck_path=$TCK_NCL              \
                 ./ncl/step1_plot_SLP_UV10_200406.ncl
-            echo "Stage3: Done."
         fi
 
         if [ ${FLAG_ARRAY[2]} == 1 ] ; then
-        echo "D0"$I_DOM": plot_frame_rain_200506.ncl"
-        ncl -nQ                             \
-            i_dom=$I_DOM_NCL                \
-            wrfout_path=$CASE_DIR_NCL       \
-            casename=$CASENAME_NCL          \
-            fig_path=$FIG_DIR_NCL           \
-            trck_path=$TCK_NCL              \
-            ./ncl/step2_opt_plot_box_comp_rain_200507.ncl 
-#            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
-#            ./ncl/step2_plot_frame_rain_200506.ncl
+            echo "MASTER: *STEP02* D0"$I_DOM": plot_frame_rain_200506.ncl or opt ncls"
+            ncl -nQ                             \
+                i_dom=$I_DOM_NCL                \
+                wrfout_path=$CASE_DIR_NCL       \
+                casename=$CASENAME_NCL          \
+                fig_path=$FIG_DIR_NCL           \
+                trck_path=$TCK_NCL              \
+                comp1_tstrt=$COMP1_TSTRT        \
+                comp1_tend=$COMP1_TEND          \
+                ./ncl/opt2_plot_box_comp_wind_200514.ncl 
+    #           ./ncl/opt1_plot_box_comp_rain_200507.ncl 
+    #            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
+    #            ./ncl/step2_plot_frame_rain_200506.ncl
         fi
     done  
 done # done casenames loop
