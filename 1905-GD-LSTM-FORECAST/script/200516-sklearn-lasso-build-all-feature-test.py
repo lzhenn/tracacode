@@ -19,20 +19,83 @@ import datetime
 from matplotlib.pyplot import savefig
 
 
+# function defination part
+
+def load_cpc_idx(path_cpc_idx, yr_start, yr_end):
+    df_cpc_idx_raw=pd.read_csv(path_cpc_idx, sep='\s+')
+    df_cpc_idx = df_cpc_idx_raw[(df_cpc_idx_raw['YR']>=yr_start) & (df_cpc_idx_raw['YR']<=yr_end)]
+    return df_cpc_idx
+
+def construct_lag_array2d(df, lag_step):
+    """
+        construct lag array 2d (n features x m samples)
+        from -lag_step to -1
+    """
+    org_col_list=df.columns.values.tolist()
+    col_list=[itm+'_lag1' for itm in org_col_list]
+    X_all = np.array(df.values)
+    X=X_all[:-lag_step,:]    
+    for ii in range(1, lag_step):
+        X_tmp=X_all[ii:(-lag_step+ii),:]
+        X=np.concatenate((X,X_tmp),1)
+        new_list=[itm+'_lag'+str(ii+1) for itm in org_col_list]
+        col_list.extend(new_list)
+    return X, col_list
+
+def construct_lag_array1d(df, lag_step,array_name):
+    """
+        construct lag array 1d (1 feature and m samples)
+        from -lag_step to -1
+        args:
+            df          dataframe contains series
+            lag_step    how long the lag takes
+            array_name  series name, e.g. 'aao_idx'
+        returns:
+            X           lagged series, 2-D
+            col_list    col names
+    """
+    org_col_list=list(array_name)
+    col_list=[array_name+'_lag1']
+    
+    X_all = np.array(df.values)
+    X=X_all[:-lag_step]
+    X=X[:,np.newaxis]   # change to 2-D
+    for ii in range(1, lag_step):
+        X_tmp=X_all[ii:(-lag_step+ii)]
+        X_tmp=X_tmp[:,np.newaxis]
+        X=np.concatenate((X,X_tmp),axis=1)
+        new_list=[array_name+'_lag'+str(ii+1)]
+        col_list.extend(new_list)
+    return X, col_list
+
+
+def dcomp_seasonality(df, std_flag):
+    df_season = df.groupby(df.index.month).mean() # climatological seasonal cycle
+    df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())/x.std()) # calculate monthly anomaly
+    return df
+
+
+
 #----------------------------------------------------
 # User Defined Part
 #----------------------------------------------------
 def main():
     # Station Number
-    tgt_sta_num='59985'
+    tgt_sta_num='59287'
 
+
+    # meta file
+    sta_meta_file='/disk/hq247/yhuangci/lzhenn/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
+    
     # Label File
-    label_dir='../testdata/label/'
+    label_dir='/disk/hq247/yhuangci/lzhenn/data/station/post/mon/Tave/'
 
     # Feature lib
     cpc_prim_lib="/disk/hq247/yhuangci/lzhenn/data/osci_idx/cpc.prim.1950.index.txt"
     cpc_aao_lib="/disk/hq247/yhuangci/lzhenn/data/osci_idx/cpc.aao.1979.index.txt"
     cir_ind_dir="../testdata/possible_features.csv"
+    era_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/era5/2T_GDS0_SFC.1979-2018.mon.mean.nc'
+    era_clim_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/era5/T2m.clim.REA5.1981-2010.nc'
 
     # Year Break Points 
     start_year=1979
@@ -74,8 +137,8 @@ def main():
     X, col_list_X=construct_lag_array2d(df_feature0, lag_step)
 
     # concatenate
-    #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag,X),axis=1)
-    X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag),axis=1)
+    #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag,X),axis=1) # with 74 cir index
+    X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag),axis=1) # without 74 cir index
     col_list_X_features=cpc_aao_list
     col_list_X_features.extend(cpc_prim_list)
     #col_list_X_features.extend(col_list_X)
@@ -90,10 +153,10 @@ def main():
     
     for path,dir_list,file_list in fs_handl:  
         for file_name in file_list:  
-            sta_num=file_name[6:11]
-            print('processing ', sta_num)
+            sta_num=file_name[0:5]
             if not(sta_num==tgt_sta_num):
                 continue
+            print('processing ', sta_num)
             result_dic[sta_num]={}
             col_list_X=col_list_X_features.copy()
             
@@ -105,14 +168,15 @@ def main():
                 print('start time beyond the least requirement!')
                 continue
 
+            # confine the period
             df_tmp_label=df_tmp_label[(df_tmp_label.index >= label_start_date) & (df_tmp_label.index <= label_end_date)]
-            Y = np.array(df_tmp_label['avg_temp'].values)
+            Y = np.array(df_tmp_label['tave'].values)
             # predict label
             Y = Y[lag_step:]
 
 
             # construct auto-corr series as features 
-            Y_lag, col_list_lagY=construct_lag_array1d(df_tmp_label['avg_temp'], lag_step, 'Y') 
+            #Y_lag, col_list_lagY=construct_lag_array1d(df_tmp_label['tave'], lag_step, 'Y') 
             
 
             X = np.concatenate((X_features, Y_lag),axis=1)
@@ -185,60 +249,6 @@ def main():
    
     print(result_dic)
     
-
-def load_cpc_idx(path_cpc_idx, yr_start, yr_end):
-    df_cpc_idx_raw=pd.read_csv(path_cpc_idx, sep='\s+')
-    df_cpc_idx = df_cpc_idx_raw[(df_cpc_idx_raw['YR']>=yr_start) & (df_cpc_idx_raw['YR']<=yr_end)]
-    return df_cpc_idx
-
-def construct_lag_array2d(df, lag_step):
-    """
-        construct lag array 2d (n features x m samples)
-        from -lag_step to -1
-    """
-    org_col_list=df.columns.values.tolist()
-    col_list=[itm+'_lag1' for itm in org_col_list]
-    X_all = np.array(df.values)
-    X=X_all[:-lag_step,:]    
-    for ii in range(1, lag_step):
-        X_tmp=X_all[ii:(-lag_step+ii),:]
-        X=np.concatenate((X,X_tmp),1)
-        new_list=[itm+'_lag'+str(ii+1) for itm in org_col_list]
-        col_list.extend(new_list)
-    return X, col_list
-
-def construct_lag_array1d(df, lag_step,array_name):
-    """
-        construct lag array 1d (1 feature and m samples)
-        from -lag_step to -1
-        args:
-            df          dataframe contains series
-            lag_step    how long the lag takes
-            array_name  series name, e.g. 'aao_idx'
-        returns:
-            X           lagged series, 2-D
-            col_list    col names
-    """
-    org_col_list=list(array_name)
-    col_list=[array_name+'_lag1']
-    
-    X_all = np.array(df.values)
-    X=X_all[:-lag_step]
-    X=X[:,np.newaxis]   # change to 2-D
-    for ii in range(1, lag_step):
-        X_tmp=X_all[ii:(-lag_step+ii)]
-        X_tmp=X_tmp[:,np.newaxis]
-        X=np.concatenate((X,X_tmp),axis=1)
-        new_list=[array_name+'_lag'+str(ii+1)]
-        col_list.extend(new_list)
-    return X, col_list
-
-
-def dcomp_seasonality(df, std_flag):
-    df_season = df.groupby(df.index.month).mean() # climatological seasonal cycle
-    df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())/x.std()) # calculate monthly anomaly
-    return df
-
 
 if __name__ == "__main__":
     main()
