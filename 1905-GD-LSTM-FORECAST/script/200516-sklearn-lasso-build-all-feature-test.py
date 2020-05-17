@@ -11,6 +11,7 @@ import json
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from sklearn.linear_model import LassoCV, Lasso
 import matplotlib
 matplotlib.use('Agg') 
@@ -21,10 +22,18 @@ from matplotlib.pyplot import savefig
 
 # function defination part
 
-def load_cpc_idx(path_cpc_idx, yr_start, yr_end):
+def load_cpc_idx(path_cpc_idx, cpc_libs yr_start, yr_end):
+
     df_cpc_idx_raw=pd.read_csv(path_cpc_idx, sep='\s+')
     df_cpc_idx = df_cpc_idx_raw[(df_cpc_idx_raw['YR']>=yr_start) & (df_cpc_idx_raw['YR']<=yr_end)]
     return df_cpc_idx
+
+def get_station_df(sta_path):
+    '''get station meta info (lat, lon, elev)'''
+    df = pd.read_excel(sta_path)
+    df=df.dropna()
+    return(df)
+
 
 def construct_lag_array2d(df, lag_step):
     """
@@ -74,6 +83,11 @@ def dcomp_seasonality(df, std_flag):
     df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())/x.std()) # calculate monthly anomaly
     return df
 
+def conv_deg(deg_str):
+    '''convert to degree info'''
+    value=int(deg_str)//100
+    value=value+(int(deg_str)-value*100)/60
+    return(value)
 
 
 #----------------------------------------------------
@@ -83,7 +97,6 @@ def main():
     # Station Number
     tgt_sta_num='59287'
 
-
     # meta file
     sta_meta_file='/disk/hq247/yhuangci/lzhenn/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
     
@@ -91,12 +104,12 @@ def main():
     label_dir='/disk/hq247/yhuangci/lzhenn/data/station/post/mon/Tave/'
 
     # Feature lib
-    cpc_prim_lib="/disk/hq247/yhuangci/lzhenn/data/osci_idx/cpc.prim.1950.index.txt"
-    cpc_aao_lib="/disk/hq247/yhuangci/lzhenn/data/osci_idx/cpc.aao.1979.index.txt"
+    cpc_prim_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/cir_idx/"
     cir_ind_dir="../testdata/possible_features.csv"
     era_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/era5/2T_GDS0_SFC.1979-2018.mon.mean.nc'
     era_clim_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/era5/T2m.clim.REA5.1981-2010.nc'
-
+    
+    
     # Year Break Points 
     start_year=1979
 
@@ -119,13 +132,29 @@ def main():
     
 
     result_dic={}
+
+# ------------------------ Data Loading ----------------------
+
+    # Get in Station meta
+    sta_df=get_station_df(sta_meta_file)
     
-   
+    # ERA T2m
+    ds = xr.open_dataset(era_file)
+    var1 = ds['2T_GDS0_SFC']
+    
+    #ERA T2m clim
+    ds_clim = xr.open_dataset(era_clim_file)
+    clim_var1 = ds_clim['T2_CLIM']
+
+    cpc_prim_lib=['detrend.nino34.ascii.txt', 'monthly.aao.index.b79.current.ascii',
+            'nao_index.tim', 'pna_index.tim', 'pt_index.tim','qbo.u50.index.csv', 
+            'tnh_index.tim', 'epnp_index.tim', 'monthly.ao.index.b50.current.ascii',
+            'poleur_index.tim', 'tele_index.nh', 'wp_index.tim']
+
     # Read Features
-    df_cpc_prim         =   load_cpc_idx(cpc_prim_lib, start_year, end_year)
-    df_cpc_aao          =   load_cpc_idx(cpc_aao_lib, start_year, end_year)
-    df_tmp_features     =   pd.read_csv(cir_ind_dir,index_col='time',parse_dates=True)
+    df_cpc_prim         =   load_cpc_idx(cpc_prim_lib_dir, cpc_prim_lib, start_year, end_year)
     
+    exit()
     # Parser Features
     # cpc
     cpc_aao_lag, cpc_aao_list=construct_lag_array1d(df_cpc_aao['AAO'], lag_step, 'aao')
@@ -146,6 +175,19 @@ def main():
     # verify
     print(len(col_list_X_features))
     print(X_features.shape)
+
+
+
+
+    for idx, row in sta_df.iterrows():
+        lat_sta=conv_deg(row['纬度(度分)'][0:-1])
+        lon_sta=conv_deg(row['经度(度分)'][0:-1])
+        var=var1.sel(g0_lat_0=lat_sta,g0_lon_1=lon_sta,method='nearest')
+        clim_var=clim_var1.sel(g0_lat_0=lat_sta,g0_lon_1=lon_sta,method='nearest')
+        print(var-clim_var) 
+        break
+    exit()
+
 
 
     # loop stations start here
