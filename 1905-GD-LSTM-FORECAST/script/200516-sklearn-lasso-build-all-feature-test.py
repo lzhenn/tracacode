@@ -11,7 +11,6 @@ import json
 
 import numpy as np
 import pandas as pd
-import xarray as xr
 from sklearn.linear_model import LassoCV, Lasso
 import matplotlib
 matplotlib.use('Agg') 
@@ -21,13 +20,6 @@ from matplotlib.pyplot import savefig
 
 
 # function defination part
-
-def load_cpc_idx(path_cpc_idx, cpc_libs yr_start, yr_end):
-
-    df_cpc_idx_raw=pd.read_csv(path_cpc_idx, sep='\s+')
-    df_cpc_idx = df_cpc_idx_raw[(df_cpc_idx_raw['YR']>=yr_start) & (df_cpc_idx_raw['YR']<=yr_end)]
-    return df_cpc_idx
-
 def get_station_df(sta_path):
     '''get station meta info (lat, lon, elev)'''
     df = pd.read_excel(sta_path)
@@ -80,7 +72,10 @@ def construct_lag_array1d(df, lag_step,array_name):
 
 def dcomp_seasonality(df, std_flag):
     df_season = df.groupby(df.index.month).mean() # climatological seasonal cycle
-    df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())/x.std()) # calculate monthly anomaly
+    if std_flag:
+        df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())/x.std()) # calculate monthly anomaly
+    else:
+        df = df.groupby(df.index.month).transform(lambda x: (x-x.mean())) # calculate monthly anomaly
     return df
 
 def conv_deg(deg_str):
@@ -100,24 +95,22 @@ def main():
     # meta file
     sta_meta_file='/disk/hq247/yhuangci/lzhenn/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
     
-    # Label File
+    # Label Dir
     label_dir='/disk/hq247/yhuangci/lzhenn/data/station/post/mon/Tave/'
 
     # Feature lib
-    cpc_prim_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/cir_idx/"
-    cir_ind_dir="../testdata/possible_features.csv"
-    era_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/era5/2T_GDS0_SFC.1979-2018.mon.mean.nc'
-    era_clim_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/era5/T2m.clim.REA5.1981-2010.nc'
-    
-    
+    cpc_prim_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/all_feature/all_org_features.csv"
+    era5_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/all_feature/era-bind-s2s/"
+    giss_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/all_feature/giss-bind-s2s/"
+        
     # Year Break Points 
     start_year=1979
 
     # End Year
-    end_year=2016
+    end_year=2018
 
     # Model Parameter
-    train_size=0.67
+    train_size=0.75
     lag_step=24
 
     # define label start time according to lag step
@@ -138,159 +131,125 @@ def main():
     # Get in Station meta
     sta_df=get_station_df(sta_meta_file)
     
-    # ERA T2m
-    ds = xr.open_dataset(era_file)
-    var1 = ds['2T_GDS0_SFC']
+    # CPC Features
+    df_cpc_prim         =  pd.read_csv(cpc_prim_lib_dir, index_col=0, parse_dates=True)
+    df_cpc_prim = df_cpc_prim[df_cpc_prim.index.year<=end_year]
+    df_cpc_prim_lag, cpc_prim_list=construct_lag_array2d(df_cpc_prim, lag_step)
     
-    #ERA T2m clim
-    ds_clim = xr.open_dataset(era_clim_file)
-    clim_var1 = ds_clim['T2_CLIM']
-
-    cpc_prim_lib=['detrend.nino34.ascii.txt', 'monthly.aao.index.b79.current.ascii',
-            'nao_index.tim', 'pna_index.tim', 'pt_index.tim','qbo.u50.index.csv', 
-            'tnh_index.tim', 'epnp_index.tim', 'monthly.ao.index.b50.current.ascii',
-            'poleur_index.tim', 'tele_index.nh', 'wp_index.tim']
-
-    # Read Features
-    df_cpc_prim         =   load_cpc_idx(cpc_prim_lib_dir, cpc_prim_lib, start_year, end_year)
-    
-    exit()
-    # Parser Features
-    # cpc
-    cpc_aao_lag, cpc_aao_list=construct_lag_array1d(df_cpc_aao['AAO'], lag_step, 'aao')
-    cpc_prim_lag, cpc_prim_list=construct_lag_array2d(df_cpc_prim.loc[:,['NINO','AO','NAO','PNA']], lag_step)
-    # 74 idx
-    df_feature0=dcomp_seasonality(df_tmp_features, True)
-    df_feature0=df_feature0.dropna(axis=1, how='any')
-    df_feature0=df_feature0[df_feature0.index.year>=start_year]
-    X, col_list_X=construct_lag_array2d(df_feature0, lag_step)
-
-    # concatenate
-    #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag,X),axis=1) # with 74 cir index
-    X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag),axis=1) # without 74 cir index
-    col_list_X_features=cpc_aao_list
-    col_list_X_features.extend(cpc_prim_list)
-    #col_list_X_features.extend(col_list_X)
-
-    # verify
-    print(len(col_list_X_features))
-    print(X_features.shape)
-
-
-
-
-    for idx, row in sta_df.iterrows():
-        lat_sta=conv_deg(row['纬度(度分)'][0:-1])
-        lon_sta=conv_deg(row['经度(度分)'][0:-1])
-        var=var1.sel(g0_lat_0=lat_sta,g0_lon_1=lon_sta,method='nearest')
-        clim_var=clim_var1.sel(g0_lat_0=lat_sta,g0_lon_1=lon_sta,method='nearest')
-        print(var-clim_var) 
-        break
-    exit()
-
-
-
-    # loop stations start here
-    fs_handl=os.walk(label_dir) 
-    
-    for path,dir_list,file_list in fs_handl:  
-        for file_name in file_list:  
-            sta_num=file_name[0:5]
-            if not(sta_num==tgt_sta_num):
-                continue
-            print('processing ', sta_num)
-            result_dic[sta_num]={}
-            col_list_X=col_list_X_features.copy()
-            
-            # Read labels
-            df_tmp_label=pd.read_csv(label_dir+file_name, index_col='time', parse_dates=True)
-            
-            # Parser labels
-            if df_tmp_label.index[0]>label_start_date:
-                print('start time beyond the least requirement!')
-                continue
-
-            # confine the period
-            df_tmp_label=df_tmp_label[(df_tmp_label.index >= label_start_date) & (df_tmp_label.index <= label_end_date)]
-            Y = np.array(df_tmp_label['tave'].values)
-            # predict label
-            Y = Y[lag_step:]
-
-
-            # construct auto-corr series as features 
-            #Y_lag, col_list_lagY=construct_lag_array1d(df_tmp_label['tave'], lag_step, 'Y') 
-            
-
-            X = np.concatenate((X_features, Y_lag),axis=1)
-            col_list_X.extend(col_list_lagY)
-            print('X size:', X.shape)
-            print('Y size:', Y.shape)
-            (n_samples, n_features)=X.shape
-
-            X_train=X[:int(train_size*n_samples),:]
-            X_test=X[int(train_size*n_samples):,:]
-
-            Y_train=Y[:int(train_size*n_samples)]
-            Y_test=Y[int(train_size*n_samples):]   
-            
-            # below for lassocv
-            lassocv_model=LassoCV(cv=10,normalize=True,n_jobs=10,max_iter=10000).fit(X_train,Y_train)
-            magic_alpha = lassocv_model.alpha_
-            
-            print('best alpha:', magic_alpha)
-            # above for lassocv
-
-            lasso_model=Lasso( alpha=magic_alpha, normalize=True,max_iter=10000)
-            lasso_model.fit(X_train, Y_train)
-
-            w=lasso_model.coef_
-            b=lasso_model.intercept_
-            features=np.where(w!=0)[0]
-
-            # print result
-            #print('w: ', w[w!=0])
-            #print('w_idx: ', features)
-            print('w_name: ', [col_list_X[itm] for itm in features])
-            #print('b: ', b)
-
-
-            # -----------make predictions-----------------
-            
-            trainPredict = lasso_model.predict(X_train)
-            testPredict = lasso_model.predict(X_test)
-            
-            direction_score=(sum((Y_test>0)*(testPredict>0))+sum((Y_test<0)*(testPredict<0)))/Y_test.shape[0]
-            print('****sign direction score:', direction_score)
-            result_dic[sta_num]={
-                'best_alpha':           magic_alpha,
-                'w':                    w[w!=0].tolist(),
-                'w_idx':                features.tolist(),
-                'w_name':               [col_list_X[itm] for itm in features],
-                'b':                    b,
-                'sign_score':           direction_score
-                }
-                
-            #break
-            BIGFONT=22
-            MIDFONT=18
-            SMFONT=16
-            fig, ax = plt.subplots()
-            plt.plot(Y_test/np.std(Y_test), label='Obv', color='blue')
-            plt.plot(testPredict/np.std(testPredict), label='Fcst', color='red')
-            plt.legend(loc='best', fontsize=SMFONT)
-            plt.xlabel('Timeframe',fontsize=SMFONT)
-            plt.ylabel('Deviation',fontsize=SMFONT)
-            plt.xticks(fontsize=SMFONT)
-            plt.yticks(fontsize=SMFONT)
-            
-            plt.title("Station: "+str(sta_num), fontsize=BIGFONT)
-            fig.tight_layout()
-            plt.show()
-            savefig('../fig/lasso_'+str(sta_num)+'.png')
-
    
-    print(result_dic)
-    
+    # 74 idx
+    #df_feature0=dcomp_seasonality(df_tmp_features, True)
+    #df_feature0=df_feature0.dropna(axis=1, how='any')
+    #df_feature0=df_feature0[df_feature0.index.year>=start_year]
+    #X, col_list_X=construct_lag_array2d(df_feature0, lag_step)
+
+    # 
+    #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag,X),axis=1) # with 74 cir index
+    #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag),axis=1) # without 74 cir index
+    X_features = np.array(df_cpc_prim_lag) 
+    col_list_X=cpc_prim_list
+    #col_list_X.extend(cpc_prim_list)
+    #col_list_X.extend(col_list_X)
+
+    icount=0
+    for idx, row in sta_df.iterrows():
+        sta_num=str(int(row['区站号']))
+        print(sta_num+' '+row['省份']+' '+row['站名'])
+        
+        # Read station-based feature
+        df_era5=pd.read_csv(era5_lib_dir+sta_num+'.t2m.csv', index_col=0, parse_dates=True)
+        df_era5=df_era5[(df_era5.index.year>=start_year) & (df_era5.index.year<=end_year)]
+
+        lst_era5_lag, col_era5_lag=construct_lag_array1d(df_era5, lag_step, 'era5') 
+        lst_era5_lag=np.squeeze(lst_era5_lag)
+        
+        df_giss=pd.read_csv(giss_lib_dir+sta_num+'.t2m.csv', index_col=0, parse_dates=True)
+        df_giss=df_giss[(df_giss.index.year>=start_year) & (df_giss.index.year<=end_year)]
+        lst_giss_lag, col_giss_lag=construct_lag_array1d(df_giss, lag_step, 'giss') 
+        lst_giss_lag=np.squeeze(lst_giss_lag)
+        
+        X = np.concatenate((X_features, lst_era5_lag, lst_giss_lag),axis=1) # with 74 cir index
+        col_list_X.extend(col_era5_lag)
+        col_list_X.extend(col_giss_lag)
+        
+        # verify
+        #print(len(col_list_X))
+        #print(X_features.shape)
+
+
+
+        # Read label
+        df_lbl=pd.read_csv(label_dir+sta_num+'.txt',index_col=0, parse_dates=True)
+        
+        # Parser labels
+        if df_lbl.index[0]>label_start_date:
+            print(df_lbl.index[0].strftime('%Y-%m')+' start time beyond the least requirement!')
+            continue
+        
+        df_lbl=df_lbl[(df_lbl.index >= label_start_date) & (df_lbl.index <= label_end_date)]
+        df_lbl=dcomp_seasonality(df_lbl, False)
+        Y = np.array(df_lbl['tave'].values)
+        # predict label
+        Y = Y[lag_step:]
+        
+        print('X size:', X.shape)
+        print('Y size:', Y.shape)
+
+        (n_samples, n_features)=X.shape
+        
+        if n_samples!= Y.shape[0]:
+            continue
+
+        X_train=X[:int(train_size*n_samples),:]
+        X_test=X[int(train_size*n_samples):,:]
+
+        Y_train=Y[:int(train_size*n_samples)]
+        Y_test=Y[int(train_size*n_samples):]   
+        
+        # below for lassocv
+        lassocv_model=LassoCV(cv=10,normalize=True,n_jobs=10,max_iter=10000).fit(X_train,Y_train)
+        magic_alpha = lassocv_model.alpha_
+        
+        print('best alpha:', magic_alpha)
+        # above for lassocv
+
+        lasso_model=Lasso( alpha=magic_alpha, normalize=True,max_iter=10000)
+        lasso_model.fit(X_train, Y_train)
+
+        w=lasso_model.coef_
+        b=lasso_model.intercept_
+        features=np.where(w!=0)[0]
+
+        # print result
+        #print('w: ', w[w!=0])
+        #print('w_idx: ', features)
+        print('w_name: ', [col_list_X[itm] for itm in features])
+        if len(features) == 0:
+            continue
+        #print('b: ', b)
+
+
+        # -----------make predictions-----------------
+        
+        trainPredict = lasso_model.predict(X_train)
+        testPredict = lasso_model.predict(X_test)
+        
+        direction_score=(sum((Y_test>0)*(testPredict>0))+sum((Y_test<0)*(testPredict<0)))/Y_test.shape[0]
+        print('****sign direction score:', direction_score)
+        result_dic[sta_num]={
+            'best_alpha':           magic_alpha,
+            'w':                    w[w!=0].tolist(),
+            'w_idx':                features.tolist(),
+            'w_name':               [col_list_X[itm] for itm in features],
+            'b':                    b,
+            'sign_score':           direction_score
+            }
+            
+        print(result_dic[sta_num])
+        icount=icount+1
+        if icount%50 == 0:
+            with open('../result/china_result'+str(icount)+'.json', 'w') as f:
+                json.dump(result_dic,f)
 
 if __name__ == "__main__":
     main()
