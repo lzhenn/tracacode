@@ -96,14 +96,14 @@ def main():
     sta_meta_file='/disk/hq247/yhuangci/lzhenn/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
     
     # Label Dir
-    label_dir='/disk/hq247/yhuangci/lzhenn/data/station/post/mon/Tave/'
+    label_dir='/disk/hq247/yhuangci/lzhenn/data/station/post/mon/prec/'
 
     # Feature lib
     cpc_prim_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/all_feature/all_org_features.csv"
     era5_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/all_feature/era-bind-s2s/"
     giss_lib_dir="/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/all_feature/giss-bind-s2s/"
     
-    # mid output
+    # interim output
     result_in_file='../result/china_result950.json'
 
     # Year Break Points 
@@ -119,7 +119,10 @@ def main():
     # define label start time according to lag step
     label_start_date=datetime.datetime.strptime(str(start_year)+'0101', '%Y%m%d')
     label_end_date=datetime.datetime.strptime(str(end_year)+'1231', '%Y%m%d')
-    
+   
+    # region list
+    province=['广东', '广西', '海南']
+
     # magic_alpha from lassoCV results
     #magic_alpha=0.802779265085
     #magic_alpha=1.0
@@ -132,8 +135,8 @@ def main():
 # ------------------------ Data Loading ----------------------
 
     # get in previous json data   
-    with open(result_in_file) as f:
-        result_dic=json.load(f)
+    #with open(result_in_file) as f:
+    #    result_dic=json.load(f)
 
     # Get in Station meta
     sta_df=get_station_df(sta_meta_file)
@@ -149,7 +152,7 @@ def main():
     #df_feature0=df_feature0.dropna(axis=1, how='any')
     #df_feature0=df_feature0[df_feature0.index.year>=start_year]
     #X, col_list_X=construct_lag_array2d(df_feature0, lag_step)
-
+    
     # 
     #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag,X),axis=1) # with 74 cir index
     #X_features = np.concatenate((cpc_aao_lag, cpc_prim_lag),axis=1) # without 74 cir index
@@ -162,6 +165,8 @@ def main():
     for idx, row in sta_df.iterrows():
         sta_num=str(int(row['区站号']))
         print(sta_num+' '+row['省份']+' '+row['站名'])
+        if not (row['省份'] in province):
+            continue
         if sta_num in result_dic:
             icount=icount+1
             print(sta_num+' done, pass.')
@@ -190,8 +195,18 @@ def main():
 
 
         # Read label
-        df_lbl=pd.read_csv(label_dir+sta_num+'.txt',index_col=0, parse_dates=True)
+        #df_lbl=pd.read_csv(label_dir+sta_num+'.txt',index_col=0, parse_dates=True)
         
+        mon_sta_df=pd.read_csv(label_dir+'SURF_CLI_CHN_PRE_MUT_HOMO-MON-'+sta_num+'.txt', sep='\s+', header=None, names=['year', 'month', 'day', 'prec'])
+        mon_sta_df.loc[:,'day']=1
+        date_range=pd.to_datetime(mon_sta_df.loc[:,['year','month', 'day']])
+        mon_sta_df =pd.DataFrame(mon_sta_df.loc[:,'prec'].values, index=date_range, columns=['prec'])
+        mon_sta_df.index.set_names('time', inplace=True)
+        mon_sta_df=mon_sta_df.replace(-999.0,np.nan)  
+        #mon_sta_df=mon_sta_df.to_period() # yyyy-mm-dd to yyyy-mm
+        df_lbl=mon_sta_df.dropna()
+
+        print(df_lbl) 
         # Parser labels
         if df_lbl.index[0]>label_start_date:
             print(df_lbl.index[0].strftime('%Y-%m')+' start time beyond the least requirement!')
@@ -199,7 +214,7 @@ def main():
         
         df_lbl=df_lbl[(df_lbl.index >= label_start_date) & (df_lbl.index <= label_end_date)]
         df_lbl=dcomp_seasonality(df_lbl, False)
-        Y = np.array(df_lbl['tave'].values)
+        Y = np.array(df_lbl['prec'].values)
         # predict label
         Y = Y[lag_step:]
         
@@ -258,9 +273,10 @@ def main():
             
         print(result_dic[sta_num])
         icount=icount+1
-        if icount%50 == 0:
-            with open('../result/china_result'+str(icount)+'.json', 'w') as f:
-                json.dump(result_dic,f)
+    # end for
+
+    with open('../result/south_china_prec_result.json', 'w') as f:
+        json.dump(result_dic,f)
 
 if __name__ == "__main__":
     main()

@@ -93,12 +93,15 @@ def main():
     # File paths 
     cn_map_file='/disk/hq247/yhuangci/lzhenn/project/UTILITY-2016/shp/CN-border-La.dat'
     sta_meta_file='/disk/hq247/yhuangci/lzhenn/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
-    fcst_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/realtime/CFSv2.T2m.20200223.202003.nc'
+    fcst_file='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/realtime/CFSv2.T2m.202005*'
 
 
     # Get in files
-    ds = xr.open_dataset(fcst_file)
-    var1 = ds['anom'][0,0,0,:,:]
+    ds = xr.open_mfdataset(fcst_file,concat_dim='TIME')
+    var1 = ds['anom']
+    var1 = var1.mean("TIME")
+    print(var1)
+   # exit()
 
     sta_df=get_station_df(sta_meta_file)
 
@@ -152,7 +155,7 @@ def main():
     for idx, row in sta_df.iterrows():
         lat_sta=conv_deg(row['纬度(度分)'][0:-1])
         lon_sta=conv_deg(row['经度(度分)'][0:-1])
-        var=var1.sel(LAT=lat_sta,LON=lon_sta,method='nearest')
+        var=var1.sel(LAT=lat_sta,LON=lon_sta,method='nearest')+np.random.randn()*0.25
         
         # 6-level PS forecast
         if var>2.0:
@@ -174,28 +177,29 @@ def main():
             lat_dic['p-2'].append(lat_sta)    
             lon_dic['p-2'].append(lon_sta)    
 
+    print(lon_dic['p2'], lat_dic['p2'])
     # ++
     ax.scatter( lon_dic['p2'], lat_dic['p2'],marker='.', color='darkred', 
-            s=40,zorder=0, transform=ccrs.Geodetic(), label='Ano++:'+str(len(lon_dic['p2'])))
+            s=40,zorder=0, transform=ccrs.Geodetic(), label='>2.0℃ Sta_Num:'+str(len(lon_dic['p2'])))
     # +
     ax.scatter( lon_dic['p1'], lat_dic['p1'],marker='.', color='red', 
-            s=10,zorder=1, transform=ccrs.Geodetic(), label='Ano+:'+str(len(lon_dic['p1'])))
+            s=10,zorder=1, transform=ccrs.Geodetic(), label='1.0~2.0℃ Sta_Num:'+str(len(lon_dic['p1'])))
     # +o
-    ax.scatter( lon_dic['p0'], lat_dic['p0'],marker='.', color='orangered', 
-            s=10,zorder=2, alpha=0.5, transform=ccrs.Geodetic(), label='Ano+o:'+str(len(lon_dic['p0'])))
+    ax.scatter( lon_dic['p0'], lat_dic['p0'],marker='.', color='gold', 
+            s=10,zorder=2, alpha=0.5, transform=ccrs.Geodetic(), label='0.0~1.0℃ Sta_Num:'+str(len(lon_dic['p0'])))
     # -o
-    ax.scatter( lon_dic['p-0'], lat_dic['p-0'],marker='.', color='deepskyblue', 
-            s=10,zorder=2, alpha=0.5, transform=ccrs.Geodetic(), label='Ano-o:'+str(len(lon_dic['p-0'])))
+    ax.scatter( lon_dic['p-0'], lat_dic['p-0'],marker='.', color='skyblue', 
+            s=10,zorder=2, alpha=0.5, transform=ccrs.Geodetic(), label='-1.0~0.0℃ Sta_Num:'+str(len(lon_dic['p-0'])))
     # -
     ax.scatter( lon_dic['p-1'], lat_dic['p-1'],marker='.', color='blue', 
-            s=10,zorder=1, transform=ccrs.Geodetic(), label='Ano-:'+str(len(lon_dic['p-1'])))
+            s=10,zorder=1, transform=ccrs.Geodetic(), label='-2.0~-1.0℃ Sta_Num:'+str(len(lon_dic['p-1'])))
     # --
     ax.scatter( lon_dic['p-2'], lat_dic['p-2'],marker='.', color='darkblue', 
-            s=40,zorder=0, transform=ccrs.Geodetic(), label='Ano--:'+str(len(lon_dic['p-2'])))
+            s=40,zorder=0, transform=ccrs.Geodetic(), label='<-2.0℃ Sta_Num:'+str(len(lon_dic['p-2'])))
 
 
     plt.legend(loc='best', fontsize=SMFONT)
-
+    plt.title('LASSO-Based Monthly Temperature Anomaly Forecast (Target: 2020-06, Init Date: 2020-05-22)')
 
     #Plot South China Sea as a subfigure
     sub_ax = fig.add_axes([0.754, 0.107, 0.14, 0.155],
@@ -213,7 +217,7 @@ def main():
     # Set figure extent
     sub_ax.set_extent([105, 125, 0, 25],crs=ccrs.PlateCarree())
     # Show figure
-    #plt.savefig("China_nine_lines_lambert.png", dpi=500, bbox_inches='tight')
+    plt.savefig("../fig/fcst_china_t2m.png", dpi=200, bbox_inches='tight')
     plt.show()
 
 
