@@ -128,8 +128,8 @@ def main():
     # Add ocean, land, rivers and lakes
     ax.add_feature(cfeature.OCEAN.with_scale('50m'))
     ax.add_feature(cfeature.LAND.with_scale('50m'))
-    ax.add_feature(cfeature.RIVERS.with_scale('50m'))
-    ax.add_feature(cfeature.LAKES.with_scale('50m'))
+    #ax.add_feature(cfeature.RIVERS.with_scale('50m'))
+    #ax.add_feature(cfeature.LAKES.with_scale('50m'))
 
 
 
@@ -183,19 +183,19 @@ def main():
             s=40,zorder=0, transform=ccrs.Geodetic(), label='>2.0℃ Sta_Num:'+str(len(lon_dic['p2'])))
     # +
     ax.scatter( lon_dic['p1'], lat_dic['p1'],marker='.', color='red', 
-            s=10,zorder=1, transform=ccrs.Geodetic(), label='1.0~2.0℃ Sta_Num:'+str(len(lon_dic['p1'])))
+            s=15,zorder=1, transform=ccrs.Geodetic(), label='1.0~2.0℃ Sta_Num:'+str(len(lon_dic['p1'])))
     # +o
     ax.scatter( lon_dic['p0'], lat_dic['p0'],marker='.', color='gold', 
-            s=10,zorder=2, alpha=0.5, transform=ccrs.Geodetic(), label='0.0~1.0℃ Sta_Num:'+str(len(lon_dic['p0'])))
+            s=8,zorder=2, transform=ccrs.Geodetic(), label='0.0~1.0℃ Sta_Num:'+str(len(lon_dic['p0'])))
     # -o
     ax.scatter( lon_dic['p-0'], lat_dic['p-0'],marker='.', color='skyblue', 
-            s=10,zorder=2, alpha=0.5, transform=ccrs.Geodetic(), label='-1.0~0.0℃ Sta_Num:'+str(len(lon_dic['p-0'])))
+            s=10,zorder=2, transform=ccrs.Geodetic(), label='-1.0~0.0℃ Sta_Num:'+str(len(lon_dic['p-0'])))
     # -
     ax.scatter( lon_dic['p-1'], lat_dic['p-1'],marker='.', color='blue', 
-            s=10,zorder=1, transform=ccrs.Geodetic(), label='-2.0~-1.0℃ Sta_Num:'+str(len(lon_dic['p-1'])))
+            s=20,zorder=1, transform=ccrs.Geodetic(), label='-2.0~-1.0℃ Sta_Num:'+str(len(lon_dic['p-1'])))
     # --
     ax.scatter( lon_dic['p-2'], lat_dic['p-2'],marker='.', color='darkblue', 
-            s=40,zorder=0, transform=ccrs.Geodetic(), label='<-2.0℃ Sta_Num:'+str(len(lon_dic['p-2'])))
+            s=50,zorder=0, transform=ccrs.Geodetic(), label='<-2.0℃ Sta_Num:'+str(len(lon_dic['p-2'])))
 
 
     plt.legend(loc='best', fontsize=SMFONT)
@@ -205,11 +205,11 @@ def main():
     sub_ax = fig.add_axes([0.754, 0.107, 0.14, 0.155],
                           projection=ccrs.LambertConformal(central_latitude=90,
                                                            central_longitude=115))
+
     # Add ocean, land, rivers and lakes
     sub_ax.add_feature(cfeature.OCEAN.with_scale('50m'))
     sub_ax.add_feature(cfeature.LAND.with_scale('50m'))
-    #sub_ax.add_feature(cfeature.RIVERS.with_scale('50m'))
-    #sub_ax.add_feature(cfeature.LAKES.with_scale('50m'))
+
     # Plot border lines
     for line in borders:
         sub_ax.plot(line[0::2], line[1::2], '-', lw=0.5, color='k',
