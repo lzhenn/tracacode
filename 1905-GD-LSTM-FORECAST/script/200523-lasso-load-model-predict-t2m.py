@@ -85,6 +85,7 @@ def conv_deg(deg_str):
     value=value+(int(deg_str)-value*100)/60
     return(value)
 
+def scaling_predict(y, obv_series, predict_series):
 
 #----------------------------------------------------
 # User Defined Part
@@ -107,10 +108,12 @@ def main():
     # Model Storage Dir
     model_out_dir='/disk/hq247/yhuangci/lzhenn/workspace/spellcaster-local/data/model_archive/'
     
+    # Result Dict File
+    result_in_file='../testdata/result.json'
     
     # Model Parameter
     lag_step=24
-    data_feed_year=4    # feed in previous 3 yrs
+    data_feed_year=5    # feed in previous 3 yrs
 
     # define label start time according to lag step
     label_init_date=datetime.datetime.now()
@@ -123,10 +126,6 @@ def main():
     #magic_alpha=1.0
     #magic_alpha=1.07682989906 train_data
     
-    
-
-    result_dic={}
-
 # ------------------------ Data Loading ----------------------
 
     # Get in Station meta
@@ -156,11 +155,7 @@ def main():
     for idx, row in sta_df.iterrows():
         sta_num=str(int(row['区站号']))
         print(sta_num+' '+row['省份']+' '+row['站名'])
-        if sta_num in result_dic:
-            icount=icount+1
-            print(sta_num+' done, pass.')
-            continue
-
+ 
         # Read station-based feature, era5 deg in anom, not era5 is combined with dyn forecast
         # so it has T+1 (lag0) info
         df_era5=pd.read_csv(era5_lib_dir+sta_num+'.t2m.csv', index_col=0, parse_dates=True)
@@ -198,15 +193,23 @@ def main():
         #print('w_idx: ', features)
         print('w_name: ', [col_list_X[itm] for itm in features])
         if len(features) == 0:
-            continue
-        # make prediction
-        predict_Y=lasso_model.predict(X)
+            y_lasso=0.0
+        else:
+            # make prediction
+            predict_Y=lasso_model.predict(X)
+            y_lasso=predict_Y[-1]
+        # determine std range:
+        # Read label
+        df_lbl=pd.read_csv(label_dir+sta_num+'.txt',index_col=0, parse_dates=True)
         
-        # all we need!
-        predict_Y[-1]
+       
+        df_lbl=df_lbl[(df_lbl.index >= label_start_date) & (df_lbl.index <= label_end_date)]
+ 
+
+
+        # all we need is the prediction value after scaling!
+        y_predict=(predict_Y[-1], )
                    
-        print(predict_Y[-1])
-        break
         icount=icount+1
     # end for
 
