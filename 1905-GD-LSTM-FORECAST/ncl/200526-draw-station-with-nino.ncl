@@ -14,12 +14,14 @@ load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 
 begin
     
-   
+    ;Var name
+    varname="prec"
+
     ;Fig name
-    g_fig_name="../fig/Obv_Sta_Map"
+    g_fig_name="../fig/Obv_Sta_Map_NINO"+varname
     
     ;Fig title
-    fig_title="Obv Stations Map"
+    fig_title="ENSO-Sensitive Obv Stations Map (PREC)"
 
     ;Font size
     g_font=0.015
@@ -30,10 +32,11 @@ begin
 
     ;File IO
     pdata_fn     = "../testdata/south_china_result.csv"
+    nino_sta_fn = "../testdata/nino_prec.relation"
     rec=readAsciiTable(pdata_fn, 5, "float",1 )
+    
+    rec_nino=readAsciiTable(nino_sta_fn, 1, "float",1 )
 
-    hydro_lat=(/23.17, 23.57, 23.48, 23.67/)
-    hydro_lon=(/114.30,112.95, 111.30, 116.65/)
     ; rec
     ; 0     station number
     ; 1     lat*100
@@ -43,6 +46,8 @@ begin
     n_sta=dimsizes(rec)
     n_sta:=n_sta(0)
 
+    n_nino=dimsizes(rec_nino)
+    n_nino:=n_nino(0)
     print("nstations="+n_sta)
 ;**********************************************************************************************
     wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
@@ -155,7 +160,7 @@ res@mpInlandWaterFillColor  = "white"
   tlat=20.5
   tlon=113.0
   
- 
+  nsta_nino=0
   do ii = 0, n_sta-1
     lon_int=floor(rec(ii,2)/100.0)
     lon_flot=(rec(ii,2)-lon_int*100)/60
@@ -165,31 +170,33 @@ res@mpInlandWaterFillColor  = "white"
     
     sta_lon=lon_int+lon_flot
     sta_lat=lat_int+lat_flot
-    
+
+    find_nino=False
+    do jj =0, n_nino-1
+        if (rec(ii,0) .eq. rec_nino(jj,0)) then
+            gsres_out@gsMarkerColor="Red"
+            nsta_nino=nsta_nino+1
+            find_nino=True
+        end if
+    end do
+    if (find_nino .eq. False) then
+        gsres_out@gsMarkerColor="Gray30"
+    end if
     plot@$unique_string("fuck ncl")$ = gsn_add_polymarker(wks,plot,sta_lon,sta_lat,gsres_out)
-    ;plot@$unique_string("fuck ncl")$ = gsn_add_polymarker(wks,plot,sta_lon,sta_lat,gsres)
+  
   end do
  
-  plot@$unique_string("fuck ncl")$   = gsn_add_polymarker(wks,plot,tlon-0.5,tlat,gsres_out)
-  plot@$unique_string("fuck ncl")$   = gsn_add_text(wks,plot,"ENSO-insensitive Stations",tlon,tlat,tres)
+  gsres_out@gsMarkerColor="Gray30"
+  plot@$unique_string("fuck ncl")$   = gsn_add_polymarker(wks,plot,tlon-0.5,tlat-0.1,gsres_out)
+  plot@$unique_string("fuck ncl")$   = gsn_add_text(wks,plot,(n_sta-nsta_nino)+" ENSO-insensitive Stations",tlon,tlat,tres)
 
-
-  gsres_out@gsMarkerIndex=7
-  gsres_out@gsMarkerThicknessF = 8.0
-  gsres_out@gsMarkerSizeF      = 0.012
-  gsres_out@gsMarkerColor="Blue"
- 
-
-    do ii = 0, dimsizes(hydro_lat)-1
-      plot@$unique_string("fuck ncl")$ = gsn_add_polymarker(wks,plot,hydro_lon(ii),hydro_lat(ii),gsres_out)
-      print("xx")
-    end do
-    tlat=20.0
-  
-  plot@$unique_string("fuck ncl")$   = gsn_add_polymarker(wks,plot,tlon-0.5,tlat,gsres_out)
-  plot@$unique_string("fuck ncl")$   = gsn_add_text(wks,plot,"ENSO-sensitive Stations",tlon,tlat,tres)
     
-    ; Add label
+  tlat=20.0
+  gsres_out@gsMarkerColor="Red"
+  plot@$unique_string("fuck ncl")$   = gsn_add_polymarker(wks,plot,tlon-0.5,tlat-0.1,gsres_out)
+  plot@$unique_string("fuck ncl")$   = gsn_add_text(wks,plot,nsta_nino+" ENSO-sensitive Stations",tlon,tlat,tres)
+    
+ ; Add label
     
 
 

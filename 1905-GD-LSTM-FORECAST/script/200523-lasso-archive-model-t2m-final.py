@@ -218,14 +218,15 @@ def main():
         Y_test=Y[int(train_size*n_samples):]   
         
         # below for lassocv
-        lassocv_model=LassoCV(cv=10,normalize=True,n_jobs=10,max_iter=10000).fit(X_train,Y_train)
+#        lassocv_model=LassoCV(cv=10,normalize=True,n_jobs=10,max_iter=10000).fit(X_train,Y_train)
+        lassocv_model=LassoCV(cv=10,normalize=True,n_jobs=10,max_iter=10000).fit(X,Y)
         magic_alpha = lassocv_model.alpha_
         
         print('best alpha:', magic_alpha)
         # above for lassocv
 
         lasso_model=Lasso( alpha=magic_alpha, normalize=True,max_iter=10000)
-        lasso_model.fit(X_train, Y_train)
+        lasso_model.fit(X, Y)
         
         joblib.dump(lasso_model, model_out_dir+sta_num+'.t2m.model')
 
@@ -244,7 +245,7 @@ def main():
 
         # -----------make predictions-----------------
         
-        trainPredict = lasso_model.predict(X_train)
+#        trainPredict = lasso_model.predict(X_train)
         testPredict = lasso_model.predict(X_test)
         
         direction_score=(sum((Y_test>0)*(testPredict>0))+sum((Y_test<0)*(testPredict<0)))/Y_test.shape[0]
@@ -262,7 +263,7 @@ def main():
         icount=icount+1
     # end for
 
-    with open('../result/whole_china_t2m_result.json', 'w') as f:
+    with open('../result/whole_china_t2m_full_XY_result.json', 'w') as f:
         json.dump(result_dic,f)
 
 if __name__ == "__main__":
