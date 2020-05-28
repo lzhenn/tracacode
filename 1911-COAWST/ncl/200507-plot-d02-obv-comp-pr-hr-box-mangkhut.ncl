@@ -15,8 +15,8 @@ begin
     imerg_path="/disk/v092.yhuangci/lzhenn/1911-COAWST/obv/hfhr-gpm/"  
     g_font=0.02
 
-    fr_strt=32
-    fr_end=59
+    fr_strt=32-5
+    fr_end=59-5
     ctrl_in      = addfile (wrfout_path, "r")   ; note the "s" of addfile
     ; parser lat lon
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
@@ -30,11 +30,13 @@ begin
     all_fn=systemfunc("ls "+imerg_path+"/*")  
     imerg_in=addfiles(all_fn,"r")
     obv_pr=imerg_in[:]->precipitationCal(fr_strt:fr_end,:,:)
+    obv_pr:=obv_pr(time|:,lat|:,lon|:)
     yyyymmddhh=cd_calendar(obv_pr&time, -3)
+    print(yyyymmddhh)
     do ii = 0,(fr_end-fr_strt+1)/2-1
         obv_pr(ii,:,:)=obv_pr(2*ii,:,:)*0.5+obv_pr(2*ii+1,:,:)*0.5
     end do
-    obv_pr:=obv_pr(0:(fr_end-fr_strt+1)/2,:,:)
+    obv_pr:=obv_pr(0:(fr_end-fr_strt+1)/2-1,:,:)
      ; get in wrf tc track data
     ;0-timestamp 1-cat 2-lat 3-lon 4-minSLP 4-maxWS 5-uRadius 6-vRadius
     case_tc = asciiread("/disk/v092.yhuangci/lzhenn/1911-COAWST/cma.trck.mangkhut", (/52,6/),"integer")
@@ -105,6 +107,10 @@ res                   = True              ; plot mods desired
   res@mpMaskAreaSpecifiers    = (/"China","Taiwan","Disputed area between India and China","India:Arunachal Pradesh"/)
   res@mpLandFillColor         = "white"
   res@mpInlandWaterFillColor  = "white"
+  res@mpMinLatF=latmin
+  res@mpMaxLatF=latmax
+  res@mpMinLonF=lonmin
+  res@mpMaxLonF=lonmax
   wks_type="png"
   wks_type@wkWidth=800
   wks_type@wkHeight=800
@@ -120,7 +126,7 @@ res                   = True              ; plot mods desired
   obv_polyres@gsMarkerIndex     = 16          ; polymarker style
   obv_polyres@gsMarkerSizeF     = 9.          ; polymarker size
 
-res = wrf_map_resources(ctrl_in,res)
+;res = wrf_map_resources(ctrl_in,res)
 
 
 ; tc box radius
@@ -129,8 +135,8 @@ boxR=30
 var_comp=(/obv_pr(0,0:2*boxR,0:2*boxR)/)
 obv_pr:=obv_pr
 var_comp=0
-time_frame=216+30
-lentime=231+30
+time_frame=216
+lentime=231-1
 
 fr_now=0
 
@@ -141,28 +147,28 @@ do while(time_frame .lt. lentime)
     ; create plot
     ;************************************************
     
-    wks = gsn_open_wks(wks_type,"/disk/hq247/yhuangci/lzhenn/project/1911-COAWST/fig/box_comp_imerg"+fr_now)      ; send graphics to PNG file
     
   
-    gsn_define_colormap(wks,"precip2_17lev")
-    res@gsnLeftString="Imerg GPM Comp Hourly Pr"
     ;---Call plotting routine which draws contours over a map
     tc_lon=fine_lon(time_frame)/10.
     tc_lat=fine_lat(time_frame)/10.
     cor_x1=closest_val(tc_lat, obv_pr&lat)+10
     cor_y1=closest_val(tc_lon, obv_pr&lon)
-    print(cor_y1)
-    var_comp=var_comp+obv_pr(fr_now,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+    print(fine_time(time_frame))
+    var_comp=var_comp+obv_pr(fr_now,cor_x1-boxR-10:cor_x1+boxR-10,cor_y1-boxR:cor_y1+boxR)
     time_frame=time_frame+1
     fr_now=fr_now+1
 
     res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
     res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
-    plot = gsn_csm_contour_map(wks,obv_pr(fr_now,:,:),res)
-    plot@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,tc_lon,tc_lat,obv_polyres)
-
-    draw(plot)
-    frame(wks)
+    printVarSummary(obv_pr)
 end do
+wks = gsn_open_wks(wks_type,"/disk/hq247/yhuangci/lzhenn/project/1911-COAWST/fig/box_comp_imerg")      ; send graphics to PNG file
+gsn_define_colormap(wks,"precip2_17lev")
+res@gsnLeftString="Imerg GPM Comp Hourly Pr"
 var_comp=var_comp/(fr_now-1)
+plot = gsn_csm_contour(wks,var_comp,res)
+draw(plot)
+frame(wks)
+
 end

@@ -120,8 +120,8 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt7_plot_box_comp_q2_200516.ncl 
-    #           ./ncl/opt6_plot_box_comp_tsk_200516.ncl 
+               ./ncl/opt6_plot_box_comp_tsk_200516.ncl 
+    #            ./ncl/opt7_plot_box_comp_q2_200516.ncl 
     #            ./ncl/opt5_plot_box_comp_hfx_200516.ncl 
     #           ./ncl/opt4_plot_box_comp_hwave_200516.ncl 
     #            ./ncl/opt3_plot_box_comp_lh_200516.ncl 

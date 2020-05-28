@@ -85,8 +85,10 @@ begin
 
     ; get rain
     ;ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
-  	ctrl_var2  = wrf_user_getvar(ctrl_in,varname, -1)  
-  	ctrl_var2  = ctrl_var2-273.15  
+  	ctrl_var2  = wrf_user_getvar(ctrl_in,varname, -1) 
+    ctrl_var2@_FillValue=-999
+  	ctrl_var2=where(ctrl_var2 .lt. 100, ctrl_var2@_FillValue, ctrl_var2)
+    ctrl_var2  = ctrl_var2-273.15  
     ;ctrl_var1  = (ctrl_var1+ctrl_var2)
  
     dims:=dimsizes(ctrl_var2)
@@ -105,7 +107,7 @@ begin
   res=True 
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 24.          ; set min contour level
+  res@cnMinLevelValF        = 30.          ; set min contour level
   res@cnMaxLevelValF        = 26.          ; set max contour level
   res@cnLevelSpacingF       = 0.1          ; set contour interval
   
@@ -165,7 +167,7 @@ begin
 ; tc box radius
 boxR=80
 
-var_comp2=ctrl_var2(0,0:2*boxR,0:2*boxR)
+var_comp2=(/ctrl_var2(0:ilast-istrt,0:2*boxR,0:2*boxR)/)
 var_comp2=0
 time_frame=istrt
 do while(time_frame .lt. ilast)
@@ -191,14 +193,14 @@ do while(time_frame .lt. ilast)
     ;box_x=(/cor_x1-boxR, cor_x1-boxR, cor_x1+boxR, cor_x1+boxR, cor_x1-boxR/)
     ;box_y=(/cor_y1-boxR, cor_y1+boxR, cor_y1+boxR, cor_y1-boxR, cor_y1-boxR/)
 
-    var_comp2=var_comp2+ctrl_var2(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+    var_comp2(time_frame-istrt,:,:)=ctrl_var2(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
 
     time_frame=time_frame+1
 end do
 
-var_comp2=var_comp2/(ilast-istrt+1)
+var_comp2:=dim_avg_n_Wrap(var_comp2,0)
 mean_var=wgt_areaave_Wrap(var_comp2,1.0,1.0,0)
-res@gsnRightString = sprintf(" Amean: %5.1f degC", mean_var)
+res@gsnRightString = sprintf(" AnoMean: %5.1f degC", mean_var)
 plot = gsn_csm_contour(wks,var_comp2,res)
 draw(plot)
 frame(wks)
