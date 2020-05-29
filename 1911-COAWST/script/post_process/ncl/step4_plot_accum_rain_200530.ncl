@@ -37,7 +37,7 @@ begin
 
 
 
-    fig_prefix="d0"+tostring(i_dom)+"_trck_"
+    fig_prefix="d0"+tostring(i_dom)+"_acc_precip_"+tstrt+"-"+tend
     g_font=0.02
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
@@ -68,33 +68,70 @@ begin
 
     date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
     lentime=dimsizes(xtime)
-  
+   
+    ; get in wrf tc track data
+    ;0-timestamp 1-lat 2-lon 3-minSLP 4-maxWS 5-uRadius 6-vRadius
+    case_tc = asciiread(wrfout_path+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
+       
     lc_date:=cd_calendar(xtime, -3)
     istrt   = ind(lc_date .eq. toint(tstrt))
     ilast   = ind(lc_date .eq. toint(tend))
 
-    ; get in wrf tc track data
-    ;0-timestamp 1-lat 2-lon 3-minSLP 4-maxWS 5-uRadius 6-vRadius
-    case_tc = asciiread(wrfout_path+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
+
+
+    ; get rain
+    ;ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
+    ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINNC", -1)  
+    ;ctrl_var1  = (ctrl_var1+ctrl_var2)
+ 
+    dims:=dimsizes(ctrl_var1)
+    dim_t=dims(0)
+    dim_y=dims(1)
+    dim_x=dims(2)
+    
+    ctrl_var1:=ctrl_var1(ilast,:,:)-ctrl_var1(istrt,:,:)
+
     ; parser lat lon
-    lat2d = wrf_user_getvar(ctrl_in,"XLAT",  0)
-    lon2d = wrf_user_getvar(ctrl_in,"XLONG", 0)
-  
+    lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
+    lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
+    ctrl_var1@lat2d = lat2d
+    ctrl_var1@lon2d = lon2d
+    ;ctrl_var1=(/ctrl_var1-273.15/)   
+    ctrl_var1(0,:)=(/ctrl_var1(0,:)+1e-2/)
+
+   
 
   res                   = True              ; plot mods desired
+;---Resources for filled contour plot
   
+  res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+  ;res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
+  res@cnLevels =    (/1, 2, 5, 10, 20, 30, 40, 50, 70, 100, 150, 200, 250, 300, 400, 500/)
+   
   res@gsnMaximize          = True
   res@gsnFrame = False
   res@gsnDraw = False
+  res@cnFillOn             = True  
+  res@cnLinesOn            = False
+  res@cnLevelSpacingF      = 2.           ; NCL chose 4.0
+  res@lbOrientation        = "Vertical"
 
 ;---Necessary for contours to be overlaid correctly on WRF projection
   res@tfDoNDCOverlay       = True
-  res@gsnRightString = ""
+  res@gsnAddCyclic         = False
+  res@cnFillMode           = "CellFill" ; Raster Mode
+  res@gsnSpreadColors      = True               ; use full color map
+  res@gsnRightString = "mm"
   res@gsnStringFontHeightF = g_font 
+  res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
 
+  res@lbLabelBarOn = True   ; turn off the label bar
+  res@lbOrientation          = "vertical"
+  res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
+  res@lbLabelStride = 2  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
   res@mpGridAndLimbOn        = True             ; Turn on lat/lon grid
@@ -105,6 +142,7 @@ begin
 
   res@mpOutlineOn             = True  ; Use outlines from shapefile
   res@mpGeophysicalLineColor = "gray10"
+  res@cnFillDrawOrder         = "PreDraw"
   res@mpDataBaseVersion       = "MediumRes"
   res@mpDataSetName           = "Earth..4"
   res@mpAreaMaskingOn         = True
@@ -136,6 +174,11 @@ begin
   pres@gsLineThicknessF = 3.0            ; line thickness   
   pres@gsLineColor      = "red"         ; color of lines
   
+  pres_wrf=pres
+  pres_wrf@gsLineColor="blue"
+
+
+
   tres  = True
   tres@txFontHeightF = 0.015
   tres@txJust="TopLeft"
@@ -146,69 +189,47 @@ begin
   obv_polyres@gsMarkerIndex     = 16          ; polymarker style
   obv_polyres@gsMarkerSizeF     = 9.          ; polymarker size
 
-  sim_histres=polyres
-  sim_histres@gsMarkerSizeF     = 7.          ; polymarker size
-  sim_histres@gsMarkerIndex     = 7          ; polymarker style
-  sim_histres@gsMarkerThicknessF   = 6          ; polymarker style
-  sim_histres@gsMarkerColor = pres@gsLineColor
+
 
 res = wrf_map_resources(ctrl_in,res)
 
-time_frame=istrt
 wks_type="png"
 wks_type@wkWidth=800
 wks_type@wkHeight=800
 
-do while(time_frame .lt. ilast)
-    ;---Set map resources based on projection on WRF output file
+;---Set map resources based on projection on WRF output file
 
-    ;************************************************
-    ; create plot
-    ;************************************************
-    
-    wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
-    
-;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-;    res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
-   
-    gsn_define_colormap(wks,"precip2_17lev")
-    res@gsnLeftString=casename+" Track @"+date_str(time_frame)
-    ;---Call plotting routine which draws contours over a map
-    plot = gsn_csm_map(wks, res)
-  
-    chinamap = add_china_map(wks,plot,cnres)
-    ; center
-    
-    no_tc_count=0 ; count no tc frames
-    if (case_tc(time_frame,4) .gt. 0) then
-        dum1    = gsn_add_polymarker(wks,plot,case_tc(time_frame,2),case_tc(time_frame,1),polyres)
-        ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f degC", case_tc(2, time_frame)),tlon,tlat,tres)
-        if (time_frame .gt. 0) then
-            dum_track=gsn_add_polyline(wks,plot, case_tc(no_tc_count:time_frame,2) , case_tc(no_tc_count:time_frame,1),pres)
-            dum_track@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,case_tc(no_tc_count:time_frame,2) , case_tc(no_tc_count:time_frame,1),sim_histres)
-        end if
-    else
-        no_tc_count=no_tc_count+1
-    end if
-    
-    ;Obv Track
-    res_lines=True
-    res_lines@gsLineColor       = "black"
-    res_lines@gsLineDashPattern = 0.
-    res_lines@gsLineThicknessF  = 3.                    ; line thicker
-    
-    yy := tc_loc(:,3)/10 
-    xx := tc_loc(:,2)/10 
-    obv_track=gsn_add_polyline(wks,plot,yy,xx,res_lines)              ; N
+;************************************************
+; create plot
+;************************************************
 
-    do ii =0, dim_tc-1
-        yy@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
-    end do
-    
-    ;overlay(plot, plotv)
-    draw(plot)
-    frame(wks)
-    time_frame=time_frame+1
-    ;delete(wks)
+wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix)      ; send graphics to PNG file
+
+gsn_define_colormap(wks,"precip2_17lev")
+res@gsnLeftString=casename+" Acc Pr Range:"+tstrt+"-"+tend
+;---Call plotting routine which draws contours over a map
+plot = gsn_csm_contour_map(wks,ctrl_var1,res)
+
+chinamap = add_china_map(wks,plot,cnres)
+; center
+dum_track=gsn_add_polyline(wks,plot, case_tc(istrt:ilast,2) , case_tc(istrt:ilast,1),pres)
+
+;Obv Track
+res_lines=True
+res_lines@gsLineColor       = "black"
+res_lines@gsLineDashPattern = 0.
+res_lines@gsLineThicknessF  = 3.                    ; line thicker
+
+yy := tc_loc(:,3)/10 
+xx := tc_loc(:,2)/10 
+obv_track=gsn_add_polyline(wks,plot,yy,xx,res_lines)              ; N
+
+do ii =0, dim_tc-1
+    yy@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
 end do
+
+;overlay(plot, plotv)
+draw(plot)
+frame(wks)
+;delete(wks)
 end

@@ -48,15 +48,17 @@ FRAME_DT=30 # n/100 second
 # 0     step0_extract-tcInfo_200406.ncl
 # 1     step1_plot_SLP_UV10_200406.ncl
 # 2     step2_plot_frame_rain_200506.ncl 
+# 3     step3_plot_tracks_200528.ncl
+# 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(0 0 1 0)
+FLAG_ARRAY=(0 0 0 0 1)
 
 COMP_ARRAY=(0 0)
 # 0     comp1_tc-intensity-obv-200429.py
 
-COMP1_TSTRT=2018091516
-COMP1_TEND=2018091602
+COMP1_TSTRT=2018091506
+COMP1_TEND=2018091700
 
 echo "MASTER: Preprocessing..."
 #-----------------------------------------------------------
@@ -120,7 +122,7 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-               ./ncl/opt6_plot_box_comp_tsk_200516.ncl 
+                ./ncl/opt6_plot_box_comp_tsk_200516.ncl 
     #            ./ncl/opt7_plot_box_comp_q2_200516.ncl 
     #            ./ncl/opt5_plot_box_comp_hfx_200516.ncl 
     #           ./ncl/opt4_plot_box_comp_hwave_200516.ncl 
@@ -130,6 +132,33 @@ do
     #            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
     #            ./ncl/step2_plot_frame_rain_200506.ncl
         fi
+        if [ ${FLAG_ARRAY[3]} == 1 ] ; then
+        echo "MASTER: *STEP03* D0"$I_DOM": plot_frame_tack_200528.ncl"
+        ncl -nQ                             \
+            i_dom=$I_DOM_NCL                \
+            wrfout_path=$CASE_DIR_NCL       \
+            casename=$CASENAME_NCL          \
+            fig_path=$FIG_DIR_NCL           \
+            trck_path=$TCK_NCL              \
+            tstrt=$COMP1_TSTRT        \
+            tend=$COMP1_TEND          \
+            ./ncl/step3_plot_tracks_200528.ncl
+        fi
+        if [ ${FLAG_ARRAY[4]} == 1 ] ; then
+        echo "MASTER: *STEP04* D0"$I_DOM": plot_accum_rain_200530.ncl"
+        ncl -nQ                             \
+            i_dom=$I_DOM_NCL                \
+            wrfout_path=$CASE_DIR_NCL       \
+            casename=$CASENAME_NCL          \
+            fig_path=$FIG_DIR_NCL           \
+            trck_path=$TCK_NCL              \
+            tstrt=$COMP1_TSTRT        \
+            tend=$COMP1_TEND          \
+            ./ncl/step4_plot_accum_rain_200530.ncl
+        fi
+
+    
+    
     done  
 done # done casenames loop
 
