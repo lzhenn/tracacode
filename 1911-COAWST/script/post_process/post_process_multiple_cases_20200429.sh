@@ -52,13 +52,13 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(0 0 0 0 1)
+FLAG_ARRAY=(0 0 1 0 0)
 
 COMP_ARRAY=(0 0)
 # 0     comp1_tc-intensity-obv-200429.py
 
-COMP1_TSTRT=2018091506
-COMP1_TEND=2018091700
+COMP1_TSTRT=2018091516
+COMP1_TEND=2018091605
 
 echo "MASTER: Preprocessing..."
 #-----------------------------------------------------------
@@ -109,6 +109,8 @@ do
                 casename=$CASENAME_NCL          \
                 fig_path=$FIG_DIR_NCL           \
                 trck_path=$TCK_NCL              \
+                comp1_tstrt=$COMP1_TSTRT        \
+                comp1_tend=$COMP1_TEND          \
                 ./ncl/step1_plot_SLP_UV10_200406.ncl
         fi
 
@@ -122,7 +124,17 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt6_plot_box_comp_tsk_200516.ncl 
+                ./ncl/opt3.1_plot_box_comp_lh_symmetric_NW-SE_200516.ncl
+    #            ./ncl/opt3.2_plot_box_comp_lh_asymmetric_NW-SE_200516.ncl
+    #            ./ncl/opt2.2_plot_box_comp_wind_asymmetric_NW-SE_200514.ncl
+    #           ./ncl/opt2.1_plot_box_comp_wind_symmetric_NW-SE_200514.ncl
+    #           ./ncl/opt1.41_plot_box_comp_rain_percent_asymmetric_NW-SE_200601.ncl
+    #           ./ncl/opt1.3_plot_box_comp_rain_symmetric_NW-SE_200601.ncl
+    #           ./ncl/opt1.4_plot_box_comp_rain_asymmetric_NW-SE_200601.ncl
+    #           ./ncl/opt1.3_plot_box_comp_rain_symmetric_NW-SE_200601.ncl
+    #           ./ncl/opt1.2_plot_box_comp_rain_asymmetric_vertical_200507.ncl
+    #           ./ncl/opt1.1_plot_box_comp_rain_symetric_vertical_200507.ncl
+    #            ./ncl/opt6_plot_box_comp_tsk_200516.ncl 
     #            ./ncl/opt7_plot_box_comp_q2_200516.ncl 
     #            ./ncl/opt5_plot_box_comp_hfx_200516.ncl 
     #           ./ncl/opt4_plot_box_comp_hwave_200516.ncl 
