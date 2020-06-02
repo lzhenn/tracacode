@@ -124,7 +124,10 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt3.1_plot_box_comp_lh_symmetric_NW-SE_200516.ncl
+                ./ncl/opt3.4_plot_box_comp_lh_acentrosymmetric_200516.ncl
+    #            ./ncl/opt3.3_plot_box_comp_lh_centrosymmetric_200516.ncl
+    #            ./ncl/opt2.4_plot_box_comp_wind_acentrosymmetric_NW-SE_200602.ncl
+    #            ./ncl/opt3.1_plot_box_comp_lh_symmetric_NW-SE_200516.ncl
     #            ./ncl/opt3.2_plot_box_comp_lh_asymmetric_NW-SE_200516.ncl
     #            ./ncl/opt2.2_plot_box_comp_wind_asymmetric_NW-SE_200514.ncl
     #           ./ncl/opt2.1_plot_box_comp_wind_symmetric_NW-SE_200514.ncl
