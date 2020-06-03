@@ -30,7 +30,7 @@ Dynamically modify the albedo calculation before the radiation allocation and up
 Remove the vertical diffusion (turbulance) caused heating to the atmosphere over the Tibetan Platau. This process can be treated as, instead of redistributing the surface heating, the turbulance eats up all surface heating like a black hole. Therefore, this is nearly shutdown the surface heating by the TP.
 
 ### SourceMods-SST-decoupling
-Partially decoupling the Air-sea interaction by fixing the SST values to the prescribed SST datasets.
+Partially decoupling the Air-sea interaction by fixing the SST values to the prescribed SST datasets.**Prof. Chao He provided the initial code based on CCSM4. His contribution greatly assisted me to build the current version for CESM1.2.2.**
 
 * Please use 'LZN' (no apostrophe) to lock the code modification segmentation.
 
