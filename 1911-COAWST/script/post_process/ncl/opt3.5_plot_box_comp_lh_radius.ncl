@@ -38,7 +38,7 @@ begin
     varname="LH"
 
 
-    fig_prefix="d0"+tostring(i_dom)+"_"+varname+"_acentrosymmetric_"
+    fig_prefix="d0"+tostring(i_dom)+"_"+varname+"_radius_asymmetric_"
     g_font=0.02
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
@@ -82,8 +82,6 @@ begin
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  0)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 0)
   
-
-    ; get rain
     ;ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
   	ctrl_var2  = wrf_user_getvar(ctrl_in,varname, -1)  
     ;ctrl_var1  = (ctrl_var1+ctrl_var2)
@@ -104,9 +102,9 @@ begin
   res=True 
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -150.          ; set min contour level
-  res@cnMaxLevelValF        = 150.          ; set max contour level
-  res@cnLevelSpacingF       = 15.          ; set contour interval
+  res@cnMinLevelValF        = -100.          ; set min contour level
+  res@cnMaxLevelValF        = 100.          ; set max contour level
+  res@cnLevelSpacingF       = 10.          ; set contour interval
   
   
   res@gsnMaximize          = True
@@ -170,7 +168,7 @@ dis_array=ctrl_var2(0,0:2*boxR,0:2*boxR)
 var_comp2=0
 do ii=0,2*boxR
     do jj=0,2*boxR
-        dis_array(ii,jj)=round(sqrt((ii-boxR)*(ii-boxR)+(jj-boxR)*(jj-boxR)))
+        dis_array(ii,jj)=round(sqrt((ii-boxR)*(ii-boxR)+(jj-boxR)*(jj-boxR)),0)
     end do
 end do
 
@@ -211,11 +209,14 @@ var_comp2_rmean@_FillValue=-999
 var_cir=var_comp2
 var_cir=-999
 var_cir@_FillValue=-999
+cir_mean=var_cir(0,0:80)
 do ii = 0,80
     var_cir=where(dis_array .eq. ii, var_comp2, var_cir@_FillValue) ; get a circle
-    cir_mean=wgt_areaave(var_cir,1.0,1.0,0)
-    var_comp2_rmean=where(dis_array .eq. ii, cir_mean, var_comp2_rmean)
+    cir_mean(ii)=wgt_areaave(var_cir,1.0,1.0,0)
+    var_comp2_rmean=where(dis_array .eq. ii, cir_mean(ii), var_comp2_rmean)
 end do
+; write out radius data, use $project/script/200606-compare-radius.py to plot series map
+asciiwrite (wrfout_path+"/"+varname+".radius", cir_mean)
 var_comp2=var_comp2-var_comp2_rmean
 
 res@gsnRightString = "W/m^2"
