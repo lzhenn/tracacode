@@ -22,8 +22,10 @@ def main():
     MIDFONT=18
     SMFONT=16
 
-    varname='LH'
-    cases=["ERA5_TY2001", "ERA5_C2008","ERA5_WAOFF", "ERA5_WRF"]
+    varname='HFX'
+    var_unit='W/m^2'
+    cases=["ERA5_TY2001", "ERA5_C2008","ERA5_WAOFF", "ERA5_WRFROMS", "ERA5_WRF"]
+    line_types=['b','b--','r','r--','k-o']
 
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
         
@@ -35,7 +37,7 @@ def main():
     fig.subplots_adjust(left=0.08, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
    
     #fetch lh radius list
-    for case in cases:
+    for case, line_type in zip(cases, line_types):
         radius_loc=wrf_root+case+'/'+varname+'.radius'
         with open(radius_loc) as f:
             content_list=f.read().splitlines()
@@ -44,11 +46,11 @@ def main():
             content_list[ii]=float(itm)
             ii=ii+1
         # adjust to fit in the canvas 
-        plt.plot(np.arange(81)*3, content_list, label=case)
+        plt.plot(np.arange(81)*3, content_list, line_type, label=case)
     
     plt.legend(loc='best', fontsize=MIDFONT)
     plt.xlabel('Radius (km)',fontsize=MIDFONT)
-    plt.ylabel('SST (W/m^2)',fontsize=MIDFONT)
+    plt.ylabel(varname+' ('+var_unit+')',fontsize=MIDFONT)
     plt.xticks(fontsize=MIDFONT)
     #plt.xticks(fontsize=MIDFONT,rotation=-30)
     plt.yticks(fontsize=MIDFONT)

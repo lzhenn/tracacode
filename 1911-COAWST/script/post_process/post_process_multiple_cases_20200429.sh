@@ -22,7 +22,7 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 
 # Case name
 
-CASENAMES=( "ERA5_TY2001"  "ERA5_WRF" "ERA5_C2008" "ERA5_WRFROMS" "ERA5_WAOFF" )
+CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
             
             
 #CASENAMES=( "ERA5_TY2001" "FNL0d25_WRF" "FNL1d_TY2001" "ERA5_WRF" "ERA5_C2008"\
@@ -47,18 +47,24 @@ FRAME_DT=30 # n/100 second
 
 # 0     step0_extract-tcInfo_200406.ncl
 # 1     step1_plot_SLP_UV10_200406.ncl
-# 2     step2_plot_frame_rain_200506.ncl 
+# 2     step2_plot_frame_rain_200506.ncl + optxxx
 # 3     step3_plot_tracks_200528.ncl
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
 FLAG_ARRAY=(0 0 1 0 0)
 
-COMP_ARRAY=(0 0)
 # 0     comp1_tc-intensity-obv-200429.py
+# 1     compare-tc-intensity-ws-obv-200505.py
+COMP_ARRAY=(0 0)
 
+# Composite D02
 COMP1_TSTRT=2018091516
 COMP1_TEND=2018091605
+
+# Complete
+#COMP1_TSTRT=2018091506
+#COMP1_TEND=2018091700
 
 echo "MASTER: Preprocessing..."
 #-----------------------------------------------------------
@@ -124,7 +130,9 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt3.5_plot_box_comp_lh_radius.ncl
+                ./ncl/opt5.1_plot_box_comp_hfx_radius.ncl
+    #            ./ncl/opt2.5_plot_box_comp_wind_radius_200602.ncl
+    #            ./ncl/opt3.5_plot_box_comp_lh_radius.ncl
     #            ./ncl/opt3.4_plot_box_comp_lh_acentrosymmetric_200516.ncl
     #            ./ncl/opt3.3_plot_box_comp_lh_centrosymmetric_200516.ncl
     #            ./ncl/opt2.4_plot_box_comp_wind_acentrosymmetric_NW-SE_200602.ncl
@@ -178,20 +186,22 @@ do
     done  
 done # done casenames loop
 
-if [ ${COMP_ARRAY[0]} == 1 ] ; then
-    
-    echo "COMP1: Intensity"
-    python ./python/compare-tc-intensity-obv-200429.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
-        $COMP1_TSTRT $COMP1_TEND ${CASENAMES[*]}
-    echo "COMP1: Done"
+for(( I_DOM=$I_DOM_STRT;I_DOM<=$I_DOM_END;I_DOM++ ));  
+do
+    if [ ${COMP_ARRAY[0]} == 1 ] ; then
+        
+        echo "COMP1: Intensity"
+        python ./python/compare-tc-intensity-obv-200429.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
+            $COMP1_TSTRT $COMP1_TEND $I_DOM ${CASENAMES[*]}
+        echo "COMP1: Done"
 
-fi
-if [ ${COMP_ARRAY[1]} == 1 ]; then
-    echo "COMP2: Wind Speed Intensity"
-    python ./python/compare-tc-intensity-ws-obv-200505.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
-        $COMP1_TSTRT $COMP1_TEND ${CASENAMES[*]}
-    echo "COMP2: Done"
-fi
-
+    fi
+    if [ ${COMP_ARRAY[1]} == 1 ]; then
+        echo "COMP2: Wind Speed Intensity"
+        python ./python/compare-tc-intensity-ws-obv-200505.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
+            $COMP1_TSTRT $COMP1_TEND $I_DOM ${CASENAMES[*]}
+        echo "COMP2: Done"
+    fi
+done
 
 exit 0

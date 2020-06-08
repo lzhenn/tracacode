@@ -35,10 +35,9 @@ begin
         comp1_tend="2019091602"
     end if 
 
-    varname="LH"
-
-
-    fig_prefix="d0"+tostring(i_dom)+"_"+varname+"_radius_asymmetric_"
+    varname="UV10"
+    
+    fig_prefix="d0"+tostring(i_dom)+"_UV10_acentrosymmetric_NW-SE_"
     g_font=0.02
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
@@ -82,8 +81,11 @@ begin
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  0)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 0)
   
+
+    ; get rain
     ;ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
-  	ctrl_var2  = wrf_user_getvar(ctrl_in,varname, -1)  
+  	ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
+  	ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
     ;ctrl_var1  = (ctrl_var1+ctrl_var2)
  
     dims:=dimsizes(ctrl_var2)
@@ -97,16 +99,13 @@ begin
     ctrl_var2@lat2d = lat2d
     ctrl_var2@lon2d = lon2d
 
+    ctrl_var3@lat2d = lat2d
+    ctrl_var3@lon2d = lon2d
     ;ctrl_var1=(/ctrl_var1-273.15/)   
 
   res=True 
 ;---Resources for filled contour plot
-  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -100.          ; set min contour level
-  res@cnMaxLevelValF        = 100.          ; set max contour level
-  res@cnLevelSpacingF       = 10.          ; set contour interval
-  
-  
+    
   res@gsnMaximize          = True
   res@gsnFrame = False
   res@gsnDraw = False
@@ -164,13 +163,16 @@ begin
 boxR=80
 
 var_comp2=ctrl_var2(0,0:2*boxR,0:2*boxR)
+var_comp3=ctrl_var3(0,0:2*boxR,0:2*boxR)
 dis_array=ctrl_var2(0,0:2*boxR,0:2*boxR)
 var_comp2=0
+var_comp3=0
 do ii=0,2*boxR
     do jj=0,2*boxR
         dis_array(ii,jj)=round(sqrt((ii-boxR)*(ii-boxR)+(jj-boxR)*(jj-boxR)),0)
     end do
 end do
+
 
 
 time_frame=istrt
@@ -181,11 +183,11 @@ do while(time_frame .lt. ilast)
     ; create plot
     ;************************************************
     
-    wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+casename+"_box_comp")      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+casename+"_box_comp_radius_asymmetric")      ; send graphics to PNG file
     
   
-    gsn_define_colormap(wks,"cmp_flux")
-    res@gsnLeftString=casename+" "+varname+" Comp"
+    gsn_define_colormap(wks,"ViBlGrWhYeOrRe")
+    res@gsnLeftString=casename+" Comp"
     ;---Call plotting routine which draws contours over a map
     tc_lon=case_tc(time_frame,2)
     tc_lat=case_tc(time_frame,1)
@@ -198,30 +200,44 @@ do while(time_frame .lt. ilast)
     ;box_y=(/cor_y1-boxR, cor_y1+boxR, cor_y1+boxR, cor_y1-boxR, cor_y1-boxR/)
 
     var_comp2=var_comp2+ctrl_var2(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+    var_comp3=var_comp3+ctrl_var3(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
 
     time_frame=time_frame+1
 end do
 
+;---Resources for filled contour plot
+res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
+res@cnMinLevelValF        = -8.          ; set min contour level
+res@cnMaxLevelValF        = 8.          ; set max contour level
+res@cnLevelSpacingF       = 0.5          ; set contour interval
+ 
 var_comp2=var_comp2/(ilast-istrt+1)
-var_comp2_rmean=var_comp2
-var_comp2_rmean=-999
-var_comp2_rmean@_FillValue=-999
-var_cir=var_comp2
+var_comp3=var_comp3/(ilast-istrt+1)
+windspeed=wind_speed(var_comp2, var_comp3)
+
+windspeed_rmean=windspeed
+windspeed_rmean=-999
+windspeed_rmean@_FillValue=-999
+var_cir=windspeed
 var_cir=-999
 var_cir@_FillValue=-999
 cir_mean=var_cir(0,0:boxR)
 do ii = 0,boxR
-    var_cir=where(dis_array .eq. ii, var_comp2, var_cir@_FillValue) ; get a circle
+    var_cir=where(dis_array .eq. ii, windspeed, var_cir@_FillValue) ; get a circle
     cir_mean(ii)=wgt_areaave(var_cir,1.0,1.0,0)
-    var_comp2_rmean=where(dis_array .eq. ii, cir_mean(ii), var_comp2_rmean)
+    windspeed_rmean=where(dis_array .eq. ii, cir_mean(ii), windspeed_rmean)
 end do
 ; write out radius data, use $project/script/200606-compare-radius.py to plot series map
 asciiwrite (wrfout_path+"/"+varname+".radius", cir_mean)
-var_comp2=var_comp2-var_comp2_rmean
+windspeed=windspeed-windspeed_rmean
 
-res@gsnRightString = "W/m^2"
-plot = gsn_csm_contour(wks,var_comp2,res)
 
+
+
+
+mean_var=wgt_areaave_Wrap(windspeed,1.0,1.0,0)
+res@gsnRightString = "m/s"
+plot = gsn_csm_contour(wks,windspeed,res)
 ;---Resources for the polyline
 
 polyres                   = True
@@ -231,7 +247,6 @@ polyres@gsMarkerThicknessF     = 8.          ; polymarker size
 polyres@gsMarkerColor     = "Black"          ; polymarker size
 
 dum1    = gsn_add_polymarker(wks,plot,boxR,boxR,polyres)
-
 
 draw(plot)
 frame(wks)

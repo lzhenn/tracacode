@@ -5,10 +5,8 @@ using namespace std;
  
 int main()
 {
-    for (int i = 0; i < 100000000; i++)
-    {
-        i++;
-    }
-    cout << "Totle Time : " << (double)clock() /CLOCKS_PER_SEC<< "s" << endl;
-    return 0;
+    double d=3.1416;
+    char ch = * (char *) &d;
+    cout<<&d<<endl;
+    cout<<ch<<endl;
 }

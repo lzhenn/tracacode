@@ -35,7 +35,7 @@ begin
         comp1_tend="2019091602"
     end if 
 
-    varname="LH"
+    varname="HFX"
 
 
     fig_prefix="d0"+tostring(i_dom)+"_"+varname+"_radius_asymmetric_"
@@ -102,9 +102,9 @@ begin
   res=True 
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -100.          ; set min contour level
-  res@cnMaxLevelValF        = 100.          ; set max contour level
-  res@cnLevelSpacingF       = 10.          ; set contour interval
+  res@cnMinLevelValF        = -20.          ; set min contour level
+  res@cnMaxLevelValF        = 20.          ; set max contour level
+  res@cnLevelSpacingF       = 2.          ; set contour interval
   
   
   res@gsnMaximize          = True
