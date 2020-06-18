@@ -39,12 +39,12 @@ begin
 
     g_font = 0.02
     g_season="MAM" 
-    g_latS=-30.
-    g_latN=30.
+    g_latS=-20.
+    g_latN=20.
     g_lonW=60.
-    g_lonE=270.
+    g_lonE=180.
     ; create an array of desired pressure levels:
-    g_fig_name = "../../fig/paper/Fig1a-noaa-pr-diff"
+    g_fig_name = "../../../fig/paper/IJC-R1/Fig1a-noaa-pr-diff"
     g_strt_yyyymm=190101
     g_end_yyyymm=201012
 
@@ -69,10 +69,19 @@ begin
     clim_var2_e=dim_avg_n_Wrap(season_var2(0:29,:,:),0)
     clim_var3_e=dim_avg_n_Wrap(season_var3(0:29,:,:),0)
     
+    
     clim_var1_l=dim_avg_n_Wrap(season_var1(80:,:,:),0)
     clim_var2_l=dim_avg_n_Wrap(season_var2(80:,:,:),0)
     clim_var3_l=dim_avg_n_Wrap(season_var3(80:,:,:),0)
 
+    var1_var_e = dim_variance_n_Wrap(season_var1(0:29,:,:),0)
+    var2_var_e = dim_variance_n_Wrap(season_var2(0:29,:,:),0)
+    var3_var_e = dim_variance_n_Wrap(season_var3(0:29,:,:),0)
+    
+    var1_var_l = dim_variance_n_Wrap(season_var1(80:,:,:),0)
+    var2_var_l = dim_variance_n_Wrap(season_var2(80:,:,:),0)
+    var3_var_l = dim_variance_n_Wrap(season_var3(80:,:,:),0)
+    
     diff_var1=clim_var1_e
     diff_var2=clim_var2_e
     diff_var3=clim_var3_e
@@ -80,7 +89,22 @@ begin
     diff_var1=clim_var1_l-clim_var1_e
     diff_var2=clim_var2_l-clim_var2_e
     diff_var3=clim_var3_l-clim_var3_e
-    
+   
+    sigr = 0.05                        ; critical sig lvl for r
+    g_nsmp=30
+    iflag= False                        ; population variance similar
+
+    prob1 = ttest(clim_var1_e,var1_var_e,g_nsmp, clim_var1_l,var1_var_l, g_nsmp, iflag, False) 
+    prob2 = ttest(clim_var2_e,var2_var_e,g_nsmp, clim_var2_l,var2_var_l, g_nsmp, iflag, False) 
+    prob3 = ttest(clim_var3_e,var3_var_e,g_nsmp, clim_var3_l,var3_var_l, g_nsmp, iflag, False) 
+
+    diff_var3=mask(diff_var3, (prob3 .lt. sigr) .or. (prob2 .lt. sigr), True)
+    diff_var1_sig=diff_var1
+    diff_var1_sig=mask(diff_var1, prob1 .lt. sigr, True)
+
+
+
+
     printVarSummary(clim_var1_e)
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -203,7 +227,7 @@ begin
  
 
 
-  plot_sh= gsn_csm_contour_map(wks,diff_var1,res) ; create a default plot
+  plot_sh= gsn_csm_contour_map(wks,diff_var1_sig,res) ; create a default plot
   ;plot_cn_max = gsn_csm_contour(wks,var1_clim_max({g_level},:,:),res3)
   plot_V = gsn_csm_vector(wks,diff_var2,diff_var3,vcres) 
   overlay(plot_sh,plot_V)
