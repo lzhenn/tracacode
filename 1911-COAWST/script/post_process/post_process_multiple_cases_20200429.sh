@@ -130,7 +130,8 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt2.6_plot_box_comp_wind_streamline_200627.ncl
+                ./ncl/opt2.7_plot_box_comp_wind_inflow_angle_200627.ncl
+    #            ./ncl/opt2.6_plot_box_comp_wind_streamline_200627.ncl
     #            ./ncl/opt5.1_plot_box_comp_hfx_radius.ncl
     #            ./ncl/opt2.5_plot_box_comp_wind_radius_200602.ncl
     #            ./ncl/opt3.5_plot_box_comp_lh_radius.ncl

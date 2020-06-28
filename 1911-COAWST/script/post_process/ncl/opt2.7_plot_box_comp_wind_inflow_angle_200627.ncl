@@ -37,7 +37,7 @@ begin
 
     varname="UV10"
     
-    fig_prefix="d0"+tostring(i_dom)+"_UV10_acentrosymmetric_NW-SE_"
+    fig_prefix="d0"+tostring(i_dom)+"_inflow_ang_departure_"
     g_font=0.02
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
@@ -119,7 +119,7 @@ begin
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "%"
+  res@gsnRightString = "deg"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
@@ -130,7 +130,7 @@ begin
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  ;res@lbLabelStride = 1  
+  res@lbLabelStride = 6  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
 
@@ -167,6 +167,8 @@ var_comp3=ctrl_var3(0,0:2*boxR,0:2*boxR)
 dis_array=ctrl_var2(0,0:2*boxR,0:2*boxR)
 var_comp2=0
 var_comp3=0
+vect_x=dis_array
+vect_y=dis_array
 do ii=0,2*boxR
     do jj=0,2*boxR
         dis_array(ii,jj)=round(sqrt((ii-boxR)*(ii-boxR)+(jj-boxR)*(jj-boxR)),0)
@@ -209,8 +211,8 @@ end do
 
 ;---Resources for filled contour plot
 res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-res@cnMinLevelValF        = -8.          ; set min contour level
-res@cnMaxLevelValF        = 8.          ; set max contour level
+res@cnMinLevelValF        = -12.          ; set min contour level
+res@cnMaxLevelValF        = 12.          ; set max contour level
 res@cnLevelSpacingF       = 0.5          ; set contour interval
  
 var_comp2=var_comp2/(ilast-istrt+1) ;u
@@ -218,7 +220,7 @@ var_comp3=var_comp3/(ilast-istrt+1) ;v
 
 ; calculate inflow angle
 windspeed=wind_speed(var_comp2, var_comp3)
-in_ang=acos((var_comp2*vect_x+var_comp3*vect_y)/(windspeed*dis_array+1e-7))*180/3.1415
+in_ang=90.0-acos((var_comp2*vect_x+var_comp3*vect_y)/(windspeed*dis_array+1e-7))*180/3.1415
 
 in_ang_rmean=windspeed
 in_ang_rmean=-999
@@ -241,7 +243,6 @@ in_ang=in_ang-in_ang_rmean
 
 
 mean_var=wgt_areaave_Wrap(in_ang,1.0,1.0,0)
-res@gsnRightString = "m/s"
 plot = gsn_csm_contour(wks,in_ang,res)
 ;---Resources for the polyline
 
