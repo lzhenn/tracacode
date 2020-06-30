@@ -60,7 +60,7 @@ COMP_ARRAY=(0 0)
 
 # Composite D02
 COMP1_TSTRT=2018091516
-COMP1_TEND=2018091605
+COMP1_TEND=2018091612
 
 # Complete
 #COMP1_TSTRT=2018091506
@@ -130,7 +130,8 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt2.7_plot_box_comp_wind_inflow_angle_200627.ncl
+                ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
+    #            ./ncl/opt2.7_plot_box_comp_wind_inflow_angle_200627.ncl
     #            ./ncl/opt2.6_plot_box_comp_wind_streamline_200627.ncl
     #            ./ncl/opt5.1_plot_box_comp_hfx_radius.ncl
     #            ./ncl/opt2.5_plot_box_comp_wind_radius_200602.ncl
