@@ -6,7 +6,6 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
-load "$NCL_SELFLIB/../shp/cnmap/cnmap.ncl"
 begin
 ;************************************************
 ; open file and read in data
@@ -37,8 +36,8 @@ begin
 
 
 
-
-    fig_prefix="d0"+tostring(i_dom)+"_precip_"
+    print(">>STEP02(opt): Box "+casename+" in following boxes...") 
+    fig_prefix="d0"+tostring(i_dom)+"_pr_box_"
     g_font=0.02
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
                          "Oct","Nov","Dec"/)
@@ -60,6 +59,7 @@ begin
     xtime = wrf_times_c( time0, 1 ) 
     ;xtime = xtime+8 
     lc_date=cd_calendar(xtime, 0)
+    
     year   = tointeger(lc_date(:,0))    ; Convert to integer for
     month  = tointeger(lc_date(:,1))    ; use sprinti 
     day    = tointeger(lc_date(:,2))
@@ -67,14 +67,14 @@ begin
     minute = tointeger(lc_date(:,4))
     second = lc_date(:,5)
 
-    date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour) +sprinti("%0.2i:00", minute)
+    date_str = month_abbr(month)+sprinti(" %0.2i ", day) + sprinti("%0.2iZ", hour)
     lentime=dimsizes(xtime)
-
+   
     lc_date:=cd_calendar(xtime, -3)
     istrt   = ind(lc_date .eq. toint(comp1_tstrt))
     ilast   = ind(lc_date .eq. toint(comp1_tend))
 
-    
+
     ; get in wrf tc track data
     ;0-timestamp 1-lat 2-lon 3-minSLP 4-maxWS 5-uRadius 6-vRadius
     case_tc = asciiread(wrfout_path+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
@@ -124,6 +124,7 @@ res                   = True              ; plot mods desired
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
+  res@gsnRightString = "mm/hr"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
@@ -136,14 +137,13 @@ res                   = True              ; plot mods desired
   res@lbLabelStride = 2  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
-  
   res@tmYLMode          = "Explicit"                ; explicit labels
   res@tmYLValues        = ispan(0,160,40)
   res@tmYLLabels        = 3*(res@tmYLValues)+" km"         ; make strings
   res@tmXBMode          = "Explicit"                ; explicit labels
   res@tmXBValues        = ispan(0,160,40)
   res@tmXBLabels        = 3*(res@tmYLValues)+" km"         ; make strings
-  
+
   wks_type="png"
   wks_type@wkWidth=800
   wks_type@wkHeight=800
@@ -154,6 +154,7 @@ boxR=80
 var_comp=ctrl_var1(0,0:2*boxR,0:2*boxR)
 var_comp=0
 time_frame=istrt
+print(date_str(time_frame))
 do while(time_frame .lt. ilast)
     ;---Set map resources based on projection on WRF output file
 
@@ -161,11 +162,11 @@ do while(time_frame .lt. ilast)
     ; create plot
     ;************************************************
     
-    wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+casename+"_box_comp")      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+casename+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     
   
     gsn_define_colormap(wks,"precip2_17lev")
-    res@gsnLeftString=casename+" Comp"
+    res@gsnLeftString=casename+" Pr:"+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     tc_lon=case_tc(time_frame,2)
     tc_lat=case_tc(time_frame,1)
@@ -176,16 +177,17 @@ do while(time_frame .lt. ilast)
     ; (0,0)->(0,1)->(1,1)->(1,0)        
     ;box_x=(/cor_x1-boxR, cor_x1-boxR, cor_x1+boxR, cor_x1+boxR, cor_x1-boxR/)
     ;box_y=(/cor_y1-boxR, cor_y1+boxR, cor_y1+boxR, cor_y1-boxR, cor_y1-boxR/)
-    var_comp=var_comp+ctrl_var1(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+    var_comp=ctrl_var1(time_frame,cor_x1-boxR:cor_x1+boxR,cor_y1-boxR:cor_y1+boxR)
+    
+    mean_var=wgt_areaave_Wrap(var_comp,1.0,1.0,0)
+    res@gsnRightString = sprintf(" Amean: %5.1f mm/hr", mean_var)
+    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
+    res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
+    plot = gsn_csm_contour(wks,var_comp,res)
+    draw(plot)
+    frame(wks)
+     
     time_frame=time_frame+1
 end do
-var_comp=var_comp/(ilast-istrt+1)
-mean_var=wgt_areaave_Wrap(var_comp,1.0,1.0,0)
-res@gsnRightString = sprintf(" Amean: %5.1f mm/hr", mean_var)
-res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
-res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
-plot = gsn_csm_contour(wks,var_comp,res)
-draw(plot)
-frame(wks)
- 
+
 end
