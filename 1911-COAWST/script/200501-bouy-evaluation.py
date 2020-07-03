@@ -24,9 +24,12 @@ def main():
     MIDFONT=18
     SMFONT=16
 
-    cases=["ERA5_TY2001", "FNL0d25_WRF", "FNL1d_TY2001", "ERA5_WRF", "ERA5_C2008",
-       "ERA5_WAOFF", "FNL0d25_C2008", "FNL0d25_WRFROMS", "FNL1d_WRF"]
+    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WAOFF", "ERA5_WRFROMS", "ERA5_WRF",
+            "FNL0d25_C2008", "FNL0d25_WRFROMS", "FNL0d25_WRF", 
+            "FNL1d_TY2001", "FNL1d_WRF"]
 
+    line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
+    
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     bouy_path='/disk/v092.yhuangci/lzhenn/1911-COAWST/obv/bouy/'
     
@@ -63,20 +66,20 @@ def main():
 
         # adjust to fit in the canvas 
         fig.subplots_adjust(left=0.05, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
-        plt.plot(df_obv_period['风速m/s'], label=bouy, marker='o', color='black')
         
-        for case in cases:
+        for (line_type, case) in zip(line_libs, cases):
             print(case)
             ds = salem.open_wrf_dataset('/disk/v092.yhuangci/lzhenn/1911-COAWST/'+case+'/wrfout_d02')
             ds=ds.sel(time=slice(strt_time_obj,end_time_obj))
 
-            uwind = ds['U'][:,0,:,:]
-            vwind = ds['V'][:,0,:,:]
+            uwind = ds['U10']
+            vwind = ds['V10']
             uwind_sta=get_closest_data(uwind, uwind.lat,uwind.lon,bouy_lat0, bouy_lon0)
             vwind_sta=get_closest_data(vwind, vwind.lat,vwind.lon,bouy_lat0, bouy_lon0)
             ws_sta=windspeed(uwind_sta, vwind_sta)
-            ws_sta.plot(label=case)
+            ws_sta.plot.line(line_type, linewidth=1, label=case)
            # break
+        plt.plot(df_obv_period['风速m/s'], label=bouy, marker='o', color='black',linewidth=3)
         plt.legend(loc='best', fontsize=SMFONT)
         plt.xlabel('Time',fontsize=SMFONT)
         plt.ylabel('Wind Speed (m/s)',fontsize=SMFONT)
@@ -89,7 +92,7 @@ def main():
     #    fig.tight_layout()
     #    plt.show()
         fig.set_size_inches(width, height)
-        fig.savefig('../'+bouy+'.pdf')
+        fig.savefig('../fig/'+bouy+'.pdf')
 
         #break
 if __name__ == "__main__":

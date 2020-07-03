@@ -133,6 +133,12 @@ begin
 ;  res@lbLabelStride =   
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
+  res@tmYLMode          = "Explicit"                ; explicit labels
+  res@tmYLValues        = ispan(0,160,40)
+  res@tmYLLabels        = 3*(res@tmYLValues)+" km"         ; make strings
+  res@tmXBMode          = "Explicit"                ; explicit labels
+  res@tmXBValues        = ispan(0,160,40)
+  res@tmXBLabels        = 3*(res@tmYLValues)+" km"         ; make strings
 
   resv                         = True               ; plot mods desired
   resv@gsnDraw = False

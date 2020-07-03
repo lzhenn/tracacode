@@ -23,10 +23,13 @@ def main():
     BIGFONT=22
     MIDFONT=18
     SMFONT=16
+    
+    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WAOFF", "ERA5_WRFROMS", "ERA5_WRF",
+            "FNL0d25_C2008", "FNL0d25_WRFROMS", "FNL0d25_WRF", 
+            "FNL1d_TY2001", "FNL1d_WRF"]
 
-    cases=["FNL1d_TY2001", "FNL1d_WRF","ERA5_TY2001", "ERA5_C2008","ERA5_WAOFF",
-            "ERA5_WRF","FNL0d25_C2008", "FNL0d25_WRFROMS", "FNL0d25_WRF"]
-
+    line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
+    
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     bouy_path='/disk/v092.yhuangci/lzhenn/1911-COAWST/obv/bouy/'
     
@@ -65,16 +68,15 @@ def main():
         # adjust to fit in the canvas 
         fig.subplots_adjust(left=0.08, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
         df_obv=df_obv_period['气压hPa']
-        plt.plot(df_obv, label=bouy, marker='o', color='black')
 
-        for case in cases:
+        for (line_type, case) in zip(line_libs, cases):
             ds = salem.open_wrf_dataset('/disk/v092.yhuangci/lzhenn/1911-COAWST/'+case+'/wrfout_d02')
             ds=ds.sel(time=slice(strt_time_obj,end_time_obj))
 
             var1 = ds['PSFC']
             var1=var1/100
             var1_sta=get_closest_data(var1, var1.lat,var1.lon,bouy_lat0, bouy_lon0)
-            var1_sta.plot(label=case)
+            var1_sta.plot.line(line_type, linewidth=1, label=case)
             idx_var1=pd.Index(var1_sta.time.values)
             idx_var1=idx_var1.intersection(df_obv.index)
             var1_sta_obv_align=var1_sta.sel(time=idx_var1)
@@ -82,6 +84,7 @@ def main():
             print(rmse.values)
 
            # break
+        plt.plot(df_obv, label=bouy, marker='o', linewidth=3, color='black')
         plt.legend(loc='best', fontsize=SMFONT)
         plt.xlabel('Time',fontsize=SMFONT)
         plt.ylabel('Surface Pressure (hPa)',fontsize=SMFONT)

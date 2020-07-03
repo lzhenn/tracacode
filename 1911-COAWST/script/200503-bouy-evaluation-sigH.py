@@ -24,7 +24,12 @@ def main():
     MIDFONT=18
     SMFONT=16
 
-    cases=["ERA5_TY2001",  "FNL1d_TY2001", "ERA5_C2008", "ERA5_WAOFF", "FNL0d25_C2008", ]
+    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WAOFF",
+            "FNL0d25_C2008", 
+            "FNL1d_TY2001"]
+
+    line_libs=['b','b-s','b-^','r','g-s']
+    
 
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     bouy_path='/disk/v092.yhuangci/lzhenn/1911-COAWST/obv/bouy/'
@@ -62,17 +67,17 @@ def main():
 
         # adjust to fit in the canvas 
         fig.subplots_adjust(left=0.05, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
-        plt.plot(df_obv_period['有效波高/m'], label=bouy, marker='o', color='black')
         
-        for case in cases:
+        for (line_type, case) in zip(line_libs, cases):
             print(case)
-            ds = xr.open_dataset('/disk/v092.yhuangci/lzhenn/1911-COAWST/'+case+'/gba_ocean_his.nc')
-            ds=ds.sel(ocean_time=slice(strt_time_obj,end_time_obj))
+            ds = salem.open_wrf_dataset('/disk/v092.yhuangci/lzhenn/1911-COAWST/'+case+'/wrfout_d02')
+            ds=ds.sel(time=slice(strt_time_obj,end_time_obj))
 
-            var1 = ds['Hwave']
-            var1=get_closest_data(var1, var1.lat_rho, var1.lon_rho, bouy_lat0, bouy_lon0)
-            var1.plot(label=case)
+            var1 = ds['HWAVE']
+            var1=get_closest_data(var1, var1.lat, var1.lon, bouy_lat0, bouy_lon0)
+            var1.plot.line(line_type, linewidth=1, label=case)
             #break
+        plt.plot(df_obv_period['有效波高/m'], label=bouy, marker='o', linewidth=3, color='black')
         plt.legend(loc='best', fontsize=SMFONT)
         plt.xlabel('Time',fontsize=SMFONT)
         plt.ylabel('Sig. Wave Height (m)',fontsize=SMFONT)
@@ -85,7 +90,7 @@ def main():
     #    fig.tight_layout()
     #    plt.show()
         fig.set_size_inches(width, height)
-        fig.savefig('../'+bouy+'_sigH.pdf')
+        fig.savefig('../fig/'+bouy+'_sigH.pdf')
 
        # break
 if __name__ == "__main__":

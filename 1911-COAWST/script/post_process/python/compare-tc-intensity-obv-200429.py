@@ -28,9 +28,9 @@ def main():
     MIDFONT=18
     SMFONT=16
     width=15.0
-    height=7.0
+    height=9.0
     
-    line_libs=['b','b--','r','r--','g-^']
+    line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
     
     # arguments in
     args=sys.argv

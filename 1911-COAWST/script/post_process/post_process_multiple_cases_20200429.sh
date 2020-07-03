@@ -22,7 +22,9 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 
 # Case name
 
-CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
+#CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
+CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
+            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
             
 #CASENAMES=( "ERA5_TY2001" "FNL0d25_WRF" "FNL1d_TY2001" "ERA5_WRF" "ERA5_C2008"\
@@ -52,15 +54,15 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(0 0 1 0 0)
+FLAG_ARRAY=(0 0 0 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
-COMP_ARRAY=(0 0)
+COMP_ARRAY=(1 1)
 
 # Composite D02
-COMP1_TSTRT=2018091522
-COMP1_TEND=2018091601
+COMP1_TSTRT=2018091506
+COMP1_TEND=2018091700
 
 # Complete
 #COMP1_TSTRT=2018091506
@@ -130,7 +132,8 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt1_plot_box_comp_rain_200507.ncl
+                ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
+    #            ./ncl/opt1_plot_box_comp_rain_200507.ncl
     #            ./ncl/opt1.5_opt_plot_box_frame_rain_200702.ncl
     #            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
     #            ./ncl/opt2.6.1_plot_box_frame_wind_streamline_200702.ncl
