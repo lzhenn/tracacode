@@ -22,9 +22,11 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 
 # Case name
 
-#CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
-CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
-            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
+CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
+#CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WAOFF_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
+#CASENAMES=( "ERA5_C2008_add" )
+#CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
+#            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
             
 #CASENAMES=( "ERA5_TY2001" "FNL0d25_WRF" "FNL1d_TY2001" "ERA5_WRF" "ERA5_C2008"\
@@ -54,15 +56,16 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(0 0 0 0 0)
+#FLAG_ARRAY=(1 1 1 1 1)
+FLAG_ARRAY=(0 0 1 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
-COMP_ARRAY=(1 1)
+ COMP_ARRAY=(0 0)
 
 # Composite D02
-COMP1_TSTRT=2018091506
-COMP1_TEND=2018091700
+COMP1_TSTRT=2018091516
+COMP1_TEND=2018091519
 
 # Complete
 #COMP1_TSTRT=2018091506
@@ -119,7 +122,7 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/step1_plot_SLP_UV10_200406.ncl
+                ./ncl/step1_plot_SLP_UV10_200406.ncl &
         fi
 
         if [ ${FLAG_ARRAY[2]} == 1 ] ; then
@@ -132,7 +135,10 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
+                ./ncl/opt9_plot_box_comp_ustar_200713.ncl
+    #            ./ncl/opt10_plot_box_comp_ckcd_200713.ncl
+    #            ./ncl/step2_plot_frame_rain_200506.ncl &
+    #            ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
     #            ./ncl/opt1_plot_box_comp_rain_200507.ncl
     #            ./ncl/opt1.5_opt_plot_box_frame_rain_200702.ncl
     #            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
@@ -176,7 +182,7 @@ do
             trck_path=$TCK_NCL              \
             tstrt=$COMP1_TSTRT        \
             tend=$COMP1_TEND          \
-            ./ncl/step3_plot_tracks_200528.ncl
+            ./ncl/step3_plot_tracks_200528.ncl &
         fi
         if [ ${FLAG_ARRAY[4]} == 1 ] ; then
         echo "MASTER: *STEP04* D0"$I_DOM": plot_accum_rain_200530.ncl"
@@ -188,11 +194,11 @@ do
             trck_path=$TCK_NCL              \
             tstrt=$COMP1_TSTRT        \
             tend=$COMP1_TEND          \
-            ./ncl/step4_plot_accum_rain_200530.ncl
+            ./ncl/step4_plot_accum_rain_200530.ncl &
         fi
 
     
-    
+        wait
     done  
 done # done casenames loop
 
