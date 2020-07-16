@@ -99,16 +99,16 @@ def main():
         var2_box_comp=box_collect(var2.values, box_R, idx) # nparray inout
         ws_box_comp=box_collect(ws.values, box_R, idx) # nparray inout
 
-        var1_box_comp=var1_box_comp/(ws_box_comp*rho_air*epsilon)
-        ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(),line_type, label=case, markersize=5)
+        var2_box_comp=var2_box_comp/(ws_box_comp*rho_air)
+        ax.plot(ws_box_comp.flatten(), var2_box_comp.flatten(),line_type, label=case, markersize=5)
       
     plt.legend(loc='best', fontsize=SMFONT)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
-    plt.ylabel('Ck',fontsize=SMFONT)
+    plt.ylabel('Cd',fontsize=SMFONT)
     
-    plt.title('Ck - 10m WindSpeed', fontsize=BIGFONT)
+    plt.title('Cd - 10m WindSpeed', fontsize=BIGFONT)
     fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
-    fig.savefig('../fig/ck_ws_scatter.png')
+    fig.savefig('../fig/cd_ws_scatter.png')
     #plt.show()
     exit()
     for index, row in df_bouy_list.iterrows():
