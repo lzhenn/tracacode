@@ -55,8 +55,8 @@ def main():
     FIG_WIDTH=15.0
     FIG_HEIGHT=10.0
 
-    cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WAOFF_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    line_libs=['b.','b*','r^','rv','k+']
+    cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
+    line_libs=['b.','b*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
@@ -95,20 +95,22 @@ def main():
         var4 = ds['V10'] 
         ws=np.sqrt(var3*var3+var4*var4)
         idx=get_closest_idx(var1.lat, var1.lon, tc_lat.values, tc_lon.values)
-        var1_box_comp=box_collect(var1.values, box_R, idx) # nparray inout
-        var2_box_comp=box_collect(var2.values, box_R, idx) # nparray inout
-        ws_box_comp=box_collect(ws.values, box_R, idx) # nparray inout
+        var1_box_comp=box_composite(var1.values, box_R, idx) # nparray inout
+        var2_box_comp=box_composite(var2.values, box_R, idx) # nparray inout
+        ratio=var1_box_comp/var2_box_comp
+        ws_box_comp=box_composite(ws.values, box_R, idx) # nparray inout
 
-        var1_box_comp=var1_box_comp/(ws_box_comp*rho_air*epsilon)
-        ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(),line_type, label=case, markersize=5)
+        ax.plot(ws_box_comp.flatten(), ratio.flatten(),line_type, label=case, markersize=5, alpha=0.3)
       
     plt.legend(loc='best', fontsize=SMFONT)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
-    plt.ylabel('Ck',fontsize=SMFONT)
-    
-    plt.title('Ck - 10m WindSpeed', fontsize=BIGFONT)
+    plt.ylabel('Ck/Cd',fontsize=SMFONT)
+    plt.xticks(fontsize=SMFONT)
+    plt.yticks(fontsize=SMFONT)
+      
+    plt.title('Ck/Cd - 10m WindSpeed', fontsize=BIGFONT)
     fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
-    fig.savefig('../fig/ck_ws_scatter.png')
+    fig.savefig('../fig/ckcd_ratio_ws_scatter.png')
     #plt.show()
     exit()
     for index, row in df_bouy_list.iterrows():
@@ -140,9 +142,7 @@ def main():
         plt.legend(loc='best', fontsize=SMFONT,)
         plt.xlabel('Time',fontsize=SMFONT)
         plt.ylabel('SST ($\mathregular{^oC}$)',fontsize=SMFONT)
-        plt.xticks(fontsize=SMFONT,rotation=-30)
-        plt.yticks(fontsize=SMFONT)
-        
+       
        # pletp(ax.get_xticklabels(), rotation=-60, ha="right",
        # rotation_mode="anchor")
         plt.title(bouy+' SST', fontsize=BIGFONT)
