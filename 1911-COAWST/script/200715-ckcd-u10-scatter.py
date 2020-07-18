@@ -34,7 +34,7 @@ def box_composite(var, boxR, idx):
 
 def box_collect(var, boxR, idx):
     nsmp=0
-    collect_var=var[0:4,0:2*boxR, 0:2*boxR]
+    collect_var=var[0:len(idx),0:2*boxR, 0:2*boxR]
     for itm in idx:
         collect_var[nsmp,:,:]=var[nsmp, itm[0][0]-boxR:itm[0][0]+boxR, itm[0][1]-boxR:itm[0][1]+boxR]
         nsmp=nsmp+1
@@ -55,13 +55,13 @@ def main():
     FIG_WIDTH=15.0
     FIG_HEIGHT=10.0
 
-    cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    line_libs=['b.','b*','r^','k+']
+    cases=["ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
+    line_libs=['g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809151600'
-    end_time_str='201809151900'
+    strt_time_str='201809151800'
+    end_time_str='201809160600'
     box_R=80
 
     epsilon=0.333
@@ -93,6 +93,9 @@ def main():
         var2 = ds['AKMS'] # momentum exch
         var3 = ds['U10'] 
         var4 = ds['V10'] 
+        varmask=ds['LANDMASK']
+        var1.values=np.where(varmask.values==1, np.nan, var1.values)
+        var2.values=np.where(varmask.values==1, np.nan, var2.values)
         ws=np.sqrt(var3*var3+var4*var4)
         idx=get_closest_idx(var1.lat, var1.lon, tc_lat.values, tc_lon.values)
         var1_box_comp=box_composite(var1.values, box_R, idx) # nparray inout

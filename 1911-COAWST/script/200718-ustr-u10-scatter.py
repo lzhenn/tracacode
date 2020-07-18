@@ -55,12 +55,13 @@ def main():
     FIG_WIDTH=15.0
     FIG_HEIGHT=10.0
 
-    cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WAOFF_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    line_libs=['b.','b*','r^','rv','k+']
+    cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
+#    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
+    line_libs=['b.','g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809151800'
+    strt_time_str='201809160000'
     end_time_str='201809160600'
     box_R=80
 
@@ -89,71 +90,33 @@ def main():
         ds = salem.open_wrf_dataset('/disk/v092.yhuangci/lzhenn/1911-COAWST/'+case+'/wrfout_d02')
         ds=ds.sel(time=slice(strt_time_obj,end_time_obj))
 
-        var1 = ds['AKHS'] # heat exch
-        var2 = ds['AKMS'] # momentum exch
+        var1 = ds['UST'] # heat exch
+        var2 = ds['U10'] # momentum exch
         var3 = ds['U10'] 
         var4 = ds['V10'] 
         varmask=ds['LANDMASK']
+        var1.values=np.where(varmask.values==1, np.nan, var1.values)
         var2.values=np.where(varmask.values==1, np.nan, var2.values)
         ws=np.sqrt(var3*var3+var4*var4)
         idx=get_closest_idx(var1.lat, var1.lon, tc_lat.values, tc_lon.values)
-        var1_box_comp=box_collect(var1.values, box_R, idx) # nparray inout
-        var2_box_comp=box_collect(var2.values, box_R, idx) # nparray inout
-        ws_box_comp=box_collect(ws.values, box_R, idx) # nparray inout
+        var1_box_comp=box_composite(var1.values, box_R, idx) # nparray inout
+        var2_box_comp=box_composite(var2.values, box_R, idx) # nparray inout
+        ratio=var1_box_comp/var2_box_comp
+        ws_box_comp=box_composite(ws.values, box_R, idx) # nparray inout
 
-        var2_box_comp=var2_box_comp/(ws_box_comp*rho_air)
-        ax.plot(ws_box_comp.flatten(), var2_box_comp.flatten(),line_type, label=case, markersize=5)
+        ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(),line_type, label=case, markersize=5, alpha=0.3)
       
     plt.legend(loc='best', fontsize=SMFONT)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
-    plt.ylabel('Cd',fontsize=SMFONT)
-    
-    plt.title('Cd - 10m WindSpeed', fontsize=BIGFONT)
-    fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
-    fig.savefig('../fig/cd_ws_scatter.png')
-    #plt.show()
-    exit()
-    for index, row in df_bouy_list.iterrows():
-        bouy=row['bouy']
-        bouy_lat0=row['lat']
-        bouy_lon0=row['lon']
-        print(bouy)
-        dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
-        obv_path=bouy_path+bouy+'.csv'
-        df_obv=pd.read_csv(obv_path,parse_dates=True,index_col='采集时间', header=1, date_parser=dateparse)
-        # change to HKT, to get bouy data 
-        strt_time_hkt_obj=strt_time_obj+ datetime.timedelta(hours=8) 
-        end_time_hkt_obj=end_time_obj+ datetime.timedelta(hours=8)
-        df_obv_period=df_obv[((df_obv.index>=strt_time_hkt_obj)&(df_obv.index<=end_time_hkt_obj))]
-        # change index
-        df_obv_period.index = df_obv_period.index - datetime.timedelta(hours=8)
-        
-        #df_obv_period=df_obv[((df_obv.index>=wrf_time.values[0])&(df_obv.index<=wrf_time.values[-1]))]
-        
-        #open dataset
-        fig,ax = plt.subplots()
-        #fig,ax = plt.subplots(figsize=(10,4))
-
-        # adjust to fit in the canvas 
-        df_obv=df_obv_period['表层水温℃']
-
+    plt.ylabel('U*',fontsize=SMFONT)
+    plt.xticks(fontsize=SMFONT)
+    plt.yticks(fontsize=SMFONT)
       
-        plt.plot(df_obv, label=bouy, linewidth=3, marker='o', color='black')
-        plt.legend(loc='best', fontsize=SMFONT,)
-        plt.xlabel('Time',fontsize=SMFONT)
-        plt.ylabel('SST ($\mathregular{^oC}$)',fontsize=SMFONT)
-        plt.xticks(fontsize=SMFONT,rotation=-30)
-        plt.yticks(fontsize=SMFONT)
-        
-       # pletp(ax.get_xticklabels(), rotation=-60, ha="right",
-       # rotation_mode="anchor")
-        plt.title(bouy+' SST', fontsize=BIGFONT)
-    #    fig.tight_layout()
-    #    plt.show()
-        fig.set_size_inches(width, height)
-        fig.savefig('../fig/SST_'+bouy+'.pdf')
+    plt.title('U* - 10m WindSpeed', fontsize=BIGFONT)
+    fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
+    fig.savefig('../fig/scatter_add.png')
+    #plt.show()
 
-        #break
 if __name__ == "__main__":
     main()
 
