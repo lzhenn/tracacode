@@ -25,7 +25,7 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
 CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WAOFF_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
-#CASENAMES=( "ERA5_TY2001_add" )
+CASENAMES=( "ERA5_C2008_nolimit" )
 #CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
 #            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
@@ -37,7 +37,7 @@ CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add"
 #            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
 
 # Number of Domains
-I_DOM_STRT=2
+I_DOM_STRT=1
 I_DOM_END=2
 
 # Gif control parameters
@@ -58,7 +58,7 @@ FRAME_DT=30 # n/100 second
 #
 
 #FLAG_ARRAY=(1 1 1 1 1)
-FLAG_ARRAY=(0 0 0 0 0)
+FLAG_ARRAY=(1 0 0 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
