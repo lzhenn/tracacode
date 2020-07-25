@@ -25,7 +25,7 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
 CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WAOFF_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 CASENAMES=( "ERA5_C2008_dynlim" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
-#CASENAMES=( "ERA5_C2008_dynlim" )
+CASENAMES=( "ERA5_TY2001_nolimit" "ERA5_TY2001_add" "ERA5_C2008_dynlim" "ERA5_C2008_add" "ERA5_WRFROMS_add" "ERA5_WRF")
 #CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
 #            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
@@ -37,7 +37,7 @@ CASENAMES=( "ERA5_C2008_dynlim" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_a
 #            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
 
 # Number of Domains
-I_DOM_STRT=1
+I_DOM_STRT=2
 I_DOM_END=2
 
 # Gif control parameters
@@ -111,7 +111,8 @@ do
                 i_dom=$I_DOM_NCL                \
                 wrfout_path=$CASE_DIR_NCL       \
                 casename=$CASENAME_NCL          \
-                ./ncl/step0_extract-tcInfo_200406.ncl
+                ./ncl/step0.1_extract-wsInfo_200728.ncl
+        #        ./ncl/step0_extract-tcInfo_200406.ncl
         fi
         if [ ${FLAG_ARRAY[1]} == 1 ] ; then
             echo "MASTER: *STEP01* D0"$I_DOM": plot_SLP_UV10_200406.ncl"
@@ -215,8 +216,10 @@ do
     fi
     if [ ${COMP_ARRAY[1]} == 1 ]; then
         echo "COMP2: Wind Speed Intensity"
-        python ./python/compare-tc-intensity-ws-obv-200505.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
+        python ./python/compare-tc-intensity-ws-individual-file-obv-200725.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
             $COMP1_TSTRT $COMP1_TEND $I_DOM ${CASENAMES[*]}
+#        python ./python/compare-tc-intensity-ws-obv-200505.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
+#            $COMP1_TSTRT $COMP1_TEND $I_DOM ${CASENAMES[*]}
         echo "COMP2: Done"
     fi
 done

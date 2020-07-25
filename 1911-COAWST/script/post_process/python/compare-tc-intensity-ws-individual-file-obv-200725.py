@@ -61,7 +61,7 @@ def main():
     dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H%M%S')
     
     for (line_type,casename) in zip(line_libs,casenames):
-        sen_path=PRE_DIR+'/'+casename+'/trck.'+casename+'.d0'+IDOM
+        sen_path=PRE_DIR+'/'+casename+'/ws.'+casename+'.d0'+IDOM
         df_sen=pd.read_csv(sen_path,parse_dates=True,index_col='timestamp', sep='\s+', date_parser=dateparse)
         df_sen_period=df_sen[((df_sen.index>=COMP1_TSTRT)&(df_sen.index<=COMP1_TEND))]
         df_sen_period.replace(0, np.nan, inplace=True) # replace 0 by nan

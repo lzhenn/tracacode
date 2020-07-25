@@ -55,8 +55,10 @@ def main():
     FIG_WIDTH=15.0
     FIG_HEIGHT=10.0
 
-    cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WAOFF_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    line_libs=['b.','b*','r^','rv','k+']
+    #cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WAOFF_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
+    #line_libs=['b.','b*','r^','rv','k+']
+    cases=["ERA5_C2008_dynlim",  "ERA5_TY2001_nolimit",  "ERA5_WRFROMS_add", "ERA5_WRF_add"]
+    line_libs=['b.','g.','r.','k.']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
@@ -102,11 +104,13 @@ def main():
         ws_box_comp=box_collect(ws.values, box_R, idx) # nparray inout
 
         var2_box_comp=var2_box_comp/(ws_box_comp*rho_air)
-        ax.plot(ws_box_comp.flatten(), var2_box_comp.flatten(),line_type, label=case, markersize=5)
+        ax.plot(ws_box_comp.flatten(), var2_box_comp.flatten(),line_type, label=case, markersize=5,alpha=0.3)
       
     plt.legend(loc='best', fontsize=SMFONT)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
     plt.ylabel('Cd',fontsize=SMFONT)
+    plt.xticks(fontsize=SMFONT)
+    plt.yticks(fontsize=SMFONT)
     
     plt.title('Cd - 10m WindSpeed', fontsize=BIGFONT)
     fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
