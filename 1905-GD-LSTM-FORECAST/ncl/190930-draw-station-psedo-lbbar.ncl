@@ -43,7 +43,7 @@ begin
 
     print("nstations="+n_sta)
 ;**********************************************************************************************
-    wks = gsn_open_wks("eps",g_fig_name)       ; open file to plot 
+    wks = gsn_open_wks("png",g_fig_name)       ; open file to plot 
 ;-----------------------------------------------------------------------------
 
 plot = new((/1/),graphic)

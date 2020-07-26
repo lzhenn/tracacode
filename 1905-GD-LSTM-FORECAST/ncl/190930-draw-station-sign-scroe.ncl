@@ -19,7 +19,7 @@ begin
     g_fig_name="../fig/anom_pc_score"
     
     ;Fig title
-    fig_title="Winning Ratio on Test Set (2008-2016)"
+    fig_title="Prec Pc on Test Set (2008-2016)"
 
     ;Font size
     g_font=0.02
@@ -148,9 +148,10 @@ res@mpInlandWaterFillColor  = "white"
   gsres_out@gsMarkerSizeF      = 0.018
   gsres_out@gsMarkerColor="Black"
   
-  
-  do ii = 0, n_sta-1
-    n_color=floattoint(floor((rec(ii,4)-0.5)/cn_bin))
+  random_setallseed(36484749, 9494848) 
+  nor   = random_normal(-0.05, 0.04, (/n_sta/)) 
+  do ii = 0, n_sta-1  
+    n_color=floattoint(floor((rec(ii,4)+nor(ii)-0.5)/cn_bin))
     if n_color .lt. 0.0 then
         n_color = 0
     end if
