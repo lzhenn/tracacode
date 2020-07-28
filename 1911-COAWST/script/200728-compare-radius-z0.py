@@ -22,14 +22,11 @@ def main():
     MIDFONT=18
     SMFONT=16
 
-    varname='LH'
-    var_unit='W/m^2'
-    #varname='UV10'
-    #var_unit='m/s'
+    varname='ZNT'
+    var_unit='m'
     cases=["ERA5_TY2001_nolimit", "ERA5_TY2001_add", "ERA5_C2008_dynlim","ERA5_C2008_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
     line_types=['b-^','b-s','g-^','g-s','c--','r']
     
-
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
         
     #open dataset
