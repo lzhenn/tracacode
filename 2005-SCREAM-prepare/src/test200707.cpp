@@ -1,8 +1,9 @@
-# include<stdio.h>
+# include <iostream>
 
 int main(){
 
-    int array[10];
-    array[10] = 44;
+    int i = 14;
+    int *p = &i;
+    std::cout<<sizeof(char*)<<"  "<<std::endl;
 
 }
