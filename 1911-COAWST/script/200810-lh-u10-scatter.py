@@ -59,15 +59,19 @@ def main():
 
     #cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
 #    cases=["ERA5_C2008_dynlim",  "ERA5_TY2001_nolimit",  "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
-    cases=[ "ERA5_WRF","ERA5_WRFROMS",   "ERA5_TY2001", "ERA5_C2008_dynlim"]
-    line_libs=['ko','ro','bo','go']
+    #cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
+    #cases=[ "ERA5_WRF","ERA5_WRFROMS",   "ERA5_TY2001", "ERA5_C2008_dynlim"]
+    cases=["ERA5_WRFROMS",   "ERA5_C2008"]
+    #line_libs=['ko','ro','bo','go']
+    #line_libs=['k.','r.','b.','g.']
+    line_libs=['r.','b.']
+    
     #line_libs=['b.','g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809160000'
-    end_time_str='201809160600'
+    strt_time_str='201809152200'
+    end_time_str='201809160200'
     box_R=80
 
     epsilon=0.333
@@ -95,7 +99,7 @@ def main():
         ds = salem.open_wrf_dataset('/disk/v092.yhuangci/lzhenn/1911-COAWST/'+case+'/wrfout_d02')
         ds=ds.sel(time=slice(strt_time_obj,end_time_obj))
 
-        var1 = ds['UST'] # heat exch
+        var1 = ds['LH'] # heat exch
         var2 = ds['U10'] # momentum exch
         var3 = ds['U10'] 
         var4 = ds['V10'] 
@@ -113,11 +117,11 @@ def main():
       
     plt.legend(loc='best', fontsize=SMFONT)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
-    plt.ylabel('U*',fontsize=SMFONT)
+    plt.ylabel('LH',fontsize=SMFONT)
     plt.xticks(fontsize=SMFONT)
     plt.yticks(fontsize=SMFONT)
       
-    plt.title('U* - 10m WindSpeed', fontsize=BIGFONT)
+    plt.title('LH - 10m WindSpeed', fontsize=BIGFONT)
     fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
     fig.savefig('../fig/scatter_add.png')
     #plt.show()

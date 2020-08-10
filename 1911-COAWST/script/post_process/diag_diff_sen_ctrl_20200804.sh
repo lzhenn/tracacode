@@ -23,15 +23,15 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 
 # Case name
 
-CASE_SEN=\"ERA5_C2008_add\"
-CASE_CTRL=\"ERA5_WRFROMS_add\"
+CASE_SEN=\"ERA5_C2008\"
+CASE_CTRL=\"ERA5_WRFROMS\"
 
 # Number of Domains
 I_DOM=2
 
 # Composite D02
-COMP1_TSTRT=2018091520
-COMP1_TEND=2018091600
+COMP1_TSTRT=2018091500
+COMP1_TEND=2018091512
 
 
 echo "MASTER: *STEP02* D0"$I_DOM": plot_frame_rain_200506.ncl or opt ncls"
@@ -44,6 +44,7 @@ ncl -nQ                             \
     trck_path=$TCK_NCL              \
     comp1_tstrt=$COMP1_TSTRT        \
     comp1_tend=$COMP1_TEND          \
-   ./ncl/diff1_plot_box_comp_ust_200804.ncl
+   ./ncl/diff1_plot_box_comp_uv10_200810.ncl
+#   ./ncl/diff1_plot_box_comp_lh_200804.ncl
 #   ./ncl/diff1_plot_box_comp_akms_200804.ncl
 exit 0

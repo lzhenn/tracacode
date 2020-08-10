@@ -23,9 +23,9 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 # Case name
 
 CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
-CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WAOFF_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 CASENAMES=( "ERA5_C2008_dynlim" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 CASENAMES=( "ERA5_TY2001_nolimit" "ERA5_TY2001_add" "ERA5_C2008_dynlim" "ERA5_C2008_add" "ERA5_WRFROMS_add" "ERA5_WRF_add")
+CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 #CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
 #            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
@@ -137,7 +137,7 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-               ./ncl/opt5.1_plot_box_comp_hfx_radius.ncl
+               ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
     #             ./ncl/opt3.5_plot_box_comp_lh_radius.ncl
     #           ./ncl/opt2.5_plot_box_comp_wind_radius_200602.ncl
     #            ./ncl/opt8.1_plot_box_comp_z0_radius.ncl
@@ -149,8 +149,6 @@ do
     #            ./ncl/opt1.5_opt_plot_box_frame_rain_200702.ncl
     #            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
     #            ./ncl/opt2.6.1_plot_box_frame_wind_streamline_200702.ncl
-    #            ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
-    #            ./ncl/opt2.7_plot_box_comp_wind_inflow_angle_200627.ncl
     #            ./ncl/opt2.6_plot_box_comp_wind_streamline_200627.ncl
     #            ./ncl/opt5.1_plot_box_comp_hfx_radius.ncl
     #            ./ncl/opt3.5_plot_box_comp_lh_radius.ncl

@@ -38,7 +38,7 @@ begin
         comp1_tend="2019091602"
     end if 
 
-    varname="UST"
+    varname="UV10"
 
 
     fig_prefix="d0"+tostring(i_dom)+"_"+varname+"_"
@@ -93,8 +93,14 @@ begin
 
     ; get rain
     ;ctrl_var1  = wrf_user_getvar(ctrl_in,"RAINC", -1)  
-  	ctrl_var2  = wrf_user_getvar(ctrl_in,varname, -1)  
-  	sen_var2  = wrf_user_getvar(sen_in,varname, -1)  
+  	ctrl_var1  = wrf_user_getvar(ctrl_in, "U10", -1)  
+  	ctrl_var2  = wrf_user_getvar(ctrl_in, "V10", -1)  
+  	sen_var1  = wrf_user_getvar(sen_in, "U10", -1)  
+  	sen_var2  = wrf_user_getvar(sen_in, "V10", -1)
+    ; below is for windspeed
+    ctrl_var2=wind_speed(ctrl_var1,ctrl_var2)
+    sen_var2=wind_speed(sen_var1,sen_var2)
+
     lsmask=wrf_user_getvar(ctrl_in,"LANDMASK",0)
     ;ctrl_var1  = (ctrl_var1+ctrl_var2)
  
@@ -112,9 +118,9 @@ begin
   res=True 
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -0.2          ; set min contour level
-  res@cnMaxLevelValF        = 0.2          ; set max contour level
-  res@cnLevelSpacingF       = 0.01          ; set contour interval
+  res@cnMinLevelValF        = -4.0          ; set min contour level
+  res@cnMaxLevelValF        = 4.0          ; set max contour level
+  res@cnLevelSpacingF       = 0.25          ; set contour interval
   
   
   res@gsnMaximize          = True
@@ -216,8 +222,8 @@ end do
 
 wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+"diff_box_comp")      ; send graphics to PNG file
 gsn_define_colormap(wks,"MPL_BrBG")
-res@gsnLeftString=varname+" "+case_sen+"-"+case_ctrl
-;res@gsnLeftString=varname+" ERA5_C2008-ERA5_WRFROMS"
+;res@gsnLeftString=varname+" "+case_sen+"-"+case_ctrl
+res@gsnLeftString=varname+" ERA5_TY2001-ERA5_WRFROMS"
 var_comp2_ctrl=var_comp2_ctrl/(ilast-istrt+1)
 var_comp2_sen=var_comp2_sen/(ilast-istrt+1)
 diff_var=var_comp2_sen-var_comp2_ctrl

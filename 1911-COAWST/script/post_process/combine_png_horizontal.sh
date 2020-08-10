@@ -3,6 +3,7 @@
 #CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WAOFF_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 
 CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
+CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 SCRIPT_DIR=`pwd`
 
 SRC_STR=""
@@ -14,7 +15,7 @@ do
     
     rm -f *noborder*
 
-    FILE_NAME=d02_UST_${CASENAME}_box_comp.png
+    FILE_NAME=d02_inflow_ang_${CASENAME}_box_comp_radius_asymmetric.png
     convert -trim +repage -bordercolor white -background white -flatten ${FILE_NAME} ../${CASENAME}_noborder_temp.png
     SRC_STR="${SRC_STR} ${CASENAME}_noborder_temp.png"
 done

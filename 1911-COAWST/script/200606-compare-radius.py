@@ -22,20 +22,22 @@ def main():
     MIDFONT=18
     SMFONT=16
 
-    varname='LH'
-    var_unit='W/m^2'
+    varname='UV10'
+    var_unit='m/s'
     #varname='UV10'
     #var_unit='m/s'
     cases=["ERA5_TY2001_nolimit", "ERA5_TY2001_add", "ERA5_C2008_dynlim","ERA5_C2008_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
+    cases=["ERA5_C2008_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
     line_types=['b-^','b-s','g-^','g-s','c--','r']
+    line_types=['g-s','c--','r']
     
 
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
         
     #open dataset
     fig,ax = plt.subplots()
-    width=15.0
-    height=7.0
+    width=12.0
+    height=9.0
     #fig,ax = plt.subplots(figsize=(10,4))
     fig.subplots_adjust(left=0.08, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
    

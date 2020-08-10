@@ -1,6 +1,7 @@
 #!/bin/bash
 
-CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
+#CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
+CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 #PREFIX_ARR=("d02_SLP_" "droms_HWave_" "droms_ssta_area_" "droms_sst_")
 #PREFIX_ARR=("d02_precip_" "droms_ssta_area_" "droms_sst_")
 PREFIX_ARR=( "d02_pr_box_" )

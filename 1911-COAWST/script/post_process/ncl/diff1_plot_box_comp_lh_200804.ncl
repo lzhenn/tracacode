@@ -216,8 +216,8 @@ end do
 
 wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+"_diff_box_comp")      ; send graphics to PNG file
 gsn_define_colormap(wks,"BlueWhiteOrangeRed")
-;res@gsnLeftString=varname+" "+case_sen+"-"+case_ctrl
-res@gsnLeftString=varname+" ERA5_C2008-ERA5_WRFROMS"
+res@gsnLeftString=varname+" "+case_sen+"-"+case_ctrl
+;res@gsnLeftString=varname+" ERA5_C2008-ERA5_WRFROMS"
 var_comp2_ctrl=var_comp2_ctrl/(ilast-istrt+1)
 var_comp2_sen=var_comp2_sen/(ilast-istrt+1)
 diff_var=var_comp2_sen-var_comp2_ctrl

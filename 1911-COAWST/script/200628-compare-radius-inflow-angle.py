@@ -24,8 +24,10 @@ def main():
 
     varname='UV10'
     var_unit='deg'
-    cases=["ERA5_TY2001", "ERA5_C2008","ERA5_WAOFF", "ERA5_WRFROMS", "ERA5_WRF"]
-    line_types=['b','b--','r','r--','k-o']
+    #cases=["ERA5_TY2001", "ERA5_C2008","ERA5_WAOFF", "ERA5_WRFROMS", "ERA5_WRF"]
+    cases=["ERA5_C2008", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
+    #line_types=['b','b--','r','r--','k-o']
+    line_types=['g','r--','k-o']
 
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
         
