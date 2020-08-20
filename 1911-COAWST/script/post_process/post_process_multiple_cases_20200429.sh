@@ -25,8 +25,7 @@ TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
 CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
 CASENAMES=( "ERA5_C2008_dynlim" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 CASENAMES=( "ERA5_TY2001_nolimit" "ERA5_TY2001_add" "ERA5_C2008_dynlim" "ERA5_C2008_add" "ERA5_WRFROMS_add" "ERA5_WRF_add")
-CASENAMES=( "ERA5_C2008_add" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
-CASENAMES=( "ERA5_TY2001_add2" )
+CASENAMES=( "C2008" "TY2001" "WRFROMS" "WRFONLY" )
 #CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
 #            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
@@ -38,7 +37,7 @@ CASENAMES=( "ERA5_TY2001_add2" )
 #            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
 
 # Number of Domains
-I_DOM_STRT=1
+I_DOM_STRT=2
 I_DOM_END=2
 
 # Gif control parameters
@@ -58,16 +57,16 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(1 1 1 1 1)
+FLAG_ARRAY=(0 0 0 0 0)
 #FLAG_ARRAY=(0 0 1 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
-COMP_ARRAY=(0 0)
+COMP_ARRAY=(1 1)
 
 # Composite D02
-COMP1_TSTRT=2018091520
-COMP1_TEND=2018091604
+COMP1_TSTRT=2018091506
+COMP1_TEND=2018091700
 
 # Complete
 #COMP1_TSTRT=2018091506
@@ -112,7 +111,8 @@ do
                 i_dom=$I_DOM_NCL                \
                 wrfout_path=$CASE_DIR_NCL       \
                 casename=$CASENAME_NCL          \
-                ./ncl/step0_extract-tcInfo_200406.ncl
+                ./ncl/step0.1_extract-wsInfo_200728.ncl
+        #       ./ncl/step0_extract-tcInfo_200406.ncl
         #        ./ncl/step0.1_extract-wsInfo_200728.ncl
         fi
         if [ ${FLAG_ARRAY[1]} == 1 ] ; then
@@ -138,7 +138,8 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-               ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
+                ./ncl/opt1_plot_box_comp_rain_200507.ncl
+    #           ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
     #             ./ncl/opt3.5_plot_box_comp_lh_radius.ncl
     #           ./ncl/opt2.5_plot_box_comp_wind_radius_200602.ncl
     #            ./ncl/opt8.1_plot_box_comp_z0_radius.ncl
@@ -146,7 +147,6 @@ do
     #            ./ncl/opt10_plot_box_comp_ckcd_200713.ncl
     #            ./ncl/step2_plot_frame_rain_200506.ncl &
     #            ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
-    #            ./ncl/opt1_plot_box_comp_rain_200507.ncl
     #            ./ncl/opt1.5_opt_plot_box_frame_rain_200702.ncl
     #            ./ncl/step2_opt_plot_box_frame_rain_200507.ncl 
     #            ./ncl/opt2.6.1_plot_box_frame_wind_streamline_200702.ncl

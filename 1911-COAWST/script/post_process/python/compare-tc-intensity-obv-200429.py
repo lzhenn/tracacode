@@ -28,9 +28,10 @@ def main():
     MIDFONT=18
     SMFONT=16
     width=15.0
-    height=9.0
+    height=7.0
     
-    line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
+    #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
+    line_libs=['r-^','r-s','b-.*','g--o']
     
     # arguments in
     args=sys.argv
@@ -65,6 +66,7 @@ def main():
         sen_path=PRE_DIR+'/'+casename+'/trck.'+casename+'.d0'+IDOM
         df_sen=pd.read_csv(sen_path,parse_dates=True,index_col='timestamp', sep='\s+', date_parser=dateparse)
         df_sen_period=df_sen[((df_sen.index>=COMP1_TSTRT)&(df_sen.index<=COMP1_TEND))]
+        df_sen_period=df_sen_period[df_sen_period['minSLP']>0]
         plt.plot(df_sen_period['minSLP'], line_type, label=casename)
     # end for: casenames
     

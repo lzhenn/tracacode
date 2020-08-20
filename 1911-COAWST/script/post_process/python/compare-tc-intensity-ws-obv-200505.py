@@ -31,7 +31,7 @@ def main():
     fig_height=9.0
  
     #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
-    line_libs=['b-^','b-s','g-^','g-s','c--','r']
+    line_libs=['b-^','b-s','g-s','r']
     
     # arguments in
     args=sys.argv

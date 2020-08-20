@@ -28,10 +28,11 @@ def main():
     MIDFONT=18
     SMFONT=16
     fig_width=15.0
-    fig_height=9.0
+    fig_height=7.0
  
     #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
-    line_libs=['b-^','b-s','g-^','g-s','c--','r']
+    #line_libs=['b-^','b-s','c--','r']
+    line_libs=['r-^','r-s','b-.*','g--o']
     
     # arguments in
     args=sys.argv
