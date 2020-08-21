@@ -28,8 +28,10 @@ def main():
             "FNL0d25_C2008", "FNL0d25_WRFROMS", "FNL0d25_WRF", 
             "FNL1d_TY2001", "FNL1d_WRF"]
 
-    line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
+    cases=['C2008', 'TY2001', 'WRFROMS', 'WRFONLY']
+    line_libs=['r-^','r-s','b-.*','g--o']
     
+   
 
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     bouy_path='/disk/v092.yhuangci/lzhenn/1911-COAWST/obv/bouy/'
@@ -62,7 +64,7 @@ def main():
         
         #open dataset
         fig,ax = plt.subplots()
-        width=15.0
+        width=14.0
         height=6.0
         #fig,ax = plt.subplots(figsize=(10,4))
 
@@ -98,7 +100,7 @@ def main():
     #    fig.tight_layout()
     #    plt.show()
         fig.set_size_inches(width, height)
-        fig.savefig('../fig/SST_'+bouy+'.pdf')
+        fig.savefig('../fig/SST_'+bouy+'.png')
 
         #break
 if __name__ == "__main__":
