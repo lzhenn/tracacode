@@ -104,9 +104,9 @@ begin
   res=True 
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 0.          ; set min contour level
+  res@cnMinLevelValF        = 100.          ; set min contour level
   res@cnMaxLevelValF        = 900.          ; set max contour level
-  res@cnLevelSpacingF       = 30.          ; set contour interval
+  res@cnLevelSpacingF       = 20.          ; set contour interval
   
   
   res@gsnMaximize          = True
@@ -136,6 +136,14 @@ begin
   ;res@lbLabelStride = 1  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
+  res@tmYLMode          = "Explicit"                ; explicit labels
+  res@tmYLValues        = ispan(0,160,40)
+  res@tmYLLabels        = 3*(res@tmYLValues)+" km"         ; make strings
+  res@tmXBMode          = "Explicit"                ; explicit labels
+  res@tmXBValues        = ispan(0,160,40)
+  res@tmXBLabels        = 3*(res@tmYLValues)+" km"         ; make strings
+
+
 
 
   resv                         = True               ; plot mods desired
@@ -178,7 +186,7 @@ do while(time_frame .lt. ilast)
     wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+casename+"_box_comp")      ; send graphics to PNG file
     
   
-    gsn_define_colormap(wks,"rh_19lev")
+    gsn_define_colormap(wks,"WhBlGrYeRe")
     res@gsnLeftString=casename+" "+varname+" Comp"
     ;---Call plotting routine which draws contours over a map
     tc_lon=case_tc(time_frame,2)

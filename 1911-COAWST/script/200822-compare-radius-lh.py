@@ -22,8 +22,10 @@ def main():
     MIDFONT=18
     SMFONT=16
 
-    varname='UV10'
-    var_unit='deg'
+    varname='LH'
+    var_unit='W/m^2'
+    #varname='UV10'
+    #var_unit='m/s'
     cases=['C2008', 'TY2001', 'WRFROMS', 'WRFONLY']
     line_types=['r-^','r-s','b-.*','g--o']
 
@@ -39,7 +41,7 @@ def main():
    
     #fetch lh radius list
     for case, line_type in zip(cases, line_types):
-        radius_loc=wrf_root+case+'/'+varname+'.inflow_angle.radius'
+        radius_loc=wrf_root+case+'/'+varname+'.radius'
         with open(radius_loc) as f:
             content_list=f.read().splitlines()
         ii=0
@@ -51,16 +53,16 @@ def main():
     
     plt.legend(loc='best', fontsize=MIDFONT)
     plt.xlabel('Radius (km)',fontsize=MIDFONT)
-    plt.ylabel(varname+' Inflow Angle ('+var_unit+')',fontsize=MIDFONT)
+    plt.ylabel(varname+' ('+var_unit+')',fontsize=MIDFONT)
     plt.xticks(fontsize=MIDFONT)
     #plt.xticks(fontsize=MIDFONT,rotation=-30)
     plt.yticks(fontsize=MIDFONT)
     
-    plt.title('Azimuthally averaged '+varname+' Inflow Angle', fontsize=BIGFONT)
+    plt.title('Azimuthally averaged '+varname, fontsize=BIGFONT)
 #    fig.tight_layout()
 #    plt.show()
     fig.set_size_inches(width, height)
-    fig.savefig('../fig/'+varname+'inflow_angle_radius.pdf')
+    fig.savefig('../fig/'+varname+'_radius.png')
 
     #break
 if __name__ == "__main__":

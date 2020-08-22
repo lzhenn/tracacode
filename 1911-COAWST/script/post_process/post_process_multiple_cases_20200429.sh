@@ -57,16 +57,16 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(0 0 0 0 0)
+FLAG_ARRAY=(0 0 1 0 0)
 #FLAG_ARRAY=(0 0 1 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
-COMP_ARRAY=(1 1)
+COMP_ARRAY=(0 0)
 
 # Composite D02
-COMP1_TSTRT=2018091506
-COMP1_TEND=2018091700
+COMP1_TSTRT=2018091518
+COMP1_TEND=2018091600
 
 # Complete
 #COMP1_TSTRT=2018091506
@@ -138,9 +138,13 @@ do
                 trck_path=$TCK_NCL              \
                 comp1_tstrt=$COMP1_TSTRT        \
                 comp1_tend=$COMP1_TEND          \
-                ./ncl/opt1_plot_box_comp_rain_200507.ncl
+               ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
+    #            ./ncl/opt3.5_plot_box_comp_lh_radius.ncl
+    #           ./ncl/opt2.5_plot_box_comp_wind_radius_200602.ncl
+    #            ./ncl/opt3_plot_box_comp_lh_200516.ncl 
+    #            ./ncl/opt2.6_plot_box_comp_wind_streamline_200627.ncl
+    #           ./ncl/opt1_plot_box_comp_rain_200507.ncl
     #           ./ncl/opt2.8_plot_box_comp_wind_inflow_angle_200629.ncl
-    #             ./ncl/opt3.5_plot_box_comp_lh_radius.ncl
     #           ./ncl/opt2.5_plot_box_comp_wind_radius_200602.ncl
     #            ./ncl/opt8.1_plot_box_comp_z0_radius.ncl
     #            ./ncl/opt9_plot_box_comp_ustar_200713.ncl
