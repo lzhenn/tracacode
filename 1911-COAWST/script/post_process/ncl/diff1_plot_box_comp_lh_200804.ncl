@@ -114,7 +114,7 @@ begin
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
   res@cnMinLevelValF        = -80          ; set min contour level
   res@cnMaxLevelValF        = 80          ; set max contour level
-  res@cnLevelSpacingF       = 10          ; set contour interval
+  res@cnLevelSpacingF       = 5          ; set contour interval
   
   
   res@gsnMaximize          = True

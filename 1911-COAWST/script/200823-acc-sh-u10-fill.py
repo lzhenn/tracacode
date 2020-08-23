@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy import interpolate
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
@@ -47,25 +48,27 @@ def main():
     BIGFONT=22
     MIDFONT=18
     SMFONT=16
-    FIG_WIDTH=15.0
-    FIG_HEIGHT=10.0
+    FIG_WIDTH=12.0
+    FIG_HEIGHT=8.0
 
-    varname='AKHS'
+    varname='HFX'
+    nbins=20
     #cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
 #    cases=["ERA5_C2008_dynlim",  "ERA5_TY2001_nolimit",  "ERA5_WRFROMS_add", "ERA5_WRF_add"]
     #cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
     #cases=[ "ERA5_WRF","ERA5_WRFROMS",   "ERA5_TY2001", "ERA5_C2008_dynlim"]
-    cases=["ERA5_WRFROMS_add",   "ERA5_C2008_add"]
+    cases=["WRFROMS", "C2008", "TY2001"]
     #line_libs=['ko','ro','bo','go']
     #line_libs=['k.','r.','b.','g.']
-    dot_color_lib=['salmon', 'cyan']
-    bar_color_lib=['r', 'b']
+    shade_color_lib=['salmon', 'cyan', 'lime']
+    line_lib=['r', 'b', 'g']
+    dot_lib=['*', '^', 's']
     #line_libs=['b.','g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809151600'
-    end_time_str='201809160600'
+    strt_time_str='201809151800'
+    end_time_str='201809160000'
     box_R=80
 
     epsilon=0.333
@@ -77,7 +80,7 @@ def main():
     fig, ax=plt.subplots()
     fig.subplots_adjust(left=0.08, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
     
-    for (dot_color, bar_color, case) in zip(dot_color_lib, bar_color_lib, cases):
+    for (dot_case, shade_color, line_color, case) in zip(dot_lib, shade_color_lib, line_lib, cases):
 
         # read track data
         tc_info_fn=wrf_root+'/'+case+'/trck.'+case+'.d0'+str(i_dom)
@@ -102,31 +105,39 @@ def main():
         var2.values=np.where(varmask.values==1, np.nan, var2.values)
         ws=np.sqrt(var3*var3+var4*var4)
         idx=get_closest_idx(var1.lat, var1.lon, tc_lat.values, tc_lon.values)
-        var1_box_comp=box_composite(var1.values, box_R, idx) # nparray inout
-        var2_box_comp=box_composite(var2.values, box_R, idx) # nparray inout
+        var1_box_comp=box_collect(var1.values, box_R, idx) # nparray inout
+        var2_box_comp=box_collect(var2.values, box_R, idx) # nparray inout
         ratio=var1_box_comp/var2_box_comp
-        ws_box_comp=box_composite(ws.values, box_R, idx) # nparray inout
+        ws_box_comp=box_collect(ws.values, box_R, idx) # nparray inout
         
         ws_box_comp= ws_box_comp[~np.isnan(ws_box_comp)]
         var1_box_comp= var1_box_comp[~np.isnan(var1_box_comp)]
         # get bins
         bin_means, bin_edges, binnumber = stats.binned_statistic(ws_box_comp.flatten(),
-                                var1_box_comp.flatten(), statistic='median', bins=50)
+                                var1_box_comp.flatten(), statistic='mean', bins=nbins)
+        bin_counts, bin_edges, binnumber = stats.binned_statistic(ws_box_comp.flatten(),
+                                var1_box_comp.flatten(), statistic='count', bins=nbins)
+
+        lh_heat=bin_means*bin_counts*3600*27000*27000/10e15 # 1e15 J
+        x_pos=(bin_edges[0:-1]+bin_edges[1:])/2
+
+        tck=interpolate.splrep(x_pos, lh_heat, s=0)
+        x_spline = np.linspace(x_pos.min(), x_pos.max(), 300)  
+        lh_heat_smooth = interpolate.splev(x_spline, tck, der=0)
 
         # scatter
-        ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(), label=case, linewidth=0.0, marker='.', color=dot_color, markersize=5, alpha=1.0, markeredgecolor='none')
-        plt.hlines(bin_means*binnumber, bin_edges[:-1], bin_edges[1:], colors=bar_color, lw=10, zorder=99, alpha=1.0, 
-                         label='binned mean for '+case)
-
+        #ax.plot(x_pos, lh_heat, linewidth=0.0, color=line_color, marker=dot_case, markersize=8)
+        ax.plot(x_spline, lh_heat_smooth, label=case, linewidth=2., color=line_color )
+        ax.fill_between(x_spline, 0, lh_heat_smooth, alpha=0.2, color=shade_color)
     plt.legend(loc='best', fontsize=SMFONT)
-    plt.xlabel('10m WindSpeed',fontsize=SMFONT)
-    plt.ylabel(varname,fontsize=SMFONT)
+    plt.xlabel('10m WindSpeed (m/s)',fontsize=SMFONT)
+    plt.ylabel(varname+' (10^15 J)',fontsize=SMFONT)
     plt.xticks(fontsize=SMFONT)
     plt.yticks(fontsize=SMFONT)
       
-    plt.title( varname+' - 10m WindSpeed', fontsize=BIGFONT)
+    plt.title( 'Accum. '+varname+' - 10m WindSpeed', fontsize=BIGFONT)
     fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
-    fig.savefig('../fig/scatter_add_'+varname+'.png')
+    fig.savefig('../fig/acc_'+varname+'.png')
     #plt.show()
 
 if __name__ == "__main__":

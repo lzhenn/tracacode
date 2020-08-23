@@ -50,22 +50,22 @@ def main():
     FIG_WIDTH=15.0
     FIG_HEIGHT=10.0
 
-    varname='AKHS'
+    varname='LH'
     #cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
 #    cases=["ERA5_C2008_dynlim",  "ERA5_TY2001_nolimit",  "ERA5_WRFROMS_add", "ERA5_WRF_add"]
     #cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
     #cases=[ "ERA5_WRF","ERA5_WRFROMS",   "ERA5_TY2001", "ERA5_C2008_dynlim"]
-    cases=["ERA5_WRFROMS_add",   "ERA5_C2008_add"]
+    cases=["WRFROMS", "C2008", "TY2001"]
     #line_libs=['ko','ro','bo','go']
     #line_libs=['k.','r.','b.','g.']
-    dot_color_lib=['salmon', 'cyan']
-    bar_color_lib=['r', 'b']
+    dot_color_lib=['salmon', 'cyan', 'lightgreen']
+    bar_color_lib=['r', 'b', 'g']
     #line_libs=['b.','g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809151600'
-    end_time_str='201809160600'
+    strt_time_str='201809151800'
+    end_time_str='201809160000'
     box_R=80
 
     epsilon=0.333
@@ -102,20 +102,22 @@ def main():
         var2.values=np.where(varmask.values==1, np.nan, var2.values)
         ws=np.sqrt(var3*var3+var4*var4)
         idx=get_closest_idx(var1.lat, var1.lon, tc_lat.values, tc_lon.values)
-        var1_box_comp=box_composite(var1.values, box_R, idx) # nparray inout
-        var2_box_comp=box_composite(var2.values, box_R, idx) # nparray inout
+        var1_box_comp=box_collect(var1.values, box_R, idx) # nparray inout
+        var2_box_comp=box_collect(var2.values, box_R, idx) # nparray inout
         ratio=var1_box_comp/var2_box_comp
-        ws_box_comp=box_composite(ws.values, box_R, idx) # nparray inout
+        ws_box_comp=box_collect(ws.values, box_R, idx) # nparray inout
         
         ws_box_comp= ws_box_comp[~np.isnan(ws_box_comp)]
         var1_box_comp= var1_box_comp[~np.isnan(var1_box_comp)]
         # get bins
         bin_means, bin_edges, binnumber = stats.binned_statistic(ws_box_comp.flatten(),
-                                var1_box_comp.flatten(), statistic='median', bins=50)
+                                var1_box_comp.flatten(), statistic='mean', bins=50)
+        bin_counts, bin_edges, binnumber = stats.binned_statistic(ws_box_comp.flatten(),
+                                var1_box_comp.flatten(), statistic='count', bins=50)
 
         # scatter
-        ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(), label=case, linewidth=0.0, marker='.', color=dot_color, markersize=5, alpha=1.0, markeredgecolor='none')
-        plt.hlines(bin_means*binnumber, bin_edges[:-1], bin_edges[1:], colors=bar_color, lw=10, zorder=99, alpha=1.0, 
+        #ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(), label=case, linewidth=0.0, marker='.', color=dot_color, markersize=5, alpha=1.0, markeredgecolor='none')
+        plt.hlines(bin_means*bin_counts, bin_edges[:-1], bin_edges[1:], colors=bar_color, lw=10, zorder=99, alpha=1.0, 
                          label='binned mean for '+case)
 
     plt.legend(loc='best', fontsize=SMFONT)

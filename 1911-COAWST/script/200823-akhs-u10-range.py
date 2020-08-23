@@ -55,17 +55,17 @@ def main():
 #    cases=["ERA5_C2008_dynlim",  "ERA5_TY2001_nolimit",  "ERA5_WRFROMS_add", "ERA5_WRF_add"]
     #cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
     #cases=[ "ERA5_WRF","ERA5_WRFROMS",   "ERA5_TY2001", "ERA5_C2008_dynlim"]
-    cases=["ERA5_WRFROMS_add",   "ERA5_C2008_add"]
+    cases=["WRFROMS", "C2008", "TY2001"]
     #line_libs=['ko','ro','bo','go']
     #line_libs=['k.','r.','b.','g.']
-    dot_color_lib=['salmon', 'cyan']
-    bar_color_lib=['r', 'b']
+    dot_color_lib=['salmon', 'cyan', 'lightgreen']
+    bar_color_lib=['r', 'b', 'g']
     #line_libs=['b.','g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809151600'
-    end_time_str='201809160600'
+    strt_time_str='201809151800'
+    end_time_str='201809160000'
     box_R=80
 
     epsilon=0.333
@@ -115,7 +115,7 @@ def main():
 
         # scatter
         ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(), label=case, linewidth=0.0, marker='.', color=dot_color, markersize=5, alpha=1.0, markeredgecolor='none')
-        plt.hlines(bin_means*binnumber, bin_edges[:-1], bin_edges[1:], colors=bar_color, lw=10, zorder=99, alpha=1.0, 
+        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors=bar_color, lw=10, zorder=99, alpha=1.0, 
                          label='binned mean for '+case)
 
     plt.legend(loc='best', fontsize=SMFONT)

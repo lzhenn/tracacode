@@ -59,15 +59,15 @@ def main():
 
     #cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
 #    cases=["ERA5_C2008_dynlim",  "ERA5_TY2001_nolimit",  "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
-    cases=[ "ERA5_WRF","ERA5_WRFROMS",   "ERA5_TY2001", "ERA5_C2008_dynlim"]
+#    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
+    cases=[ "WRFONLY","WRFROMS",   "TY2001", "ERA5_C2008_dynlim"]
     line_libs=['ko','ro','bo','go']
     #line_libs=['b.','g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809160000'
-    end_time_str='201809160600'
+    strt_time_str='201809151800'
+    end_time_str='201809160000'
     box_R=80
 
     epsilon=0.333
@@ -111,7 +111,7 @@ def main():
 
         ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(),line_type, label=case, markersize=5, alpha=0.3, markeredgecolor='none')
       
-    plt.legend(loc='best', fontsize=SMFONT)
+    plt.legend(loc='best', fontsize=SMFONT, markerscale=2.0)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
     plt.ylabel('U*',fontsize=SMFONT)
     plt.xticks(fontsize=SMFONT)

@@ -8,6 +8,14 @@ import xarray as xr
 import datetime
 import salem
 
+def get_closest_data(var, lat2d, lon2d, lat0, lon0):
+    dis_lat2d=lat2d-lat0
+    dis_lon2d=lon2d-lon0
+    dis=abs(dis_lat2d)+abs(dis_lon2d)
+    idx=np.argwhere(dis.values==dis.values.min()) # x, y position
+    var=var.where(dis==dis.min(),drop=True).squeeze() # closest value
+    return var, idx 
+
 def get_closest_idx(lat2d, lon2d, lat_array, lon_array):
     idx=[]
     for (lat0, lon0) in zip(lat_array, lon_array):
@@ -50,22 +58,19 @@ def main():
     FIG_WIDTH=15.0
     FIG_HEIGHT=10.0
 
-    varname='AKHS'
     #cases=["ERA5_C2008_add", "ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
 #    cases=["ERA5_C2008_dynlim",  "ERA5_TY2001_nolimit",  "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    #cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
-    #cases=[ "ERA5_WRF","ERA5_WRFROMS",   "ERA5_TY2001", "ERA5_C2008_dynlim"]
-    cases=["ERA5_WRFROMS_add",   "ERA5_C2008_add"]
+#    cases=["ERA5_C2008", "ERA5_TY2001", "ERA5_WRFROMS", "ERA5_WRF"]
+    #cases=[ "WRFONLY","WRFROMS",   "TY2001", "ERA5_C2008_dynlim"]
     #line_libs=['ko','ro','bo','go']
-    #line_libs=['k.','r.','b.','g.']
-    dot_color_lib=['salmon', 'cyan']
-    bar_color_lib=['r', 'b']
+    cases=['C2008', 'TY2001', 'WRFROMS', 'WRFONLY']
+    line_types=['r-^','r-s','b-.*','g--o']
     #line_libs=['b.','g*','r^','k+']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
-    strt_time_str='201809151600'
-    end_time_str='201809160600'
+    strt_time_str='201809151800'
+    end_time_str='201809160000'
     box_R=80
 
     epsilon=0.333
@@ -77,7 +82,7 @@ def main():
     fig, ax=plt.subplots()
     fig.subplots_adjust(left=0.08, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
     
-    for (dot_color, bar_color, case) in zip(dot_color_lib, bar_color_lib, cases):
+    for (line_type, case) in zip(line_types, cases):
 
         # read track data
         tc_info_fn=wrf_root+'/'+case+'/trck.'+case+'.d0'+str(i_dom)
@@ -92,8 +97,8 @@ def main():
         # read raw input
         ds = salem.open_wrf_dataset('/disk/v092.yhuangci/lzhenn/1911-COAWST/'+case+'/wrfout_d02')
         ds=ds.sel(time=slice(strt_time_obj,end_time_obj))
-        
-        var1 = ds[varname] # heat exch
+
+        var1 = ds['UST'] # heat exch
         var2 = ds['U10'] # momentum exch
         var3 = ds['U10'] 
         var4 = ds['V10'] 
@@ -106,27 +111,32 @@ def main():
         var2_box_comp=box_composite(var2.values, box_R, idx) # nparray inout
         ratio=var1_box_comp/var2_box_comp
         ws_box_comp=box_composite(ws.values, box_R, idx) # nparray inout
-        
         ws_box_comp= ws_box_comp[~np.isnan(ws_box_comp)]
         var1_box_comp= var1_box_comp[~np.isnan(var1_box_comp)]
+        
         # get bins
         bin_means, bin_edges, binnumber = stats.binned_statistic(ws_box_comp.flatten(),
-                                var1_box_comp.flatten(), statistic='median', bins=50)
+                                var1_box_comp.flatten(), statistic='mean', bins=50)
+        bin_max, bin_edges, binnumber = stats.binned_statistic(ws_box_comp.flatten(),
+                                var1_box_comp.flatten(), statistic='max', bins=50)
 
-        # scatter
-        ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(), label=case, linewidth=0.0, marker='.', color=dot_color, markersize=5, alpha=1.0, markeredgecolor='none')
-        plt.hlines(bin_means*binnumber, bin_edges[:-1], bin_edges[1:], colors=bar_color, lw=10, zorder=99, alpha=1.0, 
-                         label='binned mean for '+case)
+        bin_min, bin_edges, binnumber = stats.binned_statistic(ws_box_comp.flatten(),
+                                var1_box_comp.flatten(), statistic='min', bins=50)
 
-    plt.legend(loc='best', fontsize=SMFONT)
+#        ax.plot(ws_box_comp.flatten(), var1_box_comp.flatten(),line_type, label=case, markersize=5, alpha=0.3, markeredgecolor='none')
+        x_mid=(bin_edges[0:-1]+bin_edges[1:])/2
+        ax.plot(x_mid,bin_means, line_type, label=case )
+        ax.fill_between(x_mid, bin_max, bin_min, alpha=0.2) 
+    
+    plt.legend(loc='best', fontsize=SMFONT, markerscale=2.0)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
-    plt.ylabel(varname,fontsize=SMFONT)
+    plt.ylabel('U*',fontsize=SMFONT)
     plt.xticks(fontsize=SMFONT)
     plt.yticks(fontsize=SMFONT)
       
-    plt.title( varname+' - 10m WindSpeed', fontsize=BIGFONT)
+    plt.title('U* - 10m WindSpeed', fontsize=BIGFONT)
     fig.set_size_inches(FIG_WIDTH, FIG_HEIGHT)
-    fig.savefig('../fig/scatter_add_'+varname+'.png')
+    fig.savefig('../fig/scatter_add.png')
     #plt.show()
 
 if __name__ == "__main__":

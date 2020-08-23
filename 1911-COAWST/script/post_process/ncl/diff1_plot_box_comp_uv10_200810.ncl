@@ -120,7 +120,7 @@ begin
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
   res@cnMinLevelValF        = -4.0          ; set min contour level
   res@cnMaxLevelValF        = 4.0          ; set max contour level
-  res@cnLevelSpacingF       = 0.25          ; set contour interval
+  res@cnLevelSpacingF       = 0.1          ; set contour interval
   
   
   res@gsnMaximize          = True
@@ -136,7 +136,6 @@ begin
   res@gsnAddCyclic         = False
   res@cnFillMode           = "CellFill" ; Raster Mode
   res@gsnSpreadColors      = True               ; use full color map
-  res@gsnRightString = "%"
   res@gsnStringFontHeightF = g_font 
   res@gsnMaximize      = True       ; fill up the page
   res@gsnPaperOrientation = "portrait"
@@ -147,7 +146,7 @@ begin
   res@lbLabelFontHeightF  = 0.02              ; make labels smaller
   res@tmYLMajorLengthF = 0.01
   res@tmXBMajorLengthF = 0.01
-  ;res@lbLabelStride = 1  
+  res@lbLabelStride = 5  
   res@tmXBLabelFontHeightF = g_font
   res@tmYLLabelFontHeightF = g_font
 
@@ -221,9 +220,9 @@ do while(time_frame .lt. ilast)
 end do
 
 wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+"diff_box_comp")      ; send graphics to PNG file
-gsn_define_colormap(wks,"MPL_BrBG")
-;res@gsnLeftString=varname+" "+case_sen+"-"+case_ctrl
-res@gsnLeftString=varname+" ERA5_TY2001-ERA5_WRFROMS"
+gsn_define_colormap(wks,"NCV_jaisnd")
+res@gsnLeftString=varname+" "+case_sen+"-"+case_ctrl
+;res@gsnLeftString=varname+" ERA5_TY2001-ERA5_WRFROMS"
 var_comp2_ctrl=var_comp2_ctrl/(ilast-istrt+1)
 var_comp2_sen=var_comp2_sen/(ilast-istrt+1)
 diff_var=var_comp2_sen-var_comp2_ctrl
