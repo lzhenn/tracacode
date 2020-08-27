@@ -13,6 +13,7 @@ Another repo, called [CESM CAM FORCING MODULE (CCFM)](https://github.com/Novariz
 * [SourceMods-shf](#SourceMods-shf)
 * [SourceMods-SST-decoupling](#SourceMods-SST-decoupling)
 * [SourceMods-heatflux-correction](#SourceMods-heatflux-correction)
+* [SourceMods-snow_rate](#SourceMods-snow_rate)
 
 ### SourceMods-CAM4-MAM-heat
 Intensify/Suppress convective heating rate (J/kg/s) over a certain region/time, a detailed introduction can be found in the Methods section in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4962042/ 
@@ -30,7 +31,7 @@ Dynamically modify the albedo calculation before the radiation allocation and up
 Remove the vertical diffusion (turbulance) caused heating to the atmosphere over the Tibetan Platau. This process can be treated as, instead of redistributing the surface heating, the turbulance eats up all surface heating like a black hole. Therefore, this is nearly shutdown the surface heating by the TP.
 
 ### SourceMods-SST-decoupling
-Partially decoupling the Air-sea interaction by fixing the SST values to the prescribed SST datasets.**Prof. Chao He provided the initial code based on CCSM4. His contribution greatly assisted me to build the current version for CESM1.2.2.**
+Partially decoupling the Air-sea interaction by fixing the SST values to the prescribed SST datasets. **Prof. Chao He provided the initial code based on CCSM4. His contribution greatly assisted me to build the current version for CESM1.2.2.**
 
 * Please use 'LZN' (no apostrophe) to lock the code modification segmentation.
 
@@ -107,6 +108,10 @@ variables:
 Using prescribed heat flux correction method to correct the model state. Heat flux includes sensible heat from coupler to atm, shortwave, and longwave flux from atm to coupler.
 Please refer the [tech blog](https://novarizark.github.io/2018/10/29/cesm-fully-coupled-correction/) for more info. 
 
+### SourceMods-snow_rate
+Change the large-scale snowfall rate over a certain region and period. This is aiming to accumulate snow cover over the targeted land surface, while the user need to be very careful in interpreting the results as mass conservation is violated by this operation. 
+Please use keyword "MOD" to lock the modification parts.
+
 LZN
 
-Last Updated: Jan 5, 2019
+Last Updated: Aug 27, 2020
