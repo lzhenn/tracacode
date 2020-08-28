@@ -56,12 +56,13 @@ def main():
     FIG_HEIGHT=10.0
 
     cases=["ERA5_TY2001_add", "ERA5_WRFROMS_add", "ERA5_WRF_add"]
-    line_libs=['g*','r^','k+']
+    cases=["WRFROMS", "C2008", "TY2001"]
+    line_libs=['r*','b^','g.']
     wrf_root='/disk/v092.yhuangci/lzhenn/1911-COAWST/'
     
     i_dom=2
     strt_time_str='201809151800'
-    end_time_str='201809160600'
+    end_time_str='201809160000'
     box_R=80
 
     epsilon=0.333
@@ -103,9 +104,9 @@ def main():
         ratio=var1_box_comp/var2_box_comp
         ws_box_comp=box_composite(ws.values, box_R, idx) # nparray inout
 
-        ax.plot(ws_box_comp.flatten(), ratio.flatten(),line_type, label=case, markersize=5, alpha=0.3)
+        ax.plot(ws_box_comp.flatten(), ratio.flatten(),line_type, label=case, markersize=5, alpha=0.6)
       
-    plt.legend(loc='best', fontsize=SMFONT)
+    plt.legend(loc='best', fontsize=SMFONT, markerscale=2.0)
     plt.xlabel('10m WindSpeed',fontsize=SMFONT)
     plt.ylabel('Ck/Cd',fontsize=SMFONT)
     plt.xticks(fontsize=SMFONT)
