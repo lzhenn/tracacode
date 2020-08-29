@@ -13,6 +13,8 @@ Some following targeted modifications may need external input or namelist change
 
 **Please use keyword "MOD" or "LZN" to lock the modification parts in the source.**
 
+Any question, please contact Zhenning LI: novarizark@gmail.com
+
 ## Catagory
     
 * [SourceMods-CAM4-MAM-heat](#SourceMods-CAM4-MAM-heat)
