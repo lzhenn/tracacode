@@ -1,10 +1,19 @@
+## Overview 
+
 This folder archives all source code modifications to CESM1.2 (or other models in the future) that I have conducted during research.
 
-**Please use keyword "MOD" or "LZN" to lock the modification parts.**
 
 Another repo, called [CESM CAM FORCING MODULE (CCFM)](https://github.com/Novarizark/cesm-cam-forcing-mod), archives source modification for CESM users using external forcing files to conduct sensitive experiments in the CAM workflow. This flexible architecture enables you to deploy the module to a series of different versions of CESM (with careful check), although the source code was developed based on CESM1.2.2. That module was general enough to be applicable in a wide variety of questions by modifying the model prognostic physical tendencies. The common module embedded into the CESM architecture is still in development. You could make your choice to use the following specific files (including applications requesting source mods in CLM or POP), or use the CCFM for the CAM-only source mod applications.
 
-### Content
+## Usage
+
+Please check [the slide from Cecile Hannay](http://www.cesm.ucar.edu/events/tutorials/2016/practical4-hannay.pdf) about how to modify the source code in the CESM (from p30). Basically, you may `create_newcase` and then execute `./cesm_setup`, copy the following modified source code tree which fits your needs to the `${CASENAME}/SourceMods` directory. Then execute `./${CASENAME}.build` to compile the modified source.
+
+Some following targeted modifications may need external input or namelist changes. Please follow the specific introductions for these operations.
+
+**Please use keyword "MOD" or "LZN" to lock the modification parts in the source.**
+
+## Catagory
     
 * [SourceMods-CAM4-MAM-heat](#SourceMods-CAM4-MAM-heat)
 * [SourceMods-Nudging](#SourceMods-Nudging)
