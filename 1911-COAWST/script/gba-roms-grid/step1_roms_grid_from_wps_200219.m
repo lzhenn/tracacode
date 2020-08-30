@@ -1,17 +1,17 @@
 addpath(genpath('/users/b145872/project/1911-COAWST/script/mfiles'));
-netcdf_load('/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/geo_em.d01.nc')
+netcdf_load('/users/b145872/project-dir/app/WPS/geo_em.d03.nc')
 figure
 pcolorjw(XLONG_M,XLAT_M,double(1-LANDMASK))
 hold on
-title('WRF LANDMASK grid, Lambert conformal proj')
+title('WRF LANDMASK grid, mercator proj')
 xlabel('longitude'); ylabel('latitiude')
 
 % pick connors, lat lon
-xl= 106; xr=124;
-yb= 14; yt= 26;
+xl= 112.5; xr=115;
+yb= 21.5; yt= 23.0;
 
 % pick numbers, roms nrow x ncol
-numx=900; numy=600;
+numx=555; numy=333;
 
 
 % make matrix
@@ -22,7 +22,7 @@ plot(lon,lat,'k-')
 plot(lon',lat','k-')
 text(120,15,'- - - roms grid')
 % Call generic grid creation.
-roms_grid='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid.nc';
+roms_grid='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid.d02.nc';
 rho.lat=lat; rho.lon=lon;
 rho.depth=zeros(size(rho.lon)); % for now just make zeros
 rho.mask=zeros(size(rho.lon)); % for now just make zeros
