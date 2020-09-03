@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=WNP_COOL_jxw-2015
+WORKNAME=EASY-WRF
 
 # Now to create the workspace
 mkdir $WORKNAME
