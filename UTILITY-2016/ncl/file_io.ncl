@@ -263,10 +263,8 @@ end
 
 
 ; ------------------------------    read_noaa_olr_daily_2D   ---------------------------------------
-function read_noaa_olr_daily_2D(strtday, endday, latS, latN, lonW, lonE, filedir:string)
+function read_noaa_olr_daily_2D(g_strt_yr, g_lst_yr, strtday, endday, latS, latN, lonW, lonE, filedir:string)
 begin
-    g_strt_yr=1979
-    g_lst_yr=2012
     in_file = addfile(filedir, "r")
     var1  = short2flt(in_file->olr(:,{latS:latN},{lonW:lonE}))
     var1_slice = var1(0:endday-strtday,:,:)
