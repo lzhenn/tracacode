@@ -38,7 +38,7 @@ begin
     g_lonE=97.5
    
     ;Read NOAA OLR
-    var_obv=read_noaa_olr_daily_2D(0,180,g_latS,g_latN,g_lonW,g_lonE,"/Users/zhenningli/data/obv/NOAA-OLR/olr.day.mean.f10.nc")
+    var_obv=read_noaa_olr_daily_2D(0,180,g_latS,g_latN,g_lonW,g_lonE,"/home/yangsong3/data/observation/NOAA-OLR/daily/olr.day.mean.f10.nc")
     dims=dimsizes(var_obv)
     dimlen=dims(0)
     do ii = 0, dimlen-1
