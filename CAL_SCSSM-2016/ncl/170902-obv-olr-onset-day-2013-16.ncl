@@ -38,7 +38,7 @@ begin
     g_lonE=97.5
    
     ;Read NOAA OLR
-    ctrl1=addfile("/Users/zhenningli/data/obv/NOAA-OLR/olr.day.mean.2015.nc","r")
+    ctrl1=addfile("/home/yangsong3/data/observation/NOAA-OLR/daily/olr-daily_v01r02_20180101_20181231.nc","r")
     var_obv=ctrl1->olr
     onsetday=get_onset_idx_from_olr(var_obv, g_latS, g_latN, g_lonW, g_lonE)+1
     print(onsetday)
