@@ -34,9 +34,9 @@ begin
 
     ;for directory 
     g_strt_yr=1979
-    g_lst_yr=2013
+    g_lst_yr=2018
     g_strt_day=19790101
-    g_lst_day=20131231
+    g_lst_day=20181231
     g_yr_len = g_lst_yr-g_strt_yr+1
     
     ; U200 P21-24
@@ -51,14 +51,14 @@ begin
 
     g_var_name1 = "r"
 ;    g_data2_path ="../../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd.198[2-3].nc"
-    g_data2_path ="../../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd.*.nc"
-    g_data1_path ="/Users/zhenningli/data/obv/topo/USGS_gtopo30_0.23x0.31_remap_c061107.nc"
+    g_data2_path ="/home/yangsong3/data/observation/NCEP_DOE/daily/uwnd/uwnd.*.nc"
+    g_data1_path ="/home/yangsong3/L_Zealot/data-mirror/obv/TOPO/USGS_gtopo30_0.47x0.63_remap_c061106.nc"
     g_font = 0.03
     
     ;g_comp_years=(/1984, 1990, 1991, 1994, 1996, 1999, 2000, 2001, 2002, 2006, 2008, 2009, 2011/)
     ;g_comp_years=(/1984, 1990, 1991, 1999, 2000, 2006, 2009/)
     ; Early
-    g_comp_years=(/1990, 1999, 2000, 2006, 2009, 2012, 2015/)
+    g_comp_years=(/1984, 1990, 1991, 2000, 2006, 2009, 2012, 2015/)
     ; Late
     ;g_comp_years=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)
 
@@ -81,7 +81,7 @@ begin
     var1 = 1013.25*(1-(var1/9.8)*0.0065/288.15)^5.25145
     var1_line=dim_avg_n_Wrap(var1,1)
     var1_line=dim_median_n(var1,1)
-    var2_data=read_doe_daily_3D("uwnd", 100, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
+    var2_data=read_doe_daily_3D("uwnd", 0, g_yr_len-1, 100, 1000, g_latS, g_latN, g_lonW, g_lonE, g_data2_path)
     var2_pt_data = var2_data(:,0:g_p_lst2-g_p_strt2,:,:,:)    
     ; Calculate pentad data
     do ii=g_p_strt2-1,g_p_lst2-1

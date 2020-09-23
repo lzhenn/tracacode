@@ -41,7 +41,7 @@ begin
     g_p_lst=(g_day_lst+1)/5-1 ;
 
     g_var_name1 = "r"
-    g_data2_path ="../../data/obv/NCEP-DOE/daily/uwnd1979-2013/uwnd*"
+    g_data2_path ="/home/yangsong3/data/observation/NCEP_DOE/daily/uwnd/uwnd.*.nc"
     g_data1_path ="../../data/obv/PRECT/precip.pentad.mean.nc"
     g_plvl =200
     g_font = 0.02
