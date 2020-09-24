@@ -73,9 +73,9 @@ def construct_lag_array1d(df, lag_step,array_name):
 def dcomp_seasonality(df, std_flag):
     df_season = df.groupby(df.index.month).mean() # climatological seasonal cycle
     if std_flag:
-        df = df.groupby(df.index.month).transform(lambda x: (x-x['1981-01-01':'2010-12-31'].mean())/x.std()) # calculate monthly anomaly
+        df = df.groupby(df.index.month).transform(lambda x: (x-x['1990-01-01':'2018-12-31'].mean())/x.std()) # calculate monthly anomaly
     else:
-        df = df.groupby(df.index.month).transform(lambda x: (x-x['1981-01-01':'2010-12-31'].mean())) # calculate monthly anomaly
+        df = df.groupby(df.index.month).transform(lambda x: (x-x['1990-01-01':'2018-12-31'].mean())) # calculate monthly anomaly
     return df
 
 
