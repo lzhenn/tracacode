@@ -1,9 +1,9 @@
 # project (Traceable Academic Research Code Repo)
-This repo archives all source code in my academic research pathway, basically accomplished in a certain academic authority, along with some published papers. 
-This repo will update by `crontab` daily, on the condition that there is any modification and my staying in academia.
+This repo archives all source code in my academic research pathway, basically accomplished in a certain academic authority (e.g. univiersity), along with some published papers. 
+This repo will update by `crontab` daily, on the condition that there is any modification (and my staying in academia).
 
 We believe in the value of traceable and open-source scientific research. 
-Besides, the separation of data itself and processing operations on data can benefit post-disaster reconstruction of your knowledge library. 
+Besides, the separation of **data itself** and **processing operations on data** can benefit post-disaster reconstruction of your knowledge library. 
 
 Feel free to use our scripts!
 
