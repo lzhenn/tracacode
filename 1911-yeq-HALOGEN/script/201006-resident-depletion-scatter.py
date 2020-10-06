@@ -60,7 +60,8 @@ def main():
     mcip_grid_fn="/disk/hq247/yhuangci/resource/map_info/research_domains/27km/GRIDCRO2D.27km"
     coast_dis_fn     ="/disk/hq247/yhuangci/analy/halogen/result/ncl_files/v1/calc/dis_to_coast_27km.nc"
     out_res_path="/disk/hq247/yhuangci/lzhenn/workspace/easy-wrf-trck/outnc/"
-      
+    cmaq_with_file="../../../data/cmaq/with/jan/COMBINE_CCTM_ACONC_27km_2016*"  
+    cmaq_without_file="../../../data/cmaq/without/jan/COMBINE_CCTM_ACONC_27km_2016*"  
     
     line_types=['r-^','m:s','b-.*','g--o']
     months=['Jan', 'Apr', 'Jul', 'Oct']
@@ -77,7 +78,11 @@ def main():
     fig.subplots_adjust(left=0.08, bottom=0.18, right=0.97, top=0.92, wspace=None, hspace=None) 
         
     for line_type, mon, itm in zip(line_types, months, work_yyyymm):
-        print(out_res_path+'*2016'+itm+'*')
+        
+        ds_with=xr.open_mfdataset(cmaq_with_file)
+        ds_without=xr.open_mfdataset(out_res_path+'*2016'+itm+'*')
+        
+        
         ds_res=xr.open_mfdataset(out_res_path+'*2016'+itm+'*')
         var_res=ds_res['OcnResTime']
         var_res=var_res.sum(dim='Time')
@@ -104,7 +109,8 @@ def main():
        
         ax.plot(x_mid,bin_means, line_type, label=mon, linewidth=3, markersize=10)
         ax.fill_between(x_mid, bin_means+bin_std, bin_means-bin_std, color=line_type[0:1], alpha=0.2) 
-     
+        break
+
     plt.legend(loc='best', fontsize=SMFONT)
     plt.xlabel('Distance to Coastline (km)',fontsize=SMFONT)
     plt.ylabel('Ocean Sourced Air Occupation Ratio (%)',fontsize=SMFONT)
