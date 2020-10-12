@@ -145,6 +145,7 @@ begin
     pmres@gsMarkerSizeF = 0.018
     do ii = 0, nbouy-1
         gsn_polymarker(wks,plot,bouy_loc(ii,1),bouy_loc(ii,2),pmres)
+        ;break
     end do
 
     ; inner border
@@ -152,6 +153,7 @@ begin
     pmres@gsMarkerSizeF = 0.014
     do ii = 0, nbouy-1
         gsn_polymarker(wks,plot,bouy_loc(ii,1),bouy_loc(ii,2),pmres)
+        ;break
     end do
    
       tres  = True
@@ -164,11 +166,8 @@ begin
            tlat=bouy_loc(ii,2)-0.3
            tlon=bouy_loc(ii,1)-1.0
            gsn_text(wks,plot,bouy_loc(ii,0)+"",tlon,tlat,tres)
+        ;break
       end do
       frame(wks)           ; lets frame the plot - do not delete
-
-
     
-    
-    frame(wks)
 end
