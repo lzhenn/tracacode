@@ -17,8 +17,8 @@ PRE_DIR=/disk/v092.yhuangci/lzhenn/1911-COAWST
 FIG_DIR_ROOT=/disk/hq247/yhuangci/lzhenn/project/1911-COAWST/fig
 
 # Ref Track
-TCK_OBV=cma.trck.mangkhut
-TCK_NCL=\"${PRE_DIR}/cma.trck.mangkhut\"
+TCK_OBV=hko.trck.mangkhut
+TCK_NCL=\"${PRE_DIR}/hko.trck.mangkhut\"
 
 # Case name
 
@@ -57,20 +57,20 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(0 0 1 0 0)
+FLAG_ARRAY=(0 0 0 0 0)
 #FLAG_ARRAY=(0 0 1 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
-COMP_ARRAY=(0 0)
+COMP_ARRAY=(1 1)
 
 # Composite D02
-COMP1_TSTRT=2018091518
-COMP1_TEND=2018091600
+#COMP1_TSTRT=2018091518
+#COMP1_TEND=2018091600
 
 # Complete
-#COMP1_TSTRT=2018091506
-#COMP1_TEND=2018091700
+COMP1_TSTRT=2018091506
+COMP1_TEND=2018091700
 
 echo "MASTER: Preprocessing..."
 #-----------------------------------------------------------

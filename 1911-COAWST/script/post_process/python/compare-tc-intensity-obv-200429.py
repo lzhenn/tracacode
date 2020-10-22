@@ -59,7 +59,7 @@ def main():
     df_obv_period=df_obv[((df_obv.index>=COMP1_TSTRT)&(df_obv.index<=COMP1_TEND))]
     df_obv_period=df_obv_period.astype({'slp': 'float'})
     df_obv_period=df_obv_period.dropna()
-    plt.plot(df_obv_period['slp'], label='CMA best', marker='o', color='black')
+    plt.plot(df_obv_period['slp'], label='HKO best', marker='o', color='black')
     # Deal with cases
     dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H%M%S')
     for (line_type,casename) in zip(line_libs,casenames):
