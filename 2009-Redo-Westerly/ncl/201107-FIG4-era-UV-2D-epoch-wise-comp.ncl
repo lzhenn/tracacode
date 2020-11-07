@@ -50,26 +50,15 @@ begin
     g_day_lst2=143
     g_day_comp_len=14
     
-    ;BOB All
-    g_comp="all"
-    g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
-    g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134,114,106,124,126,101/)-1-g_day_strt2
-    ;g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134,113,119,123,126,101/)-1-g_day_strt2
-    
     ;BOB Early
-    ;g_comp="early"
-    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
-    ;g_day_rank=(/108, 105, 93, 100, 107, 99/)-1-g_day_strt2
+    g_comp="early"
+    g_special_year=(/1984, 1990, 1991, 2000, 2006, 2008, 2009, 2012, 2015, 2017/)-1979
+    g_day_rank=    (/108 , 102 , 110 , 101 , 105 , 109 , 99  , 106 , 101 , 97  /)-1-g_day_strt2
     
-    ;BOB Late
-    g_comp2="late"
-    g_special_year2=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    g_day_rank2=(/131, 131, 130, 132, 135, 131, 132, 134/)-1-g_day_strt2
-  ;g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-    ;g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
-
-    g_data2_path ="../../data/obv/NCEP-DOE/daily/uwnd/uwnd*"
-    g_data3_path ="../../data/obv/NCEP-DOE/daily/vwnd/vwnd*"
+    g_data2_clim="/home/yangsong3/data-observation/NCEP_DOE/daily_clm/uwnd.day.1981-2010.ltm.nc"
+    g_data3_clim="/home/yangsong3/data-observation/NCEP_DOE/daily_clm/vwnd.day.1981-2010.ltm.nc"
+    g_data2_path ="/home/yangsong3/data-observation/NCEP_DOE/daily/uwnd/uwnd*"
+    g_data3_path ="/home/yangsong3/data-observation/NCEP_DOE/daily/vwnd/vwnd*"
     g_font = 0.02
     
         
@@ -79,21 +68,18 @@ begin
     g_lonE=130
     g_plevel=200
     
-    g_fig_name = "../../fig/FINAL/FIG5a-ERA-UV-early-normal-minus-late"
+    g_fig_name = "../fig/FIG4a-UV-epoch-wise-comp"
         
-    g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
-    g_fig_rank:="(a)"
-    g_fig_title="Composite 200 hPa UV"
-    ;day_rank=ispan(0,g_day_comp_len-1,1)
-    ;day_rank=day_rank(::-1)
+    g_fig_rank="(a)"
+    g_fig_title="Epoch-wise Composite 200 hPa UV"
 
     g_special_cases=dimsizes(g_special_year) 
-    g_special_cases2=dimsizes(g_special_year2) 
 
     var2_data=read_doe_daily_2Din3D("uwnd", g_plevel, g_latS, g_latN+1, g_lonW, g_lonE+1, g_data2_path) 
     var3_data=read_doe_daily_2Din3D("vwnd", g_plevel, g_latS, g_latN+1, g_lonW, g_lonE+1, g_data3_path) 
     var2_data:=var2_data(:,g_day_strt2:g_day_lst2,:,:)
     var3_data:=var3_data(:,g_day_strt2:g_day_lst2,:,:)
+
 ;Prepare the variables
    
     var2_cmp1 = var2_data(0:g_special_cases2-1,:,:,:)

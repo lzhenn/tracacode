@@ -51,27 +51,27 @@ begin
     g_day_comp_len=14
     
     ;BOB All
-    g_comp="all"
-    g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
-    g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1-g_day_strt2
+    ;g_comp="all"
+    ;g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
+    ;g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1-g_day_strt2
 
     ;g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134,114,106,124,126,101/)-1-g_day_strt2
     
     ;BOB Early
-    ;g_comp="early"
-    ;g_special_year=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
-    ;g_day_rank=(/108, 105, 93, 100, 107, 99/)-1-g_day_strt2
+    g_comp="early"
+    g_special_year2=(/1984, 1990, 1999, 2000, 2006, 2009/)-1979
+    g_day_rank2=(/108, 105, 93, 100, 107, 99/)-1-g_day_strt2
     
     ;BOB Late
-    g_comp2="late"
-    g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-     g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
+    ;g_comp2="late"
+    ;g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
+    ;g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
     ;g_special_year2=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
     ;g_day_rank2=(/131, 131, 130, 132, 135, 131, 132, 134/)-1-g_day_strt2
 
 
-    g_data3_path ="$DATAOBV/ERA-interim/pressure/v-10/*"
-    g_data2_path ="$DATAOBV/ERA-interim/pressure/u-10/*"
+    g_data3_path ="$DATAOBV/ERA-interim/pressure/vwnd/*"
+    g_data2_path ="$DATAOBV/ERA-interim/pressure/uwnd/*"
     g_topo_path="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_0.9x1.25_remap_c051027.nc"
     g_font = 0.02
     
