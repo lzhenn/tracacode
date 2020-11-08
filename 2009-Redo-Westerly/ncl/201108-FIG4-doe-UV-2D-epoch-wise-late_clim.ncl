@@ -52,13 +52,12 @@ begin
     
     ;BOB Early
     g_comp="early"
-    g_special_year=(/1982, 1984, 1987, 1988, 1990, 1991, 1994, 1995, 1996, 2000, 2001, 2002, 2004, 2006, 2008, 2009, 2012, 2015, 2017/)-1979
-    g_day_rank=    (/113 , 108 , 119 , 119 , 102 , 110 , 114 , 118 , 112 , 101 , 114 , 114 , 114 , 105 , 109 , 99  , 106 , 101 , 97  /)-1-g_day_strt2
+    g_special_year=(/1984, 1990, 1991, 2000, 2006, 2008, 2009, 2012, 2015, 2017/)-1979
+    g_day_rank=    (/108 , 102 , 110 , 101 , 105 , 109 , 99  , 106 , 101 , 97  /)-1-g_day_strt2
  
-    g_special_year2=(/1980, 1981, 1992, 1993, 1997, 1998, 2010, 2016/)-1979
+    g_base_year=(/1980, 1981, 1992, 1993, 1997, 1998, 2010, 2016/)-1979
 
-    g_data2_clim="/home/yangsong3/data-observation/NCEP_DOE/daily_clm/uwnd.day.1981-2010.ltm.nc"
-    g_data3_clim="/home/yangsong3/data-observation/NCEP_DOE/daily_clm/vwnd.day.1981-2010.ltm.nc"
+    g_topo_path="/home/yangsong3/L_Zealot/project/PRE_PRO_SHARE/data/TOPO/USGS-gtopo30_0.9x1.25_remap_c051027.nc"
     g_data2_path ="/home/yangsong3/data-observation/NCEP_DOE/daily/uwnd/uwnd*"
     g_data3_path ="/home/yangsong3/data-observation/NCEP_DOE/daily/vwnd/vwnd*"
     g_font = 0.02
@@ -68,20 +67,24 @@ begin
     g_latN=45
     g_lonW=30
     g_lonE=130
-    g_plevel=200
+    g_plevel=500
     
-    g_fig_name = "../fig/FIG4a-UV-epoch-wise-comp"
+    g_fig_name = "../fig/FIG4a-UV-epoch-wise-comp-500"
         
-    g_fig_rank="(a)"
-    g_fig_title="Epoch-wise Composite 200 hPa UV"
+    g_fig_rank="(b)"
+    g_fig_title="Epoch-wise Composite 500 hPa UV"
 
     g_special_cases=dimsizes(g_special_year) 
+    g_base_cases=dimsizes(g_base_year) 
 
-    var2_clm_in=addfile(g_data2_clim, "r")
-    var2_clim=var2_clm_in->uwnd(g_day_strt2:g_day_lst2,{g_plevel},{g_latS: g_latN+1}, {g_lonW:g_lonE+1})
+    ;Prepare the variables
+    ; Height --> Pressure
     
-    var3_clm_in=addfile(g_data3_clim, "r")
-    var3_clim=var3_clm_in->vwnd(g_day_strt2:g_day_lst2,{g_plevel},{g_latS: g_latN+1}, {g_lonW:g_lonE+1})
+    topo_in=addfile(g_topo_path,"r")
+    var_topo=topo_in->PHIS
+    var_topo=var_topo/9.8
+
+
 
     var2_data=read_doe_daily_2Din3D("uwnd", g_plevel, g_latS, g_latN+1, g_lonW, g_lonE+1, g_day_strt2, g_day_lst2, g_data2_path) 
     var3_data=read_doe_daily_2Din3D("vwnd", g_plevel, g_latS, g_latN+1, g_lonW, g_lonE+1, g_day_strt2, g_day_lst2, g_data3_path)
@@ -91,24 +94,24 @@ begin
     var2_cmp1 = var2_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:)
     var3_cmp1 = var3_data(0:g_special_cases-1,0:g_day_comp_len-1,:,:)
     
-    var2_clim_cmp1=var2_data(0:g_special_cases-1,0,:,:)
-    var3_clim_cmp1=var3_data(0:g_special_cases-1,0,:,:)
+    var2_base=dim_avg_n_Wrap(var2_data(g_base_year,:,:,:),0)
+    var3_base=dim_avg_n_Wrap(var3_data(g_base_year,:,:,:),0)
+    
 
     do ii=0, g_special_cases-1
-        var2_cmp1(ii,:,:,:)=var2_data(g_special_year(ii),g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:)
-        var3_cmp1(ii,:,:,:)=var3_data(g_special_year(ii),g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:)
-        var2_clim_cmp1(ii,:,:)=dim_avg_n_Wrap(var2_clim(g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:),0)
-        var3_clim_cmp1(ii,:,:)=dim_avg_n_Wrap(var3_clim(g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:),0)
+        var2_cmp1(ii,:,:,:)=var2_data(g_special_year(ii),g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:)-var2_base(g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:)
+        var3_cmp1(ii,:,:,:)=var3_data(g_special_year(ii),g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:)-var3_base(g_day_rank(ii):g_day_rank(ii)+g_day_comp_len-1,:,:)
     end do
    
     var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,1)
     var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,1)
-    var2_cmp1=var2_cmp1-var2_clim_cmp1
-    var3_cmp1=var3_cmp1-var3_clim_cmp1
     var2_cmp1:=dim_avg_n_Wrap(var2_cmp1,0)
     var3_cmp1:=dim_avg_n_Wrap(var3_cmp1,0)
 
-   
+    ws=wind_speed(var2_cmp1,var3_cmp1)
+    var2_cmp1=where(ws .gt. 1, var2_cmp1, var2_cmp1@FillValue)
+
+
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
 ; ==============================================================
@@ -118,7 +121,7 @@ begin
 
   plot_sh = new((/g_day_comp_len/),graphic)
   plot_V = new((/g_day_comp_len/),graphic)
-  plot_cn_max = new((/g_day_comp_len/),graphic)
+  plot_topo = new((/g_day_comp_len/),graphic)
   plot_cn_max_pre = new((/g_day_comp_len/),graphic)
 ;  plot_sh = new((/2/),graphic)
 ;  plot_V = new((/2/),graphic)
@@ -156,9 +159,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -10         ; set min contour level
- res@cnMaxLevelValF        = 10          ; set max contour level
- res@cnLevelSpacingF       = 2          ; set contour interval
+ res@cnMinLevelValF        = -6         ; set min contour level
+ res@cnMaxLevelValF        = 6          ; set max contour level
+ res@cnLevelSpacingF       = 1          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -232,19 +235,18 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 5.0             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 3.0             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
-  vcres@vcGlyphStyle            = "CurlyVector"
-  vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "5 m/s"
+  vcres@vcGlyphStyle            = "LineArrow"
+  vcres@vcMinDistanceF          = 0.025
+  vcres@vcRefAnnoString1  = "3 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.015
  
   vcres@vcLineArrowThicknessF     = 2.0    ;thickness of vector
   vcres@vcLineArrowHeadMinSizeF   = 0.008
   vcres@vcLineArrowHeadMaxSizeF   = 0.008
- 
-
+  
   res3                  = True       ; use plot options
   res3@cnFillOn         = False;True       ; Fill contours
   res3@cnLinesOn        = True      ; turn off contour lines
@@ -257,10 +259,11 @@ begin
  
  
   res3@cnLevelSelectionMode="ExplicitLevels"
-  res3@cnLevels = (/0./)
+  res3@cnLevels = (/2000./)
   res3@cnLineColor      = "Black"
   res3@gsnLeftString      = " "
   res3@gsnRightString      = " "
+
 
   res4=res3
   res4@cnLineColor="Grey"
@@ -278,7 +281,9 @@ begin
 
         plot_V(0) = gsn_csm_vector(wks,var2_cmp1,var3_cmp1,vcres) 
         plot_sh(0) = gsn_csm_contour_map(wks,var2_cmp1, res) 
+        plot_topo(0)=gsn_csm_contour(wks,var_topo,res3)
         overlay(plot_sh(0),plot_V(0))
+        overlay(plot_sh(0),plot_topo(0))
 
     gsn_panel(wks,plot_sh,(/1,1/),False)
 end
