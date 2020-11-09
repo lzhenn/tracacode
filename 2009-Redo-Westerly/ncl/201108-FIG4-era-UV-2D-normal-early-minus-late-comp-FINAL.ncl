@@ -40,20 +40,24 @@ begin
     
     ;BOB
     
-    g_strt_yr=1979
-    g_lst_yr=2010
-    g_yr_len = g_lst_yr-g_strt_yr+1
- 
 
     ; U200 P20-28
     g_day_strt2=65
     g_day_lst2=142
     g_day_comp_len=14
     
+    g_strt_yr=1979
+    g_lst_yr=2010
+    g_yr_len = g_lst_yr-g_strt_yr+1
+ 
+
     ;BOB All
     g_comp="all"
     g_special_year=ispan(g_strt_yr,g_lst_yr,1)-1979
     g_day_rank=(/125,136,133,134,143,108,136,123,119,119,128,105,110,132,134,114,126,112,133,132,93,100,115,114,127,118,123,107,116,112,99,134/)-1-g_day_strt2
+
+;    g_special_year=(/1979,1982, 1983, 1984, 1986, 1987, 1988, 1989, 1990, 1991, 1994, 1995, 1996, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2011, 2012, 2014, 2015 /)-1979
+;    g_day_rank=    (/122 , 114,  128,  108,  123,  119,  119,  128,  101,  110,  114,  118,  112,  101,  115,  114,  126,  114,  123,  105,  109,   99,  114,  106,  126,  101/)-1-g_day_strt2
 
     ;g_day_rank=(/122,131,131,114,128,108,130,123,119,119,128,102,110,132,135,114,118,112,131,132,93,101,115,114,126,114,123,105,115,109,99,134,114,106,124,126,101/)-1-g_day_strt2
     
@@ -64,8 +68,10 @@ begin
     
     ;BOB Late
     g_comp2="late"
-    g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
-     g_day_rank2=(/136, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
+    g_special_year2=(/1980, 1981, 1992, 1993, 1997, 1998, 2010, 2016/)-1979
+    g_day_rank2=    (/131 , 131 , 132 ,  135, 131 , 132 , 134 ,  136/)-1-g_day_strt2     
+    ;g_special_year2=(/1980, 1981, 1982, 1983, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
+    ;g_day_rank2=(/131, 133, 134, 143, 136, 132, 134, 133, 132, 134/)-1-g_day_strt2
     ;g_special_year2=(/1980, 1981, 1985, 1992, 1993, 1997, 1998, 2010/)-1979
     ;g_day_rank2=(/131, 131, 130, 132, 135, 131, 132, 134/)-1-g_day_strt2
 
@@ -83,13 +89,13 @@ begin
     g_latN=45
     g_lonW=30
     g_lonE=130
-    g_plevel=850
+    g_plevel=200
     
-    g_fig_name = "../fig/FIG5b-ERA-UV-HGT-early-normal-minus-late-"+g_lonW+"-"+g_lonE+"-"+g_plevel
+    g_fig_name = "../fig/FIG5a-epoch-wise-200"
         
     g_fig_rank    = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(n)","(o)","(p)","(q)","(r)","(s)"/)
-    g_fig_rank:="(c)" 
-    g_fig_title="Epoch-wise Composite 850 hPa UV"
+    g_fig_rank:="(a)" 
+    g_fig_title="Epoch-wise Composite 200 hPa UV"
     ;day_rank=ispan(0,g_day_comp_len-1,1)
     ;day_rank=day_rank(::-1)
 
@@ -131,7 +137,8 @@ begin
     var2_cmp2:=dim_avg_n_Wrap(var2_cmp2,0)
     var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,0)
 
-
+    ws=wind_speed(var2_cmp2, var3_cmp2)
+    var2_cmp2=where(ws .gt. 2, var2_cmp2, var2_cmp2@_FillValue)
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
@@ -181,9 +188,9 @@ begin
 ;    res@cnFillColors =(/   2,  18,  34,  52,  61,  68,  77,  82,  87,  91,  95,  99, 100, 102/)
 
  res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- res@cnMinLevelValF        = -3         ; set min contour level
- res@cnMaxLevelValF        = 3       ; set max contour level
- res@cnLevelSpacingF       = 0.5          ; set contour interval
+ res@cnMinLevelValF        = -10         ; set min contour level
+ res@cnMaxLevelValF        = 10       ; set max contour level
+ res@cnLevelSpacingF       = 2          ; set contour interval
 
 ;  res@cnFillColors =(/2,4,7,8,8,9,11,13/)
 
@@ -257,11 +264,11 @@ begin
  
   vcres@vcRefAnnoOn      = True
   vcres@vcRefAnnoOrthogonalPosF = -1.0             ; move ref vector up
-  vcres@vcRefMagnitudeF         = 1.5             ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5             ; define vector ref mag
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   vcres@vcGlyphStyle            = "LineArrow"    ; turn on curly vectors
-  vcres@vcMinDistanceF          = 0.03
-  vcres@vcRefAnnoString1  = "1.5 m/s"
+  vcres@vcMinDistanceF          = 0.025
+  vcres@vcRefAnnoString1  = "5 m/s"
   vcres@vcRefAnnoString2  = ""
   vcres@vcRefAnnoFontHeightF = 0.015
  
