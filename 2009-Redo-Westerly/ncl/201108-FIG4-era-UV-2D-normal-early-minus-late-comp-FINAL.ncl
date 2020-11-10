@@ -138,7 +138,7 @@ begin
     var3_cmp2:=dim_avg_n_Wrap(var3_cmp2,0)
 
     ws=wind_speed(var2_cmp2, var3_cmp2)
-    var2_cmp2=where(ws .gt. 2, var2_cmp2, var2_cmp2@_FillValue)
+    var2_cmp2=where(ws .gt. 3.5, var2_cmp2, var2_cmp2@_FillValue)
 
 ; ==============================================================
 ; Mission 3. Set plot parameters and plot
