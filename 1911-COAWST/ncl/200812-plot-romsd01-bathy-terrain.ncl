@@ -2,9 +2,9 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 ;load "$NCL_SELFLIB/cnmap-zhenning/cnmap.ncl"
 begin
     g_font=0.015
-    figname="domain_terrain_droms"
+    figname="domain_terrain_droms_goni2020"
    
-    roms_grid_in=addfile("/disk/v092.yhuangci/lzhenn/1911-COAWST/ERA5_WAOFF/gba_ocean_his.nc","w")
+    roms_grid_in=addfile("/users/b145872/project-dir/app/COAWST-test/Projects/GONI_2020/goni_roms_domain.nc","w")
     lat_rho=roms_grid_in->lat_rho
     lon_rho=roms_grid_in->lon_rho
     h=roms_grid_in->h
