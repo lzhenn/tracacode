@@ -1,4 +1,5 @@
 exp_series  exp_name   date_strt   date_end               
+GLBy        expt_93.0  2014-07-01  2020-11-15
 GLBa        expt_91.2  2016-04-18  2018-11-20
 GLBa        expt_91.1  2014-04-05  2016-04-18
 GLBa        expt_91.0  2013-08-21  2014-04-04
