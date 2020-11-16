@@ -48,8 +48,8 @@ def main():
     BIGFONT=22
     MIDFONT=18
     SMFONT=16
-    FIG_WIDTH=10.0
-    FIG_HEIGHT=7.0
+    FIG_WIDTH=12.0
+    FIG_HEIGHT=8.0
 
     varname='UV10'
     nbins=20

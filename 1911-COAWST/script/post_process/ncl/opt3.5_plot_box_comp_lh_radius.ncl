@@ -102,9 +102,9 @@ begin
   res=True 
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = -100.          ; set min contour level
-  res@cnMaxLevelValF        = 100.          ; set max contour level
-  res@cnLevelSpacingF       = 10.          ; set contour interval
+  res@cnMinLevelValF        = -150.          ; set min contour level
+  res@cnMaxLevelValF        = 150.          ; set max contour level
+  res@cnLevelSpacingF       = 5.          ; set contour interval
   
   
   res@gsnMaximize          = True
@@ -193,7 +193,7 @@ do while(time_frame .lt. ilast)
     wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+casename+"_box_comp")      ; send graphics to PNG file
     
   
-    gsn_define_colormap(wks,"cmp_flux")
+    gsn_define_colormap(wks,"BlWhRe")
     res@gsnLeftString=casename+" "+varname+" Comp"
     ;---Call plotting routine which draws contours over a map
     tc_lon=case_tc(time_frame,2)
