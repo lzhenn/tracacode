@@ -57,7 +57,7 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(0 0 1 0 0)
+FLAG_ARRAY=(0 0 0 1 0)
 #FLAG_ARRAY=(0 0 1 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
@@ -66,12 +66,12 @@ FLAG_ARRAY=(0 0 1 0 0)
 COMP_ARRAY=(0 0)
 
 # Composite D02
-COMP1_TSTRT=2018091518
-COMP1_TEND=2018091600
+#COMP1_TSTRT=2018091518
+#COMP1_TEND=2018091600
 
 # Complete
-#COMP1_TSTRT=2018091506
-#COMP1_TEND=2018091700
+COMP1_TSTRT=2018091506
+COMP1_TEND=2018091700
 
 echo "MASTER: Preprocessing..."
 #-----------------------------------------------------------
