@@ -14,33 +14,35 @@ begin
 
 ; Assign default settings if lack of argument pass
     if (.not. isvar("i_dom")) then 
-        i_dom=1
+        i_dom=2
     end if 
     if (.not. isvar("wrfout_path")) then 
-        wrfout_path="/users/b145872/project-dir/app/COAWST-sandy-wrf/WRF/run/"
+        wrfout_path="/home/metctm1/array/data/1911-COAWST/"
     end if 
     if (.not. isvar("casename")) then 
-        casename="mangkhut-wrfonly" 
+        casename="WRFONLY" 
     end if 
     if (.not. isvar("fig_path")) then 
-        wrfout_path="/users/b145872/project-dir/app/COAWST-sandy-wrf/WRF/run/"
+        fig_path="/home/yhuangci/"
     end if 
     if (.not. isvar("trck_path")) then 
-        trck_path="/disk/v092.yhuangci/lzhenn/1911-COAWST/cma.trck.mangkhut"
+        trck_path="/home/metctm1/array/data/1911-COAWST/hko.trck.mangkhut"
     end if 
     if (.not. isvar("tstrt")) then 
-        tstrt="2019091516"
+        tstrt="2018091500"
     end if 
     if (.not. isvar("tend")) then 
-        tend="2019091602"
+        tend="2018091706"
     end if 
 
 
 
     fig_prefix="d0"+tostring(i_dom)+"_trck_"
     g_font=0.02
+
     month_abbr = (/"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep", \
-                         "Oct","Nov","Dec"/)
+                     "Oct","Nov","Dec"/)
+
     
     ; get in ibtrck data
     ncol=6
@@ -48,10 +50,9 @@ begin
     dims=dimsizes(tc_loc) 
     dim_tc=dims(0)
  
-
    
    ; get wrf nc data
-    wrfout_fn=wrfout_path+"/wrfout_d0"+tostring(i_dom)
+    wrfout_fn=wrfout_path+"/"+casename+"/wrfout_d0"+tostring(i_dom)
     ctrl_in      = addfile (wrfout_fn, "r")   ; note the "s" of addfile
     
     ; parser time
@@ -72,10 +73,9 @@ begin
     lc_date:=cd_calendar(xtime, -3)
     istrt   = ind(lc_date .eq. toint(tstrt))
     ilast   = ind(lc_date .eq. toint(tend))
-
     ; get in wrf tc track data
     ;0-timestamp 1-lat 2-lon 3-minSLP 4-maxWS 5-uRadius 6-vRadius
-    case_tc = asciiread(wrfout_path+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
+    case_tc = asciiread(wrfout_path+"/"+casename+"/trck."+casename+".d0"+i_dom,(/lentime,7/),"float")
     ; parser lat lon
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  0)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 0)
@@ -154,8 +154,8 @@ begin
 
 res = wrf_map_resources(ctrl_in,res)
 
-time_frame=istrt
-wks_type="png"
+time_frame=ilast-1
+wks_type="pdf"
 wks_type@wkWidth=800
 wks_type@wkHeight=800
 
@@ -165,32 +165,32 @@ do while(time_frame .lt. ilast)
     ;************************************************
     ; create plot
     ;************************************************
-    
+    print("1")  
     wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     
 ;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
 ;    res@cnLevels =    (/0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 25, 30, 40, 50/)
    
-    gsn_define_colormap(wks,"precip2_17lev")
     res@gsnLeftString=casename+" Track @"+date_str(time_frame)
     ;---Call plotting routine which draws contours over a map
     plot = gsn_csm_map(wks, res)
   
-    chinamap = add_china_map(wks,plot,cnres)
+    print("2")  
+;    chinamap = add_china_map(wks,plot,cnres)
     ; center
     
     no_tc_count=0 ; count no tc frames
     if (case_tc(time_frame,4) .gt. 0) then
-        dum1    = gsn_add_polymarker(wks,plot,case_tc(time_frame,2),case_tc(time_frame,1),polyres)
+;        dum1    = gsn_add_polymarker(wks,plot,case_tc(time_frame,2),case_tc(time_frame,1),polyres)
         ;dum_text    = gsn_add_text(wks,plot,sprintf("Center SLP: %3.1f degC", case_tc(2, time_frame)),tlon,tlat,tres)
         if (time_frame .gt. 0) then
-            dum_track=gsn_add_polyline(wks,plot, case_tc(no_tc_count:time_frame,2) , case_tc(no_tc_count:time_frame,1),pres)
-            dum_track@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,case_tc(no_tc_count:time_frame,2) , case_tc(no_tc_count:time_frame,1),sim_histres)
+;            dum_track=gsn_add_polyline(wks,plot, case_tc(no_tc_count:time_frame,2) , case_tc(no_tc_count:time_frame,1),pres)
+;            dum_track@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,case_tc(no_tc_count:time_frame,2) , case_tc(no_tc_count:time_frame,1),sim_histres)
         end if
     else
         no_tc_count=no_tc_count+1
     end if
-    
+     print("3")
     ;Obv Track
     res_lines=True
     res_lines@gsLineColor       = "black"
@@ -200,14 +200,16 @@ do while(time_frame .lt. ilast)
     yy := tc_loc(:,3)/10 
     xx := tc_loc(:,2)/10 
     obv_track=gsn_add_polyline(wks,plot,yy,xx,res_lines)              ; N
+    print("4")
 
     do ii =0, dim_tc-1
-        yy@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
+;        yy@$unique_string("xx")$    = gsn_add_polymarker(wks,plot,yy(ii),xx(ii),obv_polyres)
     end do
-    
+    print("5")
     ;overlay(plot, plotv)
     draw(plot)
     frame(wks)
+    print("6")
     time_frame=time_frame+1
     ;delete(wks)
 end do
