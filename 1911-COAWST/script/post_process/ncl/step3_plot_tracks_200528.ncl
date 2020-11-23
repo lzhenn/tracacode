@@ -165,7 +165,7 @@ do while(time_frame .lt. ilast)
     ;************************************************
     ; create plot
     ;************************************************
-    
+    print("time_frame:"+time_frame)    
     wks = gsn_open_wks(wks_type,fig_path+"/"+fig_prefix+sprinti("%0.3iFrm", time_frame))      ; send graphics to PNG file
     
 ;    res@cnLevelSelectionMode = "ExplicitLevels"   ; set manual contour levels
