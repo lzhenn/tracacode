@@ -7,8 +7,10 @@ Draw TC Track Comparison
 Zhenning LI
 
 '''
+from netCDF4 import Dataset
 import numpy as np
 import datetime, csv
+import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -17,20 +19,18 @@ import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from cartopy.mpl.gridliner import LATITUDE_FORMATTER, LONGITUDE_FORMATTER
+import cartopy.io.shapereader as shpreader
+import shapely.geometry as sgeom
 from copy import copy
 
 from wrf import (getvar, interplevel, to_np, latlon_coords, get_cartopy,
                  cartopy_xlim, cartopy_ylim, ALL_TIMES)
-import sys
-sys.path.append('../')
-from lib.cfgparser import read_cfg
-
-
+import os
 
 # Constants
-BIGFONT=18
-MIDFONT=14
-SMFONT=10
+BIGFONT=22
+MIDFONT=18
+SMFONT=14
 
 
 
@@ -93,85 +93,106 @@ def _mct_ticks(ax, ticks, tick_location, line_constructor, tick_extractor):
 
 
 
+hko_path='/home/metctm1/array/data/1911-COAWST/hko.trck.mangkhut'
+cma_path='/home/metctm1/array/data/1911-COAWST/cma.trck.mangkhut'
+
+nc_path='/home/metctm1/array/data/1911-COAWST/WRFONLY/wrfout_d02'
+province_shp_file=os.getenv('SHP_LIB')+'/cnmap/cnhimap.dbf'
+
+cases=['C2008', 'TY2001', 'WRFROMS', 'WRFONLY']
+line_libs=['r-^','r-s','b-.*','g--o']
+
 
 # ----------Get NetCDF data------------
 print('Read NC...')
-ncfile = Dataset("/home/dataop/data/nmodel/wrf_2doms_enlarged/2016/201607/2016070312/wrfout_d01_2016-07-04_12:00:00")
 
+ncfile = Dataset(nc_path)
 lsmask=getvar(ncfile, 'LANDMASK')
-    
+
 # Get the lat/lon coordinates
 lats, lons = latlon_coords(lsmask)
 
+# Province shp file
+# read shp files
+province_shp=shpreader.Reader(province_shp_file).geometries()
+
+# Read bestTrck Data HKO
+dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H')
+df_hko_obv=pd.read_csv(hko_path,parse_dates=True,index_col='time', sep='\s+', date_parser=dateparse)
+
+# Read bestTrck Data CMA
+dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H')
+df_cma_obv=pd.read_csv(cma_path,parse_dates=True,index_col='time', sep='\s+', date_parser=dateparse)
 
 
 
 print('Plot...')
 # Create the figure
-for ii in range(0, airp_outlen):
 
-    # ----------seperate land/sea---------
-    mindis=0.3
-    lnd_lst=[]
-    ocn_lst=[]
+
+# ----------seperate land/sea---------
+
+# Get the map projection information
+fig = plt.figure(figsize=(12,8), frameon=True)
+proj = get_cartopy(lsmask)
+
+ax = fig.add_axes([0.08, 0.05, 0.8, 0.94], projection=proj)
+
+# Download and add the states and coastlines
+ax.coastlines('50m', linewidth=0.8)
+
+
+# plot province/city shp boundaries
+#ax.add_geometries(county_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='gray',linewidth=0.5, zorder = 0)
+ax.add_geometries(province_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='black',linewidth=1., zorder = 1)
+
+
+# Add ocean, land, rivers and lakes
+ax.add_feature(cfeature.OCEAN.with_scale('50m'))
+ax.add_feature(cfeature.LAND.with_scale('50m'))
+ax.add_feature(cfeature.LAKES.with_scale('50m'))
+# *must* call draw in order to get the axis boundary used to add ticks:
+fig.canvas.draw()
+# Define gridline locations and draw the lines using cartopy's built-in gridliner:
+# xticks = np.arange(80,130,10)
+# yticks = np.arange(15,55,5)
+xticks = np.arange(80,135,5).tolist() 
+yticks =  np.arange(0,60,5).tolist() 
+#ax.gridlines(xlocs=xticks, ylocs=yticks,zorder=1,linestyle='--',lw=0.5,color='gray')
+
+# Label the end-points of the gridlines using the custom tick makers:
+ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER) 
+ax.yaxis.set_major_formatter(LATITUDE_FORMATTER)
+mct_xticks(ax, xticks)
+mct_yticks(ax, yticks)
+
+
+# Set the map bounds
+ax.set_xlim(cartopy_xlim(lsmask))
+ax.set_ylim(cartopy_ylim(lsmask))
+
+
+ax.plot(df_hko_obv['lon']/10., df_hko_obv['lat']/10.,
+        color='black', marker='o', linewidth=2, markersize=5, transform=ccrs.Geodetic(), label='HKO bestTrack')
+ax.plot(df_cma_obv['lon']/10., df_cma_obv['lat']/10.,
+        color='dimgray', marker='*', linewidth=2, linestyle='dashed', markersize=8, transform=ccrs.Geodetic(), label='CMA bestTrack')
+
+dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H%M%S')
+for (line_type,casename) in zip(line_libs,cases):
+    sen_path='/home/metctm1/array/data/1911-COAWST/'+casename+'/trck.'+casename+'.d02'
+    df_sen=pd.read_csv(sen_path,parse_dates=True,index_col='timestamp', sep='\s+', date_parser=dateparse)
+    df_sen_period=df_sen
+    df_sen_period.replace(0, np.nan, inplace=True) # replace 0 by nan
+    df_sen_period=df_sen_period.dropna()
     
-    for jj in range(0, airp_count):
-        lsflag=get_landsea_idx_xy(lsmask.values, lats.values, lons.values, 
-            lat_arr[jj, ii], lon_arr[jj,ii], mindis)
-        if ( lsflag==0):
-            ocn_lst.append([lat_arr[jj,ii], lon_arr[jj,ii]])
-        elif (lsflag==1):
-            lnd_lst.append([lat_arr[jj,ii], lon_arr[jj,ii]])
-    
-    lnd_arr=np.array(lnd_lst)
-    ocn_arr=np.array(ocn_lst)
-
-    # Get the map projection information
-    curr_time=strt_time+datetime.timedelta(hours=ii)
-    fig = plt.figure(figsize=(11,8), frameon=True)
-    proj = get_cartopy(lsmask)
+    ax.plot(df_sen_period['lon'], df_sen_period['lat'],
+        line_type, linewidth=1, markersize=3, transform=ccrs.Geodetic(), label=casename)
 
 
-    ax = fig.add_axes([0.08, 0.05, 0.8, 0.94], projection=proj)
-
-    # Download and add the states and coastlines
-    ax.coastlines('50m', linewidth=0.8)
-
-    # Add ocean, land, rivers and lakes
-    ax.add_feature(cfeature.OCEAN.with_scale('50m'))
-    ax.add_feature(cfeature.LAND.with_scale('50m'))
-    ax.add_feature(cfeature.LAKES.with_scale('50m'))
-
-    # *must* call draw in order to get the axis boundary used to add ticks:
-    fig.canvas.draw()
-    # Define gridline locations and draw the lines using cartopy's built-in gridliner:
-    # xticks = np.arange(80,130,10)
-    # yticks = np.arange(15,55,5)
-    xticks = np.arange(80,135,5).tolist() 
-    yticks =  np.arange(0,60,5).tolist() 
-    #ax.gridlines(xlocs=xticks, ylocs=yticks,zorder=1,linestyle='--',lw=0.5,color='gray')
-
-    # Label the end-points of the gridlines using the custom tick makers:
-    ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER) 
-    ax.yaxis.set_major_formatter(LATITUDE_FORMATTER)
-    mct_xticks(ax, xticks)
-    mct_yticks(ax, yticks)
-
-
-    # Set the map bounds
-    ax.set_xlim(cartopy_xlim(lsmask))
-    ax.set_ylim(cartopy_ylim(lsmask))
-
-    ax.scatter( ocn_arr[:,1], ocn_arr[:,0],marker='.', color='blue', 
-                s=4, zorder=1, alpha=0.5, transform=ccrs.Geodetic(), label='Mass Points')
-    if(len(lnd_arr)>0):    
-        ax.scatter( lnd_arr[:,1], lnd_arr[:,0],marker='.', color='darkred', 
-                s=10, zorder=2, alpha=0.5, transform=ccrs.Geodetic(), label='Mass Points')
-     
-    print('%04d finished.' % ii)
-    plt.title('Ocean-Sourced Mass Points Landfall Tracer @%s' % curr_time.strftime('%Y-%m-%d %H:%M:%S'),fontsize=MIDFONT)
-    plt.savefig("../fig/halogen.d01.%04d.png" % ii, dpi=80, bbox_inches='tight')
-    plt.close('all')
+plt.legend(loc='best', fontsize=SMFONT)
+plt.title('Observational and Simulated Tracks of Mangkhut (1822)',fontsize=MIDFONT)
+plt.savefig("../../fig/paper/trck.png",dpi=300, bbox_inches='tight')
+plt.close('all')
 
 #plt.show()
 
