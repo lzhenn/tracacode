@@ -1,11 +1,17 @@
-import os
-import numpy as np
+#! /usr/bin/env python
+#  Draw scores of LASSO prediction in mainland China 
+#   
+#               L_Zealot
+#               Nov 27, 2020
+#               Clear Water Bay, Hong Kong 
+#
+
 import cmaps
+import numpy as np
 import pandas as pd
-import matplotlib
+import matplotlib, json, os 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from copy import copy
@@ -19,10 +25,9 @@ BIGFONT=18
 MIDFONT=14
 SMFONT=10
 
-
-#--------------Function Defination----------------
-
-
+#-------------------------------------
+# Function Definition Part
+#-------------------------------------
 
 def find_side(ls, side):
     """
@@ -92,85 +97,94 @@ def conv_deg(deg_str):
     value=value+(int(deg_str)-value*100)/60
     return(value)
 
-#--------------Function Defination----------------
 
 def main():
-    # Input File
-    raw_file='/home/metctm1/array/data/2011-UST-RAP/a_precip_20201113141016.csv'
+
+#----------------------------------------------------
+# User Defined Part
+#----------------------------------------------------
+
+    # Result Input File
+    result_in_file='/home/metctm1/array/workspace/spellcaster-local/json_base/whole_china_t2m_full_XY_result.json'
+    
+    sta_meta_file='/home/metctm1/array/workspace/spellcaster-local/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
 
     # Province shp file
     province_shp_file=os.getenv('SHP_LIB')+'/cnmap/cnhimap.dbf'
     county_shp_file=os.getenv('SHP_LIB')+'/cnmap/county_2004.dbf'
 
-    south_china_province=['广东', '广西', '海南']
-    
-    
-    
-    # deal with raw input
-    df = pd.read_csv(raw_file,parse_dates=True) 
-    df['id']=df['lon']*df['lat']
-    df_process=df.groupby('id').sum()    # Resample into hourly data
-    df_process['lon'] =df_process['lon']/df_process['val2']
-    df_process['lat'] =df_process['lat']/df_process['val2']
-    
 
+#----------------------------------------------------
+# Main function
+#----------------------------------------------------
     # read shp files
     province_shp=shpreader.Reader(province_shp_file).geometries()
     county_shp = shpreader.Reader(county_shp_file).geometries()
     
     
+    # get Sta meta
+    sta_df=get_station_df(sta_meta_file)
+    sta_df = sta_df.filter(['区站号','纬度(度分)','经度(度分)'], axis=1)
+    sta_df['sta_num']=sta_df['区站号'].transform(lambda x: int(x))
+    sta_df['lat']=sta_df['纬度(度分)'].transform(lambda x: conv_deg(x[0:-1]))
+    sta_df['lon']=sta_df['经度(度分)'].transform(lambda x: conv_deg(x[0:-1]))
+    sta_df['score']=0.0
+    sta_df=sta_df.set_index('sta_num')
+
+    # get score 
+    with open(result_in_file) as f:
+        result_dic=json.load(f)
+    
+    for idx, itm in result_dic.items():
+        sta_df.at[int(idx),'score']=float(itm['sign_score'])
     
     # Set figure size
-    proj = ccrs.Mercator(central_longitude=115., min_latitude=-80.0, max_latitude=84.0, globe=None, 
-            latitude_true_scale=22.0, false_easting=0.0, false_northing=0.0, scale_factor=None)
+    proj = ccrs.LambertConformal(central_longitude=105, central_latitude=90,
+                                 false_easting=400000, false_northing=400000)#,standard_parallels=(46, 49))
+
     fig = plt.figure(figsize=[10, 8],frameon=True)
     # Set projection and plot the main figure
     ax = fig.add_axes([0.08, 0.01, 0.8, 0.94], projection=proj)
     # Set figure extent
-    ax.set_extent([109, 118, 20, 26],crs=ccrs.PlateCarree())
+    ax.set_extent([80, 128, 18, 55],crs=ccrs.PlateCarree())
     
 
     # plot shp boundaries
-    ax.add_geometries(county_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='gray',linewidth=0.5, zorder = 0)
+    #ax.add_geometries(county_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='gray',linewidth=0.5, zorder = 0)
     ax.add_geometries(province_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='black',linewidth=1., zorder = 1)
 
     # Add ocean, land, rivers and lakes
-    #ax.add_feature(cfeature.OCEAN.with_scale('50m'))
-    #ax.add_feature(cfeature.LAND.with_scale('50m'))
+    ax.add_feature(cfeature.OCEAN.with_scale('50m'))
+    ax.add_feature(cfeature.LAND.with_scale('50m'))
     # *must* call draw in order to get the axis boundary used to add ticks:
     fig.canvas.draw()
     # Define gridline locations and draw the lines using cartopy's built-in gridliner:
     # xticks = np.arange(80,130,10)
     # yticks = np.arange(15,55,5)
-    xticks = range(109, 118, 2)
-    yticks = range(20, 26, 2) 
+    xticks = range(55, 165, 10) 
+    yticks = range(0, 65, 5) 
     #ax.gridlines(xlocs=xticks, ylocs=yticks,zorder=1,linestyle='--',lw=0.5,color='gray')
 
     # Label the end-points of the gridlines using the custom tick makers:
     ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER) 
     ax.yaxis.set_major_formatter(LATITUDE_FORMATTER)
-    lambert_xticks(ax, xticks)
-    lambert_yticks(ax, yticks)
+#    lambert_xticks(ax, xticks)
+#    lambert_yticks(ax, yticks)
 
     # Marker size in units of points^2
-    cmap=cmaps.precip2_17lev
-    sc=ax.scatter( df_process['lon'], df_process['lat'], marker='.', c=df_process['val1'], 
-            cmap=cmap, norm=matplotlib.colors.BoundaryNorm([0, 1, 2, 5, 10, 20, 30, 40, 50, 70, 100, 150, 200, 250, 300, 400, 500, 600], cmap.N),
+    cmap=cmaps.BlAqGrYeOrReVi200
+    sc=ax.scatter( sta_df['lon'], sta_df['lat'], marker='.', c=sta_df['score'], 
+            cmap=cmap, norm=matplotlib.colors.BoundaryNorm([0.5, 0.6, 0.7, 0.8], cmap.N),
             s=15,zorder=1, transform=ccrs.Geodetic(), label='pr')
 
-    df_sig=df_process.where(df_process['val1']>250.)
-    ax.scatter( df_sig['lon'], df_sig['lat'], marker='.', c=df_sig['val1'], 
-            cmap=cmap, norm=matplotlib.colors.BoundaryNorm([0, 1, 2, 5, 10, 20, 30, 40, 50, 70, 100, 150, 200, 250, 300, 400, 500, 600], cmap.N),
-            s=50,zorder=9, transform=ccrs.Geodetic())
-    
-    plt.title('Observed Accumulated Rainfall during Mangkhut (1822)')
+    plt.title('T2m Pc on Test Set')
     cax=fig.add_axes([0.15, 0.02, 0.7, 0.03])#位置[左,下,右,上]
-    cbar = fig.colorbar(sc,ticks=[0, 1, 5, 20, 40, 70, 150, 250, 400], cax=cax, orientation='horizontal')
+    cbar = fig.colorbar(sc,ticks=[0.5, 0.6, 0.7, 0.8], cax=cax, orientation='horizontal')
 #    cbar = fig.colorbar(sc)
 
 # Show figure
-    plt.savefig('../fig/mangkhut_pr.png', dpi=120, bbox_inches='tight')
-#    plt.show()
+    plt.savefig('../fig/t2m_score.png', dpi=120, bbox_inches='tight')
+#
 
 
 
