@@ -2,11 +2,10 @@
 #  Draw scores of LASSO prediction in mainland China 
 #   
 #               L_Zealot
-#               Nov 27, 2020
+#               Nov 28, 2020
 #               Clear Water Bay, Hong Kong 
 #
 
-import cmaps
 import numpy as np
 import pandas as pd
 import matplotlib, json, os 
@@ -98,18 +97,7 @@ def conv_deg(deg_str):
     value=value+(int(deg_str)-value*100)/60
     return(value)
 
-def plot_examples(cms):
-    """
-    helper function to plot two colormaps
-    """
-    data = np.random.randn(30, 30)
 
-    fig, axs = plt.subplots(1, 2, figsize=(6, 3), constrained_layout=True)
-    for [ax, cmap] in zip(axs, cms):
-        psm = ax.pcolormesh(data, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
-        fig.colorbar(psm, ax=ax)
-    plt.show()
-    plt.savefig('../fig/t2m_score.png', dpi=120, bbox_inches='tight')
 
 def main():
 
@@ -122,7 +110,15 @@ def main():
     
     sta_meta_file='/home/metctm1/array/workspace/spellcaster-local/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
 
-    # Province shp file
+   
+   
+    # check index sensitive stations
+    feature_name='AAO'
+    feat_list=['aao_lag'+str(itm) for itm in range(1,25)]
+
+   
+   
+   # Province shp file
     province_shp_file=os.getenv('SHP_LIB')+'/cnmap/cnhimap.dbf'
     county_shp_file=os.getenv('SHP_LIB')+'/cnmap/county_2004.dbf'
 
@@ -132,14 +128,7 @@ def main():
 #----------------------------------------------------
 
 
-    np.random.seed(19680801)
-    
-    cmap=cmaps.BlAqGrYeOrReVi200
-    newcolors = cmap(np.linspace(0, 1, 12))
-    grey = np.array([200/256, 200/256, 200/256, 1])
-    newcolors[:1, :] = grey
-    newcmap = ListedColormap(newcolors)
-    
+        
     # read shp files
     province_shp=shpreader.Reader(province_shp_file).geometries()
     county_shp = shpreader.Reader(county_shp_file).geometries()
@@ -151,15 +140,35 @@ def main():
     sta_df['sta_num']=sta_df['区站号'].transform(lambda x: int(x))
     sta_df['lat']=sta_df['纬度(度分)'].transform(lambda x: conv_deg(x[0:-1]))
     sta_df['lon']=sta_df['经度(度分)'].transform(lambda x: conv_deg(x[0:-1]))
-    sta_df['score']=0
-    len_sta=len(sta_df['score'])
-    sta_df['score']=0.45+np.random.random(len_sta)*0.3
+    sta_df['mark']=0
+    len_sta=len(sta_df['mark'])
+    sta_df['mark']=np.round(np.random.random(len_sta))
+
     sta_df=sta_df.set_index('sta_num')
 
     # get score 
     with open(result_in_file) as f:
         result_dic=json.load(f)
     
+    
+    nino_dict={key:0 for key in feat_list}
+
+    nsta=0
+    for idx, itm in result_dic.items():
+        nino_list = list(set(itm['w_name']).intersection(set(feat_list)))
+        nsta=nsta+1
+        if len(nino_list) >0:
+            sta_df.at[int(idx),'mark']=1.0
+            for itm in nino_list:
+                nino_dict[itm]=nino_dict[itm]+1
+    
+    sen_df=sta_df[sta_df['mark']>0]
+    insen_df=sta_df[sta_df['mark']==0]
+    print(insen_df)
+
+    #print(sorted(nino_dict.items(), key=lambda d: d[1]))
+
+
     for idx, itm in result_dic.items():
         sta_df.at[int(idx),'score']=float(itm['sign_score'])
             
@@ -199,21 +208,19 @@ def main():
     # Marker size in units of points^2
     color_range=[0,]
     color_range.extend(np.linspace(0.5, 1.0, 11).tolist())
-    sc=ax.scatter( sta_df['lon'], sta_df['lat'], marker='.', c=sta_df['score'], 
-            cmap=newcmap, norm=matplotlib.colors.BoundaryNorm(color_range, newcmap.N),
-            s=15,zorder=9, transform=ccrs.Geodetic(), label='pr')
-    ax.scatter( sta_df['lon'], sta_df['lat'], marker='.', c=sta_df['score'].where(sta_df['score']>0.8), 
-            cmap=newcmap, norm=matplotlib.colors.BoundaryNorm(color_range, newcmap.N),
-            s=25,zorder=99, transform=ccrs.Geodetic(), label='pr')
+    
+    sc=ax.scatter( sen_df['lon'], sen_df['lat'], marker='.', color='red',
+            s=30,zorder=99, transform=ccrs.Geodetic(), label=str(len(sen_df))+' '+feature_name+'-sensitive Stations')
 
+    ax.scatter( insen_df['lon'], insen_df['lat'], marker='.', color='grey', 
+            s=10,zorder=9, transform=ccrs.Geodetic(), label=str(len(insen_df))+' '+feature_name+'-insensitive Stations')
 
-    plt.title('T2m Pc on Test Set (2009-2018)',fontsize=BIGFONT)
-    cax=fig.add_axes([0.15, 0.02, 0.7, 0.03])#位置[左,下,右,上]
-    cbar = fig.colorbar(sc,ticks=color_range, cax=cax, orientation='horizontal')
+    plt.legend(loc='best', fontsize=MIDFONT)
+    plt.title(feature_name+'-Sensitive Station Map (T2m)',fontsize=BIGFONT)
 #    cbar = fig.colorbar(sc)
 
 # Show figure
-    plt.savefig('../fig/t2m_score.png', dpi=120, bbox_inches='tight')
+    plt.savefig('../fig/t2m_'+feature_name+'_skill.png', dpi=120, bbox_inches='tight')
 #
 
 
