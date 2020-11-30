@@ -3,9 +3,12 @@ Partially decoupling the Air-sea interaction by fixing the SST values to the pre
 
 * Please use 'LZN' (no apostrophe) to lock the code modification segmentation.
 
-* Need to register new namelist group in  `$CCSMROOT/models/ocn/pop2/bld/build-namelist`, just add `ptempf_file_nml` in **L1776**, the @group name writing section.
+* Please register new namelist group in  `$CCSMROOT/models/ocn/pop2/bld/build-namelist`, just add `ptempf_file_nml` in **L1776**, the @group name writing section.
 
-* Need to register new namelist variables in `$CCSMROOT/models/ocn/pop2/bld/namelist_files/namelist_definition_pop2.xml`, just copy the following code to the end of the xml file.
+* Please register new namelist variables in `$CCSMROOT/models/ocn/pop2/bld/namelist_files/namelist_definition_pop2.xml`, just copy the following code to the end of the xml file.
+
+* Please rename `ocn_comp_mct.mon12.F90` or `ocn_comp_mct.day365.F90` to `ocn_comp_mct.F90` according to your requirement.
+
 
 ```xml
 <entry 
