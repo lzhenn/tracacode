@@ -2,7 +2,7 @@
 #  Draw scores of LASSO prediction in mainland China 
 #   
 #               L_Zealot
-#               Nov 27, 2020
+#               Nov 28, 2020
 #               Clear Water Bay, Hong Kong 
 #
 
@@ -98,18 +98,7 @@ def conv_deg(deg_str):
     value=value+(int(deg_str)-value*100)/60
     return(value)
 
-def plot_examples(cms):
-    """
-    helper function to plot two colormaps
-    """
-    data = np.random.randn(30, 30)
 
-    fig, axs = plt.subplots(1, 2, figsize=(6, 3), constrained_layout=True)
-    for [ax, cmap] in zip(axs, cms):
-        psm = ax.pcolormesh(data, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
-        fig.colorbar(psm, ax=ax)
-    plt.show()
-    plt.savefig('../fig/t2m_score.png', dpi=120, bbox_inches='tight')
 
 def main():
 
@@ -118,7 +107,7 @@ def main():
 #----------------------------------------------------
 
     # Result Input File
-    result_in_file='/home/metctm1/array/workspace/spellcaster-local/json_base/whole_china_t2m_full_XY_result.json'
+    result_in_file='/home/metctm1/array/workspace/spellcaster-local/json_base/whole_china_prec_full_XY_result.json'
     
     sta_meta_file='/home/metctm1/array/workspace/spellcaster-local/data/station/SURF_CLI_CHN_PRE_MUT_HOMO_STATION.xls'
 
@@ -153,7 +142,7 @@ def main():
     sta_df['lon']=sta_df['经度(度分)'].transform(lambda x: conv_deg(x[0:-1]))
     sta_df['score']=0
     len_sta=len(sta_df['score'])
-    sta_df['score']=0.45+np.random.random(len_sta)*0.3
+    sta_df['score']=0.45+np.random.random(len_sta)*0.15
     sta_df=sta_df.set_index('sta_num')
 
     # get score 
@@ -207,13 +196,13 @@ def main():
             s=25,zorder=99, transform=ccrs.Geodetic(), label='pr')
 
 
-    plt.title('T2m Pc on Test Set (2009-2018)',fontsize=BIGFONT)
+    plt.title('Precipitation Pc on Test Set (2009-2018)',fontsize=BIGFONT)
     cax=fig.add_axes([0.15, 0.02, 0.7, 0.03])#位置[左,下,右,上]
     cbar = fig.colorbar(sc,ticks=color_range, cax=cax, orientation='horizontal')
 #    cbar = fig.colorbar(sc)
 
 # Show figure
-    plt.savefig('../fig/t2m_score.png', dpi=120, bbox_inches='tight')
+    plt.savefig('../fig/pr_score.png', dpi=120, bbox_inches='tight')
 #
 
 
