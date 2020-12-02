@@ -11,21 +11,21 @@
 
 # Path of the original data, without casename (the )
 # Caution: DO NOT DELETE \" IN STRING!
-PRE_DIR=/home/metctm1/array/data/
+PRE_DIR=/home/metctm1/array/data/GONI2020/
 
 # Fig dir root
 FIG_DIR_ROOT=/home/metctm1/array/project/2012-GONI/fig/
 
 # Ref Track
-TCK_OBV=hko.trck.mangkhut
-TCK_NCL=\"${PRE_DIR}/hko.trck.mangkhut\"
+TCK_OBV=GONI2020.JMA.csv
+TCK_NCL=\"${PRE_DIR}/\"
 
 # Case name
 
 CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
 CASENAMES=( "ERA5_C2008_dynlim" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 CASENAMES=( "ERA5_TY2001_nolimit" "ERA5_TY2001_add" "ERA5_C2008_dynlim" "ERA5_C2008_add" "ERA5_WRFROMS_add" "ERA5_WRF_add")
-CASENAMES=( "GONI2020" )
+CASENAMES=( "WRFONLY_3DOMAIN" )
 #CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
 #            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
@@ -37,8 +37,8 @@ CASENAMES=( "GONI2020" )
 #            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
 
 # Number of Domains
-I_DOM_STRT=3
-I_DOM_END=3
+I_DOM_STRT=2
+I_DOM_END=2
 
 # Gif control parameters
 PREFIX_ARR=("d02_precip_" "droms_ssta_area_" "droms_sst_")
@@ -57,21 +57,21 @@ FRAME_DT=30 # n/100 second
 # 4     step4_plot_accum_rain_200530.ncl
 #
 
-FLAG_ARRAY=(1 0 0 0 0)
+FLAG_ARRAY=(0 0 0 0 0)
 #FLAG_ARRAY=(0 0 1 0 0)
 
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
 #COMP_ARRAY=(1 1)
-COMP_ARRAY=(0 0)
+COMP_ARRAY=(1 0)
 
 # Composite D02
 #COMP1_TSTRT=2018091518
 #COMP1_TEND=2018091600
 
 # Complete
-COMP1_TSTRT=2018091506
-COMP1_TEND=2018091700
+COMP1_TSTRT=2020102906
+COMP1_TEND=2020110100
 
 echo "MASTER: Preprocessing..."
 #-----------------------------------------------------------
