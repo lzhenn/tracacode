@@ -63,7 +63,7 @@ FLAG_ARRAY=(0 0 0 0 0)
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
 #COMP_ARRAY=(1 1)
-COMP_ARRAY=(1 0)
+COMP_ARRAY=(0 1)
 
 # Composite D02
 #COMP1_TSTRT=2018091518

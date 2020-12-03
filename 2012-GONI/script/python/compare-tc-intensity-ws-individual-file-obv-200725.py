@@ -12,7 +12,7 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib
-#matplotlib.use('Agg') 
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import datetime
 from matplotlib.pyplot import savefig
@@ -49,20 +49,24 @@ def main():
     obv_path=PRE_DIR+'/'+OBV_TCK
     
     dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H')
-    df_obv=pd.read_csv(obv_path,parse_dates=True,index_col='time', sep='\s+', date_parser=dateparse)
+    df_obv=pd.read_csv(obv_path,parse_dates=True,index_col='time',  date_parser=dateparse)
    
    
     fig, ax = plt.subplots()
     fig.subplots_adjust(left=0.05, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
     df_obv_period=df_obv[((df_obv.index>=COMP1_TSTRT)&(df_obv.index<=COMP1_TEND))]
-    df_obv_period=df_obv_period.astype({'ws': 'float'})
+    df_obv_period['Wind']=df_obv_period['Wind']*0.5144
+    df_obv_period=df_obv_period.astype({'Wind': 'float'})
     df_obv_period=df_obv_period.dropna()
-    plt.plot(df_obv_period['ws'], label='HKO best', marker='o', color='black')
+    plt.plot(df_obv_period['Wind'], label='JMA best', marker='o', color='black')
+    
+    
     # Deal with cases
+    
     dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H%M%S')
     
     for (line_type,casename) in zip(line_libs,casenames):
-        sen_path=PRE_DIR+'/'+casename+'/ws.'+casename+'.d0'+IDOM
+        sen_path=PRE_DIR+'/'+casename+'/trck.'+casename+'.d0'+IDOM
         df_sen=pd.read_csv(sen_path,parse_dates=True,index_col='timestamp', sep='\s+', date_parser=dateparse)
         df_sen_period=df_sen[((df_sen.index>=COMP1_TSTRT)&(df_sen.index<=COMP1_TEND))]
         df_sen_period.replace(0, np.nan, inplace=True) # replace 0 by nan
@@ -81,7 +85,7 @@ def main():
    # pletp(ax.get_xticklabels(), rotation=-60, ha="right",
    # rotation_mode="anchor")
     
-    plt.title('TC Strength Evolution (d02 Wind Speed)', fontsize=BIGFONT)
+    plt.title('TC Strength Evolution', fontsize=BIGFONT)
 #    fig.tight_layout()
 #    plt.show()
     fig.set_size_inches(fig_width, fig_height)
