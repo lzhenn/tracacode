@@ -3,10 +3,10 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 begin
     g_font=0.015
    
-    raw_fn="/users/b145872/project-dir/app/COAWST-test/Projects/GONI_2020/goni_roms_domain.nc"
-    bck_fn="/users/b145872/project-dir/app/COAWST-test/Projects/GONI_2020/goni_roms_domain_bck.nc"
+    raw_fn="/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain.nc"
+    bck_fn="/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain_org.nc"
     
-    org_in      = addfile ("/users/b145872/project-dir/data/bath/ETOPO1_Ice_g_gmt4.grd.nc", "r")
+    org_in      = addfile ("/home/metctm1/array/data/topo/ETOPO1_Ice_g_gmt4.grd.nc", "r")
     bath=org_in->z
     lon=org_in->x
     lat=org_in->y
@@ -30,8 +30,8 @@ begin
         end do
         print(""+ii+"/"+dim_x)
     end do
-    ;h=where(h .lt. 10, 10, h)
-    ;h=where(h .gt. 3000, 3000, h)
+    h=where(h .lt. 10, 10, h)
+    h=where(h .gt. 3000, 3000, h)
     roms_grid_in->h=h
    ; result0=systemfunc("cp "+raw_fn+" "+bck_fn )
     h@lat2d=lat_rho
