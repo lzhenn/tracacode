@@ -22,12 +22,13 @@ load "$NCL_SELFLIB/shapefile_utils.ncl"
 begin
 
     ;grid file
-    grid_fn="/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid/GBA_roms_grid.d02.nc"
+    grid_fn="/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/roms_swan_grid/geo_em.d03.smp.roms.d02.nc"
+    grid_out="/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/roms_swan_grid/geo_em.d03.out.roms.d02.nc"
 
     latlon_in   =  addfile(grid_fn,"r")
-    lat2d = latlon_in->lat_rho
-    lon2d = latlon_in->lon_rho
-    data = latlon_in->lon_rho
+    lat2d = latlon_in->XLAT_M(0,:,:)
+    lon2d = latlon_in->XLONG_M(0,:,:)
+    data = latlon_in->LANDMASK
     data = 0
     data@_FillValue=1 
 ;---Add lat/lon coordinate array information.
@@ -39,12 +40,10 @@ begin
 ;---Open shapefile and read lat/lon values.
   dir          = "/disk/hq247/yhuangci/resource/ncl-resource/map-hkairport/"
   shp_filename = dir + "p01.shp"
-  data_mask    = shapefile_mask_data(data,shp_filename,True)
+  data_mask    = shapefile_mask_data(data(0,:,:),shp_filename,True)
   delete([/data_mask@_FillValue, data_mask@lat2d, data_mask@lon2d/])
-  ncdf     = addfile("/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid/test_shp_mask.nc" ,"c")  ; open output netCDF file
+  ncdf     = addfile(grid_out, "w")  ; open output netCDF file
 
-  ncdf->prd=data_mask
-  ncdf->lat2d=lat2d
-  ncdf->lon2d=lon2d
+  ncdf->LANDMASK(0,:,:)=(/data_mask/)
 end
 

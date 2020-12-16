@@ -22,7 +22,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%   START OF USER INPUT  %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-str_path='/users/b145872/project-dir/app/COAWST-test/Projects/GBA_WRF_ROMS/';
+domain_str='d01';
 
 
 % (1) Enter start date (T1) and number of days to get climatology data 
@@ -34,14 +34,14 @@ dayFrequency = 1;
 % (2) Enter URL of the HYCOM catalog for the requested time, T1
 %     see http://tds.hycom.org/thredds/catalog.html
 %url = 'http://tds.hycom.org/thredds/dodsC/GLBa0.08/expt_91.2';  
-url = '/users/b145872/project-dir/data/hycom/';
+url = '/home/metctm1/array/data/hycom/';
 
 % (3) Enter working directory (wdr)
-wdr = '/users/b145872/project-dir/app/COAWST-test/Projects/GBA/roms-icbc-o32ly/';
-swan_grid_dir='/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/swan-grid-o32ly/';
+wdr = ['/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/ow_icbc/',domain_str];
+roms_swan_grid_dir='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/';
 
 % (4) Enter path and name of the ROMS grid
-modelgrid = '/users/b145872/project-dir/app/COAWST-GBA/Projects/GBA/roms-grid/GBA_roms_grid_rx0_0d10.nc';
+modelgrid = [roms_swan_grid_dir,'roms_',domain_str,'_lp0.08.nc'];
 
 % (5) Enter grid vertical coordinate parameters --These need to be consistent with the ROMS setup. 
 theta_s     =  6.0;
@@ -54,9 +54,9 @@ Vstretching =  4;
 %%%%%%%%%%%%%%%%%%%%%   END OF USER INPUT  %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % deal with swan grid first
-disp('generate swan grid first...')
-eval(['cd ',swan_grid_dir])
-roms2swan(modelgrid)
+%disp('generate swan grid first...')
+%eval(['cd ',roms_swan_grid_dir])
+%roms2swan(modelgrid)
 
 %roms icbc
 eval(['cd ',wdr])
@@ -69,15 +69,15 @@ disp('getting roms grid, hycom grid, and overlapping indices')
 
 % Call to create the climatology (clm) file
 disp('going to create clm file')
-fn=updatclim_coawst_mw_local(T1, gn, clm, 'coawst_clm.nc', wdr, url)
+fn=updatclim_coawst_mw_local(T1, gn, clm, ['coawst_clm_',domain_str,'.nc'], wdr, url)
 
 % Call to create the boundary (bdy) file
 disp('going to create bndry file')
-updatbdry_coawst_mw(fn, gn, 'coawst_bdy.nc', wdr)
+updatbdry_coawst_mw(fn, gn, ['coawst_bdy_',domain_str,'.nc'], wdr)
 
 % Call to create the initial (ini) file
 disp('going to create init file')
-updatinit_coawst_mw(fn, gn, 'coawst_ini.nc', wdr, datenum(T1))
+updatinit_coawst_mw(fn, gn, ['coawst_ini_',domain_str,'.nc'], wdr, datenum(T1))
 
 toc
 

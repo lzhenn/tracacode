@@ -1,5 +1,11 @@
+
 addpath(genpath('/home/metctm1/array/project/1911-COAWST/script/mfiles'));
-netcdf_load('/home/metctm1/array/app/WPS/geo_em.d01.nc')
+
+
+smp_grid='/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/roms_swan_grid/geo_em.d03.out.roms.d02.nc'; % sample grid from wrf geogrid
+roms_grid='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_d02.nc'; % Call generic grid creation.
+
+netcdf_load(smp_grid)
 figure
 pcolorjw(XLONG_M,XLAT_M,double(1-LANDMASK))
 hold on
@@ -7,14 +13,11 @@ title('WRF LANDMASK grid, mercator proj')
 xlabel('longitude'); ylabel('latitiude')
 
 % pick connors, lat lon
-xl= 105.5; xr=123.0;
-yb= 14.0; yt= 26.0;
+xl= 112.5; xr=115.0;
+yb= 21.5; yt= 23.0;
 
 % pick numbers, roms nrow x ncol
-numx=648; numy=444;
-
-% Call generic grid creation.
-roms_grid='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain.nc';
+numx=555; numy=333;
 
 
 % make matrix

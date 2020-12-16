@@ -1,6 +1,6 @@
 addpath(genpath('/home/metctm1/array/project/1911-COAWST/script/mfiles'));
-raw_fn='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain.nc';
-out_fn='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain_lp0.08.nc'
+raw_fn='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_d02.nc';
+out_fn='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_d02_lp0.08.nc'
 
 [status,cmdout] = system(['cp ' raw_fn ' ' out_fn]);
 status

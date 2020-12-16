@@ -102,7 +102,7 @@ load u.mat; load v.mat
 disp('doing rotation to grid for u and v');
 uv=(u2rho_3d_mw(u)+sqrt(-1)*v2rho_3d_mw(v)).*theta;
 u=rho2u_3d_mw(real(uv)); v=rho2v_3d_mw(imag(uv));
-disp(u(15,500:502,400:600))
+disp(u(15,200:202,100:102))
 clear uv
 %% == output
 RN=netcdf.open(fn,'NC_WRITE');
