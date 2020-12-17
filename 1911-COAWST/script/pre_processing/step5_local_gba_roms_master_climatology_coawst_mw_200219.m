@@ -21,7 +21,7 @@
 %
 
 %%%%%%%%%%%%%%%%%%%%%   START OF USER INPUT  %%%%%%%%%%%%%%%%%%%%%%%%%%
-
+eval('cd /home/metctm1/array/project/1911-COAWST/script/pre_processing')
 domain_str='d01';
 
 
@@ -38,7 +38,7 @@ url = '/home/metctm1/array/data/hycom/';
 
 % (3) Enter working directory (wdr)
 wdr = ['/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/ow_icbc/',domain_str];
-roms_swan_grid_dir='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/';
+roms_swan_grid_dir='/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/roms_swan_grid/';
 
 % (4) Enter path and name of the ROMS grid
 modelgrid = [roms_swan_grid_dir,'roms_',domain_str,'_lp0.08.nc'];
@@ -69,15 +69,15 @@ disp('getting roms grid, hycom grid, and overlapping indices')
 
 % Call to create the climatology (clm) file
 disp('going to create clm file')
-fn=updatclim_coawst_mw_local(T1, gn, clm, ['coawst_clm_',domain_str,'.nc'], wdr, url)
+fn=updatclim_coawst_mw_local(T1, gn, clm, 'coawst_clm.nc', wdr, url)
 
 % Call to create the boundary (bdy) file
 disp('going to create bndry file')
-updatbdry_coawst_mw(fn, gn, ['coawst_bdy_',domain_str,'.nc'], wdr)
+updatbdry_coawst_mw(fn, gn, 'coawst_bdy.nc', wdr)
 
 % Call to create the initial (ini) file
 disp('going to create init file')
-updatinit_coawst_mw(fn, gn, ['coawst_ini_',domain_str,'.nc'], wdr, datenum(T1))
+updatinit_coawst_mw(fn, gn, 'coawst_ini.nc', wdr, datenum(T1))
 
 toc
 
