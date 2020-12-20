@@ -32,7 +32,7 @@ def main():
  
     #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
     #line_libs=['b-^','b-s','c--','r']
-    line_libs=['r-^','r-s','b-.*','g--o']
+    line_libs=['r-^','b-s','b-.*','g--o']
     
     # arguments in
     args=sys.argv

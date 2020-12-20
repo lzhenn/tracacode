@@ -55,7 +55,7 @@ Vstretching =  4;
 % deal with swan grid first
 disp('generate swan grid first...')
 eval(['cd ',roms_swan_grid_dir])
-roms2swan(modelgrid)
+%roms2swan(modelgrid)
 
 %roms icbc
 eval(['cd ',wdr])
@@ -64,7 +64,7 @@ tic
 
 % Call to get HYCOM indices for the defined ROMS grid
 disp('getting roms grid, hycom grid, and overlapping indices')
-[gn, clm]=get_ijrg([url,'hycom.grid.nc'], modelgrid, theta_s, theta_b, Tcline, N, Vtransform, Vstretching);
+[gn, clm]=get_ijrg_exp930([url,'hycom.grid.exp930.nc'], modelgrid, theta_s, theta_b, Tcline, N, Vtransform, Vstretching);
 
 % Call to create the climatology (clm) file
 disp('going to create clm file')

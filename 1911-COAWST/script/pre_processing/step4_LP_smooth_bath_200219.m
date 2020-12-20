@@ -1,13 +1,13 @@
-addpath(genpath('/home/metctm1/array/project/1911-COAWST/script/mfiles'));
-raw_fn='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_d02.nc';
-out_fn='/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_d02_lp0.08.nc'
+%addpath(genpath('/home/metctm1/array/project/1911-COAWST/script/mfiles'));
+raw_fn='/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/roms_d02.nc';
+out_fn='/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/roms_d02_lp0d1.nc'
 
 [status,cmdout] = system(['cp ' raw_fn ' ' out_fn]);
 status
 
 netcdf_load(raw_fn);
 
-rx0max=0.08;
+rx0max=0.1;
 disp(['Target for rx0=' num2str(rx0max)]);
 
 disp('Using LP method with heuristic');

@@ -3,10 +3,10 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 begin
     g_font=0.015
    
-    raw_fn="/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain.nc"
-    bck_fn="/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain_org.nc"
+    raw_fn="/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/roms_d02.nc"
+    ;bck_fn="/home/metctm1/array/app/COAWST/COAWST201205/Projects/GBA/roms-grid-ust/roms_domain_org.nc"
     
-    org_in      = addfile ("/home/metctm1/array/data/topo/ETOPO1_Ice_g_gmt4.grd.nc", "r")
+    org_in      = addfile ("/users/b145872/project-dir/data/bath/ETOPO1_Ice_g_gmt4.grd.nc", "r")
     bath=org_in->z
     lon=org_in->x
     lat=org_in->y
@@ -91,10 +91,10 @@ begin
     res@mpInlandWaterFillColor  = "white"
 
    
-    wks_type="x11"
+    wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
-    wks = gsn_open_wks(wks_type,"../fig/bath")      ; send graphics to PNG file
+    wks = gsn_open_wks(wks_type,"../../fig/bath")      ; send graphics to PNG file
     gsn_define_colormap(wks,"wind_17lev")
     res@gsnLeftString="ETOPO Bathemetry"
 

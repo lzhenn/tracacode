@@ -37,12 +37,12 @@ def main():
     g_end_time='20201102'
     
     # output dir
-    fout_dir='/home/metctm1/array/data/hycom'
+    fout_dir='/users/b145872/project-dir/data/hycom/goni/'
 
 
 
     # CONSTANTS
-    VAR_LIST=[{'ssh':['2d']},{'ts3z':['3zt','3zs']},{'uv3z':['3zu','3zv']}]
+    var_dic={'ssh':['2d'],'ts3z':['3zt','3zs'],'uv3z':['3zu','3zv']}
 
 
     # parser
@@ -58,15 +58,18 @@ def main():
         print(curr_filetime.strftime('Download %Y%m%d%HZ...'))
 
         # find exp binding
-        if curr_filetime>=datetime.datetime.strptime(itm['date_strt'],'%Y-%m-%d') and curr_filetime<=datetime.datetime.strptime(itm['date_end'],'%Y-%m-%d'):
-            url_base='ftp://ftp.hycom.org/datasets/GLBy0.08/expt_93.0/data/hindcasts/'+curr_filetime.strftime('%Y')
+        url_base='ftp://ftp.hycom.org/datasets/GLBy0.08/expt_93.0/data/hindcasts/'+curr_filetime.strftime('%Y')
+        
         # loop var list
-        for itm in VAR_LIST:
-                +'/hycom_glby_930_2020010112_t000_ts3z.nc'
-                fn='hycom_glby_930_'+curr_filetime.strftime('%Y%m%d')+'_t000_'+itm+'.nc'
-            url=url_base+'/'+itm[0]+'/'+fn
+        for key, values in var_dic.items():
+            fn='hycom_glby_930_'+curr_filetime.strftime('%Y%m%d')+'12_t000_'+key+'.nc'
+            url=url_base+'/'+fn
             print(url)
             os.system('wget '+url+' -O'+' '+fout_dir+'/'+fn)
+
+            for symb in values:
+                fn_symb='archv.'+curr_filetime.strftime('%Y')+'_'+curr_filetime.strftime('%j')+'_00_'+symb+'.nc'
+                os.system('ln -sf '+fout_dir+'/'+fn+' '+fout_dir+'/'+fn_symb)
 
             #break
         # next day

@@ -98,8 +98,8 @@ jma_path='/home/metctm1/array/data/GONI2020/GONI2020.JMA.csv'
 nc_path='/home/metctm1/array/data/GONI2020/WRFONLY_3DOMAIN/wrfout_d02'
 province_shp_file=os.getenv('SHP_LIB')+'/cnmap/cnhimap.dbf'
 
-cases=['WRFONLY_3DOMAIN']
-line_libs=['r-^','r-s','b-.*','g--o']
+cases=['WRFONLY_2DOMAIN', 'WRFONLY_3DOMAIN']
+line_libs=['r-^','b-s','b-.*','g--o']
 
 
 # ----------Get NetCDF data------------

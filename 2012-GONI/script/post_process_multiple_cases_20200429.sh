@@ -25,7 +25,7 @@ TCK_NCL=\"${PRE_DIR}/\"
 CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF" )
 CASENAMES=( "ERA5_C2008_dynlim" "ERA5_TY2001_add" "ERA5_WRFROMS_add" "ERA5_WRF_add" )
 CASENAMES=( "ERA5_TY2001_nolimit" "ERA5_TY2001_add" "ERA5_C2008_dynlim" "ERA5_C2008_add" "ERA5_WRFROMS_add" "ERA5_WRF_add")
-CASENAMES=( "WRFONLY_3DOMAIN" )
+CASENAMES=( "WRFONLY_2DOMAIN" "WRFONLY_3DOMAIN")
 #CASENAMES=( "ERA5_C2008" "ERA5_TY2001" "ERA5_WAOFF" "ERA5_WRFROMS" "ERA5_WRF"\
 #            "FNL0d25_C2008" "FNL0d25_WRFROMS" "FNL0d25_WRF" "FNL1d_TY2001" "FNL1d_WRF" )
             
@@ -37,7 +37,7 @@ CASENAMES=( "WRFONLY_3DOMAIN" )
 #            "mangkhut-fnl0d25-wrfonly" "mangkhut-wrfonly")
 
 # Number of Domains
-I_DOM_STRT=2
+I_DOM_STRT=1
 I_DOM_END=2
 
 # Gif control parameters
@@ -63,7 +63,7 @@ FLAG_ARRAY=(0 0 0 0 0)
 # 0     comp1_tc-intensity-obv-200429.py
 # 1     compare-tc-intensity-ws-obv-200505.py
 #COMP_ARRAY=(1 1)
-COMP_ARRAY=(0 1)
+COMP_ARRAY=(1 1)
 
 # Composite D02
 #COMP1_TSTRT=2018091518
@@ -227,6 +227,7 @@ do
             $COMP1_TSTRT $COMP1_TEND $I_DOM ${CASENAMES[*]}
 #        python ./python/compare-tc-intensity-ws-obv-200505.py $PRE_DIR $TCK_OBV $FIG_DIR_ROOT \
 #            $COMP1_TSTRT $COMP1_TEND $I_DOM ${CASENAMES[*]}
+
         echo "COMP2: Done"
     fi
 done

@@ -31,7 +31,7 @@ def main():
     height=7.0
     
     #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
-    line_libs=['r-^','r-s','b-.*','g--o']
+    line_libs=['r-^','b-s','b-.*','g--o']
     
     # arguments in
     args=sys.argv
