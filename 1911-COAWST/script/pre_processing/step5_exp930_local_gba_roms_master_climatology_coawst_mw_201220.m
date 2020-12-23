@@ -68,7 +68,7 @@ disp('getting roms grid, hycom grid, and overlapping indices')
 
 % Call to create the climatology (clm) file
 disp('going to create clm file')
-fn=updatclim_coawst_mw_local(T1, gn, clm, 'coawst_clm.nc', wdr, url)
+fn=updatclim_coawst_mw_local_exp930(T1, gn, clm, 'coawst_clm.nc', wdr, url)
 
 % Call to create the boundary (bdy) file
 disp('going to create bndry file')
@@ -93,7 +93,7 @@ if numdays>1
     end
     for it=dayFrequency:dayFrequency:numdays-1      %1st day already created, NEED to set number of days at top!
         fname=['coawst_clm_',datestr(T1+it,'yyyymmdd'),'.nc']
-        fn=updatclim_coawst_mw_local(T1+it,gn,clm,fname,wdr,url)
+        fn=updatclim_coawst_mw_local_exp930(T1+it,gn,clm,fname,wdr,url)
         fname=['coawst_bdy_',datestr(T1+it,'yyyymmdd'),'.nc'];
         updatbdry_coawst_mw(fn,gn,fname,wdr)
     end
