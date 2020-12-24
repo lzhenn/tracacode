@@ -36,7 +36,8 @@ gn.z_w=shiftdim(gn.z_w,2);
 %
 display(['getting HYCOM grid data from ', url])
 hycom_lon=ncread(url,'lon');
-hycom_lat=ncread(url,'lat');
+%hycom_lon=hycom_lon + 74.16;
+hycom_lat=ncread(url,'lat')
 hycom_depth=ncread(url,'depth');
 %
 % Get roms grid limits

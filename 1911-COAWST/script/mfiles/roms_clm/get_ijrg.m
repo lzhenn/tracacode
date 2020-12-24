@@ -38,7 +38,7 @@ display(['getting HYCOM grid data from ', url])
 numX=ncread(url,'X');
 numY=ncread(url,'Y');
 hycom_lon=ncread(url,'Longitude',[1 1],[length(numX) 1]);
-hycom_lat=ncread(url,'Latitude',[1 1],[1 length(numY)]);
+hycom_lat=ncread(url,'Latitude',[1 1],[1 length(numY)])
 hycom_depth=ncread(url,'Depth');
 %
 % Get roms grid limits

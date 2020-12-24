@@ -33,14 +33,18 @@ dayFrequency = 1;
 % (2) Enter URL of the HYCOM catalog for the requested time, T1
 %     see http://tds.hycom.org/thredds/catalog.html
 %url = 'http://tds.hycom.org/thredds/dodsC/GLBa0.08/expt_91.2';  
-url = '/users/b145872/project-dir/data/hycom/goni/';
+%url = '/users/b145872/project-dir/data/hycom/goni/';
+url = '/home/metctm1/array/data/hycom/';
 
 % (3) Enter working directory (wdr)
-wdr = ['/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/ow_icbc/'];
-roms_swan_grid_dir='/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/';
+%wdr = ['/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/ow_icbc/'];
+wdr = ['/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA/roms-icbc-train/'];
+%roms_swan_grid_dir='/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/';
+roms_swan_grid_dir='/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA/roms-grid/';
 
 % (4) Enter path and name of the ROMS grid
-modelgrid = [roms_swan_grid_dir,'roms_',domain_str,'_lp0d1.nc'];
+%modelgrid = [roms_swan_grid_dir,'roms_',domain_str,'_lp0d1.nc'];
+modelgrid = [roms_swan_grid_dir,'GBA_roms_grid_rx0_0d10.nc'];
 
 % (5) Enter grid vertical coordinate parameters --These need to be consistent with the ROMS setup. 
 theta_s     =  6.0;
@@ -55,7 +59,7 @@ Vstretching =  4;
 % deal with swan grid first
 disp('generate swan grid first...')
 eval(['cd ',roms_swan_grid_dir])
-roms2swan(modelgrid)
+%roms2swan(modelgrid)
 
 %roms icbc
 eval(['cd ',wdr])

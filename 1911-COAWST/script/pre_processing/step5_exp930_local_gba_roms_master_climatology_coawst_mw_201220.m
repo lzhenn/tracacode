@@ -25,22 +25,25 @@ domain_str='d01';
 
 
 % (1) Enter start date (T1) and number of days to get climatology data 
-T1 = datetime(2020,10,28,12,0,0); %start date
+T1 = datetime(2020,12,19,12,0,0); %start date
 %number of days and frequency to create climatology files for
-numdays = 5;
+numdays = 1;
 dayFrequency = 1;
 
 % (2) Enter URL of the HYCOM catalog for the requested time, T1
 %     see http://tds.hycom.org/thredds/catalog.html
-%url = 'http://tds.hycom.org/thredds/dodsC/GLBa0.08/expt_91.2';  
-url = '/users/b145872/project-dir/data/hycom/goni/';
+%url = '/users/b145872/project-dir/data/hycom/goni/';
+url = '/home/metctm1/array/data/GBA_operational/hycom/';
 
 % (3) Enter working directory (wdr)
-wdr = ['/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/ow_icbc/'];
-roms_swan_grid_dir='/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/';
+%wdr = ['/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/ow_icbc/'];
+wdr = ['/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA/roms-icbc/'];
+%roms_swan_grid_dir='/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/';
+roms_swan_grid_dir='/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA/roms-grid/';
 
 % (4) Enter path and name of the ROMS grid
-modelgrid = [roms_swan_grid_dir,'roms_',domain_str,'_lp0d1.nc'];
+%modelgrid = [roms_swan_grid_dir,'roms_',domain_str,'_lp0d1.nc'];
+modelgrid = [roms_swan_grid_dir,'GBA_roms_grid_rx0_0d10.nc'];
 
 % (5) Enter grid vertical coordinate parameters --These need to be consistent with the ROMS setup. 
 theta_s     =  6.0;
