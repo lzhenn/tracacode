@@ -36,8 +36,7 @@ gn.z_w=shiftdim(gn.z_w,2);
 %
 display(['getting HYCOM grid data from ', url])
 hycom_lon=ncread(url,'lon');
-%hycom_lon=hycom_lon + 74.16;
-hycom_lat=ncread(url,'lat')
+hycom_lat=ncread(url,'lat');
 hycom_depth=ncread(url,'depth');
 %
 % Get roms grid limits
@@ -53,7 +52,7 @@ disp('optimizing grid dimensions ...');
 % now use xg and yg becasue we are modifying the lon
 %
 xg=hycom_lon;
-xg(xg>=180)=(xg(xg>=180)-360);
+%xg(xg>=180)=(xg(xg>=180)-360);
 yg=hycom_lat;
 %
 % Find the indices of the roms grid (xl xr yb yt) that are inside the 
@@ -79,12 +78,12 @@ irg2=[num2str(ig0) ':' num2str(ig1)];
 jrg2=[num2str(jg0) ':' num2str(jg1)];
 %
 clm.lon=double(xg(ig0:ig1));
-clm.lat=double(yg(jg0:jg1));
+clm.lat=double(yg(jg0:jg1)');
 clm.z=double(hycom_depth);
 clm.irg2=irg2;
 clm.jrg2=jrg2;
-clm.ig0=ig0;
-clm.ig1=ig1;
-clm.jg0=jg0;
-clm.jg1=jg1;
+clm.ig0=ig0; % lon idx strt
+clm.ig1=ig1; % lon idx end
+clm.jg0=jg0; % lat idx strt
+clm.jg1=jg1; % lat idx end
 

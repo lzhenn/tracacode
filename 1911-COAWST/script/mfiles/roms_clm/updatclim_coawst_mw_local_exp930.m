@@ -23,7 +23,7 @@ urlt=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_00_3zt.nc'];
 
 tid1=ncread(url2d,'time');
 tid1=tid1/24;
-tid1=tid1+2451544; % shift to matlab modified julian date
+tid1=tid1+51543.5; % shift to matlab modified julian date
 fn=[clmname];
 disp(['creating netcdf file ',fn]);
 create_roms_netcdf_clm_mwUL(fn,gn,1);% converted to BI functions
@@ -41,24 +41,14 @@ X=repmat(clm.lon,1,length(clm.lat));
 Y=repmat(clm.lat,length(clm.lon),1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Interpolating u for ',datestr(T1)]);
-ttu=1;
 clm.u=zeros([length(clm.z) size(gn.lon_rho)]);
-try
-    tmpt=ncread(urlu,'water_u',[clm.ig0 clm.jg0 1 1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
-    for k=1:tz_levs
-        disp(['doing griddata u for HYCOM level ' num2str(k)]);
-        tmp=double(squeeze(tmpt(:,:,k)));
-        F = scatteredInterpolant(X(:),Y(:),tmp(:));
-        cff = F(gn.lon_rho,gn.lat_rho);
-        clm.u(k,:,:)=maplev(cff);
-    end
-    ttu=0;
-catch
-    disp(['catch u Unable to download HYCOM u data at' datestr(now) ' will try again...']);
-    fid=fopen('coawstlog.txt','a');
-    fprintf(fid,'Unable to download HYCOM u data at');
-    fprintf(fid,datestr(now));
-    fprintf(fid,'\n');
+tmpt=ncread(urlu,'water_u',[clm.ig0 clm.jg0 1 1],[clm.ig1-clm.ig0+1 clm.jg1-clm.jg0+1 tz_levs 1 ] );
+for k=1:tz_levs
+    disp(['doing griddata u for HYCOM level ' num2str(k)]);
+    tmp=double(squeeze(tmpt(:,:,k)));
+    F = scatteredInterpolant(X(:),Y(:),tmp(:));
+    cff = F(gn.lon_rho,gn.lat_rho);
+    clm.u(k,:,:)=maplev(cff);
 end
 %== Vertical interpolation (t,s,u,v) from standard z-level to s-level
 u=roms_from_stdlev_mw(gn.lon_rho,gn.lat_rho,clm.z,clm.u,gn,'u',0);
