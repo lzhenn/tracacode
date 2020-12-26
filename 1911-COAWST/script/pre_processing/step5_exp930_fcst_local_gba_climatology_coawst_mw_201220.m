@@ -27,7 +27,7 @@ domain_str='d01';
 % (1) Enter start date (T1) and number of days to get climatology data 
 T1 = datetime(2020,12,19,12,0,0); %start date
 %number of days and frequency to create climatology files for
-numdays = 1;
+numdays = 7;
 dayFrequency = 1;
 
 % (2) Enter URL of the HYCOM catalog for the requested time, T1
@@ -37,13 +37,13 @@ url = '/home/metctm1/array/data/GBA_operational/hycom/';
 
 % (3) Enter working directory (wdr)
 %wdr = ['/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/ow_icbc/'];
-wdr = ['/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA/roms-icbc/'];
+wdr = ['/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/ow_icbc/', domain_str];
 %roms_swan_grid_dir='/users/b145872/project-dir/app/COAWST-FULL/Projects/GONI/grid/';
-roms_swan_grid_dir='/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA/roms-grid/';
+roms_swan_grid_dir='/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA_operational/roms_swan_grid/';
 
 % (4) Enter path and name of the ROMS grid
 %modelgrid = [roms_swan_grid_dir,'roms_',domain_str,'_lp0d1.nc'];
-modelgrid = [roms_swan_grid_dir,'GBA_roms_grid_rx0_0d10.nc'];
+modelgrid = [roms_swan_grid_dir,'roms_d01_lp0.08.nc'];
 
 % (5) Enter grid vertical coordinate parameters --These need to be consistent with the ROMS setup. 
 theta_s     =  6.0;
@@ -71,7 +71,7 @@ disp('getting roms grid, hycom grid, and overlapping indices')
 
 % Call to create the climatology (clm) file
 disp('going to create clm file')
-fn=updatclim_coawst_mw_local_exp930(T1, gn, clm, 'coawst_clm.nc', wdr, url)
+fn=updatclim_coawst_mw_local_exp930_fcst(T1, gn, clm, 'coawst_clm.nc', wdr, url)
 
 % Call to create the boundary (bdy) file
 disp('going to create bndry file')
@@ -96,7 +96,7 @@ if numdays>1
     end
     for it=dayFrequency:dayFrequency:numdays-1      %1st day already created, NEED to set number of days at top!
         fname=['coawst_clm_',datestr(T1+it,'yyyymmdd'),'.nc']
-        fn=updatclim_coawst_mw_local_exp930(T1+it,gn,clm,fname,wdr,url)
+        fn=updatclim_coawst_mw_local_exp930_fcst(T1+it,gn,clm,fname,wdr,url)
         fname=['coawst_bdy_',datestr(T1+it,'yyyymmdd'),'.nc'];
         updatbdry_coawst_mw(fn,gn,fname,wdr)
     end

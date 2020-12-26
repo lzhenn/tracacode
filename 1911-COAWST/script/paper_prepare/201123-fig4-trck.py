@@ -32,6 +32,9 @@ BIGFONT=22
 MIDFONT=18
 SMFONT=14
 
+MAP_RES='10m'
+FIG_FMT='pdf'
+
 
 
 def find_side(ls, side):
@@ -139,7 +142,7 @@ proj = get_cartopy(lsmask)
 ax = fig.add_axes([0.08, 0.05, 0.8, 0.94], projection=proj)
 
 # Download and add the states and coastlines
-ax.coastlines('50m', linewidth=0.8)
+ax.coastlines(MAP_RES, linewidth=0.8)
 
 
 # plot province/city shp boundaries
@@ -148,9 +151,9 @@ ax.add_geometries(province_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='
 
 
 # Add ocean, land, rivers and lakes
-ax.add_feature(cfeature.OCEAN.with_scale('50m'))
-ax.add_feature(cfeature.LAND.with_scale('50m'))
-ax.add_feature(cfeature.LAKES.with_scale('50m'))
+ax.add_feature(cfeature.OCEAN.with_scale(MAP_RES))
+ax.add_feature(cfeature.LAND.with_scale(MAP_RES))
+ax.add_feature(cfeature.LAKES.with_scale(MAP_RES))
 # *must* call draw in order to get the axis boundary used to add ticks:
 fig.canvas.draw()
 # Define gridline locations and draw the lines using cartopy's built-in gridliner:
@@ -191,7 +194,7 @@ for (line_type,casename) in zip(line_libs,cases):
 
 plt.legend(loc='best', fontsize=SMFONT)
 plt.title('Observational and Simulated Tracks of Mangkhut (1822)',fontsize=MIDFONT)
-plt.savefig("../../fig/paper/trck.png",dpi=300, bbox_inches='tight')
+plt.savefig('../../fig/paper/trck.'+FIG_FMT, dpi=300, bbox_inches='tight')
 plt.close('all')
 
 #plt.show()

@@ -44,19 +44,20 @@ def main():
     # parser
     int_time_obj = datetime.datetime.strptime(g_init_time, '%Y%m%d')
     
-    curr_filetime=int_time_obj
     for ifrm in tfrms:
+        curr_filetime=int_time_obj+datetime.timedelta(hours=int(ifrm))
         print('Download %s+%03dH...' % (curr_filetime.strftime('%Y%m%d%HZ'), ifrm))
 
         # loop var list
         for key, values in var_dic.items():
-            fn='hycom_glby_930_%s12_t%03d_%s.nc' % (curr_filetime.strftime('%Y%m%d'), ifrm, key)
+            fn='hycom_glby_930_%s12_t%03d_%s.nc' % (int_time_obj.strftime('%Y%m%d'), ifrm, key)
             url=url_base+'/'+fn
             print(url)
             os.system('wget '+url+' -O'+' '+fout_dir+fn)
 
+            # convert the filename to maintain legacy matlab style
             for symb in values:
-                fn_symb='archv.'+curr_filetime.strftime('%Y')+'_'+curr_filetime.strftime('%j')+'_00_'+symb+'.nc'
+                fn_symb='archv.'+curr_filetime.strftime('%Y')+'_'+curr_filetime.strftime('%j')+'_12_'+symb+'.nc'
                 os.system('ln -sf '+fout_dir+'/'+fn+' '+fout_dir+'/'+fn_symb)
 
             #break
