@@ -75,7 +75,7 @@ def main():
     # end for: casenames
     
     
-    plt.legend(loc='best', fontsize=SMFONT)
+    plt.legend(loc='best', fontsize=MIDFONT)
     plt.xlabel('Time',fontsize=SMFONT)
     plt.ylabel('Wind Speed (m/s)',fontsize=SMFONT)
     plt.xticks(fontsize=SMFONT)

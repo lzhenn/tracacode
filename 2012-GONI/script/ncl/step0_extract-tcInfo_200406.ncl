@@ -63,24 +63,18 @@ begin
     lat2d = wrf_user_getvar(ctrl_in,"XLAT",  1)
     lon2d = wrf_user_getvar(ctrl_in,"XLONG", 1)
 
+    dims:=dimsizes(lat2d)
+    dim_y=dims(0)
+    dim_x=dims(1)
+
     dxdy=gc_latlon(lat2d(0,0),lon2d(0,0),lat2d(0,1),lon2d(0,1),2,4) ; distance in km
+
 ; get partent domain tc info if child domain
     if (i_dom .gt. 1) then
         ncol=7
         parent_tc_file = wrfout_path+"/trck."+casename+".d0"+tostring(toint(i_dom)-1)
         parent_tc = readAsciiTable(parent_tc_file,ncol,"double", 1) ; note the transpose of "new" function
     end if
-; get slp
-    print(">>STEP00: Reading slp...")
-    ctrl_var1  := wrf_user_getvar(ctrl_in,"slp", -1)  
-           
-    dims:=dimsizes(ctrl_var1)
-    dim_y=dims(1)
-    dim_x=dims(2)
-
-    print(">>STEP00: Reading U10&V10...")
-    ctrl_var2  = wrf_user_getvar(ctrl_in,"U10", -1)  
-    ctrl_var3  = wrf_user_getvar(ctrl_in,"V10", -1)  
 
 ; lets find the TC center!
 ; (0)--timestamp, (1)--lat, (2)--lon, (3)--slp, (4)--maxWind, (5)--uRadius, (6)--vRadius
@@ -88,7 +82,16 @@ begin
     
     print(">>STEP00: Parsing...")
     do tt = 0, lentime-1
-        tmp1D      = ndtooned(ctrl_var1(tt,:,:))
+        print(">>STEP00: Reading slp at "+xtime(tt))
+        ctrl_var1  := wrf_user_getvar(ctrl_in,"slp", tt)  
+               
+        print(">>STEP00: Reading U10&V10 at "+xtime(tt))
+        ctrl_var2  := wrf_user_getvar(ctrl_in,"U10", tt)  
+        ctrl_var3  := wrf_user_getvar(ctrl_in,"V10", tt)  
+
+
+
+        tmp1D      = ndtooned(ctrl_var1)
         indices  = ind_resolve(minind(tmp1D),(/dim_y,dim_x/))
         id_y=indices(0,0)
         id_x=indices(0,1)
@@ -125,12 +128,12 @@ begin
         end if
         rec_tc(3,tt)=sprintf("%6.1f",min(tmp1D))
         ;ws
-        ws=wind_speed(ctrl_var2(tt,:,:),ctrl_var3(tt,:,:))
+        ws=wind_speed(ctrl_var2,ctrl_var3)
         tmp1D      = ndtooned(ws)
         rec_tc(4,tt)=sprintf("%5.2f",(max(tmp1D)))
         ;eye radius
-        rec_tc(5,tt)=sprintf("%5.2f", tc_eye_radius_from_uv(ctrl_var2(tt,:,:),lat2d,lon2d))
-        rec_tc(6,tt)=sprintf("%5.2f", tc_eye_radius_from_uv(ctrl_var3(tt,:,:),lat2d,lon2d))
+        rec_tc(5,tt)=sprintf("%5.2f", tc_eye_radius_from_uv(ctrl_var2,lat2d,lon2d))
+        rec_tc(6,tt)=sprintf("%5.2f", tc_eye_radius_from_uv(ctrl_var3,lat2d,lon2d))
     end do
     
     print(">>STEP00: Output...")
