@@ -15,11 +15,11 @@ function [fn]=updatclim_coawst_mw_local_exp930(T1, gn, clm, clmname, wdr, url)
 %
 
 day_of_year=day(T1,'dayofyear');
-url2d=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_12_2d.nc'];
-urlu=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_12_3zu.nc'];
-urlv=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_12_3zv.nc'];
-urls=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_12_3zs.nc'];
-urlt=[url,'archv.',datestr(T1,'yyyy'),'_',int2str(day_of_year),'_12_3zt.nc'];
+url2d=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_2d.nc'];
+urlu=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_3zu.nc'];
+urlv=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_3zv.nc'];
+urls=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_3zs.nc'];
+urlt=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_3zt.nc'];
 
 tid1=ncread(url2d,'time');
 tid1=tid1/24;
