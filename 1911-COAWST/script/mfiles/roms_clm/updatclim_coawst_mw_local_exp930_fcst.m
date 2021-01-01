@@ -21,9 +21,8 @@ urlv=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_3zv.n
 urls=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_3zs.nc'];
 urlt=[url,'archv.',datestr(T1,'yyyy'),'_',sprintf('%03d',day_of_year),'_12_3zt.nc'];
 
-tid1=ncread(url2d,'time');
-tid1=tid1/24;
-tid1=tid1+51544; % shift to matlab modified julian date
+tid1=datenum(T1)-datenum(2000,1,1,12,0,0)
+tid1=tid1+51543.5; % shift to matlab modified julian date
 fn=[clmname];
 disp(['creating netcdf file ',fn]);
 create_roms_netcdf_clm_mwUL(fn,gn,1);% converted to BI functions
