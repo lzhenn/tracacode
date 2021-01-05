@@ -18,7 +18,8 @@ from matplotlib.cm import get_cmap
 import shapely.geometry as sgeom
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from cartopy.mpl.gridliner import LATITUDE_FORMATTER, LONGITUDE_FORMATTER
+#from cartopy.mpl.gridliner import LATITUDE_FORMATTER, LONGITUDE_FORMATTER
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import cartopy.io.shapereader as shpreader
 import shapely.geometry as sgeom
 from copy import copy
@@ -159,15 +160,26 @@ fig.canvas.draw()
 # Define gridline locations and draw the lines using cartopy's built-in gridliner:
 # xticks = np.arange(80,130,10)
 # yticks = np.arange(15,55,5)
-xticks = np.arange(80,135,5).tolist() 
-yticks =  np.arange(0,60,5).tolist() 
+xticks = np.arange(109,118.5,1.5).tolist() 
+yticks =  np.arange(18,27,1.5).tolist() 
 #ax.gridlines(xlocs=xticks, ylocs=yticks,zorder=1,linestyle='--',lw=0.5,color='gray')
-
+#gl = ax.gridlines(draw_labels=True, alpha=0.0)
+#gl.right_labels = False
+#gl.top_labels = False
+ax.set_xticks(xticks, crs=ccrs.PlateCarree())
+ax.set_yticks(yticks, crs=ccrs.PlateCarree())
+lon_formatter =LongitudeFormatter(number_format='.1f')
+lat_formatter = LatitudeFormatter(number_format='.1f')
+ax.xaxis.set_major_formatter(lon_formatter)
+ax.yaxis.set_major_formatter(lat_formatter)
+ax.tick_params(axis='both', which='major', labelsize=SMFONT)
+#for tick in ax.xaxis.get_major_ticks():
+#    tick.label.set_fontsize(SMFONT) 
 # Label the end-points of the gridlines using the custom tick makers:
-ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER) 
-ax.yaxis.set_major_formatter(LATITUDE_FORMATTER)
-mct_xticks(ax, xticks)
-mct_yticks(ax, yticks)
+#ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER) 
+#ax.yaxis.set_major_formatter(LATITUDE_FORMATTER)
+#mct_xticks(ax, xticks)
+#mct_yticks(ax, yticks)
 
 
 # Set the map bounds
@@ -196,7 +208,6 @@ plt.legend(loc='best', fontsize=SMFONT)
 plt.title('Observational and Simulated Tracks of Mangkhut (1822)',fontsize=MIDFONT)
 plt.savefig('../../fig/paper/trck.'+FIG_FMT, dpi=300, bbox_inches='tight')
 plt.close('all')
-
 #plt.show()
 
   
