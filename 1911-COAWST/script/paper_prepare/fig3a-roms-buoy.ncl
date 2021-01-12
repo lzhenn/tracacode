@@ -117,16 +117,17 @@ begin
 
     ;---Resources for the polyline
     pres                  = True           ; polyline mods desired
-    pres@gsLineThicknessF = 6.0            ; line thickness   
+    pres@gsLineThicknessF = 3.0            ; line thickness   
     pres@gsLineColor      = "red"         ; color of lines
+    pres@gsLineDashPattern = 2
    
 
     
     ;-- draw edges for wrf d02
-    ;lower = gsn_add_polyline(wks, plot, d02_lon2d(0,:), d02_lat2d(0,:), pres)
-    ;upper = gsn_add_polyline(wks, plot, d02_lon2d(nx-1,:), d02_lat2d(nx-1,:), pres)
-    ;left = gsn_add_polyline(wks, plot, d02_lon2d(:,0), d02_lat2d(:,0), pres)
-    ;right = gsn_add_polyline(wks, plot, d02_lon2d(:,ny-1), d02_lat2d(:,ny-1), pres)
+    lower = gsn_add_polyline(wks, plot, d02_lon2d(0,:), d02_lat2d(0,:), pres)
+    upper = gsn_add_polyline(wks, plot, d02_lon2d(nx-1,:), d02_lat2d(nx-1,:), pres)
+    left = gsn_add_polyline(wks, plot, d02_lon2d(:,0), d02_lat2d(:,0), pres)
+    right = gsn_add_polyline(wks, plot, d02_lon2d(:,ny-1), d02_lat2d(:,ny-1), pres)
     
     
 

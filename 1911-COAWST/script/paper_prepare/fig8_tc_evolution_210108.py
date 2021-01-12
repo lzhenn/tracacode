@@ -78,12 +78,12 @@ def main():
         ax[1].plot(df_sen_period['maxWS'], line_type, label=casename)
     # end for: casenames
     
-    ax[0].set_title('(a) Minimum Sea Level Pressure Evolution', fontsize=MIDFONT, loc='left')
+    ax[0].set_title('(a) Minimum Sea Level Pressure', fontsize=MIDFONT, loc='left')
     ax[0].legend(loc='best', fontsize=SMFONT)
     ax[0].set_xlabel('Time',fontsize=SMFONT)
     ax[0].set_ylabel('minSLP (hPa)',fontsize=SMFONT)
     
-    ax[1].set_title('(b) Maximum Wind Speed Evolution', fontsize=MIDFONT, loc='left')
+    ax[1].set_title('(b) Maximum Wind Speed', fontsize=MIDFONT, loc='left')
     ax[1].legend(loc='best', fontsize=SMFONT)
     ax[1].set_xlabel('Time',fontsize=SMFONT)
     ax[1].set_ylabel('maxWS (m/s)',fontsize=SMFONT)
@@ -92,7 +92,7 @@ def main():
     
     fig.set_size_inches(width, height)
     fig.tight_layout()
-    fig.savefig(FIG_DIR_ROOT+'/fig8-minSLP-maxWS-evolve-d0'+IDOM+'.png')
+    fig.savefig(FIG_DIR_ROOT+'/fig8-minSLP-maxWS-evolve-d0'+IDOM+'.pdf')
 
    
     

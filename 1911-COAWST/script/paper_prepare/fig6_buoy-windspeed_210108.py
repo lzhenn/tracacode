@@ -80,7 +80,7 @@ def main():
         ax[icount].annotate(bouy, xy=(0.02, 0.85), xycoords='axes fraction', fontsize=SMFONT)
 #        ax[icount].set_yticks(np.arange(0, 30, 10))
         icount=icount+1
-    ax[0].set_title('Surface Wind Speed Evolution at Buoy Sites', fontsize=MIDFONT, loc='left')
+    ax[0].set_title('Surface Wind Speed at Buoy Sites', fontsize=MIDFONT, loc='left')
     ax[0].legend( fontsize=SMFONT*0.8, loc='upper right')
     ax[3].set_xlabel('Time',fontsize=SMFONT)
     fig.text(0.04, 0.5, 'Wind Speed (m/s)', va='center', rotation='vertical', fontsize=SMFONT)
