@@ -12,7 +12,7 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib
-#matplotlib.use('Agg') 
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import datetime
 from matplotlib.pyplot import savefig
@@ -82,11 +82,16 @@ def main():
     ax[0].legend(loc='best', fontsize=SMFONT)
     ax[0].set_xlabel('Time',fontsize=SMFONT)
     ax[0].set_ylabel('minSLP (hPa)',fontsize=SMFONT)
+    ax[0].scatter(datetime.datetime.strptime('2018091609','%Y%m%d%H') ,945, marker='v', s=80, color='black')
+    ax[0].scatter(datetime.datetime.strptime('2018091610','%Y%m%d%H') ,945, marker='v', s=80, color='green')
     
     ax[1].set_title('(b) Maximum Wind Speed', fontsize=MIDFONT, loc='left')
     ax[1].legend(loc='best', fontsize=SMFONT)
     ax[1].set_xlabel('Time',fontsize=SMFONT)
     ax[1].set_ylabel('maxWS (m/s)',fontsize=SMFONT)
+    ax[1].scatter(datetime.datetime.strptime('2018091609','%Y%m%d%H') , 20, marker='v', s=80, color='black')
+    ax[1].scatter(datetime.datetime.strptime('2018091610','%Y%m%d%H') , 20, marker='v', s=80, color='green')
+
     for axitm in ax: 
         axitm.tick_params(axis='both', which='major', labelsize=SMFONT)
     
