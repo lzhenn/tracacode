@@ -1,15 +1,15 @@
-# tracacode (Traceable Academic Research Code Repo)
-This repo archives all source code in my academic research pathway, basically accomplished in a certain academic authority (e.g. univiersity), along with some published papers. 
-This repo will update by `crontab` daily, on the condition that there is any modification (and my staying in academia).
+# tracacode (TRaceable ACAdemic CODE repo)
 
 We believe in the value of traceable and open-source scientific research. 
-Besides, the separation of **data itself** and **processing operations on data** can benefit post-disaster reconstruction of your knowledge library. 
+This repo archives all source code in my academic research pathway, basically accomplished in an academic authority (e.g. univiersity), along with some published papers. 
+This repo is updated by daily `crontab` tasks, once any modification is made.
+Moreover, the separation of **data itself** and **processing operations on data** can benefit post-disaster reconstruction of your knowledge library. 
 
 Feel free to use our scripts!
 
 Any question, please contact Zhenning LI: zhenningli91@gmail.com
 
-## Catagory
+## Catalog
 * [1911-COAWST](#1911-COAWST)
 * [1911-yeq-HALOGEN](#1911-yeq-HALOGEN)
 * [1905-GD-LSTM-FORECAST](#1905-GD-LSTM-FORECAST)
