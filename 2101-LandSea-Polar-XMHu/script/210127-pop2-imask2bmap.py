@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 
 im_w=384
 im_h=320
-ds=xr.open_dataset('/home/metctm1/array/data/2101-LandSea-Polar-XMHu/gx1v6_larger_aus_090205_test.nc')
+ds=xr.open_dataset('/home/lzhenn/workspace/xmhu-largerAU/gx1v6_larger_aus_090205.nc')
 imask=ds.grid_imask.values.reshape((im_w,im_h))
 
 image = Image.new('1', (im_w, im_h), 0)
