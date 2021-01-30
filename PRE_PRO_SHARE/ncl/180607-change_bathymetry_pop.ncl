@@ -29,6 +29,6 @@ begin
     print(bath)
     exit
     bath = 25
-    setfileoption("bin","ReadByteOrder","LittleEndian")
+    setfileoption("bin","WriteByteOrder","BigEndian")
     fbindirwrite(data_file_out, bath)
 end
