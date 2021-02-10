@@ -10,14 +10,13 @@
 
 # Path of the original data
 # Caution: DO NOT DELETE /" IN STRING!
-PRE_DIR=\"/home/yangsong3/data/model/CESM_CTRL/F2000_F19_CAM4_CTRL/pre/\"
-#PRE_DIR=\"/HOME/sysu_hjkx_ys/WORKSPACE/data/model/L_Zealot/SCS_ANNCYC-2015/pre/B2000_f09_CAM5PM_SCS_ANNCYC/\"
+PRE_DIR=\"/WORK/sysu_hjkx_ys/huxm/CESM/B2000_largAUS_spinup/run/\"
 
 # Path of the post processed data
-PRO_DIR=\"/home/yangsong3/data/model/CESM_CTRL/F2000_F19_CAM4_CTRL/pro/\"
+PRO_DIR=\"/WORK/sysu_hjkx_ys/huxm/CESM/B2000_largAUS_spinup/post_data/\"
 
 # Case name
-CASENAME=\"CTRL\"
+CASENAME=\"B2000_largAUS_spinup\"
 
 
 # Names of 2D fields
@@ -26,9 +25,9 @@ FDNAME2D="(/\"TS\",\"PRECL\",\"PRECC\",\"PSL\",\"FSNT\",\"FLNT\"/)" #often use
 
 #ctrl-ersst-81-10/ Names of 3D fields
 #FDNAME3D="(/\"U\",\"V\"/)" #often use
-FDNAME3D="(/\"V\"/)" #often use
+#FDNAME3D="(/\"V\"/)" #often use
 #FDNAME3D="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\"/)" #often use
-#FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
+FDNAME3D="(/\"U\",\"T\",\"Z3\"/)" #often use
 
 # Names of 3D HY fields
 #FDNAME3D_HY="(/\"U\",\"V\",\"T\",\"OMEGA\",\"Q\",\"RELHUM\",\"Z3\",\"DTCOND\"/)" # hybrid coordinate
@@ -39,15 +38,15 @@ LAYERS=26
 
 # Output specific pressure layers
 # CAUTION: Do not INSERT species between element!
-PLEV="(/250/)"
+#PLEV="(/250/)"
 #PLEV="(/1000,925,850,700,600,500,400,300,200,100/)"
-#PLEV="(/500,300,200/)"
+PLEV="(/850,500,200/)"
 
 # First year of the subset
-FRSTYEAR=1
+FRSTYEAR=91
 
 # Last year of the subset
-LSTYEAR=110
+LSTYEAR=100
 
 # Process fig flag
 FLAG2D=0
