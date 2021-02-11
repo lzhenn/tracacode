@@ -1,11 +1,13 @@
 #!/bin/sh
 #-----------------------------------------------
 #    This is a shell script for configuring the
-# basic post processing tool for WRF model, 
-# targeting the tropical cyclone simulations. You 
-# should set the basic parameters as below. 
+# preprocessing tool for CESM1.2 fully coupled 
+# simlations targeting modifying land-sea 
+# distribution.
+#  
 # Good Luck!
-#               Last Modified on  Apr 06, 2020
+#               Last Modified on  Feb 12, 2021
+#               Clear Water Bay, HK
 #               A L_Zealot Product
 #-----------------------------------------------
 
