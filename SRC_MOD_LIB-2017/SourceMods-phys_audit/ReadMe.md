@@ -55,7 +55,7 @@ float M_AF_DPCV(time, lev, lat, lon) ;
 ```
 
 the surplus/deficit of gridbox air mass after deep convection can be given by:
-
+![](http://latex.codecogs.com/gif.latex?\\frac{\\partial J}{\\partial \\theta_k^{(j)}}=\\sum_{i:r(i,j)=1}{\\big((\\theta^{(j)})^Tx^{(i)}-y^{(i,j)}\\big)x_k^{(i)}}+\\lambda \\xtheta_k^{(j)})
 $$M_{budget}=(M_AF_DPCV-M_BF_DPCV)*delta{t}$$
 
 
