@@ -1,6 +1,7 @@
-### SourceMods-phys_audit
+# SourceMods-phys_audit
+
 PHYS_AUDIT is an online, process-based audit module in CAM physics package. The idea is sourced from [Lu and Cai (2010)](https://link.springer.com/content/pdf/10.1007/s00382-009-0673-x.pdf) in an idealized CGCM to quantify contributions to polar warming amplification.
-Please use keyword "LZN" to lock the modification parts.
+Please use keyword "LZN" to lock the modification parts in source code.
 
 Currently, the `physpkg.F90` in CAM workflow has been seperated into the following subprocesses for audit. Note that they are not seperated in "elemental" processes presenting in `physpkg.F90`.
 For example, we combined Rayleigh friction, PBL vertical diffusion, and aerosol dry deopsition together as `SFVD`.
@@ -18,7 +19,7 @@ For example, we combined Rayleigh friction, PBL vertical diffusion, and aerosol 
 |DRAD        | dry adjustment                    |
 |DYCO        | dynamical core                    |
 
-The following variables have been archived before/after each round of individual subprocess executions. 
+The following variables have been archived before/after each round of individual subprocess execution. 
 
 | Short Name | Long Name                                        | Unit      |
 | ----       | ----                                             | ----      |
@@ -36,8 +37,26 @@ The following variables have been archived before/after each round of individual
 |Q           | Water vapor mixing ratio                         | kg/kg     |
 |PS          | Surface pressure                                 | Pa        |
 
+Therefore, if output complete list of variables before/after each round of subprocess execution in additional files, there would be **2x10x13=260** additional variables in output flow.
 
-If you hope to diagnose the budget of one variable before and after a certain physical process, surplus/deficit can be given by:
+If you hope to audit the budget of one specific variable (e.g. gridbox air mass) before and after a certain physical process (e.g. deep convection), please locate the following variables in `*cam.h{i}*`:
+
+``` bash
+float M_BF_DPCV(time, lev, lat, lon) ;
+    M_BF_DPCV:mdims = 1 ;
+    M_BF_DPCV:units = "kg" ;
+    M_BF_DPCV:long_name = "Gridbox air mass before deep convection" ;
+    M_BF_DPCV:cell_methods = "time: mean" ;
+float M_AF_DPCV(time, lev, lat, lon) ;
+    M_AF_DPCV:mdims = 1 ;
+    M_AF_DPCV:units = "kg" ;
+    M_AF_DPCV:long_name = "Gridbox air mass after deep convection" ;
+    M_AF_DPCV:cell_methods = "time: mean" ;
+```
+
+the surplus/deficit of gridbox air mass after deep convection can be given by:
+
+$$M_{budget}=(M_AF_DPCV-M_BF_DPCV)*delta{t}$$
 
 
 **Use external input aiming fields. Please use keyword "LZN" to lock the modification parts.**
