@@ -54,13 +54,17 @@ float M_AF_DPCV(time, lev, lat, lon) ;
     M_AF_DPCV:cell_methods = "time: mean" ;
 ```
 
-the surplus/deficit of gridbox air mass after deep convection can be given by:
+The **average** surplus/deficit of gridbox air mass after **single call** of deep convection can be given by:
 
-![](http://latex.codecogs.com/gif.latex?\\frac{\\partial J}{\\partial \\theta_k^{(j)}}=\\sum_{i:r(i,j)=1}{\\big((\\theta^{(j)})^Tx^{(i)}-y^{(i,j)}\\big)x_k^{(i)}}+\\lambda \\xtheta_k^{(j)})
+**M_budget=(M_AF_DPCV-M_BF_DPCV)**
 
-$$M_{budget}=(M_AF_DPCV-M_BF_DPCV)*delta{t}$$
+If you are interested in the budget in unit time or a single day:
 
+**M_budget_v=M_budget/dt**
 
-**Use external input aiming fields. Please use keyword "LZN" to lock the modification parts.**
+**M_budget_day=M_budget_v*SECONDS_IN_A_DAY**
+
+where `dt` is the CAM physical timestep, by default, `dt=1800s`. Obviously, `SECONDS_IN_A_DAY=86400s`.
+
 
 
