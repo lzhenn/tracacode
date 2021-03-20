@@ -7,9 +7,10 @@ Please use keyword "LZN" to lock the modification parts in source code. Please [
 
 ## Catagory
     
-* [Subprocesses and Variables](#Subprocesses and Variables)
-* [Audit the Budget](#Audit the Budget)
-* [Customize your output](#Customize your output)
+* [Subprocesses and Variables](#subprocesses-and-variables)
+* [Audit the Budget](#audit-the-budget)
+* [Customize Your Output](#customize-your-output)
+* [Core Subroutine](#core-subroutine)
 
 ### Subprocesses and Variables
 
@@ -78,7 +79,7 @@ If you are interested in the budget in unit time or a single day:
 where `dt` is the CAM physical timestep, by default, `dt=1800s`. Obviously, `SECONDS_IN_A_DAY=86400s`.
 
 
-### Customize your output
+### Customize Your Output
 
 You could add/delete desired variables, adjust the sampling frequency to average the budget, or organize the *cam.h{i}* file in `user_cam_nl`, 
 please refer the official document of CESM1.2. 
@@ -107,7 +108,7 @@ fincl4 = 'M_BF_DPCV', 'M_AF_DPCV', 'M_BF_SLCV', 'M_AF_SLCV', 'M_BF_SFVD', 'M_AF_
 'LATE_BF_DPCV', 'LATE_AF_DPCV', 'LATE_BF_SLCV', 'LATE_AF_SLCV', 'LATE_BF_SFVD', 'LATE_AF_SFVD', 'LATE_BF_MIPH', 'LATE_AF_MIPH', 'LATE_BF_WTAR', 'LATE_AF_WTAR', 'LATE_BF_RADI','LATE_AF_RADI','LATE_BF_GWDG','LATE_AF_GWDG','LATE_BF_ENFX','LATE_AF_ENFX','LATE_BF_DRAD','LATE_AF_DRAD','LATE_BF_DYCO','LATE_AF_DYCO'
  
 ```
-### subroutine PHYS_AUDIT 
+### Core Subroutine
 
 `phys_audit` is the key subroutine embedded in `physpkg.F90` to audit the subprocesses. 
 It will be called before and after each round of individual execution of subprocess, with proper string indicating calling position.
