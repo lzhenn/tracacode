@@ -56,13 +56,15 @@ float M_AF_DPCV(time, lev, lat, lon) ;
 
 The **average** surplus/deficit of gridbox air mass after **single call** of deep convection can be given by:
 
-**M_budget=(M_AF_DPCV-M_BF_DPCV)**
+>M_budget=(M_AF_DPCV-M_BF_DPCV)
 
 If you are interested in the budget in unit time or a single day:
 
-**M_budget_v=M_budget/dt**
+```
+M_budget_v=M_budget/dt
 
-**M_budget_day=M_budget_v*SECONDS_IN_A_DAY**
+M_budget_day=M_budget_v*SECONDS_IN_A_DAY
+```
 
 where `dt` is the CAM physical timestep, by default, `dt=1800s`. Obviously, `SECONDS_IN_A_DAY=86400s`.
 
