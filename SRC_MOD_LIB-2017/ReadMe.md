@@ -25,6 +25,7 @@ Any question, please contact Zhenning LI: novarizark@gmail.com
 * [SourceMods-SST-decoupling](#SourceMods-SST-decoupling)
 * [SourceMods-heatflux-correction](#SourceMods-heatflux-correction)
 * [SourceMods-snow_rate](#SourceMods-snow_rate)
+* [SourceMods-phys_audit](#SourceMods-phys_audit)
 
 ### SourceMods-CAM4-MAM-heat
 Intensify/Suppress convective heating rate (J/kg/s) over a certain region/time, a detailed introduction can be found in the Methods section in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4962042/ 
@@ -123,6 +124,10 @@ Please refer the [tech blog](https://novarizark.github.io/2018/10/29/cesm-fully-
 Change the large-scale snowfall rate over a certain region and period. This is aiming to accumulate snow cover over the targeted land surface, while the user need to be very careful in interpreting the results as mass conservation is violated by this operation. 
 Please use keyword "MOD" to lock the modification parts.
 
+### SourceMods-phys_audit
+PHYS_AUDIT is an online, process-based audit module in CAM physics package. The idea is sourced from [Lu and Cai (2010)](https://link.springer.com/content/pdf/10.1007/s00382-009-0673-x.pdf) in an idealized CGCM to quantify contributions to polar warming amplification.
+Please use keyword "LZN" to lock the modification parts.
+
 LZN
 
-Last Updated: Aug 27, 2020
+Last Updated: Mar 19, 2021
