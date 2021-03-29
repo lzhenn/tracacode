@@ -15,7 +15,7 @@ Please use keyword "LZN" to lock the modification parts in source code. Please [
 ### Subprocesses and Variables
 
 Currently, the `physpkg.F90` in CAM workflow has been seperated into the following subprocesses for audit. Note that they are not seperated in "elemental" processes presenting in `physpkg.F90`.
-For example, we combined Rayleigh friction, PBL vertical diffusion, and aerosol dry deopsition together as `SFVD`.
+For example, we combined Rayleigh friction, PBL vertical diffusion, and aerosol dry deposition together as `SFVD`.
 
 | Short Name | Long Name                         |
 | ----       | ----                              |
