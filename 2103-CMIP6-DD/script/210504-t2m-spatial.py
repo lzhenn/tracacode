@@ -20,7 +20,7 @@ BIGFONT=22
 MIDFONT=18
 SMFONT=14
 
-
+varname='T2'
 
 REF_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/projection/ssp245/2040/spin_up/'
 SEN_DIR='/home/metctm1/array_hq86/WRFV3/run/'
@@ -33,14 +33,14 @@ for i in range(20,24):
     fn_list=fn_stream.split()
     print(fn_list)
     wrf_list=[Dataset(itm) for itm in fn_list]
-    var_temp=wrf.getvar(wrf_list[0],'TSK')
-    var_ref = wrf.getvar(wrf_list, 'TSK', timeidx=wrf.ALL_TIMES, method='cat')
+    var_temp=wrf.getvar(wrf_list[0],varname)
+    var_ref = wrf.getvar(wrf_list, varname, timeidx=wrf.ALL_TIMES, method='cat')
     var_ref=var_ref.mean(dim='Time')
 
     fn_stream=subprocess.check_output('ls '+SEN_DIR+'wrfout_d04_*-05-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
     fn_list=fn_stream.split()
     wrf_list=[Dataset(itm) for itm in fn_list]
-    var_sen = wrf.getvar(wrf_list, 'TSK', timeidx=wrf.ALL_TIMES, method='cat')
+    var_sen = wrf.getvar(wrf_list, varname, timeidx=wrf.ALL_TIMES, method='cat')
     var_sen=var_sen.mean(dim='Time')
 
     # Get the latitude and longitude points
@@ -80,15 +80,15 @@ for i in range(20,24):
     #yticks = range(20, 26, 2) 
 
     cmap=cmaps.ViBlGrWhYeOrRe
-    levels=np.linspace(-1,1,17)
-    plt.contourf(wrf.to_np(lons), wrf.to_np(lats), wrf.to_np(var_sen-var_ref),
+    levels=np.linspace(21,38,69)
+    plt.contourf(wrf.to_np(lons), wrf.to_np(lats), wrf.to_np(var_ref-273.15),
             levels=levels, extend='both', transform=ccrs.PlateCarree(), cmap=cmap)
 
     #ax.coastlines()
-    plt.title('2040 (SSP245) - 2020 (SSP245) TS Mean: 04H LST May',fontsize=SMFONT)
+    plt.title('2040 (SSP245) TS Mean: 04H LST May',fontsize=SMFONT)
 
     # Add a color bar
     plt.colorbar(ax=ax, shrink=0.7)
 
-    plt.savefig('../fig/tsk_'+DIAG_HR+'Z.png', dpi=120, bbox_inches='tight')
+    plt.savefig('../fig/tsk_'+DIAG_HR+'H.png', dpi=120, bbox_inches='tight')
     break
