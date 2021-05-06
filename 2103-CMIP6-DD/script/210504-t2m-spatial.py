@@ -21,16 +21,16 @@ MIDFONT=18
 SMFONT=14
 
 varname='T2'
-title_txt='2020 Jun (SSP245) T2m Mean: 16H LST'
 
-REF_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/projection/ssp245/2040/spin_up/'
+REF_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/projection/ssp245/2040/analysis/'
 SEN_DIR='/home/metctm1/array_hq86/WRFV3/run/'
 
-for i in range(8,24):
+for i in range(0,24):
     DIAG_HR='%02d' % i
+    title_txt='2020 Jun (SSP245) T2m Mean: '+DIAG_HR+' UTC'
     print(DIAG_HR)
     # Open the NetCDF file
-    fn_stream=subprocess.check_output('ls '+REF_DIR+'wrfout_d04_*-05-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
+    fn_stream=subprocess.check_output('ls '+REF_DIR+'wrfout_d04_*-06-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
     fn_list=fn_stream.split()
     print(fn_list)
     wrf_list=[Dataset(itm) for itm in fn_list]
@@ -38,7 +38,7 @@ for i in range(8,24):
     var_ref = wrf.getvar(wrf_list, varname, timeidx=wrf.ALL_TIMES, method='cat')
     var_ref=var_ref.mean(dim='Time')
 
-    fn_stream=subprocess.check_output('ls '+SEN_DIR+'wrfout_d04_*-05-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
+    fn_stream=subprocess.check_output('ls '+SEN_DIR+'wrfout_d04_*-06-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
     fn_list=fn_stream.split()
     wrf_list=[Dataset(itm) for itm in fn_list]
     var_sen = wrf.getvar(wrf_list, varname, timeidx=wrf.ALL_TIMES, method='cat')
@@ -92,4 +92,3 @@ for i in range(8,24):
     plt.colorbar(ax=ax, shrink=0.7)
 
     plt.savefig('../fig/tsk_'+DIAG_HR+'H.png', dpi=120, bbox_inches='tight')
-    break
