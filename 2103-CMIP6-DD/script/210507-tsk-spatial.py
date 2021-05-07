@@ -22,12 +22,13 @@ SMFONT=14
 
 varname='T2'
 
+#REF_DIR='/disk/r110/zzuoaa/Build_WRF/ssp245/2040/'
 REF_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/projection/ssp245/2040/analysis/'
 SEN_DIR='/home/metctm1/array_hq86/WRFV3/run/'
 
 for i in range(0,24):
     DIAG_HR='%02d' % i
-    title_txt='2040 Jun (SSP245) T2m Mean: '+DIAG_HR+' UTC'
+    title_txt='2040 Jun (SSP245) TSK Mean: '+DIAG_HR+' UTC'
     print(DIAG_HR)
     # Open the NetCDF file
     fn_stream=subprocess.check_output('ls '+REF_DIR+'wrfout_d04_*-06-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
@@ -82,7 +83,7 @@ for i in range(0,24):
 
     cmap=cmaps.BlGrYeOrReVi200
     levels=np.linspace(23,37,15)
-    plt.contourf(wrf.to_np(lons), wrf.to_np(lats), wrf.to_np(var_sen-273.15),
+    plt.contourf(wrf.to_np(lons), wrf.to_np(lats), wrf.to_np(var_ref-273.15),
             levels=levels, extend='both', transform=ccrs.PlateCarree(), cmap=cmap)
 
     #ax.coastlines()
@@ -91,4 +92,4 @@ for i in range(0,24):
     # Add a color bar
     plt.colorbar(ax=ax, shrink=0.7)
 
-    plt.savefig('../fig/tsk_'+DIAG_HR+'H.png', dpi=120, bbox_inches='tight')
+    plt.savefig('../fig/'+varname+'_'+DIAG_HR+'H.png', dpi=120, bbox_inches='tight')
