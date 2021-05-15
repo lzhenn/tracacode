@@ -20,7 +20,7 @@ BIGFONT=22
 MIDFONT=18
 SMFONT=14
 
-varname='T2'
+varname='LANDMASK'
 year='2040'
 mon='06'
 SEN_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/projection/ssp245/'+year+'/analysis/'
@@ -28,7 +28,7 @@ REF_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/bias_ref/cmip6/2020/'
 
 for i in range(6,24):
     DIAG_HR='%02d' % i
-    title_txt='2020 Jun (SSP245) T2m Mean: '+DIAG_HR+' UTC'
+    title_txt=' Diff between 2040 and 2020 Landmask'
     print(DIAG_HR)
     # Open the NetCDF file
     fn_stream=subprocess.check_output('ls '+SEN_DIR+'wrfout_d04_*-'+mon+'-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
@@ -81,9 +81,9 @@ for i in range(6,24):
     #xticks = range(109, 118, 2)
     #yticks = range(20, 26, 2) 
 
-    cmap=cmaps.BlGrYeOrReVi200
-    levels=np.linspace(23,37,15)
-    plt.contourf(wrf.to_np(lons), wrf.to_np(lats), wrf.to_np(var_ref-273.15),
+    cmap=cmaps.precip_diff_1lev
+    levels=np.linspace(0,1,2)
+    plt.contourf(wrf.to_np(lons), wrf.to_np(lats), wrf.to_np(var_sen-var_ref),
             levels=levels, extend='both', transform=ccrs.PlateCarree(), cmap=cmap)
 
     #ax.coastlines()
@@ -92,6 +92,6 @@ for i in range(6,24):
     # Add a color bar
     plt.colorbar(ax=ax, shrink=0.7)
 
-    plt.savefig('../fig/tsk_'+DIAG_HR+'H_2020_'+mon+'.png', dpi=120, bbox_inches='tight')
+    plt.savefig('../fig/land_mask_diff.png', dpi=120, bbox_inches='tight')
 
     exit()
