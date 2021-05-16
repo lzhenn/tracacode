@@ -23,12 +23,12 @@ SMFONT=14
 varname='T2'
 year='2040'
 mon='06'
-SEN_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/projection/ssp245/'+year+'/analysis/'
-REF_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/bias_ref/cmip6/2020/'
+SEN_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/bias_ref/cmip6/2020/'
+REF_DIR='/home/metctm1/array_hq133/cmip6-wrf-arch/bias_ref/era5/2020/'
 
 for i in range(6,24):
     DIAG_HR='%02d' % i
-    title_txt=' Diff between 2040 and 2020 Jun (SSP245): '+DIAG_HR+' UTC'
+    title_txt=' Bias between 2020 (SSP245) and 2020 (ERA5) Jun : '+DIAG_HR+' UTC'
     print(DIAG_HR)
     # Open the NetCDF file
     fn_stream=subprocess.check_output('ls '+SEN_DIR+'wrfout_d04_*-'+mon+'-??_'+DIAG_HR+'*', shell=True).decode('utf-8')
