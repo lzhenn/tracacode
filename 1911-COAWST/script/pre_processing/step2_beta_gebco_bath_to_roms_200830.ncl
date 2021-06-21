@@ -3,7 +3,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 begin
     g_font=0.015
    
-    raw_fn="/home/metctm1/array/app/COAWST/COAWST_operational/Projects/GBA/roms-grid-ust/roms_d02.nc"
+    raw_fn="/home/metctm1/array/app/WRF412/WPS-4.1/roms_d02.nc"
     bck_fn=""
     
     org_in      = addfile ("/home/metctm1/array/data/topo/gebco/GEBCO_2019.nc", "r")
@@ -26,8 +26,8 @@ begin
         end do
         print(""+ii+"/"+dim_x)
     end do
-    h=where(h .lt. 10, 10, h)
-    h=where(h .gt. 3000, 3000, h)
+    h=where(h .lt. 1, 1, h)
+    ;h=where(h .gt. 3000, 3000, h)
     roms_grid_in->h=h
    ; result0=systemfunc("cp "+raw_fn+" "+bck_fn )
     h@lat2d=lat_rho
@@ -87,7 +87,7 @@ begin
     res@mpInlandWaterFillColor  = "white"
 
    
-    wks_type="x11"
+    wks_type="png"
     wks_type@wkWidth=800
     wks_type@wkHeight=800
     wks = gsn_open_wks(wks_type,"../fig/bath")      ; send graphics to PNG file
