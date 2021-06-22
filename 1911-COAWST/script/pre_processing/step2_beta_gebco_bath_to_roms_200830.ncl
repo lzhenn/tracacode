@@ -3,7 +3,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRF_contributed.ncl"
 begin
     g_font=0.015
    
-    raw_fn="/home/metctm1/array/app/WRF412/WPS-4.1/roms_d02.nc"
+    raw_fn="/home/metctm1/array/data/Calypso/roms_d03.nc"
     bck_fn=""
     
     org_in      = addfile ("/home/metctm1/array/data/topo/gebco/GEBCO_2019.nc", "r")
@@ -26,7 +26,7 @@ begin
         end do
         print(""+ii+"/"+dim_x)
     end do
-    h=where(h .lt. 1, 1, h)
+    h=where(h .lt. 2, 2, h)
     ;h=where(h .gt. 3000, 3000, h)
     roms_grid_in->h=h
    ; result0=systemfunc("cp "+raw_fn+" "+bck_fn )
