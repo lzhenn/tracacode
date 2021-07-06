@@ -3,14 +3,27 @@
 ## Overview 
 
 PHYS_AUDIT is an online, process-based audit module in CAM physics package. The idea is sourced from [Lu and Cai (2010)](https://link.springer.com/content/pdf/10.1007/s00382-009-0673-x.pdf) in an idealized CGCM to quantify contributions to polar warming amplification.
-Please use keyword "LZN" to lock the modification parts in source code. Please [refer this](https://github.com/Novarizark/tracacode/blob/master/SRC_MOD_LIB-2017/ReadMe.md) for how to embed this module in CESM workflow.
-
+Please use keyword "LZN" to lock the modification parts in source code. 
 ## Catagory
     
+* [Usage](#usage)
 * [Subprocesses and Variables](#subprocesses-and-variables)
 * [Audit the Budget](#audit-the-budget)
 * [Customize Your Output](#customize-your-output)
 * [Core Subroutine](#core-subroutine)
+
+### Usage
+
+1. As usual, `create_newcase` and then execute `./cesm_setup` your CESM1 case
+2. Download all contents in this folder (unzip may need)
+3. Copy `src.cam` to the `${CASENAME}/SourceMods` directory 
+4. Copy `user_nl_cam` to `${CASENAME}`
+5. Then execute `./${CASENAME}.build` to compile the modified source files
+
+Some following targeted modifications may need external input or namelist changes. Please follow the specific introductions for these operations.
+
+Also, you could [refer this](https://github.com/Novarizark/tracacode/blob/master/SRC_MOD_LIB-2017/ReadMe.md) for an overall description about how to embed source modification into CESM workflow.
+
 
 ### Subprocesses and Variables
 
