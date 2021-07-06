@@ -14,7 +14,7 @@ Please use keyword "LZN" to lock the modification parts in source code.
 
 ### Usage
 
-1. As usual, `create_newcase` and then execute `./cesm_setup` your CESM1 case
+1. As usual, `create_newcase` and then execute `./cesm_setup` in your CESM1 case
 2. Download all contents in this folder (unzip may need)
 3. Copy `src.cam` to the `${CASENAME}/SourceMods` directory 
 4. Copy `user_nl_cam` to `${CASENAME}`
@@ -86,8 +86,9 @@ The **average** surplus/deficit of gridbox air mass after **single call** of dee
 
 If you are interested in the budget in unit time or a single day:
 
->M_budget_v=M_budget/dt
->M_budget_day=M_budget_v*SECONDS_IN_A_DAY
+>M_budget_r=M_budget/dt
+
+>M_budget_day=M_budget_r*SECONDS_IN_A_DAY
 
 where `dt` is the CAM physical timestep, by default, `dt=1800s`. Obviously, `SECONDS_IN_A_DAY=86400s`.
 
