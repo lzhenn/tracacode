@@ -123,11 +123,12 @@ Sourcemods in
 
 **please use "LZN" to search and lock the modification snippets.**
 
-#### ./WRF-4.3/test/em_real/runWRF_EPD_nonudging.csh.6h
+#### ./WRF-4.3/test/em_real/runWRF_EPD_d4nudging.csh-num_metgrid_levels-34
 ```
-L115:  num_land_cat                        = 24,
+L113:  num_land_cat                        = 24,
 ```
 
 
 Zhenning LI
+
 Oct 14, 2021
