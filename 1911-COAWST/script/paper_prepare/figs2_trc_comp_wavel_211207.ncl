@@ -35,7 +35,7 @@ begin
         comp1_tend="2018091600"
     end if 
 
-    fig_num="(a)"
+    fig_num="(c)"
 
 
     fig_prefix="d0"+tostring(i_dom)+"_"
@@ -105,9 +105,9 @@ begin
   res=True 
 ;---Resources for filled contour plot
   res@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
-  res@cnMinLevelValF        = 10.          ; set min contour level
-  res@cnMaxLevelValF        = 100.          ; set max contour level
-  res@cnLevelSpacingF       = 5          ; set contour interval
+  res@cnMinLevelValF        = 60.          ; set min contour level
+  res@cnMaxLevelValF        = 300.          ; set max contour level
+  res@cnLevelSpacingF       = 20          ; set contour interval
   
   
   res@gsnMaximize          = True
@@ -182,7 +182,7 @@ do while(time_frame .lt. ilast)
     
   
     gsn_define_colormap(wks,"WhiteBlueGreenYellowRed")
-    res@gsnLeftString=fig_num+" "+casename+" LWaveP Trac. Comp."
+    res@gsnLeftString=fig_num+" "+casename+" WaveLen Trac. Comp."
     ;---Call plotting routine which draws contours over a map
     tc_lon=case_tc(time_frame,2)
     tc_lat=case_tc(time_frame,1)
