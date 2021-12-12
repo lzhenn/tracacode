@@ -26,6 +26,9 @@ Any question, please contact Zhenning LI: zhenningli91@gmail.com
 Using the COAWST system to simulate the Mangkhut (1822), investigating the role of wave-air interaction in modulating tropical cyclone intensity. 
 * [COAWST Configuration Archives](https://novarizark.github.io/2020/02/20/COAWST-GBA/)
 
+**Domain Configurations for the Greater Bay Area (GBA)**
+![](https://s1.ax1x.com/2020/09/27/0FxmND.png)
+
 ## 1911-yeq-HALOGEN
 Cooperated. Intended to work on the CMAQ Halogen simulation, but finally focused on Effect of bromine and iodine chemistry, relevant paper: [Effect of bromine and iodine chemistry on tropospheric ozone over Asia-Pacific using the CMAQ model](https://www.sciencedirect.com/science/article/pii/S0045653520317902).
 
