@@ -9,12 +9,12 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=1911-COAWST
+WORKNAME=2103-CMIP6-DD
 
 # Now to create the workspace
 mkdir $WORKNAME
 cd $WORKNAME
-mkdir data ncl fig script
+mkdir data src fig script
 cd data
 mkdir model obv
 cd model

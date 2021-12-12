@@ -9,12 +9,12 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=EASY-WRF
+WORKNAME=2101-LandSea-Polar-XMHu
 
 # Now to create the workspace
 mkdir $WORKNAME
 cd $WORKNAME
-mkdir data ncl fig
+mkdir data script fig
 cd data
 mkdir model obv
 cd model

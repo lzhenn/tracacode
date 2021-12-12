@@ -19,14 +19,12 @@ Any question, please contact Zhenning LI: zhenningli91@gmail.com
 * [1809-ANTARCTICA](#1809-ANTARCTICA)
 * [ITMM-dt-2017](#ITMM-dt-2017)
 * [2101-LandSea-Polar-XMHu](#2101-LandSea-Polar-XMHu)
+* [2103-CMIP6-DD](#2103-CMIP6-DD)
 
 
 ## 1911-COAWST
 Using the COAWST system to simulate the Mangkhut (1822), investigating the role of wave-air interaction in modulating tropical cyclone intensity. 
 * [COAWST Configuration Archives](https://novarizark.github.io/2020/02/20/COAWST-GBA/)
-
-**Domain Configurations for the Greater Bay Area (GBA)**
-![](https://s1.ax1x.com/2020/09/27/0FxmND.png)
 
 ## 1911-yeq-HALOGEN
 Cooperated. Intended to work on the CMAQ Halogen simulation, but finally focused on Effect of bromine and iodine chemistry, relevant paper: [Effect of bromine and iodine chemistry on tropospheric ozone over Asia-Pacific using the CMAQ model](https://www.sciencedirect.com/science/article/pii/S0045653520317902).
@@ -54,6 +52,8 @@ Cooperated. Sunphotometer data processing scripts, mainly in python.
 Cooperated. Change Land/Sea Distribution in fully coupled CESM runs to investigate the potential modulation on Antactica sensitivity to CO2 forcing.
 Idea proposed by [Prof. Xiaoming Hu](http://atmos.sysu.edu.cn/teacher/392).
 
+## 2103-CMIP6-DD 
+Dynamical Downscaling simulations using 6-hr CMIP6 output. 
 
 Zhenning LI
-Nov 22, 2020
+Apr 08, 2021
