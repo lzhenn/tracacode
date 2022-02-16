@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=2103-CMIP6-DD
+WORKNAME=2202-CWST-S2S
 
 # Now to create the workspace
 mkdir $WORKNAME
