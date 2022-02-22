@@ -27,13 +27,12 @@ fn_list=fn_stream.split()
 wrf_list=[Dataset(itm) for itm in fn_list]
 times=wrf.extract_times(
     wrf_list, timeidx=wrf.ALL_TIMES, meta=True)
-times=times+np.timedelta64(132,'D')
 
 var_temp=wrf.getvar(wrf_list[0],varname)
 var_sen = wrf.getvar(wrf_list, varname, timeidx=wrf.ALL_TIMES, method='cat')
 var_sen=var_sen[:,65:105,115:215].mean(dim='south_north')
 var_sen=var_sen.mean(dim='west_east')
-var_sen=var_sen-275.15
+var_sen=var_sen-273.15
 var_sen['Time']=var_sen['Time']
 fn_stream=subprocess.check_output('ls '+REF_DIR+'wrfout_d01_*', shell=True).decode('utf-8')
 fn_list=fn_stream.split()
@@ -42,14 +41,14 @@ var_temp=wrf.getvar(wrf_list[0],varname)
 var_ref = wrf.getvar(wrf_list, varname, timeidx=wrf.ALL_TIMES, method='cat')
 var_ref=var_ref[:,65:105,115:215].mean(dim='south_north')
 var_ref=var_ref.mean(dim='west_east')
-var_ref=var_ref-275.15
+var_ref=var_ref-273.15
 
 
 
 # figure
 fig,ax = plt.subplots()
-width=14.0
-height=6.0
+width=10.0
+height=5.0
 #fig,ax = plt.subplots(figsize=(10,4))
 
 # adjust to fit in the canvas 
