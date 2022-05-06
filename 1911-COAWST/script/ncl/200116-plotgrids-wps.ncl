@@ -11,14 +11,14 @@ begin
 ;
 
 ; We generate plots, but what kind do we prefer?
-;  type = "x11"
- type = "png"
+  type = "x11"
+; type = "png"
 ; type = "ps"
 ; type = "ncgm"
   wks = gsn_open_wks(type,"../fig/wps_show_dom")
 
 ; read the following namelist file
-  filename = "/disk/hq247/yhuangci/lzhenn/project/1911-COAWST/data/1911-COAWST/sandy/namelist.wps"
+  filename = "/home/lzhenn/WRF-preprocess/WPS-4.1/namelist.wps"
 
 
 ; Set the colors to be used
@@ -144,7 +144,7 @@ mpres@mpInlandWaterFillColor  = "Skyblue"
   cnres@diqu      = True       ; draw diqujie or not
 
   plot = wrf_wps_dom (wks,mpres,lnres,txres)
-  chinamap = add_china_map(wks,plot,cnres)
+;  chinamap = add_china_map(wks,plot,cnres)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Now you can add some information to the plot. 
