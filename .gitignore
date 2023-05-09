@@ -1,2 +1,4 @@
-*.png
-*.swp
+*swp
+*png
+*eps
+*shp
