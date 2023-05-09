@@ -1,6 +1,5 @@
 # tracacode (TRaceable ACAdemic CODE repo)
 
-**May 9, 2023: Obsolete repo for warehouse use only, please check tracacode2 for current active projects**
 
 We believe in the value of traceable and open-source scientific research. 
 This repo archives all source code in my academic research pathway, basically accomplished in an academic authority (e.g. univiersity), along with some published papers. 

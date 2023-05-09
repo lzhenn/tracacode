@@ -1,0 +1,8 @@
+! Users should add all user specific namelist changes below in the form of 
+! namelist_var = new_namelist_value 
+bnd_topo       = '/WORK/sysu_hjkx_ys/huxm/largerAUS_file/USGS-gtopo30_1.9x2.5_remap_c210202.nc'  
+
+!avgflag_pertape = 'A','A'
+!nhtfrq = 0,-24
+!mfilt  = 1,1
+!fincl2 = 'T','TS', 'SST', 'TBOT', 'PSL', 'TREFHT', 'SHFLX', 'FSNS', 'TREFHT'

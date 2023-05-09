@@ -1,0 +1,9 @@
+!----------------------------------------------------------------------------------
+! Users should add all user specific namelist changes below in the form of 
+!   namelist_var = new_namelist_value 
+! Note - that it does not matter what namelist group the namelist_var belongs to
+!----------------------------------------------------------------------------------
+
+kmt_file = '/WORK/sysu_hjkx_ys/huxm/largerAUS_file/topography_20090204_larger_aus.ieeei4'
+ice_ic = 'none'
+xndt_dyn = 2
