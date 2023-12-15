@@ -9,7 +9,8 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=2202-CWST-S2S
+WORKNAME=2312-ENVFDB
+
 
 # Now to create the workspace
 mkdir $WORKNAME
