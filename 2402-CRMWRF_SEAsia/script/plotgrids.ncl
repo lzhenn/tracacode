@@ -18,7 +18,7 @@ begin
   wks = gsn_open_wks(type,"../fig/wps_show_dom")
 
 ; read the following namelist file
-  filename = "/home/lzhenn/WRFv43/WPS-4.3/namelist.wps"
+  filename = "/home/lzhenn/array182/WPS-4.1/namelist.wps"
 
 
 ; Set the colors to be used
@@ -36,6 +36,8 @@ begin
   mpres@mpNationalLineColor         = "Black"
   mpres@mpPerimLineColor            = "Black"
   mpres@mpUSStateLineColor          = "Black"
+  mpres@mpOutlineOn           = True
+  mpres@mpOutlineBoundarySets = "AllBoundaries"
   ;mpres@mpGridSpacingF              = 45
   mpres@tiMainString                = " WPS Domain Configuration  "
 

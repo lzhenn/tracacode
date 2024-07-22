@@ -9,7 +9,7 @@
 #-----------------------------------------------
 
 # Name of your workspace
-WORKNAME=2312-ENVFDB
+WORKNAME=2402-CRMWRF_SEAsia
 
 
 # Now to create the workspace
