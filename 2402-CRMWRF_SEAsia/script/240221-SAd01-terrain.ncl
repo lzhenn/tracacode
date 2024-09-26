@@ -12,7 +12,7 @@ begin
 ;************************************************
 ; open file and read in data
 ;************************************************
-    wrfout_path="/home/lzhenn/array182/WPS-4.1/"
+    wrfout_path="/home/lzhenn/array54/WPS-4.1/"
     g_font=0.025
     domain="d01"
     figname="domain_terrain_"+domain

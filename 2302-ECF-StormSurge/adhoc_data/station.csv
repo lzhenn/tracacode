@@ -1,0 +1,6 @@
+name,short,lon,lat,tide_obv,surge_obv,all_obv,all_sim,surge_warm,surge_luzon,surge_fatal,tide_max,mean_lift
+QuarryBay,QUB,114.2132, 22.2910,1.53,2.35,3.88,3.75,3.02,4.20,,2.75,0.3
+TaiMiuWan,TMW, 114.2886, 22.2697,1.42,2.77,4.19,4.02,3.68,4.40,,2.75,0.3
+TsimBeiTsui,TBT, 114.0081, 22.4935,1.60,2.58,4.18,4.65,4.01,5.10,,2.75,0.3
+ShekPik,SPW, 113.8926, 22.2214,1.55,2.34,3.89,4.15,4.10,5.20,,2.75,0.3
+TaiPoKau,TPK, 114.1838, 22.4426,1.31,3.40,4.71,4.80,5.08,6.51,,2.75,0.3

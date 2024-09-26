@@ -10,8 +10,10 @@ SMFONT=22
 # File paths
 tide_file = '/disk/r074/lzhenn/data/luna/2018091400/tides.2018091400'
 site_file = '/home/lzhenn/array74/workspace/luna-kit/db/site.csv'
-hwave_sim='/home/lzhenn/array74/data/archive/poseidon/2018091200/stas_Hwave_ts.csv'
-zeta_sim='/home/lzhenn/array74/data/archive/poseidon/2018091200/stas_zeta_ts.csv'
+hwave_sim='/home/lzhenn/array129/poseidon/2018091400_fc1.1/stas_Hwave_ts.csv'
+#hwave_sim='/home/lzhenn/array74/data/archive/poseidon/2018091200/stas_Hwave_ts.csv'
+zeta_sim='/home/lzhenn/array129/poseidon/2018091400_fc1.1/stas_zeta_ts.csv'
+#zeta_sim='/home/lzhenn/array74/data/archive/poseidon/2018091200/stas_zeta_ts.csv'
 obv_data='/home/lzhenn/array74/data/hko_tide/mangkhut_obv.csv'
 
 # Define the time range
@@ -48,21 +50,20 @@ for index, site in site_df.iterrows():
     tfs=site_tide_data['datetime']
     tide=site_tide_data['z(m)']+base
     
-    zeta=zeta_df[site_name]-0.65
+    zeta=zeta_df[site_name]
     zeta_all=zeta.values+tide.values
     
     hw=hwave_df[site_name]
-    lv_all=zeta_all+hw*0.6
+    lv_all=zeta_all+hw*0.4
     print(site_name)
     print(tide)
     print(zeta)
     print(zeta_all)
     # Create a new figure for each site
-    plt.figure(figsize=(15, 10))
+    plt.figure(figsize=(10, 8))
     
     # Plot the data
     plt.plot(layout='tight' )
-    
     
     plt.fill_between(
             tfs, 0, tide, 
@@ -77,25 +78,17 @@ for index, site in site_df.iterrows():
     plt.plot(tfs, zeta_all, color='blue',linestyle='--',linewidth=2)
     plt.plot(tfs, zeta, color='dodgerblue',linestyle='-',linewidth=2)
     plt.plot(tfs, tide, color='lightblue',linestyle=':',linewidth=2)
-    
     plt.plot(obv_df.index, obv_df[site_name], color='black',marker='*',
              linestyle='',markersize=10, label='Observation')
     
     # Add labels, title, legend, and grid
-    plt.xticks( fontsize=SMFONT)
+    plt.xticks( fontsize=SMFONT, rotation=15)
     plt.yticks( fontsize=SMFONT) 
     plt.xlabel('Time', fontsize=SMFONT)
     plt.ylabel('Water Level (m)', fontsize=SMFONT)
     plt.title(f'{site_name}', fontsize=MIDFONT)
     plt.legend(fontsize=SMFONT)
     plt.grid(True)
-    plt.ylim((0,5))
-    plt.savefig(os.path.join(f'../fig/{site_name}.png'), 
+    plt.ylim((0,7))
+    plt.savefig(os.path.join(f'../fig/{site_name}_pgw.png'), 
         dpi=100, bbox_inches='tight', pad_inches=0)
-
-
-obv_data='/home/lzhenn/array74/data/hko_tide/mangkhut_obv.csv'
-tide_sim='/home/lzhenn/array74/data/hko_tide/2018091500/tides.2018091500'
-sta_file='/home/lzhenn/array74/workspace/luna-kit/db/site.csv'
-
-

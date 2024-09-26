@@ -27,7 +27,10 @@ def main():
     height=7.0
    
     
-    df_obv=io.get_ibtrack('MANGKHUT','2018')
+    #df_obv=io.get_ibtrack('MANGKHUT','2018')
+    #df_obv2=io.get_ibtrack('MANGKHUT','2018', src='CMA')
+    df_obv=io.get_ibtrack('WANDA','1962')
+    df_obv2=io.get_ibtrack('WANDA','1962',src='CMA')
     simdir1='/home/lzhenn/array74/data/archive/njord/2018091200'
     simdir2='/home/lzhenn/array74/data/archive/njord/2018091200pgw_free'
     
@@ -36,7 +39,7 @@ def main():
     df_sim2=pd.read_csv(
         f'{simdir2}/tc_track.csv', parse_dates=['time'],index_col=['time'])
     
-    df_obv=df_obv[df_sim1.index[0]:df_sim1.index[-1]]
+    #df_obv=df_obv[df_sim1.index[0]:df_sim1.index[-1]]
     
    
     #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
@@ -47,8 +50,9 @@ def main():
     fig,ax = plt.subplots(figsize=(4,4))
     #fig.subplots_adjust(left=0.08, bottom=0.18, right=0.99, top=0.92, wspace=None, hspace=None) 
     plt.plot(df_obv['HKO_PRES'], label='HKO best', marker='o', color='black')
-    plt.plot(df_sim1['slp'],'b-^', label='CURRENT')
-    plt.plot(df_sim2['slp'],'r-^', label='FUTURE')
+    plt.plot(df_obv2['CMA_PRES'], label='CMA best', marker='o', color='gray')
+    #plt.plot(df_sim1['slp'],'b-^', label='CURRENT')
+    #plt.plot(df_sim2['slp'],'r-^', label='FUTURE')
     # end for: casenames
     
     plt.legend(loc='best', fontsize=SMFONT)
@@ -60,10 +64,10 @@ def main():
     
    # pletp(ax.get_xticklabels(), rotation=-60, ha="right",
    # rotation_mode="anchor")
-    
+    plt.ylim((900,1020))
     plt.title('TC Strength Evolution', fontsize=BIGFONT)
     fig.set_size_inches(width, height)
-    fig.savefig('../fig/tc-minSLP-evolve.png')
+    fig.savefig('../fig/tc-minSLP-evolve.png', bbox_inches='tight')
 
    
     

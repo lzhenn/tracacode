@@ -26,31 +26,27 @@ def main():
     width=15.0
     height=7.0
    
+    line_libs=['b-^','r--','g-s']
     
     df_obv=io.get_ibtrack('MANGKHUT','2018')
-    simdir1='/home/lzhenn/array74/data/archive/njord/2018091200'
-    simdir2='/home/lzhenn/array74/data/archive/njord/2018091200pgw_free'
-    df_sim1=pd.read_csv(
-        f'{simdir1}/tc_track.csv', parse_dates=['time'],index_col=['time'])
-    df_sim2=pd.read_csv(
-        f'{simdir2}/tc_track.csv', parse_dates=['time'],index_col=['time'])
-    
-    df_obv=df_obv[df_sim1.index[0]:df_sim1.index[-1]]
-    
-    #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
-    
+    case_names=['201809','201809_WSM6']
     
    
+    #df_obv=df_obv[df_sim.index[0]:]
     fig,ax = plt.subplots(figsize=(4,4))
     #fig.subplots_adjust(left=0.08, bottom=0.18, right=0.95, top=0.92, wspace=None, hspace=None) 
-    plt.plot(df_obv['HKO_WIND']/3.6, label='HKO best', marker='o', color='black')
-    plt.plot(df_sim1['wsmax']*0.7,'b-^', label='CURRENT')
-    plt.plot(df_sim2['wsmax']*0.7,'r-^', label='FUTURE')
+    plt.plot(df_obv['HKO_PRES'], label='HKO best', marker='o', color='black')
+    for idx,case_name in enumerate(case_names):
+        work_dir=f'/home/lzhenn/SEAtest/{case_name}'
+        df_sim=pd.read_csv(
+            f'{work_dir}/tc_track.csv', parse_dates=['time'],index_col=['time'])
+        plt.plot(df_sim['slp'],line_libs[idx], label=case_name)
+        
     # end for: casenames
     
     plt.legend(loc='best', fontsize=SMFONT)
     plt.xlabel('Time',fontsize=SMFONT)
-    plt.ylabel('Windspeed (m/s)',fontsize=SMFONT)
+    plt.ylabel('SLP (hPa)',fontsize=SMFONT)
     plt.xticks(fontsize=SMFONT)
     #plt.xticks(fontsize=SMFONT,rotation=-30)
     plt.yticks(fontsize=SMFONT)
@@ -60,7 +56,7 @@ def main():
     
     plt.title('TC Strength Evolution', fontsize=BIGFONT)
     fig.set_size_inches(width, height)
-    fig.savefig('../fig/tc-mxws-evolve.png')
+    fig.savefig(f'../fig/ts_slp.png', bbox_inches='tight', dpi=100)
 
    
     

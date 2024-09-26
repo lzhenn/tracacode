@@ -22,6 +22,7 @@ import cartopy.feature as cfeature
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import cartopy.io.shapereader as shpreader
 import shapely.geometry as sgeom
+from uranus_viewer.lib import io
 from copy import copy
 
 from wrf import (getvar, interplevel, to_np, latlon_coords, get_cartopy,
@@ -33,8 +34,8 @@ BIGFONT=22
 MIDFONT=18
 SMFONT=14
 
-MAP_RES='10m'
-FIG_FMT='pdf'
+MAP_RES='50m'
+FIG_FMT='png'
 
 
 
@@ -97,15 +98,13 @@ def _mct_ticks(ax, ticks, tick_location, line_constructor, tick_extractor):
 
 
 
-hko_path='/home/metctm1/array/data/1911-COAWST/hko.trck.mangkhut'
-cma_path='/home/metctm1/array/data/1911-COAWST/cma.trck.mangkhut'
 
-nc_path='/home/metctm1/array/data/1911-COAWST/WRFONLY/wrfout_d02'
-province_shp_file=os.getenv('SHP_LIB')+'/cnmap/cnhimap.dbf'
+nc_path='/home/lzhenn/array74/data/archive/njord/2018091200/wrfout_d01_2018-09-12_00:00:00'
+#province_shp_file=os.getenv('SHP_LIB')+'/cnmap/cnhimap.dbf'
 
-cases=['C2008', 'TY2001', 'WRFROMS', 'WRFONLY']
-line_libs=['r-^','r-s','b-.*','g--o']
 
+df_obv=io.get_ibtrack('MANGKHUT','2018')
+df_obv2=io.get_ibtrack('WANDA','1962')
 
 # ----------Get NetCDF data------------
 print('Read NC...')
@@ -118,16 +117,7 @@ lats, lons = latlon_coords(lsmask)
 
 # Province shp file
 # read shp files
-province_shp=shpreader.Reader(province_shp_file).geometries()
-
-# Read bestTrck Data HKO
-dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H')
-df_hko_obv=pd.read_csv(hko_path,parse_dates=True,index_col='time', sep='\s+', date_parser=dateparse)
-
-# Read bestTrck Data CMA
-dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H')
-df_cma_obv=pd.read_csv(cma_path,parse_dates=True,index_col='time', sep='\s+', date_parser=dateparse)
-
+#province_shp=shpreader.Reader(province_shp_file).geometries()
 
 
 print('Plot...')
@@ -148,31 +138,32 @@ ax.coastlines(MAP_RES, linewidth=0.8)
 
 # plot province/city shp boundaries
 #ax.add_geometries(county_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='gray',linewidth=0.5, zorder = 0)
-ax.add_geometries(province_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='black',linewidth=1., zorder = 1)
+#ax.add_geometries(province_shp, ccrs.PlateCarree(),facecolor='none', edgecolor='black',linewidth=1., zorder = 1)
 
 
 # Add ocean, land, rivers and lakes
 ax.add_feature(cfeature.OCEAN.with_scale(MAP_RES))
 ax.add_feature(cfeature.LAND.with_scale(MAP_RES))
 ax.add_feature(cfeature.LAKES.with_scale(MAP_RES))
+ax.add_feature(cfeature.BORDERS, linestyle=':')
 # *must* call draw in order to get the axis boundary used to add ticks:
 fig.canvas.draw()
 # Define gridline locations and draw the lines using cartopy's built-in gridliner:
 # xticks = np.arange(80,130,10)
 # yticks = np.arange(15,55,5)
-xticks = np.arange(109,118.5,1.5).tolist() 
-yticks =  np.arange(18,27,1.5).tolist() 
+#xticks = np.arange(109,118.5,1.5).tolist() 
+#yticks =  np.arange(18,27,1.5).tolist() 
 #ax.gridlines(xlocs=xticks, ylocs=yticks,zorder=1,linestyle='--',lw=0.5,color='gray')
 #gl = ax.gridlines(draw_labels=True, alpha=0.0)
 #gl.right_labels = False
 #gl.top_labels = False
-ax.set_xticks(xticks, crs=ccrs.PlateCarree())
-ax.set_yticks(yticks, crs=ccrs.PlateCarree())
-lon_formatter =LongitudeFormatter(number_format='.1f')
-lat_formatter = LatitudeFormatter(number_format='.1f')
-ax.xaxis.set_major_formatter(lon_formatter)
-ax.yaxis.set_major_formatter(lat_formatter)
-ax.tick_params(axis='both', which='major', labelsize=SMFONT)
+#ax.set_xticks(xticks, crs=ccrs.PlateCarree())
+#ax.set_yticks(yticks, crs=ccrs.PlateCarree())
+#lon_formatter =LongitudeFormatter(number_format='.1f')
+#lat_formatter = LatitudeFormatter(number_format='.1f')
+#ax.xaxis.set_major_formatter(lon_formatter)
+#ax.yaxis.set_major_formatter(lat_formatter)
+#ax.tick_params(axis='both', which='major', labelsize=SMFONT)
 #for tick in ax.xaxis.get_major_ticks():
 #    tick.label.set_fontsize(SMFONT) 
 # Label the end-points of the gridlines using the custom tick makers:
@@ -187,26 +178,17 @@ ax.set_xlim(cartopy_xlim(lsmask))
 ax.set_ylim(cartopy_ylim(lsmask))
 
 
-ax.plot(df_hko_obv['lon']/10., df_hko_obv['lat']/10.,
-        color='black', marker='o', linewidth=2, markersize=5, transform=ccrs.Geodetic(), label='HKO bestTrack')
-ax.plot(df_cma_obv['lon']/10., df_cma_obv['lat']/10.,
-        color='dimgray', marker='*', linewidth=2, linestyle='dashed', markersize=8, transform=ccrs.Geodetic(), label='CMA bestTrack')
+ax.plot(df_obv['HKO_LON'], df_obv['HKO_LAT'],
+        color='black', marker='o', linewidth=2, markersize=5, transform=ccrs.Geodetic(), label='MANGKHUT (HKO best)')
+ax.plot(df_obv2['HKO_LON'], df_obv2['HKO_LAT'],
+        color='gray', marker='o', linewidth=2, markersize=5, transform=ccrs.Geodetic(), label='WANDA (HKO best)')
+
 
 dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d%H%M%S')
-for (line_type,casename) in zip(line_libs,cases):
-    sen_path='/home/metctm1/array/data/1911-COAWST/'+casename+'/trck.'+casename+'.d02'
-    df_sen=pd.read_csv(sen_path,parse_dates=True,index_col='timestamp', sep='\s+', date_parser=dateparse)
-    df_sen_period=df_sen
-    df_sen_period.replace(0, np.nan, inplace=True) # replace 0 by nan
-    df_sen_period=df_sen_period.dropna()
-    
-    ax.plot(df_sen_period['lon'], df_sen_period['lat'],
-        line_type, linewidth=1, markersize=3, transform=ccrs.Geodetic(), label=casename)
-
 
 plt.legend(loc='best', fontsize=SMFONT)
-plt.title('Observational and Simulated Tracks of Mangkhut (1822)',fontsize=MIDFONT)
-plt.savefig('../../fig/paper/trck.'+FIG_FMT, dpi=300, bbox_inches='tight')
+plt.title('Observational and Simulated Tracks',fontsize=MIDFONT)
+plt.savefig('../fig/trck.'+FIG_FMT, dpi=300, bbox_inches='tight')
 plt.close('all')
 #plt.show()
 

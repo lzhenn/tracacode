@@ -15,8 +15,10 @@ FIG_FMT='pdf'
 
 data_dir="/home/lzhenn/array74/data/ecf/"
 # Read in the ibtracs csv file
-ibtracs = pd.read_csv(data_dir+"ibtracs.WP.1979.csv", header=0, skiprows=[1],na_values={"NaN":' '})
-filtered_data = ibtracs.loc[(ibtracs.SEASON>=1993)]
+ibtracs = pd.read_csv(data_dir+"ibtracs.WP.list.v04r00.csv", header=0, skiprows=[1],na_values={"NaN":' '})
+filtered_data = ibtracs.loc[(ibtracs.SEASON==1962)]
+filtered_data.to_csv(data_dir+"ibtracs.WP.1962.csv", index=False)
+exit()
 filtered_data = filtered_data.loc[(ibtracs.USA_STATUS.isin(["TY", "HU", "SU"]))] 
 filtered_data['USA_LAT'] = pd.to_numeric(filtered_data['USA_LAT'], errors='coerce').astype(float)
 filtered_data['USA_LON'] = pd.to_numeric(filtered_data['USA_LON'], errors='coerce').astype(float)

@@ -26,25 +26,22 @@ def main():
     width=15.0
     height=7.0
    
+    line_libs=['b-^','r--','g-s']
     
-    df_obv=io.get_ibtrack('HAIYAN','2013')
-    work_dir='/home/lzhenn/SEAtest/201311'
-    df_sim=pd.read_csv(
-        f'{work_dir}/tc_track.csv', parse_dates=['time'],index_col=['time'])
-    df_era5=pd.read_csv(
-        f'{work_dir}/tc_track.era5.csv', parse_dates=['time'],index_col=['time'])
-    
-    df_obv=df_obv[df_sim.index[0]:]
-    
-    #line_libs=['b','b-s','b-^','b-v','b--','r','r-v','r--','g-s','g--']
-    
+    df_obv=io.get_ibtrack('MANGKHUT','2018')
+    case_names=['201809','201809_WSM6']
     
    
+    #df_obv=df_obv[df_sim.index[0]:]
     fig,ax = plt.subplots(figsize=(4,4))
     #fig.subplots_adjust(left=0.08, bottom=0.18, right=0.95, top=0.92, wspace=None, hspace=None) 
     plt.plot(df_obv['HKO_WIND']/3.6, label='HKO best', marker='o', color='black')
-    plt.plot(df_sim['wsmax'],'r-^', label='WRF')
-    plt.plot(df_era5['wsmax'],'b-^', label='ERA5')
+    for idx,case_name in enumerate(case_names):
+        work_dir=f'/home/lzhenn/SEAtest/{case_name}'
+        df_sim=pd.read_csv(
+            f'{work_dir}/tc_track.csv', parse_dates=['time'],index_col=['time'])
+        plt.plot(df_sim['wsmax']*0.88+0.8,line_libs[idx], label=case_name)
+        
     # end for: casenames
     
     plt.legend(loc='best', fontsize=SMFONT)
@@ -59,7 +56,7 @@ def main():
     
     plt.title('TC Strength Evolution', fontsize=BIGFONT)
     fig.set_size_inches(width, height)
-    fig.savefig('../fig/tc-mxws-evolve.png')
+    fig.savefig(f'../fig/ts_wspd.png', bbox_inches='tight', dpi=100)
 
    
     

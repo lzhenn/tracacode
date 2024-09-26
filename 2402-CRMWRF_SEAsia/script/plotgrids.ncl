@@ -42,7 +42,7 @@ begin
   mpres@tiMainString                = " WPS Domain Configuration  "
 
   lnres = True 
-  lnres@gsLineThicknessF = 2.5
+  lnres@gsLineThicknessF = 4 
   lnres@domLineColors    = (/ "white", "Red" , "Red" , "Blue" /)
 
   txres = True
@@ -50,7 +50,7 @@ begin
   ;txres@txJust = "BottomLeft"
   txres@txJust = "TopLeft"
   txres@txPerimOn = False
-  txres@txFontHeightF = 0.015
+  txres@txFontHeightF = 0.025
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Do not change anything between the ";;;;;" lines
