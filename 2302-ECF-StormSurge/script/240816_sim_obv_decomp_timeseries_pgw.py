@@ -10,9 +10,11 @@ SMFONT=22
 # File paths
 tide_file = '/disk/r074/lzhenn/data/luna/2018091400/tides.2018091400'
 site_file = '/home/lzhenn/array74/workspace/luna-kit/db/site.csv'
-hwave_sim='/home/lzhenn/array129/poseidon/2018091400_fc1.1/stas_Hwave_ts.csv'
+hwave_sim='/home/lzhenn/array130/poseidon/2018091200_noluzon/stas_Hwave_ts.csv'
+#hwave_sim='/home/lzhenn/array129/poseidon/2018091400_fc1.1/stas_Hwave_ts.csv'
 #hwave_sim='/home/lzhenn/array74/data/archive/poseidon/2018091200/stas_Hwave_ts.csv'
-zeta_sim='/home/lzhenn/array129/poseidon/2018091400_fc1.1/stas_zeta_ts.csv'
+zeta_sim='/home/lzhenn/array130/poseidon/2018091200_noluzon/stas_zeta_ts.csv'
+#zeta_sim='/home/lzhenn/array129/poseidon/2018091400_fc1.1/stas_zeta_ts.csv'
 #zeta_sim='/home/lzhenn/array74/data/archive/poseidon/2018091200/stas_zeta_ts.csv'
 obv_data='/home/lzhenn/array74/data/hko_tide/mangkhut_obv.csv'
 
@@ -90,5 +92,5 @@ for index, site in site_df.iterrows():
     plt.legend(fontsize=SMFONT)
     plt.grid(True)
     plt.ylim((0,7))
-    plt.savefig(os.path.join(f'../fig/{site_name}_pgw.png'), 
+    plt.savefig(os.path.join(f'../fig/{site_name}_noluzon2.png'), 
         dpi=100, bbox_inches='tight', pad_inches=0)

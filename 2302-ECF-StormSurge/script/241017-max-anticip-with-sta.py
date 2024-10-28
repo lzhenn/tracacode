@@ -12,8 +12,9 @@ SHP='/home/lzhenn/array74/data/shp/gadm41_CHN_2.dbf'
 # 2-ocean coast
 MASK='/home/lzhenn/array74/workspace/uranus/uranus/domaindb/poseidon_1500m_L12/classified_mask.nc'
 MAX_FN=f'/home/lzhenn/array129/poseidon/2018091200/roms_max_{varname}_d03.nc'
-MAX_LUZON_FN=f'/home/lzhenn/array130/poseidon/2018091200_noluzon/roms_max_{varname}_d03.nc'
-MAX_THERMO_FN=f'/home/lzhenn/array129/poseidon/2018091200_2050thermo/roms_max_{varname}_d03.nc'
+MAX_LUZON_FN=f'/home/lzhenn/poseidon/2018091200_noluzon/roms_max_{varname}_d03.nc'
+MAX_THERMO_FN=f'/home/lzhenn/poseidon/2018091200_warm/roms_max_{varname}_d03.nc'
+MAX_ALL_FN=f'/home/lzhenn/poseidon/2018091200_noluzon_warm/roms_max_{varname}_d03.nc'
 
 STA_FN='../adhoc_data/station.csv'
 
@@ -24,10 +25,12 @@ ds_mask = xr.open_dataset(MASK)
 ds=xr.open_dataset(MAX_FN)
 ds_thermo=xr.open_dataset(MAX_THERMO_FN)
 ds_luzon=xr.open_dataset(MAX_LUZON_FN)
+ds_all=xr.open_dataset(MAX_ALL_FN)
 
 max_var = ds[varname][0,:,:].values 
 max_luzon=ds_luzon[varname][0,:,:].values
 max_thermo=ds_thermo[varname][0,:,:].values
+max_all=ds_all[varname][0,:,:].values
 
 # Create a figure with Cartopy
 fig, ax = plt.subplots(figsize=(10, 10))
@@ -71,11 +74,11 @@ for y, x in zip(y_indices, x_indices):
     # MSL
     value +=0.3
     # tide
-    value +=2.75
-    # Luzon
-    value += max_luzon[y, x]-max_var[y, x]
+    value +=2.3
+    # Luzon+Warming
+    value += max_all[y, x]-max_var[y, x]
     # Warming
-    value += max_thermo[y, x]-max_var[y, x]
+    #value += max_thermo[y, x]-max_var[y, x]
     
     lat,lon=lats[y,x],lons[y,x]
     if value > 10.0:
@@ -117,6 +120,7 @@ handles = [
 ]
 
 station_data=pd.read_csv(STA_FN)
+
 # Plot each station with a marker and annotation
 for index, row in station_data.iterrows():
     lon = row['lon']
@@ -142,7 +146,7 @@ for index, row in station_data.iterrows():
     # strait traveler
     st=row['surge_luzon']-surge_sim
     
-    total=row['all_obv']+tide+msr+fw+st
+    total=row['all_obv']+tide+msr+st
     annotation_text = (
         f"{row['name']}\n"
        #f"Obv:{row['surge_obv']:.2f}m\n"
@@ -150,8 +154,8 @@ for index, row in station_data.iterrows():
         f"{total:.2f}m\n"
         f"MSR: +{msr:.2f}m\n"
         f"HST: +{tide:.2f}m\n" # Highest Spring Tide
-        f"FW: +{fw:.2f}m\n"
-        f"ST: +{st:.2f}m\n"
+        f"FW: +{fw*0.6:.2f}m\n"
+        f"ST: +{st*0.6:.2f}m\n"
         f"FS: +?.??m\n"
         f"FR: +?.??m\n"
         )
@@ -180,4 +184,4 @@ plt.xticks( fontsize=SMFONT)
 plt.yticks( fontsize=SMFONT)
 
 
-plt.savefig(f'../fig/240924_coastal_max_anticip_{varname}.png', dpi=200, bbox_inches='tight')
+plt.savefig(f'../fig/241017_coastal_max_anticip_{varname}.png', dpi=200, bbox_inches='tight')

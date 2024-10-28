@@ -1,8 +1,9 @@
 import rasterio
 import xarray as xr
+import numpy as np
 
 # Specify your input GeoTIFF file and output NetCDF file
-input_geotiff = 'input_file.tif'
+input_geotiff = '/home/lzhenn/array74/data/hk_landuse/LUM_end2022.tif'
 output_netcdf = 'output_file.nc'
 
 # Open the GeoTIFF file
